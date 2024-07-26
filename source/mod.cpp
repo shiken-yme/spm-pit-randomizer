@@ -231,6 +231,80 @@ namespace mod
 
     static double boobies = 0;
 
+    // Create arrays for enemy generation, separated by difficulty class
+
+    // Goomba, Flip Goomba, Paragoomba, Green Koopa, Glassesless Koopa, Red Koopa, Flip Red Koopa, Green Paratroopa, Glassesless Paratroopa, Buzzy Beetle, Stone Buzzy, Boo, Green Cheep Cheep,
+    // Red Cheep Cheep, Flip Cheep Cheep, Bald Cleft, Squiglet, Squig, Sproing-Oing, Boing-Oing, Boomboxer, Growmeba, Jellien, Slow Cursya, Cherbil, Poison Cherbil, Frackle, Spinia, Flip Buzzy
+    int lv1Names[] = {1, 2, 8, 12, 13, 15, 16, 21, 22, 26, 33, 85, 89, 90, 91, 100, 126, 127, 135, 137, 143, 160, 179, 246, 441, 443, 451, 496, 471};
+    int lv1Odds[] = {75, 75, 70, 75, 65, 75, 65, 75, 65, 80, 85, 73, 60, 40, 25, 40, 80, 81, 85, 65, 80, 85, 70, 70, 75, 80, 50, 90, 85};
+    int lv1SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2};
+    int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5};
+
+    // Gloomba, Spiked Goomba, Non-falling Spiked Goomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey,
+    // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Jawbus, PatrolMeow, AirMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
+    // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top
+    int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 169, 174, 175, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472};
+    int lv2Odds[] = {85, 50, 40, 70, 70, 65, 75, 80, 70, 80, 70, 80, 80, 85, 70, 90, 75, 50, 20, 40, 40, 20, 85, 75, 80, 30, 64, 30, 30, 30, 40, 40, 35, 45, 75, 70};
+    int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3};
+    int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 4, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5};
+
+    // Headbonk Goomba, Koopatrol, Spiky Parabuzzy, Dry Bones, Flip Hammer Bro, Boomerang Bro, Fire Bro, Broom Magikoopa, Koopa Striker, Bill Blaster, Dark Boo, Clubba, Pink Fuzzy,
+    // Moon Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, Rawbus, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
+    // Muth, Shady Koopa, Flip Shady Koopa, Spunia
+    int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 101, 110, 116, 139, 161, 166, 167, 170, 178, 180, 185, 193, 202, 215, 225, 231, 258, 466, 467, 497};
+    int lv3Odds[] = {85, 45, 70, 68, 70, 75, 75, 75, 85, 50, 70, 75, 65, 75, 80, 70, 85, 80, 40, 40, 20, 30, 40, 50, 60, 48, 40, 50, 50, 10, 70, 70, 85};
+    int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+    int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 1, 2, 2, 2, 3, 2, 2, 3, 3, 1, 2, 2, 3};
+    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 3, 5, 4, 3, 5, 4, 4, 6, 5, 2, 4, 4, 6};
+
+    // Lakitu, Flip Lakitu, Dull Bones, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp,
+    // Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry, Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth
+    int lv4Names[] = {35, 36, 42, 54, 60, 74, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259};
+    int lv4Odds[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+    int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv4Min[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    int lv4Max[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+
+    int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
+    int SpR1Doors[] = {27, 28, 29, 30};
+
+    // Pit Flimm item pool to iterate from
+    int rotenShopItemPool[] = {67, 68, 69, 70, 75, 81, 82, 84, 88, 89, 90, 99, 106, 118, 123, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
+                               141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 160, 161, 162, 163, 164, 166, 168, 169, 170,
+                               171, 173, 174, 177, 178, 180, 181, 182, 183, 184, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 198, 199, 200,
+                               201, 202, 203, 204, 205, 207, 208, 209, 211, 212, 214, 215, 63, 50, 288, 292, 298, 299, 301, 302, 305, 307, 308, 310, 312,
+                               313, 321, 323, 328, 329, 332, 335, 341, 343, 346, 355, 358, 360, 363, 366, 372, 377, 383, 389, 393, 396, 398, 399, 400, 401, 409, 412, 415, 418,
+                               424, 426, 428, 433, 432, 436, 437, 440, 444, 446, 447, 448};
+
+    // Set the Pit Flimm inventory
+    s32 newRotenShopItems[] = {
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        -1};
+
     s32 evt_dan_read_data_new(spm::evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)entry;
@@ -1692,45 +1766,7 @@ namespace mod
             }
             spm::dan::dan_wp->dungeons[no].doorCount = i;
 
-            // Create arrays to set up enemy generation, separated by difficulty class
-
-            // Goomba, Flip Goomba, Paragoomba, Green Koopa, Glassesless Koopa, Red Koopa, Flip Red Koopa, Green Paratroopa, Glassesless Paratroopa, Buzzy Beetle, Stone Buzzy, Boo, Green Cheep Cheep,
-            // Red Cheep Cheep, Flip Cheep Cheep, Bald Cleft, Squiglet, Squig, Sproing-Oing, Boing-Oing, Boomboxer, Growmeba, Jellien, Slow Cursya, Cherbil, Poison Cherbil, Frackle, Spinia, Flip Buzzy
-            int lv1Names[] = {1, 2, 8, 12, 13, 15, 16, 21, 22, 26, 33, 85, 89, 90, 91, 100, 126, 127, 135, 137, 143, 160, 179, 246, 441, 443, 451, 496, 471};
-            int lv1Odds[] = {75, 75, 70, 75, 65, 75, 65, 75, 65, 80, 85, 73, 60, 40, 25, 40, 80, 81, 85, 65, 80, 85, 70, 70, 75, 80, 50, 90, 85};
-            int lv1SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-            int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2};
-            int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5};
-
-            // Gloomba, Spiked Goomba, Non-falling Spiked Goomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey,
-            // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Jawbus, PatrolMeow, AirMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
-            // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top
-            int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 169, 174, 175, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472};
-            int lv2Odds[] = {85, 50, 40, 70, 70, 65, 75, 80, 70, 80, 70, 80, 80, 85, 70, 90, 75, 50, 20, 40, 40, 20, 85, 75, 80, 30, 64, 30, 30, 30, 40, 40, 35, 45, 75, 70};
-            int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-            int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3};
-            int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 4, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5};
-
-            // Headbonk Goomba, Koopatrol, Spiky Parabuzzy, Dry Bones, Flip Hammer Bro, Boomerang Bro, Fire Bro, Broom Magikoopa, Koopa Striker, Bill Blaster, Dark Boo, Clubba, Pink Fuzzy,
-            // Moon Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, Rawbus, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
-            // Muth, Shady Koopa, Flip Shady Koopa, Spunia
-            int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 101, 110, 116, 139, 161, 166, 167, 170, 178, 180, 185, 193, 202, 215, 225, 231, 258, 466, 467, 497};
-            int lv3Odds[] = {85, 45, 70, 68, 70, 75, 75, 75, 85, 50, 70, 75, 65, 75, 80, 70, 85, 80, 40, 40, 20, 30, 40, 50, 60, 48, 40, 50, 50, 10, 70, 70, 85};
-            int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
-            int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 1, 2, 2, 2, 3, 2, 2, 3, 3, 1, 2, 2, 3};
-            int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 3, 5, 4, 3, 5, 4, 4, 6, 5, 2, 4, 4, 6};
-
-            // Lakitu, Flip Lakitu, Dull Bones, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp,
-            // Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry, Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth
-            int lv4Names[] = {35, 36, 42, 54, 60, 74, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259};
-            int lv4Odds[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
-            int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-            int lv4Min[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-            int lv4Max[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-
-            int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
-            int SpR1Doors[] = {27, 28, 29, 30};
-
+            // Enemy generation setup
             i = 0;
             int enemyTypes = 0;
             int arrayRNG = 0;
@@ -1740,7 +1776,7 @@ namespace mod
             int enemyMax = 0;
             int spDoorRNG = 0;
             int vsOdds = 0;
-            int enemyGenRNG = spm::system::rand() % 100; // reroll a lot
+            int enemyGenRNG = spm::system::rand() % 100;
             if (enemyGenRNG <= 60)
             {
                 enemyTypes = 2;
@@ -1764,7 +1800,6 @@ namespace mod
                     {
                         arrayRNG = spm::system::rand() % 29;
                         vsOdds = spm::system::rand() % 100;
-                        wii::os::OSReport("Room %d: Attempting to generate an enemy. i = %d.\n", no, i);
                         if (lv1Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
@@ -1829,7 +1864,6 @@ namespace mod
                                 spDoorRNG = spm::system::rand() % 6;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
                             }
-                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
                         }
                     }
                     else if (enemyGenRNG < 90)
@@ -2660,9 +2694,24 @@ namespace mod
                         }
                     }
                 }
-                
             }
             spm::dan::dan_wp->dungeons[no].enemyCount = i;
+
+            // Replace Flimm chests
+            if (no == 9 || no == 19 || no == 29 || no == 39 || no == 49 || no == 59 || no == 69 || no == 79 || no == 89)
+            {
+                int poolItem = 0;
+                for (i = 0; i < 67; i = i + 3)
+                {
+                    poolItem = spm::system::rand() % 142;
+                    newRotenShopItems[i] = rotenShopItemPool[poolItem];
+                    wii::os::OSReport("Flimm array val %d set to %d. poolItem: %d.\n", i, rotenShopItemPool[poolItem], poolItem);
+                }
+                for (i = 0; i < 70; i++)
+                {
+                    spm::dan::dan_rotenShopItems[i] = newRotenShopItems[i];
+                }
+            }
             // Move to next dungeon
             spm::parse::parsePopNext();
         }
@@ -2755,34 +2804,6 @@ namespace mod
         }
     }
 
-    // Overwrite Pit Flimm inventory
-    s32 newRotenShopItems[] =
-        {
-            50, 69, 0,
-            50, 51, 0,
-            50, 53, 0,
-            50, 2, 0,
-            50, 3, 0,
-            50, 8, 0,
-            50, 331, 0,
-            50, 912, 0,
-            50, 420, 0,
-            50, 40, 0,
-            50, 40, 0,
-            50, 40, 0,
-            79, -1, 0,
-            80, -1, 0,
-            81, -1, 0,
-            82, -1, 0,
-            85, 4, 0,
-            83, -1, 0,
-            50, 23, 0,
-            50, 24, 0,
-            50, 26, 0,
-            50, 41, 0,
-            50, 42, 0,
-            -1};
-
     static spm::seqdef::SeqFunc *seq_gameMainReal;
 
     void youSuckDisplay(spm::seqdrv::SeqWork *wp)
@@ -2851,14 +2872,6 @@ namespace mod
         patch::hookFunction(spm::dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new);
     }
 
-    static void danFlimmOverwrite()
-    {
-        for (int i = 0; i < 70; i++)
-        {
-            spm::dan::dan_rotenShopItems[i] = newRotenShopItems[i];
-        }
-    }
-
     void main()
     {
         wii::os::OSReport("SPM Rel Loader: the mod has ran!\n");
@@ -2867,6 +2880,5 @@ namespace mod
         danOverwrite();
         danYouSuck();
         danDontFuckingCrash();
-        danFlimmOverwrite();
     }
 }
