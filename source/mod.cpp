@@ -1733,11 +1733,13 @@ namespace mod
 
             i = 0;
             int enemyTypes = 0;
+            int arrayRNG = 0;
             int enemyAmt = 0;
             int enemyDifference = 0;
             int enemyMin = 0;
             int enemyMax = 0;
             int spDoorRNG = 0;
+            int vsOdds = 0;
             int enemyGenRNG = spm::system::rand() % 100; // reroll a lot
             if (enemyGenRNG <= 60)
             {
@@ -1752,39 +1754,41 @@ namespace mod
                 enemyTypes = 3;
             }
             // Enemy Substition Protocol
-            while (i != enemyTypes)
+            while (i < enemyTypes)
             {
                 // Lv1
-                if (no <= 24)
+                if (no <= 25)
                 {
                     enemyGenRNG = spm::system::rand() % 100;
                     if (enemyGenRNG < 70)
                     {
-                        enemyGenRNG = spm::system::rand() % 29;
-                        if (lv1Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 29;
+                        vsOdds = spm::system::rand() % 100;
+                        wii::os::OSReport("Room %d: Attempting to generate an enemy. i = %d.\n", no, i);
+                        if (lv1Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv1Max[enemyGenRNG] - lv1Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv1Min[enemyGenRNG] <= 3)
+                                if (lv1Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv1Min[enemyGenRNG] <= 5)
+                                else if (lv1Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv1Max[enemyGenRNG] <= 3)
+                                if (lv1Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv1Max[enemyGenRNG] <= 5)
+                                else if (lv1Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -1793,7 +1797,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -1811,11 +1815,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[enemyGenRNG] == 0)
+                            if (lv1SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv1SpR[enemyGenRNG] == 1)
+                            else if (lv1SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -1825,35 +1829,37 @@ namespace mod
                                 spDoorRNG = spm::system::rand() % 6;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
                             }
+                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
                         }
                     }
                     else if (enemyGenRNG < 90)
                     {
-                        enemyGenRNG = spm::system::rand() % 36;
-                        if (lv2Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 36;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv2Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv2Max[enemyGenRNG] - lv2Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv2Min[enemyGenRNG] <= 3)
+                                if (lv2Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv2Min[enemyGenRNG] <= 5)
+                                else if (lv2Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv2Max[enemyGenRNG] <= 3)
+                                if (lv2Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv2Max[enemyGenRNG] <= 5)
+                                else if (lv2Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -1862,7 +1868,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -1880,11 +1886,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[enemyGenRNG] == 0)
+                            if (lv2SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv2SpR[enemyGenRNG] == 1)
+                            else if (lv2SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -1894,35 +1900,37 @@ namespace mod
                                 spDoorRNG = spm::system::rand() % 6;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
                             }
+                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
                         }
                     }
                     else
                     {
-                        enemyGenRNG = spm::system::rand() % 33;
-                        if (lv3Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 33;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv3Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv3Max[enemyGenRNG] - lv3Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv3Min[enemyGenRNG] <= 3)
+                                if (lv3Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv3Min[enemyGenRNG] <= 5)
+                                else if (lv3Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv3Max[enemyGenRNG] <= 3)
+                                if (lv3Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv3Max[enemyGenRNG] <= 5)
+                                else if (lv3Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -1931,7 +1939,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -1949,11 +1957,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[enemyGenRNG] == 0)
+                            if (lv3SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv3SpR[enemyGenRNG] == 1)
+                            else if (lv3SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -1963,40 +1971,42 @@ namespace mod
                                 spDoorRNG = spm::system::rand() % 6;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
                             }
+                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
                         }
                     }
                 }
                 // Lv2
-                else if (no <= 49)
+                else if (no <= 50)
                 {
                     enemyGenRNG = spm::system::rand() % 100;
                     if (enemyGenRNG < 20)
                     {
-                        enemyGenRNG = spm::system::rand() % 29;
-                        if (lv1Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 29;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv1Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv1Max[enemyGenRNG] - lv1Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv1Min[enemyGenRNG] <= 3)
+                                if (lv1Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv1Min[enemyGenRNG] <= 5)
+                                else if (lv1Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv1Max[enemyGenRNG] <= 3)
+                                if (lv1Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv1Max[enemyGenRNG] <= 5)
+                                else if (lv1Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2005,7 +2015,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2023,11 +2033,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[enemyGenRNG] == 0)
+                            if (lv1SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv1SpR[enemyGenRNG] == 1)
+                            else if (lv1SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2041,31 +2051,32 @@ namespace mod
                     }
                     else if (enemyGenRNG < 80)
                     {
-                        enemyGenRNG = spm::system::rand() % 36;
-                        if (lv2Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 36;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv2Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv2Max[enemyGenRNG] - lv2Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv2Min[enemyGenRNG] <= 3)
+                                if (lv2Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv2Min[enemyGenRNG] <= 5)
+                                else if (lv2Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv2Max[enemyGenRNG] <= 3)
+                                if (lv2Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv2Max[enemyGenRNG] <= 5)
+                                else if (lv2Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2074,7 +2085,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2092,11 +2103,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[enemyGenRNG] == 0)
+                            if (lv2SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv2SpR[enemyGenRNG] == 1)
+                            else if (lv2SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2110,31 +2121,32 @@ namespace mod
                     }
                     else
                     {
-                        enemyGenRNG = spm::system::rand() % 33;
-                        if (lv3Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 33;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv3Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv3Max[enemyGenRNG] - lv3Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv3Min[enemyGenRNG] <= 3)
+                                if (lv3Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv3Min[enemyGenRNG] <= 5)
+                                else if (lv3Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv3Max[enemyGenRNG] <= 3)
+                                if (lv3Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv3Max[enemyGenRNG] <= 5)
+                                else if (lv3Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2143,7 +2155,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2161,11 +2173,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[enemyGenRNG] == 0)
+                            if (lv3SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv3SpR[enemyGenRNG] == 1)
+                            else if (lv3SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2179,36 +2191,37 @@ namespace mod
                     }
                 }
                 // Lv3
-                else if (no <= 74)
+                else if (no <= 75)
                 {
                     enemyGenRNG = spm::system::rand() % 100;
                     if (enemyGenRNG < 20)
                     {
-                        enemyGenRNG = spm::system::rand() % 36;
-                        if (lv2Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 36;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv2Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv2Max[enemyGenRNG] - lv2Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv2Min[enemyGenRNG] <= 3)
+                                if (lv2Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv2Min[enemyGenRNG] <= 5)
+                                else if (lv2Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv2Max[enemyGenRNG] <= 3)
+                                if (lv2Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv2Max[enemyGenRNG] <= 5)
+                                else if (lv2Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2217,7 +2230,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2235,11 +2248,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[enemyGenRNG] == 0)
+                            if (lv2SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv2SpR[enemyGenRNG] == 1)
+                            else if (lv2SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2253,31 +2266,32 @@ namespace mod
                     }
                     else if (enemyGenRNG < 80)
                     {
-                        enemyGenRNG = spm::system::rand() % 33;
-                        if (lv3Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 33;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv3Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv3Max[enemyGenRNG] - lv3Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv3Min[enemyGenRNG] <= 3)
+                                if (lv3Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv3Min[enemyGenRNG] <= 5)
+                                else if (lv3Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv3Max[enemyGenRNG] <= 3)
+                                if (lv3Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv3Max[enemyGenRNG] <= 5)
+                                else if (lv3Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2286,7 +2300,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2304,11 +2318,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[enemyGenRNG] == 0)
+                            if (lv3SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv3SpR[enemyGenRNG] == 1)
+                            else if (lv3SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2322,31 +2336,32 @@ namespace mod
                     }
                     else
                     {
-                        enemyGenRNG = spm::system::rand() % 26;
-                        if (lv4Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 26;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv4Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv4Max[enemyGenRNG] - lv4Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[enemyGenRNG];
+                                enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv4Min[enemyGenRNG] <= 3)
+                                if (lv4Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv4Min[enemyGenRNG] <= 5)
+                                else if (lv4Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv4Max[enemyGenRNG] <= 3)
+                                if (lv4Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv4Max[enemyGenRNG] <= 5)
+                                else if (lv4Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2355,14 +2370,14 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv4SpR[enemyGenRNG] == 0)
+                            if (lv4SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv4SpR[enemyGenRNG] == 1)
+                            else if (lv4SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2381,31 +2396,32 @@ namespace mod
                     enemyGenRNG = spm::system::rand() % 100;
                     if (enemyGenRNG < 10)
                     {
-                        enemyGenRNG = spm::system::rand() % 29;
-                        if (lv1Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 29;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv1Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv1Max[enemyGenRNG] - lv1Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv1Min[enemyGenRNG] <= 3)
+                                if (lv1Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv1Min[enemyGenRNG] <= 5)
+                                else if (lv1Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv1Max[enemyGenRNG] <= 3)
+                                if (lv1Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv1Max[enemyGenRNG] <= 5)
+                                else if (lv1Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2414,7 +2430,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2432,11 +2448,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[enemyGenRNG] == 0)
+                            if (lv1SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv1SpR[enemyGenRNG] == 1)
+                            else if (lv1SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2450,31 +2466,32 @@ namespace mod
                     }
                     else if (enemyGenRNG < 20)
                     {
-                        enemyGenRNG = spm::system::rand() % 36;
-                        if (lv2Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 36;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv2Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv2Max[enemyGenRNG] - lv2Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv2Min[enemyGenRNG] <= 3)
+                                if (lv2Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv2Min[enemyGenRNG] <= 5)
+                                else if (lv2Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv2Max[enemyGenRNG] <= 3)
+                                if (lv2Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv2Max[enemyGenRNG] <= 5)
+                                else if (lv2Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2483,7 +2500,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2501,11 +2518,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[enemyGenRNG] == 0)
+                            if (lv2SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv2SpR[enemyGenRNG] == 1)
+                            else if (lv2SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2519,31 +2536,32 @@ namespace mod
                     }
                     else if (enemyGenRNG < 80)
                     {
-                        enemyGenRNG = spm::system::rand() % 33;
-                        if (lv3Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 33;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv3Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv3Max[enemyGenRNG] - lv3Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv3Min[enemyGenRNG] <= 3)
+                                if (lv3Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv3Min[enemyGenRNG] <= 5)
+                                else if (lv3Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv3Max[enemyGenRNG] <= 3)
+                                if (lv3Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv3Max[enemyGenRNG] <= 5)
+                                else if (lv3Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2552,7 +2570,7 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
                             }
                             if (enemyTypes == 1)
                             {
@@ -2570,11 +2588,11 @@ namespace mod
                                 }
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[enemyGenRNG] == 0)
+                            if (lv3SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv3SpR[enemyGenRNG] == 1)
+                            else if (lv3SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2588,31 +2606,32 @@ namespace mod
                     }
                     else
                     {
-                        enemyGenRNG = spm::system::rand() % 26;
-                        if (lv4Odds[enemyGenRNG] > boobies)
+                        arrayRNG = spm::system::rand() % 26;
+                        vsOdds = spm::system::rand() % 100;
+                        if (lv4Odds[arrayRNG] > vsOdds)
                         {
                             ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[enemyGenRNG];
+                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[arrayRNG];
                             if (i == 0)
                             {
-                                enemyDifference = lv4Max[enemyGenRNG] - lv4Min[enemyGenRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[enemyGenRNG];
+                                enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
+                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
                             }
                             else
                             {
-                                if (lv4Min[enemyGenRNG] <= 3)
+                                if (lv4Min[arrayRNG] <= 3)
                                 {
                                     enemyMin = 1;
                                 }
-                                else if (lv4Min[enemyGenRNG] <= 5)
+                                else if (lv4Min[arrayRNG] <= 5)
                                 {
                                     enemyMin = 2;
                                 }
-                                if (lv4Max[enemyGenRNG] <= 3)
+                                if (lv4Max[arrayRNG] <= 3)
                                 {
                                     enemyMax = 1;
                                 }
-                                else if (lv4Max[enemyGenRNG] <= 5)
+                                else if (lv4Max[arrayRNG] <= 5)
                                 {
                                     enemyMax = 2;
                                 }
@@ -2621,14 +2640,14 @@ namespace mod
                                     enemyMax = 3;
                                 }
                                 enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[enemyGenRNG];
+                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
                             }
                             spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv4SpR[enemyGenRNG] == 0)
+                            if (lv4SpR[arrayRNG] == 0)
                             {
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
                             }
-                            else if (lv4SpR[enemyGenRNG] == 1)
+                            else if (lv4SpR[arrayRNG] == 1)
                             {
                                 spDoorRNG = spm::system::rand() % 4;
                                 spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
@@ -2641,6 +2660,7 @@ namespace mod
                         }
                     }
                 }
+                
             }
             spm::dan::dan_wp->dungeons[no].enemyCount = i;
             // Move to next dungeon
