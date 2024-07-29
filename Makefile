@@ -58,10 +58,11 @@ else
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR)).$(VERSION)
 BUILD		:=	build.$(VERSION)
-SOURCES		:=	source $(wildcard source/*)
 DATA		:=	data
 SPM_HEADERS :=  spm-headers
-INCLUDES	:=	include $(SPM_HEADERS)/mod $(SPM_HEADERS)/include
+VENDOR		:=	vendor
+SOURCES		:=	source $(wildcard source/*) $(VENDOR)/EASTL/source $(wildcard vendor/EASTL/source/*)
+INCLUDES	:=	include $(SPM_HEADERS)/mod $(SPM_HEADERS)/include $(VENDOR)/EABase/include/Common $(VENDOR)/EABase/include/Common $(VENDOR)/EASTL/include
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -69,8 +70,8 @@ INCLUDES	:=	include $(SPM_HEADERS)/mod $(SPM_HEADERS)/include
 
 MACHDEP		= -mno-sdata -mgcn -DGEKKO -mcpu=750 -meabi -mhard-float
 
-EXTRAFLAGS  ?=
-CFLAGS		= -nostdlib -ffreestanding -ffunction-sections -fdata-sections -g -O3 -Wall -Wextra -Wshadow $(MACHDEP) $(INCLUDE) $(EXTRAFLAGS)
+EXTRAFLAGS  ?= -D__powerpc__ -DEA_PLATFORM_LINUX
+CFLAGS		= -nostdlib -ffunction-sections -fdata-sections -g -O3 -Wall -Wextra -Wshadow -fpermissive $(MACHDEP) $(INCLUDE) $(EXTRAFLAGS)
 CXXFLAGS	= -fno-exceptions -fno-rtti -std=gnu++17 $(CFLAGS)
 
 LDFLAGS		= -r -e _prolog -u _prolog -u _epilog -u _unresolved -Wl,--gc-sections,--force-group-allocation -nostdlib -g $(MACHDEP) -Wl,-Map,$(notdir $@).map

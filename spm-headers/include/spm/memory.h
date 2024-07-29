@@ -175,3 +175,7 @@ void __dl__FPv(void * ptr);
 void __sys_free(void * ptr);
 
 CPP_WRAPPER_END()
+
+// custom in cxx.cpp
+void * operator new(size_t size, spm::memory::Heap heap);
+void * operator new[](size_t size, spm::memory::Heap heap);

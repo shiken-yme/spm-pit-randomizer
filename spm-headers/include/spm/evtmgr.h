@@ -139,6 +139,8 @@ DECOMP_STATIC(s32 evtmgr_runMainF)
 */
 EvtWork * evtGetWork();
 
+void make_jump_table(EvtEntry* entry);
+
 /*
     Allocates memories for entries and zeros global evt variables
 */
