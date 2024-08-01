@@ -3,6 +3,8 @@
 
 #include <common.h>
 #include <util.h>
+#include <cutscene_helpers.h>
+#include <evtpatch.h>
 #include <evt_cmd.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
@@ -39,6 +41,7 @@
 #include <spm/itemdrv.h>
 #include <spm/item_data.h>
 #include <spm/lz_embedded.h>
+#include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_pouch.h>
@@ -2695,6 +2698,10 @@ namespace mod
                     }
                 }
             }
+            spm::dan::dan_wp->dungeons[100].enemies[0].name = 6;
+            spm::dan::dan_wp->dungeons[100].enemies[0].num = 10;
+            spm::dan::dan_wp->dungeons[100].enemies[1].name = 5;
+            spm::dan::dan_wp->dungeons[100].enemies[1].num = 5;
             spm::dan::dan_wp->dungeons[no].enemyCount = i;
 
             // Replace Flimm chests
@@ -2872,6 +2879,55 @@ namespace mod
         patch::hookFunction(spm::dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new);
     }
 
+    static void evtNpcPatchAllEnemies() {
+        patch::hookFunction(spm::evt_npc::evt_npc_set_rgba, [](spm::evtmgr::EvtEntry* entry, bool isFirstCall) {
+            (void)entry;
+            (void)isFirstCall;
+            return 2;
+        });
+    }
+    static void danPatchPitEnemies() {
+        spm::npcdrv::npcTribes[5].animPoseName = "e_kuribo_redhat"; // need the file
+        spm::npcdrv::npcTribes[465].maxHp = 20;
+    }
+
+    spm::npcdrv::NPCTribeAnimDef nastasiaAnims[] = {
+        {0, "S_1"}, // Standing (idle)
+        {3, "T_1"}, // Talking
+        {-1, nullptr}
+    };
+
+    EVT_BEGIN(nastasia_speech)
+        USER_FUNC(spm::evt_mario::evt_mario_key_off, 1)
+        USER_FUNC(spm::evt_msg::evt_msg_print, EVT_MSG_FLAG_DIRECT, PTR("Hey,<wait 250> nice to see you here.\n<k><p>I came here to Flipside to\ncheck out the renovations\nthey've done to the Pit.\n<k><p>Apparently,<wait 250> they completely\nremade the room layouts,\n<k><p>And I think there were some\nnew enemies too.\n<k><p>You should check it out,<wait 250> it\nseems like the kind of thing\nthat would interest you.<k>"), 0, PTR("me"))
+        USER_FUNC(spm::evt_mario::evt_mario_key_on)
+        RETURN()
+    EVT_END()
+
+    EVT_BEGIN(fwd_nastasia_speech)
+        RUN_EVT(nastasia_speech)
+        RETURN()
+    EVT_END()
+
+    EVT_BEGIN(flipside_nastasia_funny)
+        USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("nastasiaFunny"), PTR("n_nasta"), 0)
+        USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(nastasiaAnims))
+        USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("nastasiaFunny"), 0, true)
+        USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("nastasiaFunny"), -75, 1500, -150)
+        USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::INTERACT, PTR(fwd_nastasia_speech))
+    RETURN_FROM_CALL()
+
+    static void addNastasiaToTopOfFlipsideTowerForFun() {
+        // Initialize the patches to the EVT interpreter to add custom opcodes
+        evtpatch::evtmgrExtensionInit();
+
+        // Get Flipside Tower's init EVT script
+        spm::evtmgr_cmd::EvtScriptCode* flipsideInitEvt = spm::map_data::mapDataPtr("mac_02")->initScript;
+
+        // Add a hook at the beginning of Flipside's init EVT script that will play our custom script first
+        evtpatch::hookEvt(flipsideInitEvt, 1, flipside_nastasia_funny);
+    }
+
     void main()
     {
         wii::os::OSReport("SPM Rel Loader: the mod has ran!\n");
@@ -2880,5 +2936,8 @@ namespace mod
         danOverwrite();
         danYouSuck();
         danDontFuckingCrash();
+        evtNpcPatchAllEnemies();
+        danPatchPitEnemies();
+        addNastasiaToTopOfFlipsideTowerForFun();
     }
 }

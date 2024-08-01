@@ -188,10 +188,12 @@
 
 // evtmgr.c
 800d87e4:evtGetWork
+800d890c:make_jump_table
 800d8b88:evtEntry
 800d8df4:evtEntryType
 800d9060:evtChildEntry
 800d9370:evtBrotherEntry
+800d9944:evtDelete
 800d9b88:evtCheckID
 // more
 
@@ -328,8 +330,9 @@
 800fe21c:evt_npc_set_position
 800fe668:evt_npc_rotate
 800fe92c:func_800fe92c
+800ff470:evt_npc_set_rgba
 800ffbd8:evt_npc_walk_to
-801004c0:evt_npc_jump_to
+801004c0:evt_npc_jump_to 
 80102EB8:evt_npc_stats_set_up
 80102f5c:evt_npc_entry
 80103054:func_80103054
