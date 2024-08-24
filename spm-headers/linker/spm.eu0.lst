@@ -221,6 +221,7 @@
 800e11e0:evt_door_wait_flag
 800e2610:evt_door_set_door_descs
 800e3588:evt_door_set_dokan_descs
+800e3804:evt_door_enable_disable_dokan_desc
 800e4118:evt_door_set_map_door_descs
 800e4308:evt_door_enable_disable_map_door_desc
 800e45c8:evt_door_set_event
@@ -261,6 +262,7 @@
 // more
 
 // evt_hit.c
+800eac54:evt_hitobj_onoff
 800eb72c:evt_hitobj_attr_onoff
 // more
 
@@ -331,6 +333,8 @@
 800fe668:evt_npc_rotate
 800fe92c:func_800fe92c
 800ff470:evt_npc_set_rgba
+800ff5a4:evt_npc_set_rgbacopy
+800ff6f4:evt_npc_set_rgbacopytwo
 800ffbd8:evt_npc_walk_to
 801004c0:evt_npc_jump_to 
 80102EB8:evt_npc_stats_set_up
@@ -351,6 +355,7 @@
 80107cfc:func_80107cfc
 80107d20:func_80107d20
 80108194:func_80108194
+80108d98:evt_npc_set_part_attack_power
 8010a910:evt_npc_teleport_effect
 8010be80:evt_npc_tribe_agb_async
 // more
