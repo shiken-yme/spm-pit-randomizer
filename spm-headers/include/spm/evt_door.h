@@ -90,7 +90,7 @@ UNKNOWN_FUNCTION(func_800e333c);
 UNKNOWN_FUNCTION(func_800e34f0);
 
 // evt_door_set_dokan_descs(DokanDesc * descs, s32 count)
-EVT_DECLARE_USER_FUNC(evt_door_set_dokan_descs, 1)
+EVT_DECLARE_USER_FUNC(evt_door_set_dokan_descs, 2)
 
 // evt_door_enable_disable_dokan_desc(bool enabled, const char * name)
 EVT_DECLARE_USER_FUNC(evt_door_enable_disable_dokan_desc, 2)

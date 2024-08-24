@@ -42,7 +42,7 @@ typedef struct
 /* 0x28 */ NPCDefense * defenses;
 /* 0x2C */ Unk * unknown_0x2c;
 /* 0x30 */ NPCPartUpdateFunc * updateFunc;
-/* 0x34 */ Unk * unknown_0x34;
+/* 0x34 */ const char * animPoseName;
 /* 0x38 */ NPCTribeAnimDef * animDefs;
 /* 0x3C */ u8 unknown_0x3c[0x48 - 0x3c];
 } NPCPartDef;

@@ -9,7 +9,7 @@ UNKNOWN_FUNCTION(func_800eab1c);
 UNKNOWN_FUNCTION(func_800eabb8);
 
 // evt_hitobj_onoff(const char * name, s32 group, bool on)
-EVT_DECLARE_USER_FUNC(evt_hitobj_onoff, 4)
+EVT_DECLARE_USER_FUNC(evt_hitobj_onoff, 3)
 
 UNKNOWN_FUNCTION(func_800ead20);
 UNKNOWN_FUNCTION(func_800eadec);
