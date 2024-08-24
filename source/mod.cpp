@@ -64,6 +64,7 @@
 #include <msl/math.h>
 #include <msl/stdio.h>
 #include <msl/string.h>
+#include <cstdio>
 
 namespace mod
 {
@@ -131,9 +132,23 @@ namespace mod
     const char *mac_kanban_003 =
         "<kanban>\n"
         "<center><col c00000ff>Flipside Pit of 100 Trials</center>\n"
-        "</col><col c000fff0><center>Reworked</center>\n"
+        "</col><col c000fff0><center>Randomizer</center>\n"
         "</col><center>Discord: @tartt</center>\n"
         "<k>";
+
+    const char *mac_kanban_004 =
+        "<kanban>\n"
+        "<center>Flopside's #1 Useless Pipe</center>\n"
+        "<col c00000ff><center>IT'S USELESS! Try it out!</center>\n"
+        "</col><center>-Flopside City Hall-</center>\n"
+        "<k>";
+
+    const char *D100_entrance_03 =
+        "<system>\n"
+        "I can't promise this will\n"
+        "work correctly, but hey,\n"
+        "whatever floats your boat.\n"
+        "<o>";
 
     const char *modoridokan_D100_01 =
         "<system>\n"
@@ -226,60 +241,61 @@ namespace mod
         "Flipside Pit of 100 Trials?\n"
         // "<wait 5000>Quitter!!!!!!!!\n"
         "<o>";
-    /*
-    const char * m_noroi =
-    "lmao skill issue\n"
-    "<k>";
-    */
 
     static double boobies = 0;
 
     // Create arrays for enemy generation, separated by difficulty class
 
     // Goomba, Flip Goomba, Paragoomba, Green Koopa, Glassesless Koopa, Red Koopa, Flip Red Koopa, Green Paratroopa, Glassesless Paratroopa, Buzzy Beetle, Stone Buzzy, Boo, Green Cheep Cheep,
-    // Red Cheep Cheep, Flip Cheep Cheep, Bald Cleft, Squiglet, Squig, Sproing-Oing, Boing-Oing, Boomboxer, Growmeba, Jellien, Slow Cursya, Cherbil, Poison Cherbil, Frackle, Spinia, Flip Buzzy
-    int lv1Names[] = {1, 2, 8, 12, 13, 15, 16, 21, 22, 26, 33, 85, 89, 90, 91, 100, 126, 127, 135, 137, 143, 160, 179, 246, 441, 443, 451, 496, 471};
-    int lv1Odds[] = {75, 75, 70, 75, 65, 75, 65, 75, 65, 80, 85, 73, 60, 40, 25, 40, 80, 81, 85, 65, 80, 85, 70, 70, 75, 80, 50, 90, 85};
-    int lv1SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2};
-    int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5};
+    // Red Cheep Cheep, Flip Cheep Cheep, Bald Cleft, Squiglet, Squig, Sproing-Oing, Boing-Oing, Boomboxer, Growmeba, Jellien, Slow Cursya, Cherbil, Poison Cherbil, Frackle, Spinia, Flip Buzzy, Dark Puff, Jawbus
+    int lv1Names[] = {1, 2, 8, 12, 13, 15, 16, 21, 22, 26, 33, 85, 89, 90, 91, 100, 126, 127, 135, 137, 143, 160, 179, 246, 441, 443, 451, 496, 471, 112, 169};
+    int lv1Odds[] = {70, 65, 60, 35, 35, 45, 35, 35, 30, 20, 45, 73, 50, 40, 20, 40, 60, 61, 55, 55, 60, 65, 40, 60, 65, 70, 60, 40, 25, 70, 50};
+    int lv1SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1};
+    int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5, 6, 3};
 
-    // Gloomba, Spiked Goomba, Non-falling Spiked Goomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey,
-    // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Jawbus, PatrolMeow, AirMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
-    // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top
-    int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 169, 174, 175, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472};
-    int lv2Odds[] = {85, 50, 40, 70, 70, 65, 75, 80, 70, 80, 70, 80, 80, 85, 70, 90, 75, 50, 20, 40, 40, 20, 85, 75, 80, 30, 64, 30, 30, 30, 40, 40, 35, 45, 75, 70};
-    int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3};
-    int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 4, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5};
+    // Gloomba, Spiked Goomba, Spiked Gloomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey,
+    // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Rawbus, PatrolMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
+    // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top, Moon Cleft, Kilo Muth, Bleepboxer
+    int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 170, 174, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472, 101, 507, 505};
+    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 70, 70, 80, 70, 80, 80, 85, 70, 90, 75, 50, 20, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 32, 69};
+    int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 1, 2};
+    int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 2, 5};
 
     // Headbonk Goomba, Koopatrol, Spiky Parabuzzy, Dry Bones, Flip Hammer Bro, Boomerang Bro, Fire Bro, Broom Magikoopa, Koopa Striker, Bill Blaster, Dark Boo, Clubba, Pink Fuzzy,
-    // Moon Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, Rawbus, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
-    // Muth, Shady Koopa, Flip Shady Koopa, Spunia
-    int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 101, 110, 116, 139, 161, 166, 167, 170, 178, 180, 185, 193, 202, 215, 225, 231, 258, 466, 467, 497};
-    int lv3Odds[] = {85, 45, 70, 68, 70, 75, 75, 75, 85, 50, 70, 75, 65, 75, 80, 70, 85, 80, 40, 40, 20, 30, 40, 50, 60, 48, 40, 50, 50, 10, 70, 70, 85};
-    int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
-    int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 1, 2, 2, 2, 3, 2, 2, 3, 3, 1, 2, 2, 3};
-    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 3, 5, 4, 3, 5, 4, 4, 6, 5, 2, 4, 4, 6};
+    // Hyper Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
+    // Muth, Spunia, Hyper Goomba, Hyper Spiked Goomba, Hyper Paragoomba, Dark Koopa, Dark Paratroopa, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Green Fuzzy, Ice Bro, Red Magikoopa,
+    // Red Broom Magikoopa, White Magikoopa, White Broom Magikoopa, Green Magikoopa, Green Broom Magikoopa
+    int lv3Names[] = {10, 19, 32, 40, 40, 40, 40, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
+    int lv3Odds[] = {80, 35, 30, 60, 70, 75, 75, 55, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
+    int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
+    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 2, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
 
-    // Lakitu, Flip Lakitu, Dull Bones, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp,
-    // Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry, Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth
-    int lv4Names[] = {35, 36, 42, 54, 60, 74, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259};
-    int lv4Odds[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
-    int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv4Min[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    int lv4Max[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    // Lakitu, Flip Lakitu, Dull Bones, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp, Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry,
+    // Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth, Shady Koopa, Flip Shady Koopa, Ash Cherbil, Sky-Blue Spiny,
+    // Red Spike Top, Dark Bones, White Clubba, Shady Magikoopa, Shady Broom Magikoopa, Tileoid PU, Ninjeremiah, Dark Koopatrol, Kamikaze Goomba,
+    // Skellobyte, Spiky Skellobyte, Shady Hammer Bro, Shady Boomerang Bro, Shady Striker
+    int lv4Names[] = {35, 36, 42, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259, 466, 467, 447, 39, 30, 44, 96, 67, 68, 168, 221, 20, 11, 226, 229, 50, 56, 76};
+    int lv4Odds[] = {60, 50, 85, 80, 20, 30, 80, 80, 40, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
+    int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv4Min[] = {1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 2};
+    int lv4Max[] = {2, 2, 5, 5, 2, 3, 6, 5, 2, 2, 3, 2, 5, 2, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
 
-    int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
-    int SpR1Doors[] = {27, 28, 29, 30};
+    //   int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
+    //   int SpR1Doors[] = {27, 28, 29, 30};
+
+    int enemyConfigArray[2001] = {169};
 
     // Pit Flimm item pool to iterate from
     int rotenShopItemPool[] = {67, 68, 69, 70, 75, 81, 82, 84, 88, 89, 90, 99, 106, 118, 123, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
                                141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 160, 161, 162, 163, 164, 166, 168, 169, 170,
                                171, 173, 174, 177, 178, 180, 181, 182, 183, 184, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 198, 199, 200,
-                               201, 202, 203, 204, 205, 207, 208, 209, 211, 212, 214, 215, 63, 50, 288, 292, 298, 299, 301, 302, 305, 307, 308, 310, 312,
+                               201, 202, 203, 204, 205, 207, 208, 209, 211, 212, 214, 215, 288, 292, 298, 299, 301, 302, 305, 307, 308, 310, 312,
                                313, 321, 323, 328, 329, 332, 335, 341, 343, 346, 355, 358, 360, 363, 366, 372, 377, 383, 389, 393, 396, 398, 399, 400, 401, 409, 412, 415, 418,
-                               424, 426, 428, 433, 432, 436, 437, 440, 444, 446, 447, 448};
+                               424, 426, 428, 433, 432, 436, 437, 440, 444, 446, 447, 448, 0x11c, 0x11e, 0x121, 0x122, 0x125, 0x126, 0x129, 0x12c, 0x132, 0x135, 0x13a, 0x13b, 0x13c,
+                               0x13e, 0x142, 0x144, 0x14d, 0x156, 0x167, 0x16c, 0x184, 0x192, 0x1b2, 0x1b6, 0x1b7};
 
     // Set the Pit Flimm inventory
     s32 newRotenShopItems[] = {
@@ -308,6 +324,25 @@ namespace mod
         0, -1, 0,
         -1};
 
+    s32 no = 0;
+    s32 i = 0;
+    int currentFloor = 0;
+    int nextFloor = 0;
+    int enemyArrayOffset = 0;
+    int nextEnemyCount = 0;
+    int nextName1 = 0;
+    int nextNum1 = 0;
+    int nextPos1 = 0;
+    int nextName2 = 0;
+    int nextNum2 = 0;
+    int nextPos2 = 0;
+    int nextName3 = 0;
+    int nextNum3 = 0;
+    int nextPos3 = 0;
+
+    // Toggle below to "true" to enable on-screen displays for current enemies in a Pit room / enemies in the next room / GSW1. Will display in pit rooms 2-98. Leaving the pit early may cause the game to crash.
+    bool displayDebugValues = false;
+
     s32 evt_dan_read_data_new(spm::evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)entry;
@@ -332,15 +367,25 @@ namespace mod
         spm::swdrv::swClear(439);
         spm::swdrv::swClear(440);
         spm::swdrv::swClear(441);
+        spm::swdrv::swClear(442);
+        spm::swdrv::swClear(443);
+        spm::swdrv::swClear(444);
+        spm::swdrv::swClear(445);
+        spm::swdrv::swClear(446);
+        spm::swdrv::swClear(447);
+        spm::swdrv::swClear(448);
+        spm::swdrv::swClear(449);
+        spm::swdrv::swClear(450);
         bool nipples = spm::swdrv::swGet(409);
 
         // Prepare pit text to be read
-        u32 size = wii::cx::CXGetCompressionHeader(spm::lz_embedded::pitText).decompSize;
-        char *decompPitText = (char *)spm::memory::__memAlloc(0, size);
-        wii::cx::CXUncompressLZ(spm::lz_embedded::pitText, decompPitText);
-        spm::parse::parseInit(decompPitText, size);
-        s32 no = 0;
-        s32 i = 0;
+        /*    u32 size = wii::cx::CXGetCompressionHeader(spm::lz_embedded::pitText).decompSize;
+            char *decompPitText = (char *)spm::memory::__memAlloc(0, size);
+            wii::cx::CXUncompressLZ(spm::lz_embedded::pitText, decompPitText);
+            spm::parse::parseInit(decompPitText, size); */
+        i = 0;
+        currentFloor = spm::swdrv::swByteGet(1);
+        int shadooEntries = spm::swdrv::swByteGet(24);
 
         // Global room generation RNG value (1-100, 5 decimal places)
         double thighs = spm::system::rand() % 99 + 1;
@@ -355,6 +400,25 @@ namespace mod
         divisor = 100000;
         double buttocks = (spm::system::rand() % 10) / divisor;
         boobies = (thighs + ass + booty + butt + bottom + buttocks);
+
+        // Check if room 48, then shove you into Flopside Pit
+        if (currentFloor == 48)
+        {
+            spm::swdrv::swByteSet(1, 148);
+        }
+
+        // Resets no if pit is started
+        if (currentFloor == 0)
+        {
+            no = -1;
+        }
+        no = no + 1;
+
+        // Ensure Shadoo is fought on first room entry, but never again
+        if (shadooEntries == 0)
+        {
+            spm::swdrv::swByteSet(24, 1);
+        }
 
         // Start pit room randomization process
         // Establish default doors + other vars
@@ -389,33 +453,28 @@ namespace mod
         if (segmentRNG >= 0 && segmentRNG < 42)
         {
             segmentCount = 3;
-            wii::os::OSReport("Queueing 3 segment generations for this room.\n");
         }
         else if (segmentRNG >= 42 && segmentRNG < 45)
         {
             segmentCount = 1;
-            wii::os::OSReport("Queueing 1 segment generation for this room.\n");
         }
         else if (segmentRNG >= 45 && segmentRNG < 109)
         {
             segmentCount = 4;
-            wii::os::OSReport("Queueing 4 segment generations for this room.\n");
         }
         else if (segmentRNG >= 109 && segmentRNG < 122)
         {
             segmentCount = 2;
-            wii::os::OSReport("Queueing 2 segment generations for this room.\n");
         }
         else if (segmentRNG >= 122 && segmentRNG < 126)
         {
             segmentCount = 0;
-            wii::os::OSReport("Queueing 0 segment generations for this room.\n");
         }
         else
         {
             segmentCount = 5;
-            wii::os::OSReport("Queueing 5 segment generations for this room.\n");
         }
+        wii::os::OSReport("Queueing %d segment generations for this room.\n", segmentCount);
         i = 0;
 
         // Enclosed structure generation. If more than 2 segments are generated at any time, the remainder is subtracted from segmentCount
@@ -582,7 +641,7 @@ namespace mod
                 segment80000 = true;
                 segmentCount = segmentCount - 3;
             }
-            else if (structureMiscRNG < 33)
+            else if (structureMiscRNG < 67)
             {
                 segment8000 = true;
                 segment4000 = true;
@@ -599,13 +658,17 @@ namespace mod
                 {
                     segment8000 = true;
                     segment4000 = true;
+                    segment400 = true;
                     segment10000 = true;
+                    segmentCount = segmentCount - 1;
                 }
                 else if (boobies < 50)
                 {
                     segment800 = true;
                     segment400 = true;
+                    segment8000 = true;
                     segment10000 = true;
+                    segmentCount = segmentCount - 1;
                 }
                 else if (boobies < 75)
                 {
@@ -888,6 +951,7 @@ namespace mod
                     (segment1 && segment80 && segment2000) ||
                     (segment40 && segment80 && segment8000) ||
                     (segment40 && segment80 && segment4000) ||
+                    (segment40 && segment80 && segment2000) ||
                     (segment10 && segment200 && segment800) ||
                     (segment10 && segment200 && segment400) ||
                     (segment10 && segment200 && segment2000) ||
@@ -895,6 +959,7 @@ namespace mod
                     (segment20 && segment200 && segment400) ||
                     (segment20 && segment200 && segment2000) ||
                     (segment100 && segment200 && segment800) ||
+                    (segment100 && segment200 && segment2000) ||
                     (segment1 && segment4 && segment200 && segment400) ||
                     (segment4 && segment20 && segment80 && segment8000) ||
                     (segment2 && segment80 && segment200 && segment20) ||
@@ -951,6 +1016,7 @@ namespace mod
                     (segment80 && segment200 && segment800 && segment4000) ||
                     (segment80 && segment200 && segment1000) ||
                     (segment8 && segment40 && segment80) ||
+                    (segment8 && segment100 && segment200) ||
                     (segment8 && segment80 && segment1000 && segment2000) ||
                     (segment8 && segment200 && segment1000 && segment2000) ||
                     (segment8 && segment80 && segment800 && segment2000) ||
@@ -1578,6 +1644,13 @@ namespace mod
             roomDecCode = roomDecCode + 524288;
         }
 
+        if (currentFloor == 198)
+        {
+            roomDecCode = 0;
+            activeDoorCount = 19;
+            //    marioMaxHp = spm::mario_pouch::MarioPouchWork::maxHp;
+        }
+
         // Doors
         int doorEntranceArrayVal = spm::system::rand() % activeDoorCount;
         int doorEntrance = doorOn[doorEntranceArrayVal];
@@ -1588,1144 +1661,1402 @@ namespace mod
         }
         int doorExit = doorOn[doorExitArrayVal];
 
-        // Add all dungeon entries to work
-        while (spm::parse::parsePush("<Dungeon>"))
+        i = 0;
+
+        // Item Substitution Protocol
+        double floorwiseMultiplier = 1;
+        switch (currentFloor)
         {
-            // Read no (dungeon id)
-            no = 0;
-            i = 0;
-            spm::parse::parseTagGet1("<no>", spm::parse::PARSE_VALUE_TYPE_INT, &no);
-            assertf(no >= 0 && no < DUNGEON_MAX, "なんか番号がおかしい [%d]", no);
+        case 9:
+            floorwiseMultiplier = 1.0;
+            break;
+        case 19:
+            floorwiseMultiplier = 0.85;
+            break;
+        case 29:
+            floorwiseMultiplier = 0.7;
+            break;
+        case 39:
+            floorwiseMultiplier = 0.4;
+            break;
+        case 149:
+            floorwiseMultiplier = 0;
+            break;
+        case 159:
+            floorwiseMultiplier = -0.4;
+            break;
+        case 169:
+            floorwiseMultiplier = -0.7;
+            break;
+        case 179:
+            floorwiseMultiplier = -0.85;
+            break;
+        case 189:
+            floorwiseMultiplier = -1.0;
+            break;
+        }
 
-            // Read item id (chest contents in chest rooms, null & unused elsewhere)
-            char itemName[64];
-            spm::parse::parseTagGet1("<item>", spm::parse::PARSE_VALUE_TYPE_STRING, itemName);
+        // Establishing reward weights
+        double ShroomShake = msl::math::pow(400, floorwiseMultiplier);
+        double FireBurst = msl::math::pow(350, floorwiseMultiplier);
+        double StarMedal = msl::math::pow(314, floorwiseMultiplier);
+        double BigEgg = msl::math::pow(280, floorwiseMultiplier);
+        double ShellShock = msl::math::pow(240, floorwiseMultiplier);
+        double FriedShroomPlate = msl::math::pow(210, floorwiseMultiplier);
+        double HoneySuper = msl::math::pow(160, floorwiseMultiplier);
+        double IceStorm = msl::math::pow(140, floorwiseMultiplier);
+        double MysteryBox = msl::math::pow(101, floorwiseMultiplier);
+        double BlockBlock = msl::math::pow(64, floorwiseMultiplier);
+        double ThunderRage = msl::math::pow(55, floorwiseMultiplier);
+        double MightyTonic = msl::math::pow(50, floorwiseMultiplier);
+        double RoastedShroomDish = msl::math::pow(40, floorwiseMultiplier);
+        double ShootingStar = msl::math::pow(30, floorwiseMultiplier);
+        double LifeShroom = msl::math::pow(30, floorwiseMultiplier);
+        double MeteorMeal = msl::math::pow(25, floorwiseMultiplier);
+        double GoldMedal = msl::math::pow(20, floorwiseMultiplier);
+        double UltraShroomShake = msl::math::pow(15, floorwiseMultiplier);
+        double DyllisDeluxe = msl::math::pow(5, floorwiseMultiplier);
+        double TrialStew = .1;
+        double sumOfLoot = (ShroomShake + FireBurst + StarMedal + BigEgg + ShellShock + FriedShroomPlate + HoneySuper + IceStorm + MysteryBox + BlockBlock + ThunderRage + MightyTonic + RoastedShroomDish + ShootingStar + LifeShroom + MeteorMeal + GoldMedal + UltraShroomShake + DyllisDeluxe + TrialStew);
 
-            // Item Substitution Protocol
-            double floorwiseMultiplier = 1;
-            switch (no)
-            {
-            case 9:
-                floorwiseMultiplier = 1.0;
-                break;
-            case 19:
-                floorwiseMultiplier = 0.85;
-                break;
-            case 29:
-                floorwiseMultiplier = 0.7;
-                break;
-            case 39:
-                floorwiseMultiplier = 0.4;
-                break;
-            case 49:
-                floorwiseMultiplier = 0;
-                break;
-            case 59:
-                floorwiseMultiplier = -0.4;
-                break;
-            case 69:
-                floorwiseMultiplier = -0.7;
-                break;
-            case 79:
-                floorwiseMultiplier = -0.85;
-                break;
-            case 89:
-                floorwiseMultiplier = -1.0;
-                break;
-            }
+        // Adjusting weights against floor number and normalizing them to add up to 99.9
+        double SShake = (ShroomShake / (sumOfLoot) * 99.9);
+        double FBurst = (FireBurst / (sumOfLoot) * 99.9);
+        double SMedal = (StarMedal / (sumOfLoot) * 99.9);
+        double BEgg = (BigEgg / (sumOfLoot) * 99.9);
+        double SShock = (ShellShock / (sumOfLoot) * 99.9);
+        double FSPlate = (FriedShroomPlate / (sumOfLoot) * 99.9);
+        double HSuper = (HoneySuper / (sumOfLoot) * 99.9);
+        double IStorm = (IceStorm / (sumOfLoot) * 99.9);
+        double MBox = (MysteryBox / (sumOfLoot) * 99.9);
+        double BBlock = (BlockBlock / (sumOfLoot) * 99.9);
+        double TRage = (ThunderRage / (sumOfLoot) * 99.9);
+        double MTonic = (MightyTonic / (sumOfLoot) * 99.9);
+        double RSDish = (RoastedShroomDish / (sumOfLoot) * 99.9);
+        double SStar = (ShootingStar / (sumOfLoot) * 99.9);
+        double LShroom = (LifeShroom / (sumOfLoot) * 99.9);
+        double MMeal = (MeteorMeal / (sumOfLoot) * 99.9);
+        double GMedal = (GoldMedal / (sumOfLoot) * 99.9);
+        double USShake = (UltraShroomShake / (sumOfLoot) * 99.9);
+        double DDeluxe = (DyllisDeluxe / (sumOfLoot) * 99.9);
 
-            // Establishing reward weights
-            double ShroomShake = msl::math::pow(400, floorwiseMultiplier);
-            double FireBurst = msl::math::pow(350, floorwiseMultiplier);
-            double StarMedal = msl::math::pow(314, floorwiseMultiplier);
-            double BigEgg = msl::math::pow(280, floorwiseMultiplier);
-            double ShellShock = msl::math::pow(240, floorwiseMultiplier);
-            double FriedShroomPlate = msl::math::pow(210, floorwiseMultiplier);
-            double HoneySuper = msl::math::pow(160, floorwiseMultiplier);
-            double IceStorm = msl::math::pow(140, floorwiseMultiplier);
-            double MysteryBox = msl::math::pow(101, floorwiseMultiplier);
-            double BlockBlock = msl::math::pow(64, floorwiseMultiplier);
-            double ThunderRage = msl::math::pow(55, floorwiseMultiplier);
-            double MightyTonic = msl::math::pow(50, floorwiseMultiplier);
-            double RoastedShroomDish = msl::math::pow(40, floorwiseMultiplier);
-            double ShootingStar = msl::math::pow(30, floorwiseMultiplier);
-            double LifeShroom = msl::math::pow(30, floorwiseMultiplier);
-            double MeteorMeal = msl::math::pow(25, floorwiseMultiplier);
-            double GoldMedal = msl::math::pow(20, floorwiseMultiplier);
-            double UltraShroomShake = msl::math::pow(15, floorwiseMultiplier);
-            double DyllisDeluxe = msl::math::pow(5, floorwiseMultiplier);
-            double TrialStew = .1;
-            double sumOfLoot = (ShroomShake + FireBurst + StarMedal + BigEgg + ShellShock + FriedShroomPlate + HoneySuper + IceStorm + MysteryBox + BlockBlock + ThunderRage + MightyTonic + RoastedShroomDish + ShootingStar + LifeShroom + MeteorMeal + GoldMedal + UltraShroomShake + DyllisDeluxe + TrialStew);
+        // Establishing selection ranges for each item -- these should be perfectly 1-100 like boobies.
+        double F_TStew = (100 - TrialStew);
+        double F_SShake = (F_TStew - SShake);
+        double F_FBurst = (F_SShake - FBurst);
+        double F_SMedal = (F_FBurst - SMedal);
+        double F_BEgg = (F_SMedal - BEgg);
+        double F_SShock = (F_BEgg - SShock);
+        double F_FSPlate = (F_SShock - FSPlate);
+        double F_HSuper = (F_FSPlate - HSuper);
+        double F_IStorm = (F_HSuper - IStorm);
+        double F_MBox = (F_IStorm - MBox);
+        double F_BBlock = (F_MBox - BBlock);
+        double F_TRage = (F_BBlock - TRage);
+        double F_MTonic = (F_TRage - MTonic);
+        double F_RSDish = (F_MTonic - RSDish);
+        double F_SStar = (F_RSDish - SStar);
+        double F_LShroom = (F_SStar - LShroom);
+        double F_MMeal = (F_LShroom - MMeal);
+        double F_GMedal = (F_MMeal - GMedal);
+        double F_USShake = (F_GMedal - USShake);
+        double F_DDeluxe = (F_USShake - DDeluxe);
 
-            // Adjusting weights against floor number and normalizing them to add up to 99.9
-            double SShake = (ShroomShake / (sumOfLoot) * 99.9);
-            double FBurst = (FireBurst / (sumOfLoot) * 99.9);
-            double SMedal = (StarMedal / (sumOfLoot) * 99.9);
-            double BEgg = (BigEgg / (sumOfLoot) * 99.9);
-            double SShock = (ShellShock / (sumOfLoot) * 99.9);
-            double FSPlate = (FriedShroomPlate / (sumOfLoot) * 99.9);
-            double HSuper = (HoneySuper / (sumOfLoot) * 99.9);
-            double IStorm = (IceStorm / (sumOfLoot) * 99.9);
-            double MBox = (MysteryBox / (sumOfLoot) * 99.9);
-            double BBlock = (BlockBlock / (sumOfLoot) * 99.9);
-            double TRage = (ThunderRage / (sumOfLoot) * 99.9);
-            double MTonic = (MightyTonic / (sumOfLoot) * 99.9);
-            double RSDish = (RoastedShroomDish / (sumOfLoot) * 99.9);
-            double SStar = (ShootingStar / (sumOfLoot) * 99.9);
-            double LShroom = (LifeShroom / (sumOfLoot) * 99.9);
-            double MMeal = (MeteorMeal / (sumOfLoot) * 99.9);
-            double GMedal = (GoldMedal / (sumOfLoot) * 99.9);
-            double USShake = (UltraShroomShake / (sumOfLoot) * 99.9);
-            double DDeluxe = (DyllisDeluxe / (sumOfLoot) * 99.9);
-
-            // Establishing selection ranges for each item -- these should be perfectly 1-100 like boobies.
-            double F_TStew = (100 - TrialStew);
-            double F_SShake = (F_TStew - SShake);
-            double F_FBurst = (F_SShake - FBurst);
-            double F_SMedal = (F_FBurst - SMedal);
-            double F_BEgg = (F_SMedal - BEgg);
-            double F_SShock = (F_BEgg - SShock);
-            double F_FSPlate = (F_SShock - FSPlate);
-            double F_HSuper = (F_FSPlate - HSuper);
-            double F_IStorm = (F_HSuper - IStorm);
-            double F_MBox = (F_IStorm - MBox);
-            double F_BBlock = (F_MBox - BBlock);
-            double F_TRage = (F_BBlock - TRage);
-            double F_MTonic = (F_TRage - MTonic);
-            double F_RSDish = (F_MTonic - RSDish);
-            double F_SStar = (F_RSDish - SStar);
-            double F_LShroom = (F_SStar - LShroom);
-            double F_MMeal = (F_LShroom - MMeal);
-            double F_GMedal = (F_MMeal - GMedal);
-            double F_USShake = (F_GMedal - USShake);
-            double F_DDeluxe = (F_USShake - DDeluxe);
-
-            // The rabbit is landing
-            if (nipples == 0)
-            {
-                if (boobies >= F_TStew)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
-                else if (boobies >= F_SShake)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO");
-                else if (boobies >= F_FBurst)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_HONOO_SAKURETU");
-                else if (boobies >= F_SMedal)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_STAR_MEDAL");
-                else if (boobies >= F_BEgg)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BIG_EGG");
-                else if (boobies >= F_SShock)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOURA_DE_PON");
-                else if (boobies >= F_FSPlate)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_FRY");
-                else if (boobies >= F_HSuper)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO_S");
-                else if (boobies >= F_IStorm)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOORI_NO_IBUKI");
-                else if (boobies >= F_MBox)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_NANIGA_OKORUKANA");
-                else if (boobies >= F_BBlock)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BARIA_FRAME");
-                else if (boobies >= F_TRage)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KAMINARI_DOKKAN");
-                else if (boobies >= F_MTonic)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TUYOTUYO_DRINK");
-                else if (boobies >= F_RSDish)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_HOILE_FRY");
-                else if (boobies >= F_SStar)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KIRAKIRA_OTOSHI");
-                else if (boobies >= F_LShroom)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KINKYU_KINOKO");
-                else if (boobies >= F_MMeal)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DINNER");
-                else if (boobies >= F_GMedal)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_GOLD_MEDAL");
-                else if (boobies >= F_USShake)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ULTRA_DRINK");
-                else if (boobies >= F_DDeluxe)
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DOROCY_DELUX");
-                else
-                    spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
-            }
+        // The rabbit is landing
+        if (nipples == 0)
+        {
+            if (boobies >= F_TStew)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
+            else if (boobies >= F_SShake)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO");
+            else if (boobies >= F_FBurst)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_HONOO_SAKURETU");
+            else if (boobies >= F_SMedal)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_STAR_MEDAL");
+            else if (boobies >= F_BEgg)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BIG_EGG");
+            else if (boobies >= F_SShock)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOURA_DE_PON");
+            else if (boobies >= F_FSPlate)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_FRY");
+            else if (boobies >= F_HSuper)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO_S");
+            else if (boobies >= F_IStorm)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOORI_NO_IBUKI");
+            else if (boobies >= F_MBox)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_NANIGA_OKORUKANA");
+            else if (boobies >= F_BBlock)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BARIA_FRAME");
+            else if (boobies >= F_TRage)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KAMINARI_DOKKAN");
+            else if (boobies >= F_MTonic)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TUYOTUYO_DRINK");
+            else if (boobies >= F_RSDish)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_HOILE_FRY");
+            else if (boobies >= F_SStar)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KIRAKIRA_OTOSHI");
+            else if (boobies >= F_LShroom)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KINKYU_KINOKO");
+            else if (boobies >= F_MMeal)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DINNER");
+            else if (boobies >= F_GMedal)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_GOLD_MEDAL");
+            else if (boobies >= F_USShake)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ULTRA_DRINK");
+            else if (boobies >= F_DDeluxe)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DOROCY_DELUX");
             else
-            {
-                spm::dan::dan_wp->dungeons[no].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
-            }
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
+        }
+        else
+        {
+            spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
+        }
 
-            // Read map (bitflags for parts of the map to enable and disable in enemy rooms, 0 & unused elsewhere)
-            spm::parse::parseTagGet1("<map>", spm::parse::PARSE_VALUE_TYPE_INT, &spm::dan::dan_wp->dungeons[no].map);
-            spm::dan::dan_wp->dungeons[no].map = roomDecCode;
+        // Read map (bitflags for parts of the map to enable and disable in enemy rooms, 0 & unused elsewhere)
+        spm::dan::dan_wp->dungeons[currentFloor].map = roomDecCode;
 
-            // Read doors
-            i = 0;
-            while (spm::parse::parsePush("<door>"))
-            {
-                spm::parse::parseTagGet1("<enter>", spm::parse::PARSE_VALUE_TYPE_INT, &spm::dan::dan_wp->dungeons[no].doors[i].enter);
-                spm::parse::parseTagGet1("<exit>", spm::parse::PARSE_VALUE_TYPE_INT, &spm::dan::dan_wp->dungeons[no].doors[i].exit);
-                // Door substitution
-                spm::dan::dan_wp->dungeons[no].doors[i].enter = doorEntrance;
-                spm::dan::dan_wp->dungeons[no].doors[i].exit = doorExit;
-                spm::parse::parsePopNext();
-                i++;
-            }
-            spm::dan::dan_wp->dungeons[no].doorCount = i;
+        i = 0;
+        // Door substitution
+        spm::dan::dan_wp->dungeons[currentFloor].doors[i].enter = doorEntrance;
+        spm::dan::dan_wp->dungeons[currentFloor].doors[i].exit = doorExit;
+        spm::dan::dan_wp->dungeons[currentFloor].doorCount = 1;
 
-            // Enemy generation setup
-            i = 0;
-            int enemyTypes = 0;
-            int arrayRNG = 0;
-            int enemyAmt = 0;
-            int enemyDifference = 0;
-            int enemyMin = 0;
-            int enemyMax = 0;
-            int spDoorRNG = 0;
-            int vsOdds = 0;
-            int enemyGenRNG = spm::system::rand() % 100;
-            if (enemyGenRNG <= 60)
+        if (currentFloor == 0)
+        {
+            int enemyArrayVal = 1;
+            int funnyVal = 0;
+            for (int roomGens = 0; roomGens <= 199; roomGens = roomGens + 1)
             {
-                enemyTypes = 2;
-            }
-            else if (enemyGenRNG <= 85)
-            {
-                enemyTypes = 1;
-            }
-            else
-            {
-                enemyTypes = 3;
-            }
-            // Enemy Substition Protocol
-            while (i < enemyTypes)
-            {
-                // Lv1
-                if (no <= 25)
+                // Enemy generation setup
+                i = 0;
+                int enemyTypes = 0;
+                int arrayRNG = 0;
+                int enemyAmt = 0;
+                int enemyDifference = 0;
+                int enemyMin = 0;
+                int enemyMax = 0;
+                //  int spDoorRNG = 0;
+                int vsOdds = 0;
+                int enemyGenRNG = spm::system::rand() % 100;
+                if (enemyGenRNG <= 60)
                 {
-                    enemyGenRNG = spm::system::rand() % 100;
-                    if (enemyGenRNG < 70)
-                    {
-                        arrayRNG = spm::system::rand() % 29;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv1Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv1Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv1Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv1Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv1Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv1SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                    else if (enemyGenRNG < 90)
-                    {
-                        arrayRNG = spm::system::rand() % 36;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv2Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv2Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv2Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv2Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv2Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv2SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
-                        }
-                    }
-                    else
-                    {
-                        arrayRNG = spm::system::rand() % 33;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv3Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv3Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv3Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv3Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv3Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv3SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                            wii::os::OSReport("Room %d: Enemy %d gen'd %d times @ pos %d. i = %d.\n", no, spm::dan::dan_wp->dungeons[no].enemies[i].name, enemyAmt, spm::dan::dan_wp->dungeons[no].enemies[i].pos, i);
-                        }
-                    }
+                    enemyTypes = 2;
                 }
-                // Lv2
-                else if (no <= 50)
+                else if (enemyGenRNG <= 85)
                 {
-                    enemyGenRNG = spm::system::rand() % 100;
-                    if (enemyGenRNG < 20)
-                    {
-                        arrayRNG = spm::system::rand() % 29;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv1Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv1Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv1Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv1Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv1Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv1SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                    else if (enemyGenRNG < 80)
-                    {
-                        arrayRNG = spm::system::rand() % 36;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv2Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv2Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv2Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv2Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv2Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv2SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        arrayRNG = spm::system::rand() % 33;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv3Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv3Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv3Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv3Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv3Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv3SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
+                    enemyTypes = 1;
                 }
-                // Lv3
-                else if (no <= 75)
-                {
-                    enemyGenRNG = spm::system::rand() % 100;
-                    if (enemyGenRNG < 20)
-                    {
-                        arrayRNG = spm::system::rand() % 36;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv2Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv2Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv2Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv2Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv2Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv2SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                    else if (enemyGenRNG < 80)
-                    {
-                        arrayRNG = spm::system::rand() % 33;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv3Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv3Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv3Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv3Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv3Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
-                                {
-                                    enemyAmt = enemyAmt + 1;
-                                }
-                                else if (boobies <= 75)
-                                {
-                                    enemyAmt = enemyAmt + 2;
-                                }
-                                else
-                                {
-                                    enemyAmt = enemyAmt + 3;
-                                }
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv3SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        arrayRNG = spm::system::rand() % 26;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv4Odds[arrayRNG] > vsOdds)
-                        {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[arrayRNG];
-                            if (i == 0)
-                            {
-                                enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv4Min[arrayRNG] <= 3)
-                                {
-                                    enemyMin = 1;
-                                }
-                                else if (lv4Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv4Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv4Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
-                                }
-                                else
-                                {
-                                    enemyMax = 3;
-                                }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
-                            }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv4SpR[arrayRNG] == 0)
-                            {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
-                            }
-                            else if (lv4SpR[arrayRNG] == 1)
-                            {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
-                            }
-                        }
-                    }
-                }
-                // Lv4
                 else
                 {
-                    enemyGenRNG = spm::system::rand() % 100;
-                    if (enemyGenRNG < 10)
+                    enemyTypes = 3;
+                }
+                enemyConfigArray[enemyArrayVal] = enemyTypes;
+                enemyArrayVal = enemyArrayVal + 1;
+                // Enemy Substition Protocol
+                while (i < enemyTypes)
+                {
+                    // Lv1
+                    if (roomGens <= 24)
                     {
-                        arrayRNG = spm::system::rand() % 29;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv1Odds[arrayRNG] > vsOdds)
+                        enemyGenRNG = spm::system::rand() % 100;
+                        if (enemyGenRNG < 75)
                         {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv1Names[arrayRNG];
-                            if (i == 0)
+                            arrayRNG = spm::system::rand() % 31;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv1Odds[arrayRNG] > vsOdds)
                             {
-                                enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv1Min[arrayRNG] <= 3)
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv1Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
                                 {
-                                    enemyMin = 1;
-                                }
-                                else if (lv1Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv1Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv1Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
+                                    enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
                                 else
                                 {
-                                    enemyMax = 3;
+                                    if (lv1Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv1Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv1Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv1Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
+                                if (enemyTypes == 1)
                                 {
-                                    enemyAmt = enemyAmt + 1;
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
                                 }
-                                else if (boobies <= 75)
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv1SpR[arrayRNG] == 0)
                                 {
-                                    enemyAmt = enemyAmt + 2;
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv1SpR[arrayRNG] == 1)
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 4;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
                                 else
                                 {
-                                    enemyAmt = enemyAmt + 3;
+                                    //    spDoorRNG = spm::system::rand() % 6;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv1SpR[arrayRNG] == 0)
+                        }
+                        else if (enemyGenRNG < 95)
+                        {
+                            arrayRNG = spm::system::rand() % 38;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv2Odds[arrayRNG] > vsOdds)
                             {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv2Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv2Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv2Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv2Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                if (enemyTypes == 1)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv2SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv2SpR[arrayRNG] == 1)
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 4;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 6;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            else if (lv1SpR[arrayRNG] == 1)
+                        }
+                        else
+                        {
+                            arrayRNG = spm::system::rand() % 46;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv3Odds[arrayRNG] > vsOdds)
                             {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv3Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv3Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv3Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv3Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv3Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                if (enemyTypes == 1)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv3SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv3SpR[arrayRNG] == 1)
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 4;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 6;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
                         }
                     }
-                    else if (enemyGenRNG < 20)
+                    // Lv2
+                    else if (roomGens <= 149)
                     {
-                        arrayRNG = spm::system::rand() % 36;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv2Odds[arrayRNG] > vsOdds)
+                        enemyGenRNG = spm::system::rand() % 100;
+                        if (enemyGenRNG < 20)
                         {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv2Names[arrayRNG];
-                            if (i == 0)
+                            arrayRNG = spm::system::rand() % 31;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv1Odds[arrayRNG] > vsOdds)
                             {
-                                enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv2Min[arrayRNG] <= 3)
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv1Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
                                 {
-                                    enemyMin = 1;
-                                }
-                                else if (lv2Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv2Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv2Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
+                                    enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
                                 else
                                 {
-                                    enemyMax = 3;
+                                    if (lv1Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv1Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv1Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv1Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
+                                if (enemyTypes == 1)
                                 {
-                                    enemyAmt = enemyAmt + 1;
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
                                 }
-                                else if (boobies <= 75)
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv1SpR[arrayRNG] == 0)
                                 {
-                                    enemyAmt = enemyAmt + 2;
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv1SpR[arrayRNG] == 1)
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 4;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
                                 else
                                 {
-                                    enemyAmt = enemyAmt + 3;
+                                    //    spDoorRNG = spm::system::rand() % 6;
+                                    //   spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv2SpR[arrayRNG] == 0)
+                        }
+                        else if (enemyGenRNG < 85)
+                        {
+                            arrayRNG = spm::system::rand() % 38;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv2Odds[arrayRNG] > vsOdds)
                             {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv2Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv2Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv2Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv2Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                if (enemyTypes == 1)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv2SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv2SpR[arrayRNG] == 1)
+                                {
+                                    //    spDoorRNG = spm::system::rand() % 4;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    //   spDoorRNG = spm::system::rand() % 6;
+                                    //    spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            else if (lv2SpR[arrayRNG] == 1)
+                        }
+                        else
+                        {
+                            arrayRNG = spm::system::rand() % 46;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv3Odds[arrayRNG] > vsOdds)
                             {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv3Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv3Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv3Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv3Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv3Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                if (enemyTypes == 1)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 4;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv3SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv3SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
                         }
                     }
-                    else if (enemyGenRNG < 80)
+                    // Lv3
+                    else if (roomGens <= 174)
                     {
-                        arrayRNG = spm::system::rand() % 33;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv3Odds[arrayRNG] > vsOdds)
+                        enemyGenRNG = spm::system::rand() % 100;
+                        if (enemyGenRNG < 15)
                         {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv3Names[arrayRNG];
-                            if (i == 0)
+                            arrayRNG = spm::system::rand() % 38;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv2Odds[arrayRNG] > vsOdds)
                             {
-                                enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv3Min[arrayRNG] <= 3)
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
                                 {
-                                    enemyMin = 1;
-                                }
-                                else if (lv3Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv3Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv3Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
+                                    enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                                 }
                                 else
                                 {
-                                    enemyMax = 3;
+                                    if (lv2Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv2Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv2Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv2Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
                                 }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
-                            }
-                            if (enemyTypes == 1)
-                            {
-                                if (boobies <= 25)
+                                if (enemyTypes < 3)
                                 {
-                                    enemyAmt = enemyAmt + 1;
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
                                 }
-                                else if (boobies <= 75)
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv2SpR[arrayRNG] == 0)
                                 {
-                                    enemyAmt = enemyAmt + 2;
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv2SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
                                 else
                                 {
-                                    enemyAmt = enemyAmt + 3;
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
                                 }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv3SpR[arrayRNG] == 0)
+                        }
+                        else if (enemyGenRNG < 80)
+                        {
+                            arrayRNG = spm::system::rand() % 46;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv3Odds[arrayRNG] > vsOdds)
                             {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv3Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv3Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv3Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv3Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv3Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv3SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv3SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            else if (lv3SpR[arrayRNG] == 1)
+                        }
+                        else
+                        {
+                            arrayRNG = spm::system::rand() % 41;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv4Odds[arrayRNG] > vsOdds)
                             {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
-                            }
-                            else
-                            {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv4Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv4Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv4Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv4Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv4Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                }
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv4SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv4SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
                         }
                     }
+                    // Lv4
                     else
                     {
-                        arrayRNG = spm::system::rand() % 26;
-                        vsOdds = spm::system::rand() % 100;
-                        if (lv4Odds[arrayRNG] > vsOdds)
+                        enemyGenRNG = spm::system::rand() % 100;
+                        if (enemyGenRNG < 5)
                         {
-                            ++i;
-                            spm::dan::dan_wp->dungeons[no].enemies[i].name = lv4Names[arrayRNG];
-                            if (i == 0)
+                            arrayRNG = spm::system::rand() % 31;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv1Odds[arrayRNG] > vsOdds)
                             {
-                                enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
-                            }
-                            else
-                            {
-                                if (lv4Min[arrayRNG] <= 3)
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv1Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
                                 {
-                                    enemyMin = 1;
-                                }
-                                else if (lv4Min[arrayRNG] <= 5)
-                                {
-                                    enemyMin = 2;
-                                }
-                                if (lv4Max[arrayRNG] <= 3)
-                                {
-                                    enemyMax = 1;
-                                }
-                                else if (lv4Max[arrayRNG] <= 5)
-                                {
-                                    enemyMax = 2;
+                                    enemyDifference = lv1Max[arrayRNG] - lv1Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
                                 else
                                 {
-                                    enemyMax = 3;
+                                    if (lv1Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv1Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv1Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv1Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv1Min[arrayRNG];
                                 }
-                                enemyDifference = enemyMax - enemyMin + 1;
-                                enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv1SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv1SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            spm::dan::dan_wp->dungeons[no].enemies[i].num = enemyAmt;
-                            if (lv4SpR[arrayRNG] == 0)
+                        }
+                        else if (enemyGenRNG < 16)
+                        {
+                            arrayRNG = spm::system::rand() % 38;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv2Odds[arrayRNG] > vsOdds)
                             {
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = 0;
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv2Max[arrayRNG] - lv2Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv2Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv2Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv2Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv2Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                }
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv2SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv2SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            else if (lv4SpR[arrayRNG] == 1)
+                        }
+                        else if (enemyGenRNG < 50)
+                        {
+                            arrayRNG = spm::system::rand() % 46;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv3Odds[arrayRNG] > vsOdds)
                             {
-                                spDoorRNG = spm::system::rand() % 4;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv3Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv3Max[arrayRNG] - lv3Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv3Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv3Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv3Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv3Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv3Min[arrayRNG];
+                                }
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv3SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv3SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
-                            else
+                        }
+                        else
+                        {
+                            arrayRNG = spm::system::rand() % 41;
+                            vsOdds = spm::system::rand() % 100;
+                            if (lv4Odds[arrayRNG] > vsOdds)
                             {
-                                spDoorRNG = spm::system::rand() % 6;
-                                spm::dan::dan_wp->dungeons[no].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                ++i;
+                                enemyConfigArray[enemyArrayVal] = lv4Names[arrayRNG];
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (i == 0)
+                                {
+                                    enemyDifference = lv4Max[arrayRNG] - lv4Min[arrayRNG] + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                }
+                                else
+                                {
+                                    if (lv4Min[arrayRNG] <= 3)
+                                    {
+                                        enemyMin = 1;
+                                    }
+                                    else if (lv4Min[arrayRNG] <= 5)
+                                    {
+                                        enemyMin = 2;
+                                    }
+                                    if (lv4Max[arrayRNG] <= 3)
+                                    {
+                                        enemyMax = 1;
+                                    }
+                                    else if (lv4Max[arrayRNG] <= 5)
+                                    {
+                                        enemyMax = 2;
+                                    }
+                                    else
+                                    {
+                                        enemyMax = 3;
+                                    }
+                                    enemyDifference = enemyMax - enemyMin + 1;
+                                    enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                }
+                                if (enemyTypes < 3)
+                                {
+                                    if (boobies <= 25)
+                                    {
+                                        enemyAmt = enemyAmt + 1;
+                                    }
+                                    else if (boobies <= 75)
+                                    {
+                                        enemyAmt = enemyAmt + 2;
+                                    }
+                                    else
+                                    {
+                                        enemyAmt = enemyAmt + 3;
+                                    }
+                                }
+                                enemyConfigArray[enemyArrayVal] = enemyAmt;
+                                enemyArrayVal = enemyArrayVal + 1;
+                                if (lv4SpR[arrayRNG] == 0)
+                                {
+                                    enemyConfigArray[enemyArrayVal] = 0;
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else if (lv4SpR[arrayRNG] == 1)
+                                {
+                                    // spDoorRNG = spm::system::rand() % 4;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR1Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                else
+                                {
+                                    // spDoorRNG = spm::system::rand() % 6;
+                                    // spm::dan::dan_wp->dungeons[roomGens].enemies[i].pos = SpR2Doors[spDoorRNG];
+                                    enemyConfigArray[enemyArrayVal] = 0; // Temp until I can fix SpR spawns
+                                    enemyArrayVal = enemyArrayVal + 1;
+                                }
+                                funnyVal = (enemyArrayVal - 3);
+                                wii::os::OSReport("Room #%d: Enemy name %d generated %d times. i = %d.\n", roomGens, enemyConfigArray[funnyVal], enemyAmt, i);
                             }
                         }
                     }
                 }
+                // Fill empty slots if enemy types < 3
+                if (enemyTypes == 1)
+                {
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                }
+                else if (enemyTypes == 2)
+                {
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                    enemyConfigArray[enemyArrayVal] = 0;
+                    enemyArrayVal = enemyArrayVal + 1;
+                }
             }
-            spm::dan::dan_wp->dungeons[100].enemies[0].name = 6;
-            spm::dan::dan_wp->dungeons[100].enemies[0].num = 10;
-            spm::dan::dan_wp->dungeons[100].enemies[1].name = 5;
-            spm::dan::dan_wp->dungeons[100].enemies[1].num = 5;
-            spm::dan::dan_wp->dungeons[no].enemyCount = i;
+        }
 
-            // Replace Flimm chests
-            if (no == 9 || no == 19 || no == 29 || no == 39 || no == 49 || no == 59 || no == 69 || no == 79 || no == 89)
+        // Determine enemy data for current room
+        enemyArrayOffset = (currentFloor * 10 + 1);
+        spm::dan::dan_wp->dungeons[currentFloor].enemyCount = enemyConfigArray[enemyArrayOffset];
+        enemyArrayOffset = enemyArrayOffset + 1;
+        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].name = enemyConfigArray[enemyArrayOffset];
+        enemyArrayOffset = enemyArrayOffset + 1;
+        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].num = enemyConfigArray[enemyArrayOffset];
+        enemyArrayOffset = enemyArrayOffset + 1;
+        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
+        enemyArrayOffset = enemyArrayOffset + 1;
+        wii::os::OSReport("enemyCount for current floor #%d: %d.\n", currentFloor, spm::dan::dan_wp->dungeons[currentFloor].enemyCount);
+        if (enemyConfigArray[enemyArrayOffset] != 0)
+        {
+            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].name = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].num = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            if (enemyConfigArray[enemyArrayOffset] != 0)
             {
-                int poolItem = 0;
-                for (i = 0; i < 67; i = i + 3)
+                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].name = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].num = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+            }
+        }
+
+        if (currentFloor >= 100)
+        {
+            // Test - this might fix the Floor 50+ crash
+            int currentFloor2 = (currentFloor - 100);
+            enemyArrayOffset = (currentFloor * 10 + 1);
+            spm::dan::dan_wp->dungeons[currentFloor2].enemyCount = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].name = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].num = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            wii::os::OSReport("enemyCount for current floor #%d: %d.\n", currentFloor2, spm::dan::dan_wp->dungeons[currentFloor2].enemyCount);
+            if (enemyConfigArray[enemyArrayOffset] != 0)
+            {
+                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].name = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].num = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                if (enemyConfigArray[enemyArrayOffset] != 0)
                 {
-                    poolItem = spm::system::rand() % 142;
-                    newRotenShopItems[i] = rotenShopItemPool[poolItem];
-                    wii::os::OSReport("Flimm array val %d set to %d. poolItem: %d.\n", i, rotenShopItemPool[poolItem], poolItem);
-                }
-                for (i = 0; i < 70; i++)
-                {
-                    spm::dan::dan_rotenShopItems[i] = newRotenShopItems[i];
+                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].name = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
+                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].num = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
+                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
                 }
             }
-            // Move to next dungeon
-            spm::parse::parsePopNext();
+        }
+
+        nextFloor = 0;
+        nextEnemyCount = 0;
+        nextName1 = 0;
+        nextNum1 = 0;
+        nextPos1 = 0;
+        nextName2 = 0;
+        nextNum2 = 0;
+        nextPos2 = 0;
+        nextName3 = 0;
+        nextNum3 = 0;
+        nextPos3 = 0;
+        // Set up values for debug displays
+        if (currentFloor != 199)
+        {
+            nextFloor = currentFloor + 1;
+            enemyArrayOffset = ((nextFloor * 10) + 1);
+            nextEnemyCount = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            nextName1 = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            nextNum1 = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            nextPos1 = enemyConfigArray[enemyArrayOffset];
+            enemyArrayOffset = enemyArrayOffset + 1;
+            if (enemyConfigArray[enemyArrayOffset] != 0)
+            {
+                nextName2 = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                nextNum2 = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                nextPos2 = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                if (enemyConfigArray[enemyArrayOffset] != 0)
+                {
+                    nextName3 = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
+                    nextNum3 = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
+                    nextPos3 = enemyConfigArray[enemyArrayOffset];
+                    enemyArrayOffset = enemyArrayOffset + 1;
+                }
+            }
+        }
+
+        // Replace Flimm inventory; this sets a number of random items from the custom rotenShopItemPool to be selectable across the entire Pit session.
+        if (currentFloor == 0)
+        {
+            int poolItem = 0;
+            for (i = 0; i < 67; i = i + 3)
+            {
+                poolItem = spm::system::rand() % 165;
+                newRotenShopItems[i] = rotenShopItemPool[poolItem];
+            }
+            for (i = 0; i < 70; i++)
+            {
+                spm::dan::dan_rotenShopItems[i] = newRotenShopItems[i];
+            }
         }
 
         // Free pit text
         spm::parse::parsePop();
-        spm::memory::__memFree(0, decompPitText);
 
         return EVT_RET_CONTINUE;
     }
@@ -2745,9 +3076,12 @@ namespace mod
                                                 else if (msl::string::strcmp(msgName, "modoridokan_D100_01") == 0)
                                                     // flipside pit first exit text
                                                     return modoridokan_D100_01;
-                                                // else if (msl::string::strcmp(msgName, "m_noroi") == 0)
-                                                // back cursya
-                                                // return m_noroi;
+                                                else if (msl::string::strcmp(msgName, "D100_entrance_03") == 0)
+                                                    // flipside pit first exit text
+                                                    return D100_entrance_03;
+                                                else if (msl::string::strcmp(msgName, "mac_kanban_004") == 0)
+                                                    // flipside pit first exit text
+                                                    return mac_kanban_004;
                                                 else
                                                     return msgSearchReal(msgName);
                                             });
@@ -2760,7 +3094,7 @@ namespace mod
 
         // Get dungeon and enemy index
         spm::evtmgr::EvtScriptCode *args = entry->pCurData;
-        s32 no = spm::evtmgr_cmd::evtGetValue(entry, args[0]);
+        //    s32 no = spm::evtmgr_cmd::evtGetValue(entry, args[0]);
         s32 enemyIdx = spm::evtmgr_cmd::evtGetValue(entry, args[1]);
         spm::dan::DanDungeon *dungeon = spm::dan::dan_wp->dungeons + no;
 
@@ -2791,6 +3125,20 @@ namespace mod
                     spm::npcdrv::npcEnemyTemplates[76].unknown_0x8 = 0;
                     spm::npcdrv::npcEnemyTemplates[55].unknown_0x8 = 0;
                     spm::npcdrv::npcEnemyTemplates[101].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[321].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[322].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[323].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[324].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[82].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[316].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[317].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[318].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[319].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[320].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[276].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[277].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[279].unknown_0x8 = 0;
+
                     if (((curTemplate->unknown_0x8 & 1) == 0) && (curTemplate->tribeId == tribeId))
                         break;
                 }
@@ -2840,12 +3188,199 @@ namespace mod
         youSuck = true;
     }
 
+    void debugDisplay_no(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                255,
+                0,
+                127,
+                255};
+            f32 scale = 0.5f;
+            sprintf(buffer, "GSW1: %d", currentFloor);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 340, 78.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_name_one(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                200,
+                27,
+                127,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Enemy 1: %d (%d)", spm::dan::dan_wp->dungeons[currentFloor].enemies[1].name, spm::dan::dan_wp->dungeons[currentFloor].enemies[1].num);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 314, 64.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_name_two(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                200,
+                27,
+                127,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Enemy 2: %d (%d)", spm::dan::dan_wp->dungeons[currentFloor].enemies[2].name, spm::dan::dan_wp->dungeons[currentFloor].enemies[2].num);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 312, 50.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_name_three(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                200,
+                27,
+                127,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Enemy 3: %d (%d)", spm::dan::dan_wp->dungeons[currentFloor].enemies[3].name, spm::dan::dan_wp->dungeons[currentFloor].enemies[3].num);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 312, 36.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_next_name_one(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                127,
+                50,
+                200,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Next Enemy 1: %d (%d)", nextName1, nextNum1);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 300, 8.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_next_name_two(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                127,
+                50,
+                200,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Next Enemy 2: %d (%d)", nextName2, nextNum2);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 300, -6.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void debugDisplay_next_name_three(spm::seqdrv::SeqWork *wp)
+    {
+        if (currentFloor >= 1 && currentFloor < 198 && displayDebugValues)
+        {
+            char buffer[50];
+            wii::gx::GXColor reddish = {
+                127,
+                50,
+                200,
+                127};
+            f32 scale = 0.5f;
+            sprintf(buffer, "Next Enemy 3: %d (%d)", nextName3, nextNum3);
+            const char *msg = buffer;
+            spm::fontmgr::FontDrawStart();
+            spm::fontmgr::FontDrawEdge();
+            spm::fontmgr::FontDrawColor(&reddish);
+            spm::fontmgr::FontDrawScale(scale);
+            spm::fontmgr::FontDrawNoiseOff();
+            spm::fontmgr::FontDrawRainbowColorOff();
+            f32 x = -((spm::fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            spm::fontmgr::FontDrawString(x + 300, -20.0f, msg);
+        }
+        seq_gameMainReal(wp);
+    }
+
+    void textDisplay(spm::seqdrv::SeqWork *wp)
+    {
+        debugDisplay_no(wp);
+        debugDisplay_name_one(wp);
+        debugDisplay_name_two(wp);
+        debugDisplay_name_three(wp);
+        debugDisplay_next_name_one(wp);
+        debugDisplay_next_name_two(wp);
+        debugDisplay_next_name_three(wp);
+        youSuckDisplay(wp);
+    }
+
     static spm::seqdef::SeqFunc *seq_titleMainReal;
     static void seq_titleMainOverride(spm::seqdrv::SeqWork *wp)
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "Project SPM Pit Rework Name Pending alpha 1.12";
+        const char *msg = "Project SPM Pit Rework Name Pending alpha 1.3";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -2861,7 +3396,7 @@ namespace mod
         seq_titleMainReal = spm::seqdef::seq_data[spm::seqdrv::SEQ_TITLE].main;
         spm::seqdef::seq_data[spm::seqdrv::SEQ_TITLE].main = &seq_titleMainOverride;
         seq_gameMainReal = spm::seqdef::seq_data[spm::seqdrv::SEQ_GAME].main;
-        spm::seqdef::seq_data[spm::seqdrv::SEQ_GAME].main = &youSuckDisplay;
+        spm::seqdef::seq_data[spm::seqdrv::SEQ_GAME].main = &textDisplay;
     }
 
     static void danOverwrite()
@@ -2879,53 +3414,535 @@ namespace mod
         patch::hookFunction(spm::dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new);
     }
 
-    static void evtNpcPatchAllEnemies() {
-        patch::hookFunction(spm::evt_npc::evt_npc_set_rgba, [](spm::evtmgr::EvtEntry* entry, bool isFirstCall) {
+    static void evtNpcPatchAllEnemies()
+    {
+        patch::hookFunction(spm::evt_npc::evt_npc_set_rgba, [](spm::evtmgr::EvtEntry *entry, bool isFirstCall)
+                            {
             (void)entry;
             (void)isFirstCall;
-            return 2;
-        });
-    }
-    static void danPatchPitEnemies() {
-        spm::npcdrv::npcTribes[5].animPoseName = "e_kuribo_redhat"; // need the file
-        spm::npcdrv::npcTribes[465].maxHp = 20;
+            return 2; });
+
+        patch::hookFunction(spm::evt_npc::evt_npc_set_rgbacopy, [](spm::evtmgr::EvtEntry *entry, bool isFirstCall)
+                            {
+            (void)entry;
+            (void)isFirstCall;
+            return 2; });
+        patch::hookFunction(spm::evt_npc::evt_npc_set_rgbacopytwo, [](spm::evtmgr::EvtEntry *entry, bool isFirstCall)
+                            {
+            (void)entry;
+            (void)isFirstCall;
+            return 2; });
     }
 
-    spm::npcdrv::NPCTribeAnimDef nastasiaAnims[] = {
-        {0, "S_1"}, // Standing (idle)
-        {3, "T_1"}, // Talking
-        {-1, nullptr}
-    };
+    static void danPatchPitEnemies()
+    {
+        // Define default animposes for new enemies
+        spm::npcdrv::npcTribes[5].animPoseName = "e_kuribo_y";     // Unused Spiked Goomba --> Spiked Gloomba
+        spm::npcdrv::npcTribes[2].animPoseName = "e_kuribo_h";     // Dark Goomba --> Hyper Goomba
+        spm::npcdrv::npcTribes[6].animPoseName = "e_kuribo_h";     // Dark Spiked Goomba --> Hyper Spiked Goomba
+        spm::npcdrv::npcTribes[8].animPoseName = "e_kuribo_h";     // Dark Paragoomba --> Hyper Paragoomba
+        spm::npcdrv::npcTribes[16].animPoseName = "e_nokoteki_d";  // Dark Koopa --> Dark Koopa
+        spm::npcdrv::npcTribes[24].animPoseName = "e_nokoteki_d";  // Dark Paratroopa --> Dark Paratroopa
+        spm::npcdrv::npcTribes[446].animPoseName = "e_cheririn_a"; // Dark Cherbil --> Ash Cherbil
+        spm::npcdrv::npcTribes[38].animPoseName = "e_togezb";      // Dark Spiny --> Sky-Blue Spiny
+        spm::npcdrv::npcTribes[29].animPoseName = "e_mer";         // Dark Spike Top --> Red Spike Top
+        spm::npcdrv::npcTribes[98].animPoseName = "e_chorobon_g";  // Dark Fuzzy --> Green Fuzzy
+        spm::npcdrv::npcTribes[43].animPoseName = "e_karon_d";     // Dark Dull Bones --> Dark Bones
+        spm::npcdrv::npcTribes[44].animPoseName = "e_karon_d";     // Dark Bones projectile
+        spm::npcdrv::npcTribes[111].animPoseName = "e_kmond";      // Dark Ruff Puff --> Dark Puff
+        spm::npcdrv::npcTribes[95].animPoseName = "e_gabow";       // Dark Clubba --> White Clubba
+        spm::npcdrv::npcTribes[66].animPoseName = "e_kames";       // Dark Magikoopa --> Shady Magikoopa
+        spm::npcdrv::npcTribes[67].animPoseName = "e_kames";       // Dark Broom Magikoopa --> Shady Broom Magikoopa
+                                                                   /*  spm::npcdrv::npcTribes[124].animPoseName = "e_wanwan_g";   // Dark Chomp --> Gold Chomp
+                                                                       spm::npcdrv::npcTribes[124].partsList[1].animPoseName = "e_wanwan_g";
+                                                                       spm::npcdrv::npcTribes[124].partsList[2].animPoseName = "e_wanwan_g";
+                                                                       spm::npcdrv::npcTribes[124].partsList[3].animPoseName = "e_wanwan_g";
+                                                                       spm::npcdrv::npcTribes[124].partsList[4].animPoseName = "e_wanwan_g";
+                                                                       spm::npcdrv::npcTribes[124].partsList[5].animPoseName = "e_wanwan_g";
+                                                                       spm::npcdrv::npcTribes[124].partsList[6].animPoseName = "e_wanwan_g"; */
+        spm::npcdrv::npcTribes[167].animPoseName = "e_ntl_p";      // Dark Tileoid --> Tileoid PU
+        spm::npcdrv::npcTribes[220].animPoseName = "e_nin_d";      // Dark Ninjoe --> Ninjeremiah
+        spm::npcdrv::npcTribes[19].animPoseName = "e_togenokd";    // Dark Koopatrol --> Dark Koopatrol
+        spm::npcdrv::npcTribes[171].animPoseName = "e_jyama_b";    // Dark Jawbus --> Bawbus
+        spm::npcdrv::npcTribes[10].animPoseName = "e_k_kuribo";    // Dark Headbonk Goomba --> Kamikaze Goomba
+        spm::npcdrv::npcTribes[225].animPoseName = "e_tesita_bt";  // Dark Skellobit --> Skellobyte
+        spm::npcdrv::npcTribes[228].animPoseName = "e_tesita_sb";  // Dark Spiky Skellobit --> Spiky Skellobyte
+        spm::npcdrv::npcTribes[49].animPoseName = "e_buross_h";    // Dark Hammer Bro --> Shady Hammer Bro
+        spm::npcdrv::npcTribes[55].animPoseName = "e_buross_b";    // Dark Boomerang Bro --> Shady Boomerang Bro
+        spm::npcdrv::npcTribes[56].animPoseName = "e_buross_b";    // Shady Boomerang Bro projectile
+        spm::npcdrv::npcTribes[61].animPoseName = "e_burosu_i";    // Dark Fire Bro --> Ice Bro
+        spm::npcdrv::npcTribes[62].animPoseName = "e_burosu_i";    // Ice Bro projectile
+        spm::npcdrv::npcTribes[101].animPoseName = "e_sinemoh";    // Dark Cleft --> Hyper Cleft
+        spm::npcdrv::npcTribes[75].animPoseName = "e_k_shoote4";   // Dark Striker --> Shady Striker
 
-    EVT_BEGIN(nastasia_speech)
+        // Adjust new NPC stats
+        spm::npcdrv::NPCDefense def1;
+        def1.type = 0x0;
+        def1.defense = 0x1;
+        def1.flags = 0x0;
+
+        spm::npcdrv::NPCDefense def2;
+        def2.type = 0x0;
+        def2.defense = 0x2;
+        def2.flags = 0x0;
+
+        spm::npcdrv::NPCDefense def3;
+        def3.type = 0x0;
+        def3.defense = 0x3;
+        def3.flags = 0x0;
+
+        spm::npcdrv::NPCDefense def0;
+        def0.type = 0x0;
+        def0.defense = 0x0;
+        def0.flags = 0x0;
+
+        // Spinia
+        spm::npcdrv::npcTribes[495].catchCardItemId = 344;
+        spm::npcdrv::npcTribes[495].catchCardDefense = 5;
+        spm::npcdrv::npcTribes[495].maxHp = 4;
+        spm::npcdrv::npcTribes[495].killXp = 200;
+        spm::npcdrv::npcTribes[495].coinDropChance = 100;
+        spm::npcdrv::npcTribes[495].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[495].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[495].coinDropExtraMax = 1;
+        spm::npcdrv::npcTribes[495].attackStrength = 1;
+
+        // Spunia
+        spm::npcdrv::npcTribes[496].catchCardItemId = 350;
+        spm::npcdrv::npcTribes[496].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[496].maxHp = 10;
+        spm::npcdrv::npcTribes[496].killXp = 600;
+        spm::npcdrv::npcTribes[496].coinDropChance = 100;
+        spm::npcdrv::npcTribes[496].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[496].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[496].coinDropExtraMax = 3;
+        spm::npcdrv::npcTribes[496].attackStrength = 3;
+        spm::npcdrv::npcTribes[496].partsList[0].defenses[0] = def1;
+
+        // Shady Koopa, ATK 5 DEF 3
+        spm::npcdrv::npcTribes[465].catchCardItemId = 304;
+        spm::npcdrv::npcTribes[465].catchCardDefense = 30;
+        spm::npcdrv::npcTribes[465].maxHp = 15;
+        spm::npcdrv::npcTribes[465].killXp = 600;
+        spm::npcdrv::npcTribes[465].coinDropChance = 100;
+        spm::npcdrv::npcTribes[465].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[465].coinDropExtraChance = 75;
+        spm::npcdrv::npcTribes[465].coinDropExtraMax = 5;
+        spm::npcdrv::npcTribes[465].attackStrength = 5;
+        spm::npcdrv::npcTribes[465].partsList[0].defenses[0] = def3;
+
+        // Flip Shady Koopa, ATK 5 DEF 3
+        spm::npcdrv::npcTribes[466].catchCardItemId = 304;
+        spm::npcdrv::npcTribes[466].catchCardDefense = 30;
+        spm::npcdrv::npcTribes[466].maxHp = 15;
+        spm::npcdrv::npcTribes[466].killXp = 600;
+        spm::npcdrv::npcTribes[466].coinDropChance = 100;
+        spm::npcdrv::npcTribes[466].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[466].coinDropExtraChance = 75;
+        spm::npcdrv::npcTribes[466].coinDropExtraMax = 5;
+        spm::npcdrv::npcTribes[466].attackStrength = 5;
+        spm::npcdrv::npcTribes[466].partsList[0].defenses[0] = def3;
+
+        // Spiked Gloomba, ATK 3
+        spm::npcdrv::npcTribes[5].catchCardItemId = 336;
+        spm::npcdrv::npcTribes[5].catchCardDefense = 6;
+        spm::npcdrv::npcTribes[5].maxHp = 2;
+        spm::npcdrv::npcTribes[5].killXp = 200;
+        spm::npcdrv::npcTribes[5].coinDropChance = 100;
+        spm::npcdrv::npcTribes[5].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[5].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[5].coinDropExtraMax = 1;
+        spm::npcdrv::npcTribes[5].attackStrength = 3;
+
+        // Green Magikoopa, DEF 2
+        spm::npcdrv::npcTribes[473].catchCardItemId = 353;
+        spm::npcdrv::npcTribes[473].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[473].maxHp = 6;
+        spm::npcdrv::npcTribes[473].killXp = 600;
+        spm::npcdrv::npcTribes[473].coinDropChance = 100;
+        spm::npcdrv::npcTribes[473].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[473].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[473].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[473].attackStrength = 3;
+        spm::npcdrv::npcTribes[473].partsList[0].defenses[0] = def3;
+
+        // Green Broom Magikoopa, DEF 2
+        spm::npcdrv::npcTribes[474].catchCardItemId = 353;
+        spm::npcdrv::npcTribes[474].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[474].maxHp = 6;
+        spm::npcdrv::npcTribes[474].killXp = 600;
+        spm::npcdrv::npcTribes[474].coinDropChance = 100;
+        spm::npcdrv::npcTribes[474].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[474].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[474].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[474].attackStrength = 3;
+        spm::npcdrv::npcTribes[474].partsList[0].defenses[0] = def3;
+
+        // Green Magi Projectile
+        spm::npcdrv::npcTribes[475].catchCardItemId = 353;
+
+        // White Magikoopa
+        spm::npcdrv::npcTribes[476].catchCardItemId = 352;
+        spm::npcdrv::npcTribes[476].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[476].maxHp = 18;
+        spm::npcdrv::npcTribes[476].killXp = 600;
+        spm::npcdrv::npcTribes[476].coinDropChance = 100;
+        spm::npcdrv::npcTribes[476].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[476].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[476].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[476].attackStrength = 3;
+
+        // White Broom Magikoopa
+        spm::npcdrv::npcTribes[477].catchCardItemId = 352;
+        spm::npcdrv::npcTribes[477].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[477].maxHp = 18;
+        spm::npcdrv::npcTribes[477].killXp = 600;
+        spm::npcdrv::npcTribes[477].coinDropChance = 100;
+        spm::npcdrv::npcTribes[477].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[477].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[477].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[477].attackStrength = 3;
+
+        // White Magi Projectile
+        spm::npcdrv::npcTribes[478].catchCardItemId = 352;
+
+        // Red Magikoopa
+        spm::npcdrv::npcTribes[479].catchCardItemId = 351;
+        spm::npcdrv::npcTribes[479].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[479].maxHp = 6;
+        spm::npcdrv::npcTribes[479].killXp = 600;
+        spm::npcdrv::npcTribes[479].coinDropChance = 100;
+        spm::npcdrv::npcTribes[479].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[479].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[479].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[479].attackStrength = 6;
+
+        // Red Broom Magikoopa
+        spm::npcdrv::npcTribes[480].catchCardItemId = 351;
+        spm::npcdrv::npcTribes[480].catchCardDefense = 20;
+        spm::npcdrv::npcTribes[480].maxHp = 5;
+        spm::npcdrv::npcTribes[480].killXp = 600;
+        spm::npcdrv::npcTribes[480].coinDropChance = 100;
+        spm::npcdrv::npcTribes[480].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[480].coinDropExtraChance = 60;
+        spm::npcdrv::npcTribes[480].coinDropExtraMax = 4;
+        spm::npcdrv::npcTribes[480].attackStrength = 6;
+
+        // Red Magi Projectile, ATK 6
+        spm::npcdrv::npcTribes[481].catchCardItemId = 351;
+
+        // Bleepboxer, ATK 3
+        spm::npcdrv::npcTribes[504].catchCardItemId = 384;
+        spm::npcdrv::npcTribes[504].catchCardDefense = 15;
+        spm::npcdrv::npcTribes[504].maxHp = 12;
+        spm::npcdrv::npcTribes[504].killXp = 500;
+        spm::npcdrv::npcTribes[504].coinDropChance = 100;
+        spm::npcdrv::npcTribes[504].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[504].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[504].coinDropExtraMax = 3;
+        spm::npcdrv::npcTribes[504].attackStrength = 3;
+
+        // Kilo Muth, ATK 3
+        spm::npcdrv::npcTribes[506].catchCardItemId = 427;
+        spm::npcdrv::npcTribes[506].catchCardDefense = 15;
+        spm::npcdrv::npcTribes[506].maxHp = 25;
+        spm::npcdrv::npcTribes[506].killXp = 700;
+        spm::npcdrv::npcTribes[506].attackStrength = 3;
+        spm::npcdrv::npcTribes[506].partsList[0].defenses[0] = def0;
+        spm::npcdrv::npcTribes[506].partsList[1].defenses[0] = def0;
+        spm::npcdrv::npcTribes[506].partsList[2].defenses[0] = def0;
+
+        // Mega Muth and Muth HP drop
+        spm::npcdrv::npcTribes[257].maxHp = 50;
+        spm::npcdrv::npcTribes[258].maxHp = 75;
+
+        // Ice Bro nerf, ATK 3 DEF 2
+        spm::npcdrv::npcTribes[61].catchCardDefense = 16;
+        spm::npcdrv::npcTribes[61].maxHp = 10;
+        spm::npcdrv::npcTribes[61].killXp = 800;
+        spm::npcdrv::npcTribes[61].coinDropChance = 100;
+        spm::npcdrv::npcTribes[61].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[61].coinDropExtraChance = 50;
+        spm::npcdrv::npcTribes[61].coinDropExtraMax = 5;
+        spm::npcdrv::npcTribes[61].attackStrength = 3;
+        spm::npcdrv::npcTribes[61].partsList[0].defenses[0] = def2;
+        spm::npcdrv::npcTribes[61].partsList[0].defenses[1] = def2;
+
+        // Dark Puff nerf
+        spm::npcdrv::npcTribes[111].catchCardDefense = 8;
+        spm::npcdrv::npcTribes[111].maxHp = 6;
+        spm::npcdrv::npcTribes[111].killXp = 300;
+        spm::npcdrv::npcTribes[111].coinDropChance = 100;
+        spm::npcdrv::npcTribes[111].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[111].coinDropExtraChance = 40;
+        spm::npcdrv::npcTribes[111].coinDropExtraMax = 2;
+        spm::npcdrv::npcTribes[111].attackStrength = 2;
+        spm::npcdrv::npcTribes[111].partsList[0].defenses[0] = def0;
+
+        // Flip Buzzy Beetle/Flip Spike Top patch
+        spm::npcdrv::npcTribes[470].catchCardItemId = 298;
+        spm::npcdrv::npcTribes[470].catchCardDefense = 2;
+        spm::npcdrv::npcTribes[470].maxHp = 1;
+        spm::npcdrv::npcTribes[470].killXp = 200;
+        spm::npcdrv::npcTribes[470].coinDropChance = 100;
+        spm::npcdrv::npcTribes[470].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[470].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[470].coinDropExtraMax = 2;
+        spm::npcdrv::npcTribes[470].attackStrength = 1;
+
+        spm::npcdrv::npcTribes[471].catchCardItemId = 299;
+        spm::npcdrv::npcTribes[471].catchCardDefense = 10;
+        spm::npcdrv::npcTribes[471].maxHp = 1;
+        spm::npcdrv::npcTribes[471].killXp = 300;
+        spm::npcdrv::npcTribes[471].coinDropChance = 100;
+        spm::npcdrv::npcTribes[471].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[471].coinDropExtraChance = 45;
+        spm::npcdrv::npcTribes[471].coinDropExtraMax = 2;
+        spm::npcdrv::npcTribes[471].attackStrength = 2;
+
+        // Green Fuzzy nerf
+        spm::npcdrv::npcTribes[531].catchCardDefense = 16;
+        spm::npcdrv::npcTribes[531].maxHp = 10;
+        spm::npcdrv::npcTribes[531].killXp = 700;
+        spm::npcdrv::npcTribes[531].coinDropChance = 100;
+        spm::npcdrv::npcTribes[531].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[531].coinDropExtraChance = 40;
+        spm::npcdrv::npcTribes[531].coinDropExtraMax = 2;
+        spm::npcdrv::npcTribes[531].attackStrength = 2;
+
+        // Tileoid PU stats
+        spm::npcdrv::npcTribes[167].catchCardDefense = 12;
+        spm::npcdrv::npcTribes[167].maxHp = 1;
+        spm::npcdrv::npcTribes[167].killXp = 600;
+        spm::npcdrv::npcTribes[167].coinDropChance = 100;
+        spm::npcdrv::npcTribes[167].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[167].coinDropExtraChance = 40;
+        spm::npcdrv::npcTribes[167].coinDropExtraMax = 6;
+        spm::npcdrv::npcTribes[167].attackStrength = 5;
+
+        // White Clubba nerf
+        spm::npcdrv::npcTribes[95].maxHp = 30;
+        spm::npcdrv::npcTribes[95].attackStrength = 5;
+
+        // Hyper Cleft def nerf
+        spm::npcdrv::npcTribes[101].partsList[0].defenses[0] = def3;
+
+        // Shadoo nerf
+        spm::npcdrv::npcTribes[332].maxHp = 50; // Dark Peach
+        spm::npcdrv::npcTribes[333].maxHp = 50; // Dark Bowser
+        spm::npcdrv::npcTribes[330].maxHp = 50; // Dark Mario
+        spm::npcdrv::npcTribes[331].maxHp = 50; // Dark Luigi
+
+        // Temp HP decrease for some Dark enemies until I figure out defenses
+        spm::npcdrv::npcTribes[19].maxHp = 10;
+        spm::npcdrv::npcTribes[29].maxHp = 10;
+        spm::npcdrv::npcTribes[38].maxHp = 10;
+        spm::npcdrv::npcTribes[49].maxHp = 10;
+        spm::npcdrv::npcTribes[61].maxHp = 10;
+        spm::npcdrv::npcTribes[55].maxHp = 10;
+    }
+
+    static spm::evt_door::DokanDesc new_dan_70_dokan_desc = {
+        0, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
+
+    /*  static spm::evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
+          0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
+
+    /*    spm::npcdrv::NPCTribeAnimDef nastasiaAnims[] = {
+            {0, "S_1"}, // Standing (idle)
+            {3, "T_1"}, // Talking
+            {-1, nullptr}};
+
+        EVT_BEGIN(nastasia_speech)
         USER_FUNC(spm::evt_mario::evt_mario_key_off, 1)
         USER_FUNC(spm::evt_msg::evt_msg_print, EVT_MSG_FLAG_DIRECT, PTR("Hey,<wait 250> nice to see you here.\n<k><p>I came here to Flipside to\ncheck out the renovations\nthey've done to the Pit.\n<k><p>Apparently,<wait 250> they completely\nremade the room layouts,\n<k><p>And I think there were some\nnew enemies too.\n<k><p>You should check it out,<wait 250> it\nseems like the kind of thing\nthat would interest you.<k>"), 0, PTR("me"))
         USER_FUNC(spm::evt_mario::evt_mario_key_on)
         RETURN()
-    EVT_END()
+        EVT_END()
 
-    EVT_BEGIN(fwd_nastasia_speech)
+        EVT_BEGIN(fwd_nastasia_speech)
         RUN_EVT(nastasia_speech)
         RETURN()
-    EVT_END()
+        EVT_END()
 
-    EVT_BEGIN(flipside_nastasia_funny)
+        EVT_BEGIN(flipside_nastasia_funny)
         USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("nastasiaFunny"), PTR("n_nasta"), 0)
         USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(nastasiaAnims))
         USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("nastasiaFunny"), 0, true)
         USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("nastasiaFunny"), -75, 1500, -150)
         USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::INTERACT, PTR(fwd_nastasia_speech))
+        RETURN_FROM_CALL() */
+
+    EVT_BEGIN(overwrite_dark_mario_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 523, 0, LW(0), LW(1), LW(2), 0, 0, 0)
     RETURN_FROM_CALL()
 
-    static void addNastasiaToTopOfFlipsideTowerForFun() {
+    EVT_BEGIN(overwrite_peach_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 458, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(overwrite_dark_peach_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 521, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(overwrite_bowser_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 476, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(overwrite_dark_bowser_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 536, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(overwrite_luigi_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 512, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(overwrite_dark_luigi_card_chest)
+    USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 231, 0, LW(0), LW(1), LW(2), 0, 0, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(disable_flopside_pit_entrance)
+    USER_FUNC(spm::evt_door::evt_door_enable_disable_dokan_desc, 0, PTR("dokan_1"))
+    USER_FUNC(spm::evt_map::evt_mapobj_flag_onoff, 1, 1, PTR("dokan_1"), 1)
+    USER_FUNC(spm::evt_hit::evt_hitobj_onoff, PTR("A2d_dokan_1"), 1, 0)
+    USER_FUNC(spm::evt_hit::evt_hitobj_onoff, PTR("A3d_dokan_1"), 1, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(patch_pit_exit)
+    USER_FUNC(spm::evt_door::evt_door_set_dokan_descs, PTR(&new_dan_70_dokan_desc), 1)
+    RETURN_FROM_CALL()
+
+    // TEMP
+    /*  EVT_BEGIN(temp_pipe)
+      USER_FUNC(spm::evt_door::evt_door_set_dokan_descs, PTR(&temp_mac_04_2_dokan_desc), 1)
+      RETURN_FROM_CALL() */
+
+    // Dark Puff contact ATK patch
+    EVT_BEGIN(d_puff_dir_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 1)
+    RETURN_FROM_CALL()
+
+    // Dark Puff projectile ATK patch
+    EVT_BEGIN(d_puff_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 2)
+    RETURN_FROM_CALL()
+
+    // Ice Bro projectile ATK patch
+    EVT_BEGIN(i_bro_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    RETURN_FROM_CALL()
+
+    // Ice Bro contact ATK patch
+    EVT_BEGIN(i_bro_dir_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 2)
+    RETURN_FROM_CALL()
+
+    // Hyper Goomba contact ATK patch
+    EVT_BEGIN(h_goomba_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    RETURN_FROM_CALL()
+
+    // Hyper Paragoomba contact ATK patch
+    EVT_BEGIN(h_pgoomba_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    RETURN_FROM_CALL()
+
+    // Red Magikoopa projectile ATK patch
+    EVT_BEGIN(r_magi_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
+    RETURN_FROM_CALL()
+
+    // Tileoid PU ATK patch
+    EVT_BEGIN(p_tile_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
+    RETURN_FROM_CALL()
+
+    // Kilo Muth ATK patch
+    EVT_BEGIN(k_muth_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    RETURN_FROM_CALL()
+
+    // Spiked Gloomba ATK patch
+    EVT_BEGIN(s_gloomba_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 3)
+    RETURN_FROM_CALL()
+
+    // Shady Koopa/Flip Shady Koopa ATK patch
+    EVT_BEGIN(uranoko_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 4)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 4)
+    RETURN_FROM_CALL()
+
+    // Bleepboxer projectile ATK patch
+    EVT_BEGIN(bleep_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 3)
+    RETURN_FROM_CALL()
+
+    // White Clubba ATK patch
+    EVT_BEGIN(w_clubba_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
+    RETURN_FROM_CALL()
+
+    static void evtPatches()
+    {
         // Initialize the patches to the EVT interpreter to add custom opcodes
         evtpatch::evtmgrExtensionInit();
 
-        // Get Flipside Tower's init EVT script
-        spm::evtmgr_cmd::EvtScriptCode* flipsideInitEvt = spm::map_data::mapDataPtr("mac_02")->initScript;
+        /* // Get Flipside Tower's init EVT script
+         spm::evtmgr_cmd::EvtScriptCode *flipsideInitEvt = spm::map_data::mapDataPtr("mac_02")->initScript;
 
-        // Add a hook at the beginning of Flipside's init EVT script that will play our custom script first
-        evtpatch::hookEvt(flipsideInitEvt, 1, flipside_nastasia_funny);
+         // Add a hook at the beginning of Flipside's init EVT script that will play our custom script first
+         evtpatch::hookEvt(flipsideInitEvt, 1, flipside_nastasia_funny); */
+
+        // Render Flopside Pit pipe useless and patch Pit exit pipe
+        spm::evtmgr_cmd::EvtScriptCode *disableFlopsidePitEntrance = spm::map_data::mapDataPtr("mac_15")->initScript;
+        evtpatch::hookEvt(disableFlopsidePitEntrance, 11, disable_flopside_pit_entrance);
+        evtpatch::hookEvt(spm::dan::dan_70_init_evt, 8, patch_pit_exit);
+
+        /*    // Temp
+            spm::evtmgr_cmd::EvtScriptCode *tempPipe = spm::map_data::mapDataPtr("mac_04")->initScript;
+            evtpatch::hookEvtReplace(tempPipe, 137, temp_pipe); */
+
+        // Get enemy onSpawnScripts from templates
+        spm::evtmgr_cmd::EvtScriptCode *dPuffDirAtk = spm::npcdrv::npcEnemyTemplates[357].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dPuffAtk = spm::npcdrv::npcEnemyTemplates[358].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *iBroDirAtk = spm::npcdrv::npcEnemyTemplates[341].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *iBroAtk = spm::npcdrv::npcEnemyTemplates[344].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *hGoombaAtk = spm::npcdrv::npcEnemyTemplates[329].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *hpGoombaAtk = spm::npcdrv::npcEnemyTemplates[328].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *rMagiAtk = spm::npcdrv::npcEnemyTemplates[324].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *pTileAtk = spm::npcdrv::npcEnemyTemplates[379].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *kMuthAtk = spm::npcdrv::npcEnemyTemplates[279].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *sGloombaAtk = spm::npcdrv::npcEnemyTemplates[6].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *uranokoAtk = spm::npcdrv::npcEnemyTemplates[10].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *fUranokoAtk = spm::npcdrv::npcEnemyTemplates[13].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *bleepAtk = spm::npcdrv::npcEnemyTemplates[277].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *wClubbaAtk = spm::npcdrv::npcEnemyTemplates[350].onSpawnScript;
+
+        // ATK overwrite
+        evtpatch::hookEvtReplace(dPuffDirAtk, 2, d_puff_dir_atk);
+        evtpatch::hookEvtReplace(dPuffAtk, 11, d_puff_atk);
+        evtpatch::hookEvtReplace(iBroDirAtk, 1, i_bro_dir_atk);
+        evtpatch::hookEvtReplace(iBroAtk, 1, i_bro_atk);
+        evtpatch::hookEvtReplace(hGoombaAtk, 2, h_goomba_atk);
+        evtpatch::hookEvtReplace(hpGoombaAtk, 2, h_pgoomba_atk);
+        evtpatch::hookEvtReplace(rMagiAtk, 1, r_magi_atk);
+        evtpatch::hookEvtReplace(pTileAtk, 1, p_tile_atk);
+        evtpatch::hookEvtReplace(kMuthAtk, 1, k_muth_atk);
+        evtpatch::hookEvtReplace(sGloombaAtk, 2, s_gloomba_atk);
+        evtpatch::hookEvtReplace(uranokoAtk, 5, uranoko_atk);
+        evtpatch::hookEvtReplace(fUranokoAtk, 2, uranoko_atk);
+        evtpatch::hookEvtReplace(bleepAtk, 1, bleep_atk);
+        evtpatch::hookEvtReplace(wClubbaAtk, 1, w_clubba_atk);
+
+        // Post-Shadoo chest reward overwrites
+        evtpatch::hookEvtReplace(spm::dan::dan_70_dark_mario_chest_open_evt, 3, overwrite_dark_mario_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_peach_chest_open_evt, 3, overwrite_peach_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_dark_peach_chest_open_evt, 3, overwrite_dark_peach_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_bowser_chest_open_evt, 3, overwrite_bowser_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_dark_bowser_chest_open_evt, 3, overwrite_dark_bowser_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_luigi_chest_open_evt, 3, overwrite_luigi_card_chest);
+        evtpatch::hookEvtReplace(spm::dan::dan_70_dark_luigi_chest_open_evt, 3, overwrite_dark_luigi_card_chest);
     }
 
     void main()
@@ -2938,6 +3955,6 @@ namespace mod
         danDontFuckingCrash();
         evtNpcPatchAllEnemies();
         danPatchPitEnemies();
-        addNastasiaToTopOfFlipsideTowerForFun();
+        evtPatches();
     }
 }
