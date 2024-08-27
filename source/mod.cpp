@@ -268,10 +268,10 @@ namespace mod
     // Muth, Spunia, Hyper Goomba, Hyper Spiked Goomba, Hyper Paragoomba, Dark Koopa, Dark Paratroopa, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Green Fuzzy, Ice Bro, Red Magikoopa,
     // Red Broom Magikoopa, White Magikoopa, White Broom Magikoopa, Green Magikoopa, Green Broom Magikoopa
     int lv3Names[] = {10, 19, 32, 40, 40, 40, 40, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
-    int lv3Odds[] = {80, 35, 30, 60, 70, 75, 75, 55, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
+    int lv3Odds[] = {80, 35, 30, 55, 70, 75, 75, 55, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
     int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
-    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 2, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
+    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
 
     // Lakitu, Flip Lakitu, Dull Bones, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp, Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry,
     // Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth, Shady Koopa, Flip Shady Koopa, Ash Cherbil, Sky-Blue Spiny,
@@ -281,7 +281,7 @@ namespace mod
     int lv4Odds[] = {60, 50, 85, 80, 20, 30, 80, 80, 40, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
     int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int lv4Min[] = {1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 2};
-    int lv4Max[] = {2, 2, 5, 5, 2, 3, 6, 5, 2, 2, 3, 2, 5, 2, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
+    int lv4Max[] = {2, 2, 5, 5, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
 
     //   int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
     //   int SpR1Doors[] = {27, 28, 29, 30};
@@ -340,7 +340,85 @@ namespace mod
     int nextNum3 = 0;
     int nextPos3 = 0;
 
-    // Toggle below to "true" to enable on-screen displays for current enemies in a Pit room / enemies in the next room / GSW1. Will display in pit rooms 2-98. Leaving the pit early may cause the game to crash.
+    /*
+    // Define enemy defenses
+    spm::npcdrv::NPCDefense createDef(int type, int defense, int flags)
+    {
+        spm::npcdrv::NPCDefense def;
+        def.type = type;
+        def.defense = defense;
+        def.flags = flags;
+        return def;
+    }
+    spm::npcdrv::NPCDefense def1_1 = createDef(0x1, 0x1, 0x0);
+    spm::npcdrv::NPCDefense def1_2 = createDef(0x1, 0x2, 0x0);
+    spm::npcdrv::NPCDefense def1_3 = createDef(0x1, 0x3, 0x0);
+    spm::npcdrv::NPCDefense def1_0 = createDef(0x1, 0x0, 0x0);
+    */
+
+    // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't override all defenses with Fucking damage reduction.
+    // There are certainly a few in this array that can use DEFs, DR is just easier for me right now.
+    int (*marioCalcDamageToEnemy)(s32 damageType, s32 tribeId);
+    void patchMarioDamage()
+    {
+        marioCalcDamageToEnemy = patch::hookFunction(spm::mario::marioCalcDamageToEnemy,
+                                                     [](s32 damageType, s32 tribeId)
+                                                     {
+                                                         // Kilo Muth, DEF 3 -> 1
+                                                         // Ice Bro, DEF 3 --> 1
+                                                         // Dark Koopatrol, DEF 8 --> 6
+                                                         // Red Spike Top, DEF 6 --> 4
+                                                         // Sky-Blue Spiny, DEF 6 --> 4
+                                                         if (tribeId == 506 || tribeId == 61 || tribeId == 19 || tribeId == 29 || tribeId == 38)
+                                                         {
+                                                             int damage = marioCalcDamageToEnemy(damageType, tribeId);
+                                                             damage += 2;
+                                                             if (damage < 0)
+                                                             {
+                                                                 damage = 0;
+                                                             }
+                                                             return damage;
+                                                         }
+                                                         // Spunia, DEF 0 --> 1
+                                                         else if (tribeId == 496)
+                                                         {
+                                                             int damage = marioCalcDamageToEnemy(damageType, tribeId);
+                                                             damage -= 1;
+                                                             if (damage < 0)
+                                                             {
+                                                                 damage = 0;
+                                                             }
+                                                             return damage;
+                                                         }
+                                                         // Shady Bros, DEF 3 --> 2
+                                                         if (tribeId == 61 || tribeId == 55 || tribeId == 49)
+                                                         {
+                                                             int damage = marioCalcDamageToEnemy(damageType, tribeId);
+                                                             damage += 1;
+                                                             if (damage < 0)
+                                                             {
+                                                                 damage = 0;
+                                                             }
+                                                             return damage;
+                                                         }
+                                                         // Green (Broom) Magikoopa, DEF 0 --> 3
+                                                         // (Flip) Shady Koopa, DEF 0 --> 3
+                                                         else if (tribeId == 473 || tribeId == 474 || tribeId == 465 || tribeId == 466)
+                                                         {
+                                                             int damage = marioCalcDamageToEnemy(damageType, tribeId);
+                                                             damage -= 3;
+                                                             if (damage < 0)
+                                                             {
+                                                                 damage = 0;
+                                                             }
+                                                             return damage;
+                                                         }
+                                                         return marioCalcDamageToEnemy(damageType, tribeId);
+                                                     });
+    }
+
+    // Toggle below to "true" to enable on-screen displays for current enemies in a Pit room / enemies in the next room / GSW1. Will display in pit rooms 2-98.
+    // This feature is not complete or stable. Leaving the pit early may cause the game to crash.
     bool displayDebugValues = false;
 
     s32 evt_dan_read_data_new(spm::evtmgr::EvtEntry *entry, bool isFirstCall)
@@ -1677,22 +1755,22 @@ namespace mod
             floorwiseMultiplier = 0.7;
             break;
         case 39:
-            floorwiseMultiplier = 0.4;
+            floorwiseMultiplier = 0.5;
             break;
         case 149:
-            floorwiseMultiplier = 0;
+            floorwiseMultiplier = 0.25;
             break;
         case 159:
-            floorwiseMultiplier = -0.4;
+            floorwiseMultiplier = 0;
             break;
         case 169:
-            floorwiseMultiplier = -0.7;
+            floorwiseMultiplier = -0.3;
             break;
         case 179:
-            floorwiseMultiplier = -0.85;
+            floorwiseMultiplier = -0.5;
             break;
         case 189:
-            floorwiseMultiplier = -1.0;
+            floorwiseMultiplier = -0.75;
             break;
         }
 
@@ -1702,11 +1780,20 @@ namespace mod
         double StarMedal = msl::math::pow(314, floorwiseMultiplier);
         double BigEgg = msl::math::pow(280, floorwiseMultiplier);
         double ShellShock = msl::math::pow(240, floorwiseMultiplier);
+        double FreshPastaBunch = msl::math::pow(220, floorwiseMultiplier);
         double FriedShroomPlate = msl::math::pow(210, floorwiseMultiplier);
         double HoneySuper = msl::math::pow(160, floorwiseMultiplier);
+        double SapSyrup = msl::math::pow(150, floorwiseMultiplier);
         double IceStorm = msl::math::pow(140, floorwiseMultiplier);
+        double CocoaBean = msl::math::pow(120, floorwiseMultiplier);
+        double KeelMango = msl::math::pow(110, floorwiseMultiplier);
         double MysteryBox = msl::math::pow(101, floorwiseMultiplier);
+        double EmergencyRation = msl::math::pow(90, floorwiseMultiplier);
+        double HotDog = msl::math::pow(80, floorwiseMultiplier);
+        double HerbTea = msl::math::pow(70, floorwiseMultiplier);
+        double KoopaTea = msl::math::pow(70, floorwiseMultiplier);
         double BlockBlock = msl::math::pow(64, floorwiseMultiplier);
+        double PowBlock = msl::math::pow(60, floorwiseMultiplier);
         double ThunderRage = msl::math::pow(55, floorwiseMultiplier);
         double MightyTonic = msl::math::pow(50, floorwiseMultiplier);
         double RoastedShroomDish = msl::math::pow(40, floorwiseMultiplier);
@@ -1714,10 +1801,11 @@ namespace mod
         double LifeShroom = msl::math::pow(30, floorwiseMultiplier);
         double MeteorMeal = msl::math::pow(25, floorwiseMultiplier);
         double GoldMedal = msl::math::pow(20, floorwiseMultiplier);
+        double EggBomb = msl::math::pow(16, floorwiseMultiplier);
         double UltraShroomShake = msl::math::pow(15, floorwiseMultiplier);
         double DyllisDeluxe = msl::math::pow(5, floorwiseMultiplier);
         double TrialStew = .1;
-        double sumOfLoot = (ShroomShake + FireBurst + StarMedal + BigEgg + ShellShock + FriedShroomPlate + HoneySuper + IceStorm + MysteryBox + BlockBlock + ThunderRage + MightyTonic + RoastedShroomDish + ShootingStar + LifeShroom + MeteorMeal + GoldMedal + UltraShroomShake + DyllisDeluxe + TrialStew);
+        double sumOfLoot = (ShroomShake + FireBurst + StarMedal + BigEgg + ShellShock + FriedShroomPlate + HoneySuper + IceStorm + MysteryBox + BlockBlock + ThunderRage + MightyTonic + RoastedShroomDish + ShootingStar + LifeShroom + MeteorMeal + GoldMedal + UltraShroomShake + DyllisDeluxe + FreshPastaBunch + SapSyrup + CocoaBean + KeelMango + EmergencyRation + HotDog + PowBlock + EggBomb + HerbTea + KoopaTea);
 
         // Adjusting weights against floor number and normalizing them to add up to 99.9
         double SShake = (ShroomShake / (sumOfLoot) * 99.9);
@@ -1738,6 +1826,16 @@ namespace mod
         double MMeal = (MeteorMeal / (sumOfLoot) * 99.9);
         double GMedal = (GoldMedal / (sumOfLoot) * 99.9);
         double USShake = (UltraShroomShake / (sumOfLoot) * 99.9);
+        double EBomb = (EggBomb / (sumOfLoot) * 99.9);
+        double PBlock = (PowBlock / (sumOfLoot) * 99.9);
+        double HDog = (HotDog / (sumOfLoot) * 99.9);
+        double ERation = (EmergencyRation / (sumOfLoot) * 99.9);
+        double KMango = (KeelMango / (sumOfLoot) * 99.9);
+        double CBean = (CocoaBean / (sumOfLoot) * 99.9);
+        double SSyrup = (SapSyrup / (sumOfLoot) * 99.9);
+        double FPBunch = (FreshPastaBunch / (sumOfLoot) * 99.9);
+        double HTea = (HerbTea / (sumOfLoot) * 99.9);
+        double KTea = (KoopaTea / (sumOfLoot) * 99.9);
         double DDeluxe = (DyllisDeluxe / (sumOfLoot) * 99.9);
 
         // Establishing selection ranges for each item -- these should be perfectly 1-100 like boobies.
@@ -1760,6 +1858,16 @@ namespace mod
         double F_MMeal = (F_LShroom - MMeal);
         double F_GMedal = (F_MMeal - GMedal);
         double F_USShake = (F_GMedal - USShake);
+        double F_EBomb = (F_USShake - EBomb);
+        double F_PBlock = (F_EBomb - PBlock);
+        double F_HDog = (F_PBlock - HDog);
+        double F_ERation = (F_HDog - ERation);
+        double F_KMango = (F_ERation - KMango);
+        double F_CBean = (F_KMango - CBean);
+        double F_SSyrup = (F_CBean - SSyrup);
+        double F_FPBunch = (F_SSyrup - FPBunch);
+        double F_HTea = (F_FPBunch - HTea);
+        double F_KTea = (F_HTea - KTea);
         double F_DDeluxe = (F_USShake - DDeluxe);
 
         // The rabbit is landing
@@ -1803,6 +1911,26 @@ namespace mod
                 spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_GOLD_MEDAL");
             else if (boobies >= F_USShake)
                 spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ULTRA_DRINK");
+            else if (boobies >= F_EBomb)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_BOMB_EGG");
+            else if (boobies >= F_PBlock)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_POW_BLOCK");
+            else if (boobies >= F_HDog)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HOTDOG");
+            else if (boobies >= F_ERation)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_EMERGENCY_MEAL");
+            else if (boobies >= F_KMango)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TOROPICO_MANGO");
+            else if (boobies >= F_CBean)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_MILD_CACAO");
+            else if (boobies >= F_SSyrup)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HANAJIRU_SYRUP");
+            else if (boobies >= F_FPBunch)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ROW_PASTA");
+            else if (boobies >= F_HTea)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HERB_TEA");
+            else if (boobies >= F_KTea)
+                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KAME_TEA");
             else if (boobies >= F_DDeluxe)
                 spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DOROCY_DELUX");
             else
@@ -1977,6 +2105,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                    if (lv2Names[arrayRNG] == 195 || lv2Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes == 1)
                                 {
@@ -2219,6 +2351,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                    if (lv2Names[arrayRNG] == 195 || lv2Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes == 1)
                                 {
@@ -2382,6 +2518,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                    if (lv2Names[arrayRNG] == 195 || lv2Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes < 3)
                                 {
@@ -2540,6 +2680,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                    if (lv4Names[arrayRNG] == 195 || lv4Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes < 3)
                                 {
@@ -2703,6 +2847,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv2Min[arrayRNG];
+                                    if (lv2Names[arrayRNG] == 195 || lv2Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes < 3)
                                 {
@@ -2861,6 +3009,10 @@ namespace mod
                                     }
                                     enemyDifference = enemyMax - enemyMin + 1;
                                     enemyAmt = spm::system::rand() % enemyDifference + lv4Min[arrayRNG];
+                                    if (lv4Names[arrayRNG] == 195 || lv4Names[arrayRNG] == 197)
+                                    {
+                                        enemyAmt = 1;
+                                    }
                                 }
                                 if (enemyTypes < 3)
                                 {
@@ -2964,7 +3116,6 @@ namespace mod
 
         if (currentFloor >= 100)
         {
-            // Test - this might fix the Floor 50+ crash
             int currentFloor2 = (currentFloor - 100);
             enemyArrayOffset = (currentFloor * 10 + 1);
             spm::dan::dan_wp->dungeons[currentFloor2].enemyCount = enemyConfigArray[enemyArrayOffset];
@@ -3380,7 +3531,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "Project SPM Pit Rework Name Pending alpha 1.3";
+        const char *msg = "Project SPM Pit Rework Name Pending alpha 1.3.1";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -3476,26 +3627,6 @@ namespace mod
         spm::npcdrv::npcTribes[75].animPoseName = "e_k_shoote4";   // Dark Striker --> Shady Striker
 
         // Adjust new NPC stats
-        spm::npcdrv::NPCDefense def1;
-        def1.type = 0x0;
-        def1.defense = 0x1;
-        def1.flags = 0x0;
-
-        spm::npcdrv::NPCDefense def2;
-        def2.type = 0x0;
-        def2.defense = 0x2;
-        def2.flags = 0x0;
-
-        spm::npcdrv::NPCDefense def3;
-        def3.type = 0x0;
-        def3.defense = 0x3;
-        def3.flags = 0x0;
-
-        spm::npcdrv::NPCDefense def0;
-        def0.type = 0x0;
-        def0.defense = 0x0;
-        def0.flags = 0x0;
-
         // Spinia
         spm::npcdrv::npcTribes[495].catchCardItemId = 344;
         spm::npcdrv::npcTribes[495].catchCardDefense = 5;
@@ -3517,31 +3648,28 @@ namespace mod
         spm::npcdrv::npcTribes[496].coinDropExtraChance = 45;
         spm::npcdrv::npcTribes[496].coinDropExtraMax = 3;
         spm::npcdrv::npcTribes[496].attackStrength = 3;
-        spm::npcdrv::npcTribes[496].partsList[0].defenses[0] = def1;
 
         // Shady Koopa, ATK 5 DEF 3
         spm::npcdrv::npcTribes[465].catchCardItemId = 304;
         spm::npcdrv::npcTribes[465].catchCardDefense = 30;
         spm::npcdrv::npcTribes[465].maxHp = 15;
-        spm::npcdrv::npcTribes[465].killXp = 600;
+        spm::npcdrv::npcTribes[465].killXp = 300;
         spm::npcdrv::npcTribes[465].coinDropChance = 100;
         spm::npcdrv::npcTribes[465].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[465].coinDropExtraChance = 75;
         spm::npcdrv::npcTribes[465].coinDropExtraMax = 5;
         spm::npcdrv::npcTribes[465].attackStrength = 5;
-        spm::npcdrv::npcTribes[465].partsList[0].defenses[0] = def3;
 
         // Flip Shady Koopa, ATK 5 DEF 3
         spm::npcdrv::npcTribes[466].catchCardItemId = 304;
         spm::npcdrv::npcTribes[466].catchCardDefense = 30;
         spm::npcdrv::npcTribes[466].maxHp = 15;
-        spm::npcdrv::npcTribes[466].killXp = 600;
+        spm::npcdrv::npcTribes[466].killXp = 300;
         spm::npcdrv::npcTribes[466].coinDropChance = 100;
         spm::npcdrv::npcTribes[466].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[466].coinDropExtraChance = 75;
         spm::npcdrv::npcTribes[466].coinDropExtraMax = 5;
         spm::npcdrv::npcTribes[466].attackStrength = 5;
-        spm::npcdrv::npcTribes[466].partsList[0].defenses[0] = def3;
 
         // Spiked Gloomba, ATK 3
         spm::npcdrv::npcTribes[5].catchCardItemId = 336;
@@ -3564,7 +3692,6 @@ namespace mod
         spm::npcdrv::npcTribes[473].coinDropExtraChance = 60;
         spm::npcdrv::npcTribes[473].coinDropExtraMax = 4;
         spm::npcdrv::npcTribes[473].attackStrength = 3;
-        spm::npcdrv::npcTribes[473].partsList[0].defenses[0] = def3;
 
         // Green Broom Magikoopa, DEF 2
         spm::npcdrv::npcTribes[474].catchCardItemId = 353;
@@ -3576,7 +3703,6 @@ namespace mod
         spm::npcdrv::npcTribes[474].coinDropExtraChance = 60;
         spm::npcdrv::npcTribes[474].coinDropExtraMax = 4;
         spm::npcdrv::npcTribes[474].attackStrength = 3;
-        spm::npcdrv::npcTribes[474].partsList[0].defenses[0] = def3;
 
         // Green Magi Projectile
         spm::npcdrv::npcTribes[475].catchCardItemId = 353;
@@ -3626,7 +3752,7 @@ namespace mod
         spm::npcdrv::npcTribes[480].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[480].coinDropExtraChance = 60;
         spm::npcdrv::npcTribes[480].coinDropExtraMax = 4;
-        spm::npcdrv::npcTribes[480].attackStrength = 6;
+        spm::npcdrv::npcTribes[480].attackStrength = 5;
 
         // Red Magi Projectile, ATK 6
         spm::npcdrv::npcTribes[481].catchCardItemId = 351;
@@ -3642,15 +3768,12 @@ namespace mod
         spm::npcdrv::npcTribes[504].coinDropExtraMax = 3;
         spm::npcdrv::npcTribes[504].attackStrength = 3;
 
-        // Kilo Muth, ATK 3
+        // Kilo Muth, ATK 2
         spm::npcdrv::npcTribes[506].catchCardItemId = 427;
         spm::npcdrv::npcTribes[506].catchCardDefense = 15;
         spm::npcdrv::npcTribes[506].maxHp = 25;
         spm::npcdrv::npcTribes[506].killXp = 700;
-        spm::npcdrv::npcTribes[506].attackStrength = 3;
-        spm::npcdrv::npcTribes[506].partsList[0].defenses[0] = def0;
-        spm::npcdrv::npcTribes[506].partsList[1].defenses[0] = def0;
-        spm::npcdrv::npcTribes[506].partsList[2].defenses[0] = def0;
+        spm::npcdrv::npcTribes[506].attackStrength = 2;
 
         // Mega Muth and Muth HP drop
         spm::npcdrv::npcTribes[257].maxHp = 50;
@@ -3665,8 +3788,6 @@ namespace mod
         spm::npcdrv::npcTribes[61].coinDropExtraChance = 50;
         spm::npcdrv::npcTribes[61].coinDropExtraMax = 5;
         spm::npcdrv::npcTribes[61].attackStrength = 3;
-        spm::npcdrv::npcTribes[61].partsList[0].defenses[0] = def2;
-        spm::npcdrv::npcTribes[61].partsList[0].defenses[1] = def2;
 
         // Dark Puff nerf
         spm::npcdrv::npcTribes[111].catchCardDefense = 8;
@@ -3677,7 +3798,6 @@ namespace mod
         spm::npcdrv::npcTribes[111].coinDropExtraChance = 40;
         spm::npcdrv::npcTribes[111].coinDropExtraMax = 2;
         spm::npcdrv::npcTribes[111].attackStrength = 2;
-        spm::npcdrv::npcTribes[111].partsList[0].defenses[0] = def0;
 
         // Flip Buzzy Beetle/Flip Spike Top patch
         spm::npcdrv::npcTribes[470].catchCardItemId = 298;
@@ -3724,22 +3844,11 @@ namespace mod
         spm::npcdrv::npcTribes[95].maxHp = 30;
         spm::npcdrv::npcTribes[95].attackStrength = 5;
 
-        // Hyper Cleft def nerf
-        spm::npcdrv::npcTribes[101].partsList[0].defenses[0] = def3;
-
         // Shadoo nerf
         spm::npcdrv::npcTribes[332].maxHp = 50; // Dark Peach
         spm::npcdrv::npcTribes[333].maxHp = 50; // Dark Bowser
         spm::npcdrv::npcTribes[330].maxHp = 50; // Dark Mario
         spm::npcdrv::npcTribes[331].maxHp = 50; // Dark Luigi
-
-        // Temp HP decrease for some Dark enemies until I figure out defenses
-        spm::npcdrv::npcTribes[19].maxHp = 10;
-        spm::npcdrv::npcTribes[29].maxHp = 10;
-        spm::npcdrv::npcTribes[38].maxHp = 10;
-        spm::npcdrv::npcTribes[49].maxHp = 10;
-        spm::npcdrv::npcTribes[61].maxHp = 10;
-        spm::npcdrv::npcTribes[55].maxHp = 10;
     }
 
     static spm::evt_door::DokanDesc new_dan_70_dokan_desc = {
@@ -3857,9 +3966,9 @@ namespace mod
     USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
     RETURN_FROM_CALL()
 
-    // Kilo Muth ATK patch
+    // Kilo Muth ATK/DEF patch
     EVT_BEGIN(k_muth_atk)
-    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 2)
     RETURN_FROM_CALL()
 
     // Spiked Gloomba ATK patch
@@ -3898,10 +4007,6 @@ namespace mod
         spm::evtmgr_cmd::EvtScriptCode *disableFlopsidePitEntrance = spm::map_data::mapDataPtr("mac_15")->initScript;
         evtpatch::hookEvt(disableFlopsidePitEntrance, 11, disable_flopside_pit_entrance);
         evtpatch::hookEvt(spm::dan::dan_70_init_evt, 8, patch_pit_exit);
-
-        /*    // Temp
-            spm::evtmgr_cmd::EvtScriptCode *tempPipe = spm::map_data::mapDataPtr("mac_04")->initScript;
-            evtpatch::hookEvtReplace(tempPipe, 137, temp_pipe); */
 
         // Get enemy onSpawnScripts from templates
         spm::evtmgr_cmd::EvtScriptCode *dPuffDirAtk = spm::npcdrv::npcEnemyTemplates[357].onSpawnScript;
@@ -3956,5 +4061,6 @@ namespace mod
         evtNpcPatchAllEnemies();
         danPatchPitEnemies();
         evtPatches();
+        patchMarioDamage();
     }
 }
