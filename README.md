@@ -25,6 +25,7 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * "Blessing/curse" system, unsure of the details yet
 * Add new enemies and modify some enemy AI to be more distinct/difficult
 * Make the Flopside Pit a roguelike, with difficulty and rewards scaling with the player's level
+* Make the entire Pit generation process seeded, with everything (save for enemy positions and which one has the key) based entirely on the name of your save file
 * Many more things that don't immediately come to mind!
 
 ## Known Issues (Will be patched in a future update)
