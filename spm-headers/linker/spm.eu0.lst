@@ -19,6 +19,11 @@
 // data
 804031b8:mapData
 
+// evt_dimen.c (temp)
+8040f6d8:evt_dimen_handle_cutscenes
+8040f3e8:evt_dimen_handle_rifts
+8040f1a0:evt_dimen_handle_mapchanges
+
 // mobjdrv.c
 8002c834:mobjNameToPtr
 8002c8e8:mobjNameToPtrNoAssert
@@ -143,7 +148,7 @@
 
 // roten or something idk man
 
-80e50730:dan_rotenShopItems
+1,5,15b5b0:dan_rotenShopItems
 
 // eff_nice.c
 800CC01C:effNiceEntry
@@ -159,6 +164,9 @@
 800d218c:evt_snd_bgmon_f_d
 800d21f8:evt_snd_bgmoff
 800d2224:evt_snd_bgmoff_f_d
+800d2268:evt_snd_idfk
+800d22d8:evt_snd_idfk2
+800d24b8:evt_snd_get_bgm_wait_time
 800d2800:evt_snd_sfxon
 800d28fc:evt_snd_sfxon_character
 800d29cc:evt_snd_sfxon_3d
@@ -284,6 +292,7 @@
 800edcd8:evt_map_checkanim
 800ee1c4:evt_mapobj_get_position
 800ee55c:evt_mapdisp_onoff
+800ef198:evt_map_idfk
 // more
 
 // evt_mario.c
@@ -610,6 +619,7 @@
 801adef0:npcDispMain
 801b6f2c:npcNameToPtr
 801b7064:npcDelete
+801b84d4:npcHandleDmg
 801bfc48:npcSearchAnimDefs
 801c9adc:npcGetWorkPtr
 801e3a1c:npcDropItem
@@ -891,6 +901,16 @@
 // machi.c
 1,1,52e4:evt_machi_set_elv_descs
 // more
+
+// he1_01.c
+// data
+1,5,3aa88:tippi_tutorial_evt
+// more
+
+// ls3_12.c
+// data
+1,5,137ff0:ls3_12_blk_hit
+1,5,138200:ls3_12_dimentio_intro
 
 //sp4_13.c
 // text
