@@ -31,3 +31,13 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * Muths can spawn directly below the player when entering a room, causing instant unavoidable damage
 * Tattles and catch card descriptions are usually quite inaccurate
 * Many more things that I'm not thinking of
+
+## Special Thanks
+* SeekyCt, JohnP55, and L5050 for their contributions to spm-headers and spm-decomp, as well as showing me the ropes with SPM modding
+* SeekyCt, JohnP55, L5050, Starry_Arie, roblox8192, and Zephiles for code help
+* Igrmi, JohnP55, follyfoxe, L5050, PistonMiner, and Zephiles for creating crucial tools I relied on *heavily* during the development process
+* JohnP55 for creating/implementing the evtpatch engine
+* Little Crap, FRN6Phantom, KoraFloof, Nevu_z, and SeekyCt for testing the mod in its alpha stage
+* Various members of the SPM Speedrunning community and my friends for encouraging me to continue this project <3
+
+This is my first ever mod, and I could not have created it or learned nearly as much as I have without all of you. Thank you all so much. Please enjoy the mod!
