@@ -6,6 +6,8 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <evt_cmd.h>
+#include <spm/rel/he1_01.h>
+#include <spm/rel/ls3_12.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
@@ -14,6 +16,7 @@
 #include <spm/eff_spm_confetti.h>
 #include <spm/eff_zunbaba.h>
 #include <spm/evt_cam.h>
+#include <spm/evt_dimen.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fairy.h>
 #include <spm/evt_frame.h>
@@ -267,21 +270,21 @@ namespace mod
     // Hyper Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
     // Muth, Spunia, Hyper Goomba, Hyper Spiked Goomba, Hyper Paragoomba, Dark Koopa, Dark Paratroopa, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Green Fuzzy, Ice Bro, Red Magikoopa,
     // Red Broom Magikoopa, White Magikoopa, White Broom Magikoopa, Green Magikoopa, Green Broom Magikoopa
-    int lv3Names[] = {10, 19, 32, 40, 40, 40, 40, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
-    int lv3Odds[] = {80, 35, 30, 55, 70, 75, 75, 55, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
+    int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
+    int lv3Odds[] = {80, 35, 30, 30, 45, 50, 50, 50, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
     int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv3Min[] = {4, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
-    int lv3Max[] = {6, 5, 4, 5, 4, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
+    int lv3Min[] = {4, 2, 2, 3, 1, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
+    int lv3Max[] = {6, 5, 4, 5, 3, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
 
     // Lakitu, Flip Lakitu, Dull Bones, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp, Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry,
     // Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth, Shady Koopa, Flip Shady Koopa, Ash Cherbil, Sky-Blue Spiny,
     // Red Spike Top, Dark Bones, White Clubba, Shady Magikoopa, Shady Broom Magikoopa, Tileoid PU, Ninjeremiah, Dark Koopatrol, Kamikaze Goomba,
     // Skellobyte, Spiky Skellobyte, Shady Hammer Bro, Shady Boomerang Bro, Shady Striker
     int lv4Names[] = {35, 36, 42, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259, 466, 467, 447, 39, 30, 44, 96, 67, 68, 168, 221, 20, 11, 226, 229, 50, 56, 76};
-    int lv4Odds[] = {60, 50, 85, 80, 20, 30, 80, 80, 40, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
+    int lv4Odds[] = {60, 50, 65, 80, 20, 30, 80, 80, 40, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
     int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv4Min[] = {1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 2};
-    int lv4Max[] = {2, 2, 5, 5, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
+    int lv4Min[] = {1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 2};
+    int lv4Max[] = {2, 2, 5, 3, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
 
     //   int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
     //   int SpR1Doors[] = {27, 28, 29, 30};
@@ -3531,7 +3534,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "Project SPM Pit Rework Name Pending alpha 1.3.1";
+        const char *msg = "SPM Flipside Pit Randomizer beta v1.0";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -3821,14 +3824,14 @@ namespace mod
         spm::npcdrv::npcTribes[471].attackStrength = 2;
 
         // Green Fuzzy nerf
-        spm::npcdrv::npcTribes[531].catchCardDefense = 16;
-        spm::npcdrv::npcTribes[531].maxHp = 10;
-        spm::npcdrv::npcTribes[531].killXp = 700;
-        spm::npcdrv::npcTribes[531].coinDropChance = 100;
-        spm::npcdrv::npcTribes[531].coinDropBaseCount = 0;
-        spm::npcdrv::npcTribes[531].coinDropExtraChance = 40;
-        spm::npcdrv::npcTribes[531].coinDropExtraMax = 2;
-        spm::npcdrv::npcTribes[531].attackStrength = 2;
+        spm::npcdrv::npcTribes[98].catchCardDefense = 16;
+        spm::npcdrv::npcTribes[98].maxHp = 10;
+        spm::npcdrv::npcTribes[98].killXp = 600;
+        spm::npcdrv::npcTribes[98].coinDropChance = 100;
+        spm::npcdrv::npcTribes[98].coinDropBaseCount = 0;
+        spm::npcdrv::npcTribes[98].coinDropExtraChance = 40;
+        spm::npcdrv::npcTribes[98].coinDropExtraMax = 2;
+        spm::npcdrv::npcTribes[98].attackStrength = 2;
 
         // Tileoid PU stats
         spm::npcdrv::npcTribes[167].catchCardDefense = 12;
