@@ -3,7 +3,7 @@ This mod randomizes the contents of the Flipside Pit of 100 Trials and adds a mu
 
 Install this mod as you would any other Riivolution mod on console or Dolphin; download can be found [here.](https://github.com/shiken-yme/spm-pit-randomizer/releases) Please do not enable any more than one SPM mod at one time, as they are not cross-compatible.
 
-For Console (Wii or vWii): extract the contents of the ZIP to the root of your SD card and boot up Riivolution.
+For Console (Wii or vWii): drag & drop the contents of the ZIP to the root of your SD card, insert the SD card into your console, and boot up Riivolution. (To be clear, you want the "PitRando" and "riivolution" folders on the root of your SD card.)
 
 For Dolphin: find your Riivolution folder (you can find this by right-clicking your game, clicking *Start with Riivolution Patches*, then *Open Riivolution XML*; this will open the directory you need to be in), then drag and drop the contents of the ZIP to that folder. Close the folder and right-click, select *Start with Riivolution Patches*, then enable the mod.
 
