@@ -53,6 +53,6 @@ UNKNOWN_FUNCTION(evt_mapobj_blendmode);
 UNKNOWN_FUNCTION(func_800ee9f4);
 UNKNOWN_FUNCTION(func_800eec8c);
 UNKNOWN_FUNCTION(func_800eee68);
-UNKNOWN_FUNCTION(func_800ef198);
+EVT_DECLARE_USER_FUNC(evt_map_idfk, 8); // I wanted to declare this as an unknown_function, but the compiler really fucking hated not having an arg count. Sorry
 
 CPP_WRAPPER_END()

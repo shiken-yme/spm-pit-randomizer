@@ -388,6 +388,16 @@
 804F68D8:Ecb
 802E103C:TPLBind
 800D4910:evt_sub_get_entername
+800D9A98:evtDelete
+800D8A60:make_jump_table
+80262358:pow
+800FEEF4:evt_npc_set_rgba
+800FF028:evt_npc_set_rgbacopy
+800FF178:evt_npc_set_rgbacopytwo
+801087E8:evt_npc_set_part_attack_power
+800E3958:evt_door_enable_disable_dokan_desc
+800EADA8:evt_hitobj_onoff
+800ECDD8:evt_item_entry
 1,1,3c134:evt_dan_handle_map_parts
 1,1,3c3f4:evt_dan_handle_dokans
 1,1,3c648:evt_dan_handle_doors
@@ -424,7 +434,7 @@
 1,5,159c68:danChestRoomMapDoorDescs
 1,5,159ca8:dan_exit_pipe_sign_interact_evt
 1,5,159ce0:dan_chest_open_evt
-1,5,159e18:rotenShopItems
+1,5,159e18:dan_rotenShopItems
 1,5,159f30:rotenShopDef
 1,5,159f48:rotenTribeAnimDefs
 1,5,159f88:dan_chest_room_init_evt

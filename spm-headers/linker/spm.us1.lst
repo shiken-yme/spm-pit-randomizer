@@ -60,6 +60,7 @@
 8012150C:marioGetPtr
 8012212C:marioCtrlOffChk
 80122140:marioKeyOffChk
+8012996C:marioCalcDamageToEnemy
 8012AAB0:marioSetGravity
 80146460:func_80146f0c
 8014B5DC:pouchGetPtr
@@ -388,6 +389,16 @@
 804F6758:Ecb
 802E0F9C:TPLBind
 800D49BC:evt_sub_get_entername
+800D9B34:evtDelete
+800D8AFC:make_jump_table
+802622B4:pow
+800FEAE4:evt_npc_set_rgba
+800FEC18:evt_npc_set_rgbacopy
+800FED68:evt_npc_set_rgbacopytwo
+801083D8:evt_npc_set_part_attack_power
+800E39EC:evt_door_enable_disable_dokan_desc
+800EAB08:evt_hitobj_onoff
+800ECB38:evt_item_entry
 1,1,3c0d8:evt_dan_handle_map_parts
 1,1,3c398:evt_dan_handle_dokans
 1,1,3c5ec:evt_dan_handle_doors
@@ -424,7 +435,7 @@
 1,5,159c58:danChestRoomMapDoorDescs
 1,5,159c98:dan_exit_pipe_sign_interact_evt
 1,5,159cd0:dan_chest_open_evt
-1,5,159e08:rotenShopItems
+1,5,159e08:dan_rotenShopItems
 1,5,159f20:rotenShopDef
 1,5,159f38:rotenTribeAnimDefs
 1,5,159f78:dan_chest_room_init_evt

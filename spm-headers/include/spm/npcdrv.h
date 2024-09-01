@@ -301,7 +301,9 @@ void npcDelete(char *name);
 UNKNOWN_FUNCTION(func_801b73cc);
 UNKNOWN_FUNCTION(func_801b7a20);
 UNKNOWN_FUNCTION(func_801b8064);
-UNKNOWN_FUNCTION(func_801b84d4);
+UNKNOWN_FUNCTION(npcHandleDmg);
+ // FUN_801b84d4(MarioWork *param_1,uint *param_2,NPCEntry *param_3,uint param_4,int *param_5,
+ //              undefined4 *param_6,uint *param_7,int *param_8)
 UNKNOWN_FUNCTION(func_801ba124);
 UNKNOWN_FUNCTION(func_801bb6fc);
 UNKNOWN_FUNCTION(func_801bba3c);
