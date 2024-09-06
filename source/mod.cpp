@@ -121,7 +121,7 @@ namespace mod
     // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Rawbus, PatrolMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
     // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top, Moon Cleft, Kilo Muth, Bleepboxer
     int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 170, 174, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472, 101, 507, 505};
-    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 60, 40, 80, 70, 80, 80, 85, 70, 90, 75, 40, 20, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 16, 69};
+    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 45, 35, 80, 70, 80, 80, 85, 70, 90, 75, 40, 10, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 16, 69};
     int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 1, 2};
     int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 2, 5};
@@ -3764,6 +3764,10 @@ namespace mod
 
         // Frackle point buff
         spm::npcdrv::npcTribes[450].killXp = 10;
+
+        // (Spiky) Skellobyte nerfs
+        spm::npcdrv::npcTribes[225].maxHp = 20;
+        spm::npcdrv::npcTribes[228].maxHp = 20;
     }
 
     s32 declare_shadoo_stats(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
