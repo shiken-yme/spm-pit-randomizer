@@ -3960,7 +3960,7 @@ namespace mod
 
     // Dark Mario ATK patch
     EVT_BEGIN(d_mario_atk_again)
-    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 5)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 10)
     RETURN_FROM_CALL()
 
     // Dark Peach ATK patch
