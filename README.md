@@ -21,7 +21,6 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * Removes the Flopside Pit (for now...)
 
 ## Planned Features
-* Option to have custom music by Tater-Tot Tunes play in the Flipside Pit
 * "Blessing/curse" system, unsure of the details yet
 * Add new enemies and modify some enemy AI to be more distinct/difficult
 * Make the Flopside Pit a roguelike, with difficulty and rewards scaling with the player's level
@@ -31,6 +30,7 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 ## Known Issues (Will be patched in a future update)
 * Muths can spawn directly below the player when entering a room, causing instant unavoidable damage
 * Tattles and catch card descriptions are usually quite inaccurate
+* Dark Bowser may do 10 damage in some situations when he should not
 * Many more things that I'm not thinking of
 
 ## Special Thanks
