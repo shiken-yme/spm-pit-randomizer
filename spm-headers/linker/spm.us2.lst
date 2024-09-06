@@ -54,6 +54,7 @@
 800F8C2C:evt_mobj_blk
 800FBA98:evt_msg_print
 800FBEB8:evt_msg_continue
+800FBF90:evt_msg_select
 8010A360:evt_npc_teleport_effect
 8010CA14:evt_seq_set_seq
 8010CA8C:evt_seq_wait
@@ -276,6 +277,7 @@
 800E36DC:evt_door_set_dokan_descs
 800E426C:evt_door_set_map_door_descs
 800E445C:evt_door_enable_disable_map_door_desc
+803D48B0:evt_door_dan_dokan
 803DBE48:door_init_evt
 8056CA20:evt_door_wp
 800EB880:evt_hitobj_attr_onoff
@@ -297,6 +299,7 @@
 80103408:evt_npc_animflag_onoff
 801046E4:evt_npc_set_property
 801049FC:evt_npc_modify_part
+80104ADC:evt_npc_get_property
 80105420:func_801059d0
 80106174:evt_npc_entry_from_template
 8010774C:func_80107cfc
@@ -390,6 +393,7 @@
 800D4910:evt_sub_get_entername
 800D9A98:evtDelete
 800D8A60:make_jump_table
+800D8C80:evtmgrReInit
 80262358:pow
 800FEEF4:evt_npc_set_rgba
 800FF028:evt_npc_set_rgbacopy
@@ -643,3 +647,8 @@
 8026F338:Run
 8056d570:SaveStart
 8056d574:SaveEnd
+
+// temp_unk for pit rando
+80202820:bowser_spawn_fire
+80206488:luigi_superjump_atk
+

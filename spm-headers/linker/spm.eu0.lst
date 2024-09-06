@@ -197,6 +197,7 @@
 // evtmgr.c
 800d87e4:evtGetWork
 800d890c:make_jump_table
+800d8b2c:evtmgrReInit
 800d8b88:evtEntry
 800d8df4:evtEntryType
 800d9060:evtChildEntry
@@ -236,6 +237,7 @@
 800e468c:evt_door_openable_onoff
 // more
 // data
+80412d18:evt_door_dan_dokan
 8041a2b0:door_init_evt
 // more
 // sdata
@@ -333,6 +335,7 @@
 800fbe74:evt_msg_continue
 800fbc64:evt_msg_print_add
 800fbd00:evt_msg_print_add_insert
+800fbf4c:evt_msg_select
 800fc02c:evt_msg_toge
 800fd0c4:evt_msg_fmt_str
 // more
@@ -357,6 +360,7 @@
 80104694:func_80104694
 80104c94:evt_npc_set_property
 80104fac:evt_npc_modify_part
+8010508c:evt_npc_get_property
 801059d0:func_801059d0
 80106724:evt_npc_entry_from_template
 80107540:evt_npc_id_to_name
@@ -1060,3 +1064,8 @@
 1,5,d2820:sammerDefsCh6
 1,5,d2cd0:sammerDefsEndgame
 // more
+
+// temp_unk.c
+80203fc8:bowser_spawn_fire
+80207a24:luigi_boss_set_stats
+80207c6c:luigi_superjump_atk

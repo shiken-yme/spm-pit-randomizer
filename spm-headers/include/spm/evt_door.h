@@ -123,6 +123,7 @@ UNKNOWN_FUNCTION(evt_door_get_dokan_desc_num);
 UNKNOWN_FUNCTION(evt_door_get_map_door_descs);
 UNKNOWN_FUNCTION(evt_door_get_map_door_desc_num);
 
+EVT_DECLARE(evt_door_dan_dokan)
 EVT_DECLARE(lbl_80417e10)
 EVT_DECLARE(door_init_evt)
 

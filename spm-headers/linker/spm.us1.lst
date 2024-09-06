@@ -54,6 +54,7 @@
 800F881C:evt_mobj_blk
 800FB688:evt_msg_print
 800FBAA8:evt_msg_continue
+800FBB80:evt_msg_select
 80109F50:evt_npc_teleport_effect
 8010C604:evt_seq_set_seq
 8010C67C:evt_seq_wait
@@ -271,12 +272,14 @@
 800D76E8:func_800d74a0
 800DDF4C:evtmgrCmd
 800DF3EC:evtSetFloat
+800D8D1C:evtmgrReInit
 800E13C8:evt_door_wait_flag
 800E1398:evtDoorGetActiveDoorDesc
 800E27F8:evt_door_set_door_descs
 800E3770:evt_door_set_dokan_descs
 800E4300:evt_door_set_map_door_descs
 800E44F0:evt_door_enable_disable_map_door_desc
+803D46D0:evt_door_dan_dokan
 803DBC68:door_init_evt
 8056C8A0:evt_door_wp
 800EB5E0:evt_hitobj_attr_onoff
@@ -298,6 +301,7 @@
 80102FF8:evt_npc_animflag_onoff
 801042D4:evt_npc_set_property
 801045EC:evt_npc_modify_part
+801046CC:evt_npc_get_property
 80105010:func_801059d0
 80105D64:evt_npc_entry_from_template
 8010733C:func_80107cfc
@@ -480,3 +484,7 @@
 8026F298:Run
 8056d3f0:SaveStart
 8056d3f4:SaveEnd
+
+// temp_unk for pit rando
+80202508:bowser_spawn_fire
+80206170:luigi_superjump_atk

@@ -6,8 +6,7 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <evt_cmd.h>
-#include <spm/rel/he1_01.h>
-#include <spm/rel/ls3_12.h>
+#include <spm/temp_unk.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
@@ -73,64 +72,17 @@ namespace mod
 {
     bool youSuck = false;
 
-    // New pit entrance message
-    const char *D100_entrance_01 =
-        "<system>\n"
-        "<col cfffffff>This is the entrance to a\n"
-        "dangerous dungeon called the\n"
-        "Pit of 100 Trials.\n"
-        "<k>\n<p>\n"
-        "Once you enter, it isn't easy\n"
-        "to leave. Let me give you \n"
-        "a few pointers.\n"
-        "<k>\n<p>\n"
-        "So first, you've got the\n"
-        "<col c00000ff>Goombas.<col cfffffff><wait 2000> They're in there.\n"
-        "<k>\n<p>\n"
-        "Then you've got the... <wait 1000><col c00000ff>Koopas!!!\n"
-        "<col cfffffff><wait 500>I've spent my whole life stompin'\n"
-        "'em. They're really tough!\n"
-        "<k>\n<p>\n"
-        "Oh, then there's <col c00000ff>Shlurps.\n"
-        "<col cfffffff><wait 250>They're really hard.<wait 250> Don't even\n"
-        "try defeating those guys.\n"
-        "<k>\n<p>\n"
-        "<wait 250>... Unless you have some kind\n"
-        "of <col c00000ff>bomb.<col cfffffff><wait 250> If it swallowed one,\n"
-        "it'd probably die.\n"
-        "<k>\n<p>\n"
-        "But...\n"
-        "<wait 500>what kind of cheater would\n"
-        "bring <dynamic 3>bombs</dynamic> to the Pit?\n"
-        "<k>\n<p>\n"
-        "<shake>You know, back in my day,\n"
-        "we didn't <wait 250><dynamic 3>HAVE</dynamic> any bombs.\n"
-        "Got by fine without 'em.\n"
-        "</shake><k>\n<p>\n"
-        "<dynamic 3>Y'know what we called it?\n"
-        "<wait 500><shake><col c00000ff>\"Boomerless Pit.\"\n"
-        "<col cfffffff></shake></dynamic><k>\n<p>\n"
-        "<wait 250>... Well, I don't know\n"
-        "what a boomer is, but it\n"
-        "sounds evil.<wait 250> And smelly.\n"
-        "<k>\n<p>\n"
-        "It also sounds a bit\n"
-        "like 'bomb.'<wait 250> And I don't\n"
-        "like that.<wait 250> Bombs are <shake>cheating.\n"
-        "</shake><k>\n<p>\n"
-        "<wait 250>Where was I again?\n"
-        "<wait 500>Right. This generation always\n"
-        "taking the easy way out.\n"
-        "<k>\n<p>\n"
-        "<wait 250>Excuse me for a second.\n"
-        "<wait 1000><scale 0.67><shake>Ahem...\n"
-        "</shake></scale><k>\n<p>\n"
-        "<dynamic 3><scale 1.8><wait 500>SHAME<wait 500> ON<wait 500> YOU!!!\n"
-        "<wait 1000></scale>\"Classic Pit\" runner!\n"
-        "</dynamic>\n<k>\n<p>\n"
-        "<wait 1000>So...<wait 500> do you still want\n"
-        "to go in?\n"
+    const char musicOption[] =
+        "<system>"
+        "Would you like to play\n"
+        "custom 8-bit Pit music?\n"
+        "(Made by Tater-Tot Tunes)\n"
         "<o>";
+
+    const char musicOptionChoices[] =
+        "<select 1 -1 150 40>\n"
+        "Yes\n"
+        "No";
 
     const char *mac_kanban_003 =
         "<kanban>\n"
@@ -153,98 +105,6 @@ namespace mod
         "whatever floats your boat.\n"
         "<o>";
 
-    const char *modoridokan_D100_01 =
-        "<system>\n"
-        "Oh, it's you again. How's\n"
-        "the Pit been treating you?\n"
-        "<k>\n<p>\n"
-        "Oh, what's that you're\n"
-        "saying? \"Mr. Pipe, will you\n"
-        "let me out, pleeeeeease?\"\n"
-        "<k>\n<p>\n"
-        "You know what you are?\n"
-        "I know what you are. You're\n"
-        "just a<dynamic 2> QUITTER.\n"
-        "</dynamic><k>\n<p>\n"
-        "You know what we used to\n"
-        "do back in the day?\n"
-        "<k>\n<p>\n"
-        "Me and my buddies, we'd\n"
-        "go to the Flipside Pit...\n"
-        "EVERY day after school.\n"
-        "<k>\n<p>\n"
-        "Well, that part's a lie,\n"
-        "I've never been to a school.\n"
-        "But the point is...\n"
-        "<k>\n<p>\n"
-        "...we'd go to the Pit,\n"
-        "and we'd exit from the\n"
-        "100th Trial. Every time.\n"
-        "<k>\n<p>\n"
-        "And you know what?\n"
-        "We did it without any of\n"
-        "your darned Pixls.\n"
-        "<k>\n<p>\n"
-        "None of those \"items\" or all\n"
-        "that other hullabaloo. Just\n"
-        "us and our Ultra Hammers.\n"
-        "<k>\n<p>\n"
-        "You youngsters just don't\n"
-        "know when to quit or when\n"
-        "to keep going...\n"
-        "<k>\n<p>\n"
-        "You do know that if you leave\n"
-        "now, I won't just put you\n"
-        "back here, right?\n"
-        "<k>\n<p>\n"
-        "Yeah, that's right. You leave\n"
-        "now, and you get to start\n"
-        "ALL over again.\n"
-        "<k>\n<p>\n"
-        "<dynamic 1>\"Oh, but that's so cruel!\n"
-        "What kind of questionable\n"
-        "game design is this?\"\n"
-        "</dynamic><k>\n<p>\n"
-        "I'll tell you what kind of\n"
-        "\"game design\" it is.\n"
-        "<shake>Good and old-fashioned.\n"
-        "</shake><k>\n<p>\n"
-        "You children think this is\n"
-        "a game? You're supposed to\n"
-        "be saving the world!\n"
-        "<k>\n<p>\n"
-        "Yeah, I went there.\n"
-        "I can see the headlines\n"
-        "already...\n"
-        "<k>\n<p>\n"
-        "<dynamic 3>\"Local Hero of the Light\n"
-        "Prognosticus: Abandoning All\n"
-        "Worlds, Playing in a Pit?!\"\n"
-        "</dynamic><k>\n<p>\n"
-        "I mean, here I was, trying\n"
-        "my best not to judge you.\n"
-        "But I can't help myself!\n"
-        "<k>\n<p>\n"
-        "You're the Hero, and you\n"
-        "can't even handle 100\n"
-        "simulated battles?\n"
-        "<k>\n<p>\n"
-        "I thought I'd gotten this\n"
-        "through to you the first\n"
-        "time, but...<wait 1000><scale 0.67><shake>  Ahem...\n"
-        "</shake></scale><k>\n<p>\n"
-        "<dynamic 3><scale 1.8><wait 500>SHAME<wait 500> ON<wait 500> YOU!!!\n"
-        "<wait 1000></scale>\nUseless quitter!\n"
-        "</dynamic>\n<k>\n<p>\n"
-        "... Well, I suppose it's fine to\n"
-        "let you go and save all the\n"
-        "worlds now.\n"
-        "<k>\n<p>\n"
-        "Do you want to leave the\n"
-        "Flipside Pit of 100 Trials?\n"
-        // "<wait 5000>Quitter!!!!!!!!\n"
-        "<o>";
-
     static double boobies = 0;
 
     // Create arrays for enemy generation, separated by difficulty class
@@ -252,7 +112,7 @@ namespace mod
     // Goomba, Flip Goomba, Paragoomba, Green Koopa, Glassesless Koopa, Red Koopa, Flip Red Koopa, Green Paratroopa, Glassesless Paratroopa, Buzzy Beetle, Stone Buzzy, Boo, Green Cheep Cheep,
     // Red Cheep Cheep, Flip Cheep Cheep, Bald Cleft, Squiglet, Squig, Sproing-Oing, Boing-Oing, Boomboxer, Growmeba, Jellien, Slow Cursya, Cherbil, Poison Cherbil, Frackle, Spinia, Flip Buzzy, Dark Puff, Jawbus
     int lv1Names[] = {1, 2, 8, 12, 13, 15, 16, 21, 22, 26, 33, 85, 89, 90, 91, 100, 126, 127, 135, 137, 143, 160, 179, 246, 441, 443, 451, 496, 471, 112, 169};
-    int lv1Odds[] = {70, 65, 60, 35, 35, 45, 35, 35, 30, 20, 45, 73, 50, 40, 20, 40, 60, 61, 55, 55, 60, 65, 40, 60, 65, 70, 60, 40, 25, 70, 50};
+    int lv1Odds[] = {70, 65, 60, 35, 35, 45, 35, 35, 30, 20, 45, 73, 50, 40, 20, 40, 60, 61, 55, 55, 60, 45, 40, 60, 65, 70, 60, 40, 25, 70, 50};
     int lv1SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1};
     int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5, 6, 3};
@@ -261,7 +121,7 @@ namespace mod
     // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Rawbus, PatrolMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
     // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top, Moon Cleft, Kilo Muth, Bleepboxer
     int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 170, 174, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472, 101, 507, 505};
-    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 70, 70, 80, 70, 80, 80, 85, 70, 90, 75, 50, 20, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 32, 69};
+    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 60, 40, 80, 70, 80, 80, 85, 70, 90, 75, 40, 20, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 16, 69};
     int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 1, 2};
     int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 2, 5};
@@ -271,7 +131,7 @@ namespace mod
     // Muth, Spunia, Hyper Goomba, Hyper Spiked Goomba, Hyper Paragoomba, Dark Koopa, Dark Paratroopa, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Green Fuzzy, Ice Bro, Red Magikoopa,
     // Red Broom Magikoopa, White Magikoopa, White Broom Magikoopa, Green Magikoopa, Green Broom Magikoopa
     int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
-    int lv3Odds[] = {80, 35, 30, 30, 45, 50, 50, 50, 65, 30, 70, 75, 65, 35, 75, 69, 55, 60, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
+    int lv3Odds[] = {80, 35, 30, 30, 45, 50, 50, 50, 65, 30, 70, 75, 65, 35, 75, 69, 55, 40, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
     int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int lv3Min[] = {4, 2, 2, 3, 1, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
     int lv3Max[] = {6, 5, 4, 5, 3, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
@@ -281,10 +141,10 @@ namespace mod
     // Red Spike Top, Dark Bones, White Clubba, Shady Magikoopa, Shady Broom Magikoopa, Tileoid PU, Ninjeremiah, Dark Koopatrol, Kamikaze Goomba,
     // Skellobyte, Spiky Skellobyte, Shady Hammer Bro, Shady Boomerang Bro, Shady Striker
     int lv4Names[] = {35, 36, 42, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259, 466, 467, 447, 39, 30, 44, 96, 67, 68, 168, 221, 20, 11, 226, 229, 50, 56, 76};
-    int lv4Odds[] = {60, 50, 65, 80, 20, 30, 80, 80, 40, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
+    int lv4Odds[] = {60, 50, 65, 80, 7, 30, 80, 80, 20, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
     int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv4Min[] = {1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 2};
-    int lv4Max[] = {2, 2, 5, 3, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 6, 3, 5, 4, 3, 4, 4, 4, 5, 5, 5, 4, 4, 5};
+    int lv4Min[] = {1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 1, 3, 2, 2, 1, 1, 2};
+    int lv4Max[] = {2, 2, 5, 3, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 4, 2, 2, 5};
 
     //   int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
     //   int SpR1Doors[] = {27, 28, 29, 30};
@@ -343,6 +203,10 @@ namespace mod
     int nextNum3 = 0;
     int nextPos3 = 0;
 
+    s32 marioMaxHp = 0;
+    s32 marioAtk = 0;
+    s32 bowserAtk = 0;
+
     /*
     // Define enemy defenses
     spm::npcdrv::NPCDefense createDef(int type, int defense, int flags)
@@ -369,10 +233,9 @@ namespace mod
                                                      {
                                                          // Kilo Muth, DEF 3 -> 1
                                                          // Ice Bro, DEF 3 --> 1
-                                                         // Dark Koopatrol, DEF 8 --> 6
                                                          // Red Spike Top, DEF 6 --> 4
                                                          // Sky-Blue Spiny, DEF 6 --> 4
-                                                         if (tribeId == 506 || tribeId == 61 || tribeId == 19 || tribeId == 29 || tribeId == 38)
+                                                         if (tribeId == 506 || tribeId == 61 || tribeId == 29 || tribeId == 38)
                                                          {
                                                              int damage = marioCalcDamageToEnemy(damageType, tribeId);
                                                              damage += 2;
@@ -416,12 +279,23 @@ namespace mod
                                                              }
                                                              return damage;
                                                          }
+                                                         // Dark Koopatrol, DEF 8 --> 5
+                                                         else if (tribeId == 19)
+                                                         {
+                                                             int damage = marioCalcDamageToEnemy(damageType, tribeId);
+                                                             damage += 3;
+                                                             if (damage < 0)
+                                                             {
+                                                                 damage = 0;
+                                                             }
+                                                             return damage;
+                                                         }
                                                          return marioCalcDamageToEnemy(damageType, tribeId);
                                                      });
     }
 
     // Toggle below to "true" to enable on-screen displays for current enemies in a Pit room / enemies in the next room / GSW1. Will display in pit rooms 2-98.
-    // This feature is not complete or stable. Leaving the pit early may cause the game to crash.
+    // This feature is not complete or stable, nor do I need it to be. Leaving the pit early may cause the game to crash.
     bool displayDebugValues = false;
 
     s32 evt_dan_read_data_new(spm::evtmgr::EvtEntry *entry, bool isFirstCall)
@@ -1243,7 +1117,7 @@ namespace mod
                     (segment200 && segment4000) ||
                     (segment4 && segment80 && segment1000 && segment8000) ||
                     (segment8 && segment1000 && segment2000 && segment8000) ||
-                    (segment20 && segment8000) ||
+                    (segment200 && segment8000) ||
                     (segment100 && segment200) ||
                     (segment200 && segment1000 && segment2000) ||
                     (segment200 && segment800 && segment1000) ||
@@ -1729,7 +1603,6 @@ namespace mod
         {
             roomDecCode = 0;
             activeDoorCount = 19;
-            //    marioMaxHp = spm::mario_pouch::MarioPouchWork::maxHp;
         }
 
         // Doors
@@ -2076,6 +1949,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv2Odds[arrayRNG] == 195 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 38;
+                                    if (lv2Odds[arrayRNG] == 195)
+                                    {
+                                        arrayRNG = spm::system::rand() % 38;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -2322,6 +2203,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv2Odds[arrayRNG] == 195 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 38;
+                                    if (lv2Odds[arrayRNG] == 195)
+                                    {
+                                        arrayRNG = spm::system::rand() % 38;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -2489,6 +2378,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv2Odds[arrayRNG] == 195 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 38;
+                                    if (lv2Odds[arrayRNG] == 195)
+                                    {
+                                        arrayRNG = spm::system::rand() % 38;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -2651,6 +2548,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv4Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv4Odds[arrayRNG] == 197 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 41;
+                                    if (lv4Odds[arrayRNG] == 197)
+                                    {
+                                        arrayRNG = spm::system::rand() % 41;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv4Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -2818,6 +2723,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv2Odds[arrayRNG] == 195 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 38;
+                                    if (lv2Odds[arrayRNG] == 195)
+                                    {
+                                        arrayRNG = spm::system::rand() % 38;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv2Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -2980,6 +2893,14 @@ namespace mod
                             vsOdds = spm::system::rand() % 100;
                             if (lv4Odds[arrayRNG] > vsOdds)
                             {
+                                if (lv4Odds[arrayRNG] == 197 && i > 0)
+                                {
+                                    arrayRNG = spm::system::rand() % 41;
+                                    if (lv4Odds[arrayRNG] == 197)
+                                    {
+                                        arrayRNG = spm::system::rand() % 41;
+                                    }
+                                }
                                 ++i;
                                 enemyConfigArray[enemyArrayVal] = lv4Names[arrayRNG];
                                 enemyArrayVal = enemyArrayVal + 1;
@@ -3221,20 +3142,14 @@ namespace mod
         msgSearchReal = patch::hookFunction(spm::msgdrv::msgSearch,
                                             [](const char *msgName)
                                             {
-                                                if (msl::string::strcmp(msgName, "D100_entrance_01") == 0)
-                                                    // flipside pit first entrance text
-                                                    return D100_entrance_01;
-                                                else if (msl::string::strcmp(msgName, "mac_kanban_003") == 0)
+                                                if (msl::string::strcmp(msgName, "mac_kanban_003") == 0)
                                                     // flipside pit entrance sign
                                                     return mac_kanban_003;
-                                                else if (msl::string::strcmp(msgName, "modoridokan_D100_01") == 0)
-                                                    // flipside pit first exit text
-                                                    return modoridokan_D100_01;
                                                 else if (msl::string::strcmp(msgName, "D100_entrance_03") == 0)
-                                                    // flipside pit first exit text
+                                                    // flopsite pit 1st pipe interaction (should never be seen)
                                                     return D100_entrance_03;
                                                 else if (msl::string::strcmp(msgName, "mac_kanban_004") == 0)
-                                                    // flipside pit first exit text
+                                                    // flopside pit entrance sign
                                                     return mac_kanban_004;
                                                 else
                                                     return msgSearchReal(msgName);
@@ -3534,7 +3449,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "SPM Flipside Pit Randomizer beta v1.0";
+        const char *msg = "SPM Flipside Pit Randomizer beta v1.0.1";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -3644,7 +3559,7 @@ namespace mod
         // Spunia
         spm::npcdrv::npcTribes[496].catchCardItemId = 350;
         spm::npcdrv::npcTribes[496].catchCardDefense = 20;
-        spm::npcdrv::npcTribes[496].maxHp = 10;
+        spm::npcdrv::npcTribes[496].maxHp = 9;
         spm::npcdrv::npcTribes[496].killXp = 600;
         spm::npcdrv::npcTribes[496].coinDropChance = 100;
         spm::npcdrv::npcTribes[496].coinDropBaseCount = 0;
@@ -3847,18 +3762,29 @@ namespace mod
         spm::npcdrv::npcTribes[95].maxHp = 30;
         spm::npcdrv::npcTribes[95].attackStrength = 5;
 
-        // Shadoo nerf
-        spm::npcdrv::npcTribes[332].maxHp = 50; // Dark Peach
-        spm::npcdrv::npcTribes[333].maxHp = 50; // Dark Bowser
-        spm::npcdrv::npcTribes[330].maxHp = 50; // Dark Mario
-        spm::npcdrv::npcTribes[331].maxHp = 50; // Dark Luigi
+        // Frackle point buff
+        spm::npcdrv::npcTribes[450].killXp = 10;
     }
+
+    s32 declare_shadoo_stats(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        spm::mario_pouch::MarioPouchWork *pouch = spm::mario_pouch::pouchGetPtr();
+        marioMaxHp = pouch->maxHp;
+
+        // Shadoo HP = Mario max HP
+        spm::npcdrv::npcTribes[332].maxHp = marioMaxHp; // Dark Peach
+        spm::npcdrv::npcTribes[333].maxHp = marioMaxHp; // Dark Bowser
+        spm::npcdrv::npcTribes[330].maxHp = marioMaxHp; // Dark Mario
+        spm::npcdrv::npcTribes[331].maxHp = marioMaxHp; // Dark Luigi
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(declare_shadoo_stats, 0)
 
     static spm::evt_door::DokanDesc new_dan_70_dokan_desc = {
         0, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
 
-    /*  static spm::evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
-          0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
+    /* static spm::evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
+         0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
 
     /*    spm::npcdrv::NPCTribeAnimDef nastasiaAnims[] = {
             {0, "S_1"}, // Standing (idle)
@@ -3884,6 +3810,27 @@ namespace mod
         USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("nastasiaFunny"), -75, 1500, -150)
         USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::INTERACT, PTR(fwd_nastasia_speech))
         RETURN_FROM_CALL() */
+
+    // Dialogue to determine whether to enable/disable custom Pit music
+    EVT_BEGIN(determine_custom_music)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(musicOption), 0, 0)
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(musicOptionChoices))
+    USER_FUNC(spm::evt_msg::evt_msg_continue)
+    IF_NOT_EQUAL(LW(0), 0)
+    SET(GSWF(585), 0)
+    ELSE()
+    SET(GSWF(585), 1)
+    END_IF()
+    RETURN_FROM_CALL()
+
+    // Overwrite Pit music
+    EVT_BEGIN(custom_pit_music)
+    IF_EQUAL(GSWF(585), 0)
+    USER_FUNC(spm::evt_snd::evt_snd_bgmon, 0, PTR("BGM_MAP_100F"))
+    ELSE()
+    USER_FUNC(spm::evt_snd::evt_snd_bgmon, 0, PTR("BGM_EVT_RELAXATION1"))
+    END_IF()
+    RETURN_FROM_CALL()
 
     EVT_BEGIN(overwrite_dark_mario_card_chest)
     USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 523, 0, LW(0), LW(1), LW(2), 0, 0, 0)
@@ -3921,6 +3868,7 @@ namespace mod
     RETURN_FROM_CALL()
 
     EVT_BEGIN(patch_pit_exit)
+    USER_FUNC(declare_shadoo_stats)
     USER_FUNC(spm::evt_door::evt_door_set_dokan_descs, PTR(&new_dan_70_dokan_desc), 1)
     RETURN_FROM_CALL()
 
@@ -3995,6 +3943,56 @@ namespace mod
     USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
     RETURN_FROM_CALL()
 
+    // Shady Boomerang Bro contact ATK patch
+    EVT_BEGIN(sbb_dir_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 2)
+    RETURN_FROM_CALL()
+
+    // Shady Boomerang Bro proj ATK patch
+    EVT_BEGIN(sbb_proj_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Mario ATK patch
+    EVT_BEGIN(d_mario_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Mario ATK patch
+    EVT_BEGIN(d_mario_atk_again)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Peach ATK patch
+    EVT_BEGIN(d_peach_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Bowser ATK patch
+    EVT_BEGIN(d_bowser_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Bowser ATK patch 2
+    EVT_BEGIN(d_bowser_atk_again)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Luigi ATK patch
+    EVT_BEGIN(d_luigi_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
+    RETURN_FROM_CALL()
+
+    // Dark Luigi ATK patch 2
+    EVT_BEGIN(d_luigi_atk_again)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(10))
+    IF_EQUAL(LW(10), 331)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
+    ELSE()
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
+    END_IF()
+    RETURN_FROM_CALL()
+
     static void evtPatches()
     {
         // Initialize the patches to the EVT interpreter to add custom opcodes
@@ -4026,6 +4024,15 @@ namespace mod
         spm::evtmgr_cmd::EvtScriptCode *fUranokoAtk = spm::npcdrv::npcEnemyTemplates[13].onSpawnScript;
         spm::evtmgr_cmd::EvtScriptCode *bleepAtk = spm::npcdrv::npcEnemyTemplates[277].onSpawnScript;
         spm::evtmgr_cmd::EvtScriptCode *wClubbaAtk = spm::npcdrv::npcEnemyTemplates[350].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *sbbDirAtk = spm::npcdrv::npcEnemyTemplates[340].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *sbbProjAtk = spm::npcdrv::npcEnemyTemplates[343].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dMarioAtk = spm::npcdrv::npcEnemyTemplates[287].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dPeachAtk = spm::npcdrv::npcEnemyTemplates[288].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dBowserAtk = spm::npcdrv::npcEnemyTemplates[285].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dBowserAtkAgain = spm::npcdrv::npcEnemyTemplates[285].unkScript7;
+        spm::evtmgr_cmd::EvtScriptCode *dBowserAtkAgainAgain = spm::npcdrv::npcEnemyTemplates[285].unkScript2;
+        spm::evtmgr_cmd::EvtScriptCode *dLuigiAtk = spm::npcdrv::npcEnemyTemplates[286].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *dLuigiAtkAgain = spm::npcdrv::npcEnemyTemplates[286].unkScript3;
 
         // ATK overwrite
         evtpatch::hookEvtReplace(dPuffDirAtk, 2, d_puff_dir_atk);
@@ -4042,6 +4049,21 @@ namespace mod
         evtpatch::hookEvtReplace(fUranokoAtk, 2, uranoko_atk);
         evtpatch::hookEvtReplace(bleepAtk, 1, bleep_atk);
         evtpatch::hookEvtReplace(wClubbaAtk, 1, w_clubba_atk);
+        evtpatch::hookEvtReplace(sbbDirAtk, 1, sbb_dir_atk);
+        evtpatch::hookEvtReplace(sbbProjAtk, 1, sbb_proj_atk);
+        evtpatch::hookEvtReplace(dMarioAtk, 3, d_mario_atk_again);
+        evtpatch::hookEvtReplace(dMarioAtk, 4, d_mario_atk);
+        evtpatch::hookEvtReplace(dPeachAtk, 1, d_peach_atk);
+        evtpatch::hookEvtReplace(dBowserAtk, 35, d_bowser_atk);
+        evtpatch::hookEvtReplace(dBowserAtk, 36, d_bowser_atk_again);
+        evtpatch::hookEvtReplaceBlock(dBowserAtkAgain, 12, d_bowser_atk, 13);
+        evtpatch::hookEvtReplaceBlock(dBowserAtkAgain, 219, d_bowser_atk, 220);
+        evtpatch::hookEvtReplaceBlock(dBowserAtkAgain, 248, d_bowser_atk, 249);
+        evtpatch::hookEvtReplaceBlock(dBowserAtkAgainAgain, 12, d_bowser_atk, 13);
+        writeWord(&spm::temp_unk::bowser_spawn_fire, 0x488, 0x38E0000A); // Patch fire ATK
+        evtpatch::hookEvtReplace(dLuigiAtk, 27, d_luigi_atk);
+        evtpatch::hookEvt(dLuigiAtkAgain, 2, d_luigi_atk_again);
+        writeWord(&spm::temp_unk::luigi_superjump_atk, 0x684, 0x3800000A); // Patch initial superjump ATK
 
         // Post-Shadoo chest reward overwrites
         evtpatch::hookEvtReplace(spm::dan::dan_70_dark_mario_chest_open_evt, 3, overwrite_dark_mario_card_chest);
@@ -4051,6 +4073,11 @@ namespace mod
         evtpatch::hookEvtReplace(spm::dan::dan_70_dark_bowser_chest_open_evt, 3, overwrite_dark_bowser_card_chest);
         evtpatch::hookEvtReplace(spm::dan::dan_70_luigi_chest_open_evt, 3, overwrite_luigi_card_chest);
         evtpatch::hookEvtReplace(spm::dan::dan_70_dark_luigi_chest_open_evt, 3, overwrite_dark_luigi_card_chest);
+
+        // Pit music replacement
+        evtpatch::hookEvt(spm::evt_door::evt_door_dan_dokan, 79, determine_custom_music);
+        evtpatch::hookEvtReplace(spm::dan::dan_enemy_room_init_evt, 42, custom_pit_music);
+        evtpatch::hookEvtReplace(spm::dan::dan_chest_room_init_evt, 83, custom_pit_music);
     }
 
     void main()

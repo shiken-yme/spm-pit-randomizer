@@ -12,7 +12,9 @@ namespace mod::evtpatch {
 #define RETURN_FROM_CALL() \
     EVT_HELPER_CMD(0, EvtOpcode::ReturnFromCall) };
 
+void evtmgrDestroyReturnStack(spm::evtmgr::EvtEntry* entry);
 eastl::stack<spm::evtmgr::EvtScriptCode*>* getReturnStack(spm::evtmgr::EvtEntry* entry);
+
 s32 evtOpcodeCall(spm::evtmgr::EvtEntry* entry);
 s32 evtOpcodeReturnFromCall(spm::evtmgr::EvtEntry* entry);
 
@@ -50,8 +52,7 @@ inline bool isStartOfInstruction(spm::evtmgr::EvtScriptCode instruction) {
 /// @param instruction A pointer to the instruction to validate
 /// @return Whether it seems to be a valid start of instruction
 inline bool isStartOfInstruction(spm::evtmgr::EvtScriptCode* instruction) {
-    u32 instrAsU32 = reinterpret_cast<u32>(instruction);
-    if (instrAsU32 <= 0x80000000 || instrAsU32 >= 0x817fffff) return false;
+    if (instruction <= 0x80000000 || instruction >= 0x817fffff) return false;
     return isStartOfInstruction(*instruction); // if you see an evt opcode with more than 256 arguments lmk :)
 }
 /// @brief Gets the length of an instruction, in EvtScriptCodes (int32s)
@@ -76,7 +77,6 @@ inline s32 getInstructionSize(spm::evtmgr::EvtScriptCode* instruction) {
 /// @param instruction A pointer to the instruction
 /// @return The pointer to the instruction's args
 inline spm::evtmgr::EvtScriptCode* getInstructionArgv(spm::evtmgr::EvtScriptCode* instruction) {
-    assert(isStartOfInstruction(instruction), "Cannot hook on non-instruction, what are you doing :sob:");
     return instruction + 1;
 }
 /// @brief Gets an evt instruction from a script and a line number
@@ -84,7 +84,6 @@ inline spm::evtmgr::EvtScriptCode* getInstructionArgv(spm::evtmgr::EvtScriptCode
 /// @param line The line number
 /// @return A pointer to the instruction
 inline spm::evtmgr::EvtScriptCode* getEvtInstruction(spm::evtmgr::EvtScriptCode* script, s32 line) {
-    assert(isStartOfInstruction(script), "Cannot hook on non-instruction, what are you doing :sob:");
     return script + getLineOffset(script, line);
 }
 

@@ -1,17 +1,15 @@
 #pragma once
-
-#include <common.h>
 #include <spm/evt_npc.h>
 
 namespace mod::cutscene_helpers
 {
 
-typedef enum {
-    INTERACT = 9,
-    ANIMS = 0xe
-} NPCProperty;
+#define SET_CHAR_ANIMS(instanceName, tribeAnimDef) \
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR(instanceName), spm::npcdrv::NPCProperty::ANIMS, PTR(tribeAnimDef))
 
-#define EVT_MSG_FLAG_DIRECT 1
+#define SPAWN_CHARACTER(instanceName, modelName, initialAnimations) \
+    USER_FUNC(spm::evt_npc::evt_npc_entry, PTR(instanceName), PTR(modelName), 0) \
+    SET_CHAR_ANIMS(instanceName, initialAnimations)
 
 #define NPC_SET_ANIM_WAIT(npcName, animId) \
     USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR(npcName), animId, 1) \

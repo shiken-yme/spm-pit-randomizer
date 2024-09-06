@@ -25,7 +25,7 @@ EVT_DECLARE_USER_FUNC(evt_msg_continue, 0)
 
 UNKNOWN_FUNCTION(evt_msg_repeat);
 UNKNOWN_FUNCTION(evt_msg_close);
-UNKNOWN_FUNCTION(evt_msg_select);
+EVT_DECLARE_USER_FUNC(evt_msg_select, 2);
 
 EVT_DECLARE_USER_FUNC(evt_msg_toge, 4)
 
