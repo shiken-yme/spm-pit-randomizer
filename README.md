@@ -18,6 +18,8 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * Overhauls Flimm's inventory, adding many recipes and Catch Cards
 * Changes the final boss of the Flipside Pit and gives the player new loot
 * Changes a small amount of dialogue
+* Makes Pit pipes slightly faster and a little less annoying to travel through
+* Quickstart: Create a new save file to get started right away with premade stats, if you'd like
 * Removes the Flopside Pit (for now...)
 
 ## Planned Features
