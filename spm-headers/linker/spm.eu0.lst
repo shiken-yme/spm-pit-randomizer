@@ -239,6 +239,14 @@
 // data
 80412d18:evt_door_dan_dokan
 8041a2b0:door_init_evt
+804149b4:evt_door_dan_dokan_left_one
+80414a80:evt_door_dan_dokan_left_two
+80414ad0:evt_door_dan_dokan_left_three
+80414b88:evt_door_dan_dokan_left_four
+80415020:evt_door_dan_dokan_right_one
+80415154:evt_door_dan_dokan_right_two
+804151a4:evt_door_dan_dokan_right_three
+8041525c:evt_door_dan_dokan_right_four
 // more
 // sdata
 805ae020:evt_door_wp
@@ -426,9 +434,14 @@
 // text
 8014c088:pouchGetPtr
 8014d458:pouchGetHp
+8014d414:pouchSetHp
 8014d468:pouchAddHp
+8014d4b4:pouchSetMaxHp
 8014d4f8:pouchGetXp
 8014d508:pouchAddXp
+8014d548:pouchSetCoin
+8014d1bc:pouchSetLevel
+8014d394:pouchSetAttack
 8014d5f8:pouchAddItem
 8014dbf4:pouchCheckHaveItem
 8014df4c:pouchRemoveItem
@@ -915,6 +928,10 @@
 // data
 1,5,137ff0:ls3_12_blk_hit
 1,5,138200:ls3_12_dimentio_intro
+
+// aa1_01.c 
+// data
+1,5,154820:aa1_01_mario_house_transition_evt
 
 //sp4_13.c
 // text

@@ -652,3 +652,18 @@
 80202820:bowser_spawn_fire
 80206488:luigi_superjump_atk
 
+// too lazy to put this anywhere else lmao i have a lot of ports to do 
+8014CE18:pouchSetMaxHp
+8014CD78:pouchSetHp
+8014CB20:pouchSetLevel
+8014CCF8:pouchSetAttack
+8014CEAC:pouchSetCoin
+803D654C:evt_door_dan_dokan_left_one
+803D6618:evt_door_dan_dokan_left_two
+803D6668:evt_door_dan_dokan_left_three
+803D6720:evt_door_dan_dokan_left_four
+803D6BB8:evt_door_dan_dokan_right_one
+803D6CEC:evt_door_dan_dokan_right_two
+803D6D3C:evt_door_dan_dokan_right_three
+803D6DF4:evt_door_dan_dokan_right_four
+1,5,153528:aa1_01_mario_house_transition_evt

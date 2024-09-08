@@ -488,3 +488,19 @@
 // temp_unk for pit rando
 80202508:bowser_spawn_fire
 80206170:luigi_superjump_atk
+
+// too lazy to put this anywhere else lmao i have a lot of ports to do 
+8014CA08:pouchSetMaxHp
+8014C968:pouchSetHp
+8014C710:pouchSetLevel
+8014C8E8:pouchSetAttack
+8014CA9C:pouchSetCoin
+803D636C:evt_door_dan_dokan_left_one
+803D6438:evt_door_dan_dokan_left_two
+803D6488:evt_door_dan_dokan_left_three
+803D6540:evt_door_dan_dokan_left_four
+803D69D8:evt_door_dan_dokan_right_one
+803D6B0C:evt_door_dan_dokan_right_two
+803D6B5C:evt_door_dan_dokan_right_three
+803D6C14:evt_door_dan_dokan_right_four
+1,5,153518:aa1_01_mario_house_transition_evt

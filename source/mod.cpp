@@ -6,6 +6,7 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <evt_cmd.h>
+#include <spm/rel/aa1_01.h>
 #include <spm/temp_unk.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
@@ -17,6 +18,7 @@
 #include <spm/evt_cam.h>
 #include <spm/evt_dimen.h>
 #include <spm/evt_eff.h>
+#include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
 #include <spm/evt_frame.h>
 #include <spm/evt_guide.h>
@@ -33,6 +35,7 @@
 #include <spm/evt_pouch.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
@@ -80,9 +83,23 @@ namespace mod
         "<o>";
 
     const char musicOptionChoices[] =
-        "<select 1 -1 150 40>\n"
+        "<select 1 -1 160 40>\n"
         "Yes\n"
         "No";
+
+    const char quickstartText[] =
+        "<system>"
+        "Do you want to quickstart\n"
+        "the Pit Randomizer or\n"
+        "create a new save file?\n"
+        "<o>";
+
+    const char quickstartOptions[] =
+        "<select 0 -1 360 40>\n"
+        "New Save\n"
+        "Start from 2-1\n"
+        "Start from 6-1\n"
+        "Start from Postgame";
 
     const char *mac_kanban_003 =
         "<kanban>\n"
@@ -3449,7 +3466,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "SPM Flipside Pit Randomizer beta v1.0.1";
+        const char *msg = "SPM Flipside Pit Randomizer beta v1.1.1";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -3784,6 +3801,103 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(declare_shadoo_stats, 0)
 
+    s32 start_from_21(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        spm::mario_pouch::MarioPouchWork *pouch = spm::mario_pouch::pouchGetPtr();
+        spm::mario_pouch::pouchSetMaxHp(20);
+        spm::mario_pouch::pouchSetHp(20);
+        spm::mario_pouch::pouchAddXp(60000);
+        spm::mario_pouch::pouchSetLevel(5);
+        spm::mario_pouch::pouchSetAttack(3);
+        spm::mario_pouch::pouchSetCoin(40);
+        spm::mario_pouch::pouchAddItem(50);
+        spm::mario_pouch::pouchAddItem(217);
+        spm::mario_pouch::pouchAddItem(221);
+        spm::mario_pouch::pouchAddItem(222);
+        spm::mario_pouch::pouchAddItem(80);
+        spm::mario_pouch::pouchAddItem(80);
+        spm::mario_pouch::pouchAddItem(70);
+        spm::mario_pouch::pouchAddItem(118);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(start_from_21, 0)
+
+    s32 start_from_61(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        spm::mario_pouch::MarioPouchWork *pouch = spm::mario_pouch::pouchGetPtr();
+        spm::mario_pouch::pouchSetMaxHp(30);
+        spm::mario_pouch::pouchSetHp(30);
+        spm::mario_pouch::pouchAddXp(240000);
+        spm::mario_pouch::pouchSetLevel(9);
+        spm::mario_pouch::pouchSetAttack(4);
+        spm::mario_pouch::pouchSetCoin(120);
+        spm::mario_pouch::pouchAddItem(50);
+        spm::mario_pouch::pouchAddItem(217);
+        spm::mario_pouch::pouchAddItem(218);
+        spm::mario_pouch::pouchAddItem(221);
+        spm::mario_pouch::pouchAddItem(222);
+        spm::mario_pouch::pouchAddItem(223);
+        spm::mario_pouch::pouchAddItem(224);
+        spm::mario_pouch::pouchAddItem(225);
+        spm::mario_pouch::pouchAddItem(226);
+        spm::mario_pouch::pouchAddItem(227);
+        spm::mario_pouch::pouchAddItem(228);
+        spm::mario_pouch::pouchAddItem(80);
+        spm::mario_pouch::pouchAddItem(118);
+        spm::mario_pouch::pouchAddItem(102);
+        spm::swdrv::swSet(515);
+        spm::swdrv::swSet(511);
+        spm::swdrv::swSet(514);
+        spm::swdrv::swSet(513);
+        spm::swdrv::swSet(510);
+        spm::swdrv::swSet(508);
+        spm::swdrv::swSet(534);
+        spm::swdrv::swSet(1037);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(start_from_61, 0)
+
+    s32 start_from_eg(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        spm::mario_pouch::MarioPouchWork *pouch = spm::mario_pouch::pouchGetPtr();
+        spm::mario_pouch::pouchSetMaxHp(40);
+        spm::mario_pouch::pouchSetHp(40);
+        spm::mario_pouch::pouchAddXp(360000);
+        spm::mario_pouch::pouchSetLevel(12);
+        spm::mario_pouch::pouchSetAttack(6);
+        spm::mario_pouch::pouchSetCoin(200);
+        spm::mario_pouch::pouchAddItem(50);
+        spm::mario_pouch::pouchAddItem(217);
+        spm::mario_pouch::pouchAddItem(218);
+        spm::mario_pouch::pouchAddItem(219);
+        spm::mario_pouch::pouchAddItem(221);
+        spm::mario_pouch::pouchAddItem(222);
+        spm::mario_pouch::pouchAddItem(223);
+        spm::mario_pouch::pouchAddItem(224);
+        spm::mario_pouch::pouchAddItem(225);
+        spm::mario_pouch::pouchAddItem(226);
+        spm::mario_pouch::pouchAddItem(227);
+        spm::mario_pouch::pouchAddItem(228);
+        spm::mario_pouch::pouchAddItem(229);
+        spm::mario_pouch::pouchAddItem(230);
+        spm::mario_pouch::pouchAddItem(81);
+        spm::mario_pouch::pouchAddItem(118);
+        spm::swdrv::swSet(515);
+        spm::swdrv::swSet(511);
+        spm::swdrv::swSet(514);
+        spm::swdrv::swSet(513);
+        spm::swdrv::swSet(510);
+        spm::swdrv::swSet(508);
+        spm::swdrv::swSet(418);
+        spm::swdrv::swSet(533);
+        spm::swdrv::swSet(534);
+        spm::swdrv::swSet(535);
+        spm::swdrv::swSet(536);
+        spm::swdrv::swSet(1037);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(start_from_eg, 0)
+
     static spm::evt_door::DokanDesc new_dan_70_dokan_desc = {
         0, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
 
@@ -3836,6 +3950,43 @@ namespace mod
     END_IF()
     RETURN_FROM_CALL()
 
+
+    // Dialogue to determine quickstart or no
+    EVT_BEGIN(determine_quickstart)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(quickstartText), 0, 0)
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(quickstartOptions))
+    USER_FUNC(spm::evt_msg::evt_msg_continue)
+    SWITCH(LW(0))
+    CASE_EQUAL(1) // 2-1
+    SET(GSW(137), 1)
+    SET(GSW(0), 78)
+    USER_FUNC(start_from_21)
+    CASE_EQUAL(2) // 6-1
+    SET(GSW(137), 2)
+    SET(GSW(0), 226)
+    USER_FUNC(start_from_61)
+    CASE_EQUAL(3) // Postgame
+    SET(GSW(137), 3)
+    SET(GSW(0), 424)
+    USER_FUNC(start_from_eg)
+    CASE_ETC() // Normal pills
+    SET(GSW(137), 0)
+    END_SWITCH()
+    IF_NOT_EQUAL(GSW(137), 0)
+    SET(GSWF(2), 1)
+    SET(GSWF(386), 1)
+    SET(GSWF(387), 1)
+    SET(GSWF(431), 1)
+    SET(GSWF(501), 1)
+    SET(GSWF(512), 1)
+    SET(GSWF(612), 1)
+    SET(GSWF(614), 1)
+    SET(GSWF(615), 1)
+    SET(GSWF(616), 1)
+    USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, PTR("mac_05"), PTR("elv1"))
+    END_IF()
+    RETURN_FROM_CALL()
+
     EVT_BEGIN(overwrite_dark_mario_card_chest)
     USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 523, 0, LW(0), LW(1), LW(2), 0, 0, 0)
     RETURN_FROM_CALL()
@@ -3874,6 +4025,10 @@ namespace mod
     EVT_BEGIN(patch_pit_exit)
     USER_FUNC(declare_shadoo_stats)
     USER_FUNC(spm::evt_door::evt_door_set_dokan_descs, PTR(&new_dan_70_dokan_desc), 1)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(dan_enter_pipe_wait)
+    WAIT_MSEC(0)
     RETURN_FROM_CALL()
 
     // TEMP
@@ -4082,6 +4237,27 @@ namespace mod
         evtpatch::hookEvt(spm::evt_door::evt_door_dan_dokan, 79, determine_custom_music);
         evtpatch::hookEvtReplace(spm::dan::dan_enemy_room_init_evt, 42, custom_pit_music);
         evtpatch::hookEvtReplace(spm::dan::dan_chest_room_init_evt, 83, custom_pit_music);
+
+        // Pit room pipe speedup
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_one, 108, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_two, 92, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_three, 85, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_four, 71, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_one, 99, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_two, 83, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_three, 76, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_four, 62, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 108, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_two, 92, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_three, 85, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_four, 71, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 99, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_two, 83, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_three, 76, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_four, 62, dan_enter_pipe_wait);
+
+        // Quickstart
+        evtpatch::hookEvt(spm::aa1_01::aa1_01_mario_house_transition_evt, 10, determine_quickstart);
     }
 
     void main()

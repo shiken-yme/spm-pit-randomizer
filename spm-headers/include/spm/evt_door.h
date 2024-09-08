@@ -126,7 +126,15 @@ UNKNOWN_FUNCTION(evt_door_get_map_door_desc_num);
 EVT_DECLARE(evt_door_dan_dokan)
 EVT_DECLARE(lbl_80417e10)
 EVT_DECLARE(door_init_evt)
-
+EVT_DECLARE(evt_door_dan_dokan_left_one)
+EVT_DECLARE(evt_door_dan_dokan_left_two)
+EVT_DECLARE(evt_door_dan_dokan_left_three)
+EVT_DECLARE(evt_door_dan_dokan_left_four)
+EVT_DECLARE(evt_door_dan_dokan_right_one)
+EVT_DECLARE(evt_door_dan_dokan_right_two)
+EVT_DECLARE(evt_door_dan_dokan_right_three)
+EVT_DECLARE(evt_door_dan_dokan_right_four)
+        
 DECOMP_STATIC(EvtDoorWork * evt_door_wp)
 
 CPP_WRAPPER_END()
