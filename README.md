@@ -13,8 +13,9 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * Randomizes spawn/exit doors & room layouts while (ideally) never creating any areas that are impossible to access without glitches
 * Randomizes enemy configurations, with relative difficulty scaling per 25 floors
 * Randomizes chest loot in Floors 10/20/etc., with the weight of more valuable items scaling with Pit progress
-* Changes some enemy stats (mostly nerfs)
-* Reskins some Dark enemies to become new enemy variants & adds previously unused enemies to the Pit, all of which are given a number of stat changes
+* Adds Movers, inspired by TTYD Pit: allows you to pay to skip 2 or 5 floors
+* Changes some enemy stats and AI
+* Reskins some Dark enemies to become new enemy variants & adds previously unused enemies to the Pit, all of which are given a number of stat changes and possibly AI changes
 * Overhauls Flimm's inventory, adding many recipes and Catch Cards
 * Changes the final boss of the Flipside Pit and gives the player new loot
 * Changes a small amount of dialogue
@@ -23,7 +24,7 @@ If you run the game on Dolphin, be sure to add/enable the REL Loader Gecko code 
 * Removes the Flopside Pit (for now...)
 
 ## Planned Features
-* "Blessing/curse" system, unsure of the details yet
+* "Blessing/curse" system
 * Add new enemies and modify some enemy AI to be more distinct/difficult
 * Make the Flopside Pit a roguelike, with difficulty and rewards scaling with the player's level
 * Make the entire Pit generation process seeded, with everything (save for enemy positions and which one has the key) based entirely on the name of your save file
