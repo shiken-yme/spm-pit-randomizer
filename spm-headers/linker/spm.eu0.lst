@@ -158,6 +158,7 @@
 800e0430:evt_cam_zoom_to_coords
 800e04fc:evt_cam_look_at_door
 800dfe08:evt_cam_shake
+800dfd88:evt_cam_get_pos
 
 // evt_snd.c
 800d2148:evt_snd_bgmon
@@ -191,6 +192,7 @@
 800d4de4:func_800d4de4
 800d4774:evt_sub_get_entername
 800d4960:evt_sub_get_language
+800d4d30:evt_sub_hud_configure
 800d74a0:func_800d74a0
 // more
 
@@ -254,6 +256,7 @@
 // evt_eff.c
 800e57bc:evt_eff
 800e6148:evt_eff_softdelete
+800e6250:evt_eff_exclamation_question
 // more
 
 // evt_env.c
@@ -316,12 +319,15 @@
 800efa4c:evt_mario_get_pos
 800efd28:evt_mario_direction_reset
 800efd88:evt_mario_direction_face
+800effb8:evt_mario_face_npc
 800f0074:evt_mario_face_coords
+800f0304:evt_mario_walk_to
 800f046c:evt_mario_pos_change
 800f1954:evt_mario_set_pose
 800f2450:evt_mario_fairy_reset
 800f25b0:evt_set_gravity
 800f2f68:evt_mario_set_anim_change_handler
+
 // more
 
 // evt_mobj.c
@@ -357,6 +363,9 @@
 800ff6f4:evt_npc_set_rgbacopytwo
 800ffbd8:evt_npc_walk_to
 801004c0:evt_npc_jump_to 
+801006fc:evt_npc_arc_to
+80102574:evt_npc_glide_to
+80102e68:evt_npc_delete
 80102EB8:evt_npc_stats_set_up
 80102f5c:evt_npc_entry
 80103054:func_80103054
@@ -365,18 +374,23 @@
 8010368c:evt_npc_flag8_onoff
 801039b8:evt_npc_animflag_onoff
 80103ea8:evt_npc_set_unitwork
+80103dbc:evt_npc_get_unitwork
 80104694:func_80104694
 80104c94:evt_npc_set_property
 80104fac:evt_npc_modify_part
 8010508c:evt_npc_get_property
-801059d0:func_801059d0
+80105924:evt_npc_get_axis_movement_unit
+801059d0:evt_npc_set_axis_movement_unit
 80106724:evt_npc_entry_from_template
+801072a4:func_801072a4
 80107540:evt_npc_id_to_name
 80107bcc:evt_npc_set_camid
 80107cfc:func_80107cfc
 80107d20:func_80107d20
 80108194:func_80108194
 80108d98:evt_npc_set_part_attack_power
+801093E0:evt_npc_wait_axis_movement_unit_end
+8010a418:func_8010a418
 8010a910:evt_npc_teleport_effect
 8010be80:evt_npc_tribe_agb_async
 // more
@@ -396,12 +410,15 @@
 8010c86c:evt_pouch_get_attack
 8010c83c:evt_pouch_set_attack
 8010c8b8:evt_pouch_add_attack
+8010c918:evt_pouch_get_coins
+8010c964:evt_pouch_add_coins
 8010c9c4:evt_pouch_check_have_item
 8010CA18:evt_pouch_remove_item
 8010cdd4:evt_pouch_set_level
 8010cd88:evt_pouch_get_level
 8010ce04:evt_pouch_get_next_level_xp
 8010cffc:evt_pouch_increment_enemies_defeated
+
 
 // evt_seq.c
 8010d028:evt_seq_set_seq
@@ -410,6 +427,7 @@
 
 // evt_shop.c
 80111d1c:evt_shop_set_defs
+8010d194:evt_shop_wait_coin_sfx
 // more
 
 // mario.c
@@ -1086,3 +1104,9 @@
 80203fc8:bowser_spawn_fire
 80207a24:luigi_boss_set_stats
 80207c6c:luigi_superjump_atk
+80220b88:uranoko_idk
+80483010:kameks_unk7
+8048389c:dark_broom_kamek_unk7
+804de244:skellobits_unk7
+804de028:skellobits_unk2
+804de5b4:skellobits_unk8

@@ -7,7 +7,7 @@ CPP_WRAPPER(spm::evt_cam)
 
 EVT_UNKNOWN_USER_FUNC(evt_cam_flag_onoff)
 EVT_UNKNOWN_USER_FUNC(evt_cam_get_at)
-EVT_UNKNOWN_USER_FUNC(evt_cam_get_pos)
+EVT_DECLARE_USER_FUNC(evt_cam_get_pos, 4)
 EVT_DECLARE_USER_FUNC(evt_cam_shake, 6)
 EVT_DECLARE_USER_FUNC(evt_cam3d_evt_zoom_in, 9)
 EVT_UNKNOWN_USER_FUNC(func_800e01f8)

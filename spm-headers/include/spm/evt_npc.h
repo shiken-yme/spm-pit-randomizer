@@ -47,7 +47,9 @@ EVT_DECLARE_USER_FUNC(evt_npc_walk_to, 8)
 // evt_npc_jump_to(const char * name, f32 destX, f32 destY, f32 destZ, f32 height, s32 length)
 EVT_DECLARE_USER_FUNC(evt_npc_jump_to, 6)
 
-UNKNOWN_FUNCTION(func_801006fc);
+// Probably the same arguments as glide_to?
+EVT_DECLARE_USER_FUNC(evt_npc_arc_to, 10)
+
 UNKNOWN_FUNCTION(func_80100df8);
 UNKNOWN_FUNCTION(func_80101328);
 UNKNOWN_FUNCTION(func_8010144c);
@@ -56,7 +58,7 @@ UNKNOWN_FUNCTION(func_801017b8);
 UNKNOWN_FUNCTION(func_80101e60);
 UNKNOWN_FUNCTION(func_80101f48);
 UNKNOWN_FUNCTION(func_80102424);
-EVT_UNKNOWN_USER_FUNC(evt_npc_glide_to)
+EVT_DECLARE_USER_FUNC(evt_npc_glide_to, 10)
 EVT_UNKNOWN_USER_FUNC(func_80102bf8)
 UNKNOWN_FUNCTION(evt_npc_get_hp);
 UNKNOWN_FUNCTION(evt_npc_get_max_hp);
@@ -100,7 +102,7 @@ UNKNOWN_FUNCTION(func_80103a44);
 UNKNOWN_FUNCTION(func_80103b40);
 UNKNOWN_FUNCTION(func_80103c24);
 UNKNOWN_FUNCTION(func_80103d20);
-UNKNOWN_FUNCTION(evt_npc_get_unitwork);
+EVT_DECLARE_USER_FUNC(evt_npc_get_unitwork, 3);
 
 
 // evt_npc_set_unitwork(const char * name, s32 idx, s32 val)
@@ -161,6 +163,10 @@ UNKNOWN_FUNCTION(func_801058c8);
 // evt_npc_get_axis_movement_unit(const char * name, f32& ret)
 EVT_DECLARE_USER_FUNC(evt_npc_get_axis_movement_unit, 2)
 
+EVT_DECLARE_USER_FUNC(evt_npc_set_axis_movement_unit, 2)
+
+EVT_DECLARE_USER_FUNC(evt_npc_wait_axis_movement_unit_end, 1)
+
 EVT_DECLARE_USER_FUNC(func_801059d0, 2)
 UNKNOWN_FUNCTION(func_80105a30);
 UNKNOWN_FUNCTION(func_80105b00);
@@ -187,7 +193,9 @@ UNKNOWN_FUNCTION(func_801070a4);
 UNKNOWN_FUNCTION(func_8010712c);
 UNKNOWN_FUNCTION(func_80107190);
 UNKNOWN_FUNCTION(func_801071f4);
-UNKNOWN_FUNCTION(func_801072a4);
+
+EVT_DECLARE_USER_FUNC(func_801072a4, 1)
+
 UNKNOWN_FUNCTION(func_801072f8);
 UNKNOWN_FUNCTION(evt_npc_get_coin_drop_count);
 UNKNOWN_FUNCTION(evt_npc_get_drop_item_type);
@@ -276,7 +284,7 @@ UNKNOWN_FUNCTION(func_8010a1e8);
 UNKNOWN_FUNCTION(func_8010a298);
 UNKNOWN_FUNCTION(evt_npc_try_catch_card);
 UNKNOWN_FUNCTION(func_8010a37c);
-UNKNOWN_FUNCTION(func_8010a418);
+EVT_DECLARE_USER_FUNC(func_8010a418, 2)
 UNKNOWN_FUNCTION(func_8010a4ec);
 UNKNOWN_FUNCTION(func_8010a5ec);
 UNKNOWN_FUNCTION(func_8010a788);

@@ -15,7 +15,7 @@ typedef struct
 } EvtShopDef;
 SIZE_ASSERT(EvtShopDef, 0x14)
 
-EVT_UNKNOWN_USER_FUNC(evt_shop_wait_coin_sfx)
+EVT_DECLARE_USER_FUNC(evt_shop_wait_coin_sfx, 0)
 EVT_UNKNOWN_USER_FUNC(func_8010d2b8)
 EVT_UNKNOWN_USER_FUNC(evt_shop_get_name_items)
 EVT_UNKNOWN_USER_FUNC(func_8010d3d4)

@@ -94,6 +94,82 @@ namespace mod
         "create a new save file?\n"
         "<o>";
 
+    const char merlunaIntro[] =
+        "<shake>Wah-hah-hah!</shake><wait 500> You've found\n"
+        "me, the oh-so-wonderful...<wait 250> or the\n"
+        "dearly accursed... <wait 250><wave>Merluna!</wave>\n"
+        "<k>";
+
+    const char merlunaIntro2[] =
+        "What am I doing here, you ask\n"
+        "me?<wait 250> Well, now, aren't you an\n"
+        "<shake>inquisitive</shake> one, indeed...\n"
+        "<k>\n<p>\n"
+        "If you must know, I am in\n"
+        "the business of <wave>distributing\n"
+        "the Ancients' unyielding will!\n"
+        "</wave>\n<k>\n<p>\n"
+        "\"What does she mean, truly?\"<wait 500> \n"
+        "Well, as much as I'd <wave>love</wave> to\n"
+        "show you my great powers...\n"
+        "<k>\n<p>\n"
+        "<center><wave>I must be going, now; farewell!<dkey><wait 1000></dkey></center>\n"
+        "<center><wave>May we meet again in<dkey><wait 1000></dkey></center>\n"
+        "<center><wave>Another time and place!<dkey><wait 1000></dkey></wave></center>\n"
+        "<k>";
+
+    const char moverIntro[] =
+        "Hey.<wait 250> Wassup?<wait 250> I'm a Mover.\n"
+        "I know a few things about\n"
+        "getting through this dungeon.\n"
+        "<k>\n<p>\n"
+        "For a few coins, I can move\n"
+        "you where you wanna go.\n"
+        "<wait 250>Where do you wanna go?\n"
+        "<o>";
+
+    const char moverChoicesLv1[] =
+        "<select 2 -1 400 40>\n"
+        "20 Coins: Down 2 Floors\n"
+        "60 Coins: Down 5 Floors\n"
+        "Nah, I'm fine.";
+
+    const char moverChoicesLv2[] =
+        "<select 2 -1 400 40>\n"
+        "25 Coins: Down 2 Floors\n"
+        "75 Coins: Down 5 Floors\n"
+        "Nah, I'm fine.";
+
+    const char moverChoicesLv3[] =
+        "<select 2 -1 400 40>\n"
+        "30 Coins: Down 2 Floors\n"
+        "90 Coins: Down 5 Floors\n"
+        "Nah, I'm fine.";
+
+    const char moverChoicesLv4[] =
+        "<select 2 -1 400 40>\n"
+        "40 Coins: Down 2 Floors\n"
+        "120 Coins: Down 5 Floors\n"
+        "Nah, I'm fine.";
+
+    const char moverNo[] =
+        "Whatever, man. Have it your\n"
+        "way. It's not like I do this\n"
+        "FOR A LIVING or anything!\n"
+        "<k>";
+
+    const char moverScam[] =
+        "<wave>Maaan,</wave> you don't have the cash\n"
+        "money! How about you talk\n"
+        "to me when you can PAY UP?\n"
+        "<k>";
+
+    const char moverYes[] =
+        "<wave>Alriiiight!</wave> Appreciate the\n"
+        "business, man. Let's getcha\n"
+        "outta here. <wave>Close your eyes!</wave>\n"
+        "<k>";
+
     const char quickstartOptions[] =
         "<select 0 -1 360 40>\n"
         "New Save\n"
@@ -124,6 +200,8 @@ namespace mod
 
     static double boobies = 0;
 
+    const char *destMap;
+
     // Create arrays for enemy generation, separated by difficulty class
 
     // Goomba, Flip Goomba, Paragoomba, Green Koopa, Glassesless Koopa, Red Koopa, Flip Red Koopa, Green Paratroopa, Glassesless Paratroopa, Buzzy Beetle, Stone Buzzy, Boo, Green Cheep Cheep,
@@ -134,34 +212,34 @@ namespace mod
     int lv1Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1};
     int lv1Max[] = {7, 6, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 4, 4, 3, 6, 6, 6, 5, 4, 5, 3, 5, 5, 4, 5, 4, 6, 5, 6, 3};
 
-    // Gloomba, Spiked Goomba, Spiked Gloomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey,
-    // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Rawbus, PatrolMeow, Longator, Barribad, Pigarithm, 3x Floro Sapiens, Ninjoe,
+    // Gloomba, Spiked Goomba, Spiked Gloomba, Red Paratroopa, Flip Red Paratroopa, Spike Top, Parabuzzy, Spiny, Flip Spiny, Hammer Bro, Magikoopa, Fuzzy, Pokey, 13
+    // Spania, Chain Chomp, Squog, Beepboxer, Mister I, Shlurp, Tileoid G, Tileoid B, Rawbus, PatrolMeow, Longator, Pigarithm, 3x Floro Sapiens, Ninjoe,
     // Tech Cursya, Heavy Cursya, Reversya Cursya, Ice Cherbil, Flip Spike Top, Moon Cleft, Kilo Muth, Bleepboxer
-    int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 170, 174, 189, 195, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472, 101, 507, 505};
-    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 45, 35, 80, 70, 80, 80, 85, 70, 90, 75, 40, 10, 40, 40, 20, 85, 80, 15, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 16, 69};
-    int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 1, 2};
-    int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 6, 2, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 2, 5};
+    int lv2Names[] = {4, 5, 6, 23, 24, 28, 31, 37, 38, 46, 64, 97, 103, 114, 123, 129, 145, 151, 157, 164, 165, 170, 174, 189, 201, 206, 208, 210, 212, 248, 249, 250, 445, 472, 101, 507, 505};
+    int lv2Odds[] = {85, 60, 50, 40, 40, 40, 25, 45, 35, 80, 70, 80, 80, 85, 70, 90, 75, 40, 10, 40, 40, 20, 55, 80, 64, 30, 30, 30, 40, 30, 25, 35, 75, 30, 75, 16, 69};
+    int lv2SpR[] = {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv2Min[] = {4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 3, 3, 1, 2, 2, 2, 1, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 1, 2};
+    int lv2Max[] = {6, 6, 5, 5, 4, 5, 4, 6, 6, 4, 5, 6, 4, 6, 3, 6, 5, 3, 4, 4, 4, 3, 5, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 2, 5};
 
     // Headbonk Goomba, Koopatrol, Spiky Parabuzzy, Dry Bones, Flip Hammer Bro, Boomerang Bro, Fire Bro, Broom Magikoopa, Koopa Striker, Bill Blaster, Dark Boo, Clubba, Pink Fuzzy,
     // Hyper Cleft, Ruff Puff, Crazee Dayzee, Zoing-Oing, Blomeba, Tileoid R, Tileoid Y, BombMeow, Foton, Hooligon, Copta, Hogarithm, Ninjohn, Flip Skellobit, Flip Skellobomber,
     // Muth, Spunia, Hyper Goomba, Hyper Spiked Goomba, Hyper Paragoomba, Dark Koopa, Dark Paratroopa, Flip Boomerang Bro, Flip Fire Bro, Soopa Striker, Green Fuzzy, Ice Bro, Red Magikoopa,
     // Red Broom Magikoopa, White Magikoopa, White Broom Magikoopa, Green Magikoopa, Green Broom Magikoopa
     int lv3Names[] = {10, 19, 32, 40, 48, 52, 58, 65, 70, 84, 86, 95, 98, 102, 110, 116, 139, 161, 166, 167, 178, 180, 185, 193, 202, 215, 225, 231, 258, 497, 3, 7, 9, 17, 25, 54, 60, 74, 99, 62, 480, 481, 477, 478, 474, 475};
-    int lv3Odds[] = {80, 35, 30, 30, 45, 50, 50, 50, 65, 30, 70, 75, 65, 35, 75, 69, 55, 40, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 75, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
+    int lv3Odds[] = {80, 35, 30, 30, 45, 50, 50, 50, 65, 30, 70, 75, 65, 35, 75, 69, 55, 40, 40, 40, 10, 30, 50, 60, 40, 40, 50, 30, 10, 45, 30, 30, 30, 20, 25, 30, 30, 50, 35, 50, 20, 20, 20, 20, 20, 20};
     int lv3SpR[] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv3Min[] = {4, 2, 2, 3, 1, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
-    int lv3Max[] = {6, 5, 4, 5, 3, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 6, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
+    int lv3Min[] = {4, 2, 2, 3, 1, 3, 3, 2, 2, 2, 3, 3, 4, 3, 3, 3, 3, 1, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 1, 2, 3, 3, 3, 2, 2, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2};
+    int lv3Max[] = {6, 5, 4, 5, 3, 4, 4, 4, 5, 4, 6, 5, 6, 5, 6, 5, 5, 3, 4, 4, 5, 4, 3, 5, 4, 4, 6, 5, 1, 5, 6, 6, 6, 5, 5, 5, 5, 4, 8, 5, 4, 4, 4, 4, 4, 4};
 
-    // Lakitu, Flip Lakitu, Dull Bones, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp, Chromeba, Gawbus, Longadile, Sobarribad, Ninjerry,
+    // Lakitu, Flip Lakitu, Dull Bones, Poison Pokey, Amazee Dayzee, Red Chomp, Squoinker, Blastboxer, Red I, Shlorp, Chromeba, Gawbus, Longadile, Ninjerry,
     // Flip Spiky Skellobit, Flip Skellobomber w/ Skellobait, 3x Magiblots, Back Cursya, Gigabyte, Mega Muth, Shady Koopa, Flip Shady Koopa, Ash Cherbil, Sky-Blue Spiny,
     // Red Spike Top, Dark Bones, White Clubba, Shady Magikoopa, Shady Broom Magikoopa, Tileoid PU, Ninjeremiah, Dark Koopatrol, Kamikaze Goomba,
     // Skellobyte, Spiky Skellobyte, Shady Hammer Bro, Shady Boomerang Bro, Shady Striker
-    int lv4Names[] = {35, 36, 42, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 197, 218, 228, 234, 238, 240, 242, 247, 256, 259, 466, 467, 447, 39, 30, 44, 96, 67, 68, 168, 221, 20, 11, 226, 229, 50, 56, 76};
-    int lv4Odds[] = {60, 50, 65, 80, 7, 30, 80, 80, 20, 20, 70, 30, 50, 20, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
-    int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int lv4Min[] = {1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 1, 3, 2, 2, 1, 1, 2};
-    int lv4Max[] = {2, 2, 5, 3, 2, 3, 6, 5, 2, 2, 3, 2, 5, 1, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 4, 2, 2, 5};
+    int lv4Names[] = {35, 36, 42, 105, 118, 124, 131, 147, 153, 158, 162, 171, 190, 218, 228, 234, 238, 240, 242, 247, 256, 259, 466, 467, 447, 39, 30, 44, 96, 67, 68, 168, 221, 20, 11, 226, 229, 50, 56, 76};
+    int lv4Odds[] = {60, 50, 65, 80, 7, 30, 80, 80, 20, 20, 70, 30, 50, 40, 50, 30, 40, 40, 40, 4, 10, 10, 60, 60, 73, 75, 70, 60, 70, 66, 44, 74, 40, 30, 70, 40, 40, 60, 60, 60};
+    int lv4SpR[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int lv4Min[] = {1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 1, 4, 2, 2, 1, 1, 2};
+    int lv4Max[] = {2, 2, 5, 3, 2, 3, 6, 5, 2, 2, 3, 2, 5, 4, 4, 4, 5, 5, 5, 4, 2, 2, 5, 5, 5, 6, 2, 3, 3, 3, 3, 4, 4, 4, 6, 5, 4, 2, 2, 5};
 
     //   int SpR2Doors[] = {3, 6, 12, 13, 19, 22};
     //   int SpR1Doors[] = {27, 28, 29, 30};
@@ -223,6 +301,11 @@ namespace mod
     s32 marioMaxHp = 0;
     s32 marioAtk = 0;
     s32 bowserAtk = 0;
+
+    int moverRNG = 0;
+    int moverDown2Price = 0;
+    int moverDown5Price = 0;
+    int motId = 0;
 
     /*
     // Define enemy defenses
@@ -420,1217 +503,1340 @@ namespace mod
         bool segment40000 = false;
         bool segment80000 = false;
 
-        // Determine # of segments to generate for current room
-        int segmentRNG = spm::system::rand() % 152;
-        if (segmentRNG >= 0 && segmentRNG < 42)
+        if (currentFloor != 198)
         {
-            segmentCount = 3;
-        }
-        else if (segmentRNG >= 42 && segmentRNG < 45)
-        {
-            segmentCount = 1;
-        }
-        else if (segmentRNG >= 45 && segmentRNG < 109)
-        {
-            segmentCount = 4;
-        }
-        else if (segmentRNG >= 109 && segmentRNG < 122)
-        {
-            segmentCount = 2;
-        }
-        else if (segmentRNG >= 122 && segmentRNG < 126)
-        {
-            segmentCount = 0;
-        }
-        else
-        {
-            segmentCount = 5;
-        }
-        wii::os::OSReport("Queueing %d segment generations for this room.\n", segmentCount);
-        i = 0;
-
-        // Enclosed structure generation. If more than 2 segments are generated at any time, the remainder is subtracted from segmentCount
-        int structureRNG = spm::system::rand() % 180;
-        int structureMiscRNG = spm::system::rand() % 100;
-        // Split
-        if (structureRNG >= 0 && structureRNG < 8)
-        {
-            wii::os::OSReport("!!! Split Structure is generating !!!\n");
-            segment2000 = true;
-            segment8 = true;
-            if (structureMiscRNG < 70)
+            // Determine # of segments to generate for current room
+            int segmentRNG = spm::system::rand() % 152;
+            if (segmentRNG >= 0 && segmentRNG < 42)
             {
-                segment20000 = true;
+                segmentCount = 3;
             }
-            else if (structureMiscRNG < 92)
+            else if (segmentRNG >= 42 && segmentRNG < 45)
             {
-                segment80000 = true;
+                segmentCount = 1;
+            }
+            else if (segmentRNG >= 45 && segmentRNG < 109)
+            {
+                segmentCount = 4;
+            }
+            else if (segmentRNG >= 109 && segmentRNG < 122)
+            {
+                segmentCount = 2;
+            }
+            else if (segmentRNG >= 122 && segmentRNG < 124)
+            {
+                segmentCount = 0;
             }
             else
             {
-                segment1 = true;
-                segment20 = true;
-                segment400 = true;
-                segment8000 = true;
-                segment10000 = true;
-                segment20000 = true;
-                segment40000 = true;
-                segment80000 = true;
-                segmentCount = segmentCount - 4;
+                segmentCount = 5;
             }
-        }
-        // Quarter
-        else if (structureRNG >= 8 && structureRNG < 19)
-        {
-            wii::os::OSReport("!!! Quarter Structure is generating !!!\n");
-            if (structureMiscRNG < 31)
+            wii::os::OSReport("Queueing %d segment generations for this room.\n", segmentCount);
+            i = 0;
+
+            // Enclosed structure generation. If more than 2 segments are generated at any time, the remainder is subtracted from segmentCount
+            int structureRNG = spm::system::rand() % 180;
+            int structureMiscRNG = spm::system::rand() % 100;
+            // Split
+            if (structureRNG >= 0 && structureRNG < 8)
             {
-                segment100 = true;
+                wii::os::OSReport("!!! Split Structure is generating !!!\n");
+                segment2000 = true;
                 segment8 = true;
-                if (segment40000)
+                if (structureMiscRNG < 70)
                 {
-                    if (boobies < 50)
+                    segment20000 = true;
+                }
+                else if (structureMiscRNG < 92)
+                {
+                    segment80000 = true;
+                }
+                else
+                {
+                    segment1 = true;
+                    segment20 = true;
+                    segment400 = true;
+                    segment8000 = true;
+                    segment10000 = true;
+                    segment20000 = true;
+                    segment40000 = true;
+                    segment80000 = true;
+                    segmentCount = segmentCount - 4;
+                }
+            }
+            // Quarter
+            else if (structureRNG >= 8 && structureRNG < 19)
+            {
+                wii::os::OSReport("!!! Quarter Structure is generating !!!\n");
+                if (structureMiscRNG < 31)
+                {
+                    segment100 = true;
+                    segment8 = true;
+                    if (segment40000)
+                    {
+                        if (boobies < 50)
+                        {
+                            segment80000 = true;
+                        }
+                    }
+                    else
                     {
                         segment80000 = true;
                     }
                 }
-                else
+                else if (structureMiscRNG < 54)
                 {
-                    segment80000 = true;
-                }
-            }
-            else if (structureMiscRNG < 54)
-            {
-                segment40 = true;
-                segment8 = true;
-                if (segment40000)
-                {
-                    if (boobies < 50)
+                    segment40 = true;
+                    segment8 = true;
+                    if (segment40000)
+                    {
+                        if (boobies < 50)
+                        {
+                            segment80000 = true;
+                        }
+                    }
+                    else
                     {
                         segment80000 = true;
                     }
                 }
-                else
+                else if (structureMiscRNG < 77)
                 {
-                    segment80000 = true;
-                }
-            }
-            else if (structureMiscRNG < 77)
-            {
-                segment100 = true;
-                segment2000 = true;
-                if (segment10000)
-                {
-                    if (boobies < 50)
+                    segment100 = true;
+                    segment2000 = true;
+                    if (segment10000)
+                    {
+                        if (boobies < 50)
+                        {
+                            segment20000 = true;
+                        }
+                    }
+                    else
                     {
                         segment20000 = true;
                     }
-                }
-                else
-                {
-                    segment20000 = true;
-                }
-            }
-            else
-            {
-                segment40 = true;
-                segment2000 = true;
-                if (segment10000)
-                {
-                    if (boobies < 50)
-                    {
-                        segment20000 = true;
-                    }
-                }
-                else
-                {
-                    segment20000 = true;
-                }
-            }
-        }
-        // Cube
-        else if (structureRNG >= 19 && structureRNG < 21)
-        {
-            wii::os::OSReport("!!! Cube Structure is generating !!!\n");
-            if (structureMiscRNG < 50)
-            {
-                segment400 = true;
-                segment80 = true;
-                segment1 = true;
-                segment20 = true;
-                segmentCount = segmentCount - 2;
-                segment20000 = true;
-                segment40000 = true;
-            }
-            else
-            {
-                segment8000 = true;
-                segment200 = true;
-                segment20 = true;
-                segment1 = true;
-                segmentCount = segmentCount - 2;
-                segment20000 = true;
-                segment40000 = true;
-            }
-        }
-        // Pillar
-        else if (structureRNG >= 21 && structureRNG < 23)
-        {
-            wii::os::OSReport("!!! Pillar Structure is generating !!!\n");
-            if (structureMiscRNG < 60)
-            {
-                segment800 = true;
-                segment80 = true;
-                segment2 = true;
-            }
-            else
-            {
-                segment4000 = true;
-                segment200 = true;
-                segment10 = true;
-            }
-            if (boobies < 50)
-            {
-                segment20000 = true;
-            }
-            else
-            {
-                segment80000 = true;
-            }
-        }
-        // Small
-        else if (structureRNG >= 23 && structureRNG < 26)
-        {
-            wii::os::OSReport("!!! Small Structure is generating !!!\n");
-            if (structureMiscRNG < 33)
-            {
-                segment800 = true;
-                segment400 = true;
-                segment10 = true;
-                segment20 = true;
-                segment8000 = true;
-                segment10000 = true;
-                segment80000 = true;
-                segmentCount = segmentCount - 3;
-            }
-            else if (structureMiscRNG < 67)
-            {
-                segment8000 = true;
-                segment4000 = true;
-                segment1 = true;
-                segment2 = true;
-                segment400 = true;
-                segment10000 = true;
-                segment80000 = true;
-                segmentCount = segmentCount - 3;
-            }
-            else
-            {
-                if (boobies < 25)
-                {
-                    segment8000 = true;
-                    segment4000 = true;
-                    segment400 = true;
-                    segment10000 = true;
-                    segmentCount = segmentCount - 1;
-                }
-                else if (boobies < 50)
-                {
-                    segment800 = true;
-                    segment400 = true;
-                    segment8000 = true;
-                    segment10000 = true;
-                    segmentCount = segmentCount - 1;
-                }
-                else if (boobies < 75)
-                {
-                    segment10 = true;
-                    segment20 = true;
-                    segment80000 = true;
-                }
-                else
-                {
-                    segment1 = true;
-                    segment2 = true;
-                    segment80000 = true;
-                }
-            }
-        }
-        // I'm sorry Tartt but I am leaving the stream during Lobates. They bore the hell out of me and frankly I can think of a whole host of things I'd rather be doing, including playing with a rubber band. Please
-        else if (structureRNG >= 26 && structureRNG < 32)
-        {
-            wii::os::OSReport("!!! Lobate Structure is generating !!!\n");
-            if (structureMiscRNG <= 66)
-            {
-                if (boobies < 25)
-                {
-                    segment4 = true;
-                    segment8 = true;
-                    segment200 = true;
-                    segment8000 = true;
-                    segment20000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 50)
-                {
-                    segment4 = true;
-                    segment8 = true;
-                    segment80 = true;
-                    segment400 = true;
-                    segment20000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 75)
-                {
-                    segment1000 = true;
-                    segment2000 = true;
-                    segment200 = true;
-                    segment20 = true;
-                    segment20000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else
-                {
-                    segment1000 = true;
-                    segment2000 = true;
-                    segment80 = true;
-                    segment1 = true;
-                    segment20000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-            }
-            else
-            {
-                if (structureMiscRNG >= 80)
-                {
-                    segment20000 = true;
-                }
-                else
-                {
-                    segment80000 = true;
-                }
-                if (boobies < 12.5)
-                {
-                    segment4 = true;
-                    segment8 = true;
-                    segment80 = true;
-                    segment800 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 25)
-                {
-                    segment4 = true;
-                    segment8 = true;
-                    segment200 = true;
-                    segment4000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 37.5)
-                {
-                    segment1000 = true;
-                    segment2000 = true;
-                    segment80 = true;
-                    segment2 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 50)
-                {
-                    segment1000 = true;
-                    segment2000 = true;
-                    segment200 = true;
-                    segment10 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 62.5)
-                {
-                    segment2 = true;
-                    segment4 = true;
-                    segment200 = true;
-                    segment4000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 75)
-                {
-                    segment10 = true;
-                    segment200 = true;
-                    segment800 = true;
-                    segment1000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else if (boobies < 87.5)
-                {
-                    segment4 = true;
-                    segment10 = true;
-                    segment80 = true;
-                    segment800 = true;
-                    segmentCount = segmentCount - 2;
-                }
-                else
-                {
-                    segment2 = true;
-                    segment80 = true;
-                    segment1000 = true;
-                    segment4000 = true;
-                    segmentCount = segmentCount - 2;
-                }
-            }
-        }
-        // Structure does not generate
-        else
-        {
-            structureGenerated = false;
-        }
-        wii::os::OSReport("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
-
-        // Random segment generation + add'l doors
-        while (segmentCount > 0 && i < 20)
-        {
-            int segmentID = spm::system::rand() % 16;
-            switch (segmentID)
-            {
-            case 0:
-                // Segment 400
-                if ((segment400) ||
-                    (segment800) ||
-                    (segment1000 && segment2000) ||
-                    (segment1000 && segment4000) ||
-                    (segment1000 && segment8000) ||
-                    (segment10 && segment200 && segment1000) ||
-                    (segment2 && segment80) ||
-                    (segment1 && segment4 && segment200 && segment1000) ||
-                    (segment1 && segment4 && segment8 && segment2000) ||
-                    (segment1 && segment80) ||
-                    (segment40 && segment80) ||
-                    (segment4 && segment8 && segment80) ||
-                    (segment4 && segment10 && segment80) ||
-                    (segment4 && segment20 && segment80) ||
-                    (segment10 && segment200 && segment1000) ||
-                    (segment20 && segment200 && segment1000) ||
-                    (segment80 && segment4 && segment200 && segment4000) ||
-                    (segment80 && segment4 && segment200 && segment8000) ||
-                    (segment80 && segment4 && segment200 && segment100) ||
-                    (segment1000 && segment200 && segment4 && segment2) ||
-                    (segment1000 && segment200 && segment4 && segment8) ||
-                    (segment100 && segment200 && segment1000))
-                {
-                    break;
-                }
-                else
-                {
-                    segment400 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 1;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 1:
-                // Segment 1
-                if ((segment1) ||
-                    (segment2) ||
-                    (segment4 && segment8) ||
-                    (segment4 && segment10) ||
-                    (segment4 && segment20) ||
-                    (segment4 && segment200 && segment4000) ||
-                    (segment80 && segment800) ||
-                    (segment4 && segment200 && segment400 && segment1000) ||
-                    (segment8 && segment400 && segment1000 && segment2000) ||
-                    (segment80 && segment400) ||
-                    (segment40 && segment80) ||
-                    (segment80 && segment1000 && segment2000) ||
-                    (segment80 && segment1000 && segment4000) ||
-                    (segment80 && segment1000 && segment8000) ||
-                    (segment4 && segment200 && segment4000) ||
-                    (segment4 && segment200 && segment8000) ||
-                    (segment80 && segment1000 && segment200 && segment10) ||
-                    (segment80 && segment1000 && segment200 && segment20) ||
-                    (segment80 && segment1000 && segment200 && segment100) ||
-                    (segment800 && segment1000 && segment200 && segment4) ||
-                    (segment2000 && segment1000 && segment200 && segment4) ||
-                    (segment4 && segment100 && segment200))
-                {
-                    break;
-                }
-                else
-                {
-                    segment1 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 17;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 2:
-                // Segment 40
-                if ((segment80 && segment800) ||
-                    (segment40) ||
-                    (segment2 && segment80) ||
-                    (segment80 && segment400) ||
-                    (segment1 && segment80) ||
-                    (segment2000) ||
-                    (segment8) ||
-                    (segment100) ||
-                    (segment4 && segment20 && segment80) ||
-                    (segment4 && segment10 && segment80) ||
-                    (segment80 && segment1000 && segment8000) ||
-                    (segment80 && segment1000 && segment200 && segment10) ||
-                    (segment80 && segment1000 && segment200 && segment20) ||
-                    (segment80 && segment1000 && segment200 && segment100) ||
-                    (segment80 && segment4 && segment200 && segment4000) ||
-                    (segment80 && segment4 && segment200 && segment8000) ||
-                    (segment80 && segment4 && segment200 && segment100) ||
-                    (segment80 && segment1000 && segment4000))
-                {
-                    break;
                 }
                 else
                 {
                     segment40 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 10;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 11;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
+                    segment2000 = true;
+                    if (segment10000)
+                    {
+                        if (boobies < 50)
+                        {
+                            segment20000 = true;
+                        }
+                    }
+                    else
+                    {
+                        segment20000 = true;
+                    }
                 }
-                break;
-
-            case 3:
-                // Segment 1000
-                if ((segment400 && segment8000) ||
-                    (segment400 && segment4000) ||
-                    (segment800 && segment8000) ||
-                    (segment1000) ||
-                    (segment800 && segment4000) ||
-                    (segment800 && segment2000) ||
-                    (segment2000 && segment4000) ||
-                    (segment2000 && segment8000) ||
-                    (segment400 && segment2000) ||
-                    (segment2 && segment10 && segment80 && segment200) ||
-                    (segment4 && segment80 && segment200) ||
-                    (segment40 && segment80 && segment2000) ||
-                    (segment4 && segment8 && segment80 && segment2000) ||
-                    (segment4 && segment8 && segment200 && segment2000) ||
-                    (segment2 && segment8 && segment80 && segment2000) ||
-                    (segment8 && segment10 && segment200 && segment2000) ||
-                    (segment2 && segment80 && segment8000) ||
-                    (segment2 && segment80 && segment4000) ||
-                    (segment2 && segment80 && segment2000) ||
-                    (segment1 && segment80 && segment8000) ||
-                    (segment1 && segment80 && segment4000) ||
-                    (segment1 && segment80 && segment2000) ||
-                    (segment40 && segment80 && segment8000) ||
-                    (segment40 && segment80 && segment4000) ||
-                    (segment40 && segment80 && segment2000) ||
-                    (segment10 && segment200 && segment800) ||
-                    (segment10 && segment200 && segment400) ||
-                    (segment10 && segment200 && segment2000) ||
-                    (segment20 && segment200 && segment800) ||
-                    (segment20 && segment200 && segment400) ||
-                    (segment20 && segment200 && segment2000) ||
-                    (segment100 && segment200 && segment800) ||
-                    (segment100 && segment200 && segment2000) ||
-                    (segment1 && segment4 && segment200 && segment400) ||
-                    (segment4 && segment20 && segment80 && segment8000) ||
-                    (segment2 && segment80 && segment200 && segment20) ||
-                    (segment2 && segment80 && segment200 && segment100) ||
-                    (segment1 && segment80 && segment200 && segment10) ||
-                    (segment1 && segment80 && segment200 && segment20) ||
-                    (segment1 && segment80 && segment200 && segment100) ||
-                    (segment40 && segment80 && segment200 && segment10) ||
-                    (segment40 && segment80 && segment200 && segment20) ||
-                    (segment40 && segment80 && segment200 && segment100) ||
-                    (segment400 && segment200 && segment4 && segment2) ||
-                    (segment400 && segment200 && segment4 && segment8) ||
-                    (segment800 && segment200 && segment4 && segment1) ||
-                    (segment800 && segment200 && segment4 && segment2) ||
-                    (segment800 && segment200 && segment4 && segment8) ||
-                    (segment2000 && segment200 && segment4 && segment1) ||
-                    (segment2000 && segment200 && segment4 && segment2) ||
-                    (segment2000 && segment200 && segment4 && segment8) ||
-                    (segment8000 && segment80 && segment4 && segment10) ||
-                    (segment8000 && segment80 && segment4 && segment8) ||
-                    (segment4000 && segment80 && segment4 && segment20) ||
-                    (segment4000 && segment80 && segment4 && segment10) ||
-                    (segment4000 && segment80 && segment4 && segment8) ||
-                    (segment2000 && segment80 && segment4 && segment20) ||
-                    (segment2000 && segment80 && segment4 && segment10) ||
-                    (segment2000 && segment80 && segment4 && segment8) ||
-                    (segment100 && segment200 && segment400))
+            }
+            // Cube
+            else if (structureRNG >= 19 && structureRNG < 21)
+            {
+                wii::os::OSReport("!!! Cube Structure is generating !!!\n");
+                if (structureMiscRNG < 50)
                 {
-                    break;
-                }
-                else
-                {
-                    segment1000 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 4;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 5;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 4:
-                // Segment 4
-                if ((segment1 && segment20) ||
-                    (segment4) ||
-                    (segment2 && segment10) ||
-                    (segment1 && segment10) ||
-                    (segment2 && segment20) ||
-                    (segment2 && segment8) ||
-                    (segment8 && segment10) ||
-                    (segment8 && segment20) ||
-                    (segment1 && segment8) ||
-                    (segment80 && segment200 && segment800 && segment4000) ||
-                    (segment80 && segment200 && segment1000) ||
-                    (segment8 && segment40 && segment80) ||
-                    (segment8 && segment100 && segment200) ||
-                    (segment8 && segment80 && segment1000 && segment2000) ||
-                    (segment8 && segment200 && segment1000 && segment2000) ||
-                    (segment8 && segment80 && segment800 && segment2000) ||
-                    (segment8 && segment200 && segment2000 && segment4000) ||
-                    (segment20 && segment80 && segment800) ||
-                    (segment10 && segment80 && segment800) ||
-                    (segment8 && segment80 && segment800) ||
-                    (segment20 && segment80 && segment400) ||
-                    (segment10 && segment80 && segment400) ||
-                    (segment8 && segment80 && segment400) ||
-                    (segment20 && segment40 && segment80) ||
-                    (segment10 && segment40 && segment80) ||
-                    (segment1 && segment200 && segment4000) ||
-                    (segment2 && segment200 && segment4000) ||
-                    (segment8 && segment200 && segment4000) ||
-                    (segment1 && segment200 && segment8000) ||
-                    (segment2 && segment200 && segment8000) ||
-                    (segment8 && segment200 && segment8000) ||
-                    (segment1 && segment100 && segment200) ||
-                    (segment1 && segment200 && segment400 && segment1000) ||
-                    (segment20 && segment80 && segment1000 && segment8000) ||
-                    (segment800 && segment80 && segment200 && segment8000) ||
-                    (segment800 && segment80 && segment200 && segment100) ||
-                    (segment400 && segment80 && segment200 && segment4000) ||
-                    (segment400 && segment80 && segment200 && segment8000) ||
-                    (segment400 && segment80 && segment200 && segment100) ||
-                    (segment40 && segment80 && segment200 && segment4000) ||
-                    (segment40 && segment80 && segment200 && segment8000) ||
-                    (segment40 && segment80 && segment200 && segment100) ||
-                    (segment400 && segment1000 && segment200 && segment2) ||
-                    (segment400 && segment1000 && segment200 && segment8) ||
-                    (segment800 && segment1000 && segment200 && segment1) ||
-                    (segment800 && segment1000 && segment200 && segment2) ||
-                    (segment800 && segment1000 && segment200 && segment8) ||
-                    (segment2000 && segment1000 && segment200 && segment1) ||
-                    (segment2000 && segment1000 && segment200 && segment2) ||
-                    (segment2000 && segment1000 && segment200 && segment8) ||
-                    (segment8000 && segment1000 && segment80 && segment10) ||
-                    (segment8000 && segment1000 && segment80 && segment8) ||
-                    (segment4000 && segment1000 && segment80 && segment20) ||
-                    (segment4000 && segment1000 && segment80 && segment10) ||
-                    (segment4000 && segment1000 && segment80 && segment8) ||
-                    (segment2000 && segment1000 && segment80 && segment20) ||
-                    (segment2000 && segment1000 && segment80 && segment10) ||
-                    (segment2000 && segment1000 && segment80 && segment8) ||
-                    (segment2 && segment100 && segment200))
-                {
-                    break;
-                }
-                else
-                {
-                    segment4 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 20;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 21;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 5:
-                // Segment 100
-                if ((segment200 && segment4000) ||
-                    (segment100) ||
-                    (segment10 && segment200) ||
-                    (segment100 && segment200) ||
-                    (segment20 && segment200) ||
-                    (segment200 && segment8000) ||
-                    (segment2000) ||
-                    (segment8) ||
-                    (segment40) ||
-                    (segment1 && segment4 && segment200) ||
-                    (segment2 && segment4 && segment200) ||
-                    (segment200 && segment400 && segment1000) ||
-                    (segment2 && segment80 && segment1000 && segment200) ||
-                    (segment1 && segment80 && segment1000 && segment200) ||
-                    (segment40 && segment80 && segment1000 && segment200) ||
-                    (segment800 && segment80 && segment4 && segment200) ||
-                    (segment400 && segment80 && segment4 && segment200) ||
-                    (segment40 && segment80 && segment4 && segment200) ||
-                    (segment200 && segment800 && segment1000))
-                {
-                    break;
-                }
-                else
-                {
-                    segment100 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 14;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 15;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 6:
-                // Segment 8000
-                if ((segment4000) ||
-                    (segment8000) ||
-                    (segment1000 && segment2000) ||
-                    (segment1000 && segment800) ||
-                    (segment1000 && segment400) ||
-                    (segment2 && segment80 && segment1000) ||
-                    (segment10 && segment200) ||
-                    (segment4 && segment20 && segment80 && segment1000) ||
-                    (segment4 && segment8 && segment20 && segment2000) ||
-                    (segment20 && segment200) ||
-                    (segment100 && segment200) ||
-                    (segment4 && segment8 && segment200) ||
-                    (segment2 && segment4 && segment200) ||
-                    (segment1 && segment4 && segment200) ||
-                    (segment2 && segment80 && segment1000) ||
-                    (segment1 && segment80 && segment1000) ||
-                    (segment800 && segment80 && segment4 && segment200) ||
-                    (segment400 && segment80 && segment4 && segment200) ||
-                    (segment40 && segment80 && segment4 && segment200) ||
-                    (segment1000 && segment80 && segment4 && segment10) ||
-                    (segment1000 && segment80 && segment4 && segment8) ||
-                    (segment40 && segment80 && segment1000))
-                {
-                    break;
+                    segment400 = true;
+                    segment80 = true;
+                    segment1 = true;
+                    segment20 = true;
+                    segmentCount = segmentCount - 2;
+                    segment20000 = true;
+                    segment40000 = true;
                 }
                 else
                 {
                     segment8000 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 8;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 7:
-                // Segment 20
-                if ((segment10) ||
-                    (segment20) ||
-                    (segment4 && segment8) ||
-                    (segment2 && segment4) ||
-                    (segment1 && segment4) ||
-                    (segment4 && segment80 && segment800) ||
-                    (segment200 && segment4000) ||
-                    (segment4 && segment80 && segment1000 && segment8000) ||
-                    (segment8 && segment1000 && segment2000 && segment8000) ||
-                    (segment200 && segment8000) ||
-                    (segment100 && segment200) ||
-                    (segment200 && segment1000 && segment2000) ||
-                    (segment200 && segment800 && segment1000) ||
-                    (segment200 && segment400 && segment1000) ||
-                    (segment4 && segment80 && segment800) ||
-                    (segment4 && segment80 && segment400) ||
-                    (segment2 && segment80 && segment1000 && segment200) ||
-                    (segment1 && segment80 && segment1000 && segment200) ||
-                    (segment40 && segment80 && segment1000 && segment200) ||
-                    (segment4000 && segment1000 && segment80 && segment4) ||
-                    (segment2000 && segment1000 && segment80 && segment4) ||
-                    (segment4 && segment40 && segment80))
-                {
-                    break;
-                }
-                else
-                {
+                    segment200 = true;
                     segment20 = true;
-                    activeDoorCount = activeDoorCount + 1;
-                    doorOn[activeDoorCount] = 24;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
+                    segment1 = true;
+                    segmentCount = segmentCount - 2;
+                    segment20000 = true;
+                    segment40000 = true;
                 }
-                break;
-
-            case 8:
-                // Segment 800
-                if ((segment400) ||
-                    (segment800) ||
-                    (segment80 && segment2) ||
-                    (segment80 && segment40) ||
-                    (segment80 && segment1) ||
-                    (segment1000 && segment2000) ||
-                    (segment1000 && segment4000) ||
-                    (segment1000 && segment8000) ||
-                    (segment4 && segment8 && segment80) ||
-                    (segment4 && segment10 && segment80) ||
-                    (segment4 && segment20 && segment80) ||
-                    (segment4 && segment80 && segment200 && segment4000) ||
-                    (segment10 && segment200 && segment1000) ||
-                    (segment20 && segment200 && segment1000) ||
-                    (segment80 && segment4 && segment200 && segment8000) ||
-                    (segment80 && segment4 && segment200 && segment100) ||
-                    (segment1000 && segment200 && segment4 && segment1) ||
-                    (segment1000 && segment200 && segment4 && segment2) ||
-                    (segment1000 && segment200 && segment4 && segment8) ||
-                    (segment100 && segment200 && segment1000))
-                {
-                    break;
-                }
-                else
+            }
+            // Pillar
+            else if (structureRNG >= 21 && structureRNG < 23)
+            {
+                wii::os::OSReport("!!! Pillar Structure is generating !!!\n");
+                if (structureMiscRNG < 60)
                 {
                     segment800 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 9:
-                // Segment 80
-                if ((segment2 && segment800) ||
-                    (segment80) ||
-                    (segment1 && segment40) ||
-                    (segment40 && segment400) ||
-                    (segment2 && segment400) ||
-                    (segment1 && segment800) ||
-                    (segment1 && segment400) ||
-                    (segment40 && segment1000 && segment2000) ||
-                    (segment40 && segment800) ||
-                    (segment4 && segment8 && segment40) ||
-                    (segment2 && segment40) ||
-                    (segment4 && segment200 && segment1000) ||
-                    (segment4 && segment20 && segment1000 && segment8000) ||
-                    (segment2 && segment1000 && segment8000) ||
-                    (segment4 && segment200 && segment800 && segment4000) ||
-                    (segment2 && segment10 && segment200 && segment1000) ||
-                    (segment2 && segment1000 && segment8000) ||
-                    (segment2 && segment1000 && segment4000) ||
-                    (segment2 && segment1000 && segment2000) ||
-                    (segment1 && segment1000 && segment8000) ||
-                    (segment1 && segment1000 && segment4000) ||
-                    (segment1 && segment1000 && segment2000) ||
-                    (segment40 && segment1000 && segment8000) ||
-                    (segment40 && segment1000 && segment4000) ||
-                    (segment4 && segment20 && segment800) ||
-                    (segment4 && segment20 && segment400) ||
-                    (segment4 && segment20 && segment40) ||
-                    (segment4 && segment10 && segment800) ||
-                    (segment4 && segment10 && segment400) ||
-                    (segment4 && segment10 && segment40) ||
-                    (segment4 && segment8 && segment800) ||
-                    (segment2 && segment1000 && segment200 && segment20) ||
-                    (segment2 && segment1000 && segment200 && segment100) ||
-                    (segment1 && segment1000 && segment200 && segment10) ||
-                    (segment1 && segment1000 && segment200 && segment20) ||
-                    (segment1 && segment1000 && segment200 && segment100) ||
-                    (segment40 && segment1000 && segment200 && segment10) ||
-                    (segment40 && segment1000 && segment200 && segment20) ||
-                    (segment40 && segment1000 && segment200 && segment100) ||
-                    (segment800 && segment4 && segment200 && segment8000) ||
-                    (segment800 && segment4 && segment200 && segment100) ||
-                    (segment400 && segment4 && segment200 && segment4000) ||
-                    (segment400 && segment4 && segment200 && segment8000) ||
-                    (segment400 && segment4 && segment200 && segment100) ||
-                    (segment40 && segment4 && segment200 && segment4000) ||
-                    (segment40 && segment4 && segment200 && segment8000) ||
-                    (segment40 && segment4 && segment200 && segment100) ||
-                    (segment8000 && segment1000 && segment4 && segment10) ||
-                    (segment8000 && segment1000 && segment4 && segment8) ||
-                    (segment4000 && segment1000 && segment4 && segment20) ||
-                    (segment4000 && segment1000 && segment4 && segment10) ||
-                    (segment4000 && segment1000 && segment4 && segment8) ||
-                    (segment2000 && segment1000 && segment4 && segment20) ||
-                    (segment2000 && segment1000 && segment4 && segment10) ||
-                    (segment2000 && segment1000 && segment4 && segment8) ||
-                    (segment4 && segment8 && segment400))
-                {
-                    break;
-                }
-                else
-                {
                     segment80 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 10:
-                // Segment 2
-                if ((segment1) ||
-                    (segment2) ||
-                    (segment80 && segment800) ||
-                    (segment40 && segment80) ||
-                    (segment80 && segment400) ||
-                    (segment4 && segment8) ||
-                    (segment4 && segment10) ||
-                    (segment4 && segment20) ||
-                    (segment80 && segment1000 && segment2000) ||
-                    (segment80 && segment1000 && segment4000) ||
-                    (segment80 && segment1000 && segment8000) ||
-                    (segment4 && segment200 && segment4000) ||
-                    (segment10 && segment80 && segment200 && segment1000) ||
-                    (segment4 && segment200 && segment8000) ||
-                    (segment80 && segment1000 && segment200 && segment20) ||
-                    (segment80 && segment1000 && segment200 && segment100) ||
-                    (segment400 && segment1000 && segment200 && segment4) ||
-                    (segment800 && segment1000 && segment200 && segment4) ||
-                    (segment2000 && segment1000 && segment200 && segment4) ||
-                    (segment4 && segment100 && segment200))
-                {
-                    break;
-                }
-                else
-                {
                     segment2 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 11:
-                // Segment 2000
-                if ((segment8) ||
-                    (segment2000) ||
-                    (segment800 && segment1000) ||
-                    (segment1000 && segment4000) ||
-                    (segment400 && segment1000) ||
-                    (segment1000 && segment8000) ||
-                    (segment40) ||
-                    (segment100) ||
-                    (segment2 && segment80 && segment1000) ||
-                    (segment1 && segment80 && segment1000) ||
-                    (segment10 && segment200 && segment1000) ||
-                    (segment1000 && segment200 && segment4 && segment1) ||
-                    (segment1000 && segment200 && segment4 && segment2) ||
-                    (segment1000 && segment200 && segment4 && segment8) ||
-                    (segment1000 && segment80 && segment4 && segment20) ||
-                    (segment1000 && segment80 && segment4 && segment10) ||
-                    (segment1000 && segment80 && segment4 && segment8) ||
-                    (segment20 && segment200 && segment1000))
-                {
-                    break;
-                }
-                else
-                {
-                    segment2000 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 12:
-                // Segment 8
-                if ((segment2000) ||
-                    (segment8) ||
-                    (segment2 && segment4) ||
-                    (segment4 && segment10) ||
-                    (segment1 && segment4) ||
-                    (segment4 && segment20) ||
-                    (segment40) ||
-                    (segment100) ||
-                    (segment4 && segment80 && segment800) ||
-                    (segment4 && segment80 && segment400) ||
-                    (segment4 && segment200 && segment4000) ||
-                    (segment400 && segment1000 && segment200 && segment4) ||
-                    (segment800 && segment1000 && segment200 && segment4) ||
-                    (segment2000 && segment1000 && segment200 && segment4) ||
-                    (segment8000 && segment1000 && segment80 && segment4) ||
-                    (segment4000 && segment1000 && segment80 && segment4) ||
-                    (segment2000 && segment1000 && segment80 && segment4) ||
-                    (segment4 && segment200 && segment8000))
-                {
-                    break;
-                }
-                else
-                {
-                    segment8 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 13:
-                // Segment 4000
-                if ((segment8000) ||
-                    (segment4000) ||
-                    (segment10 && segment200) ||
-                    (segment100 && segment200) ||
-                    (segment20 && segment200) ||
-                    (segment1000 && segment2000) ||
-                    (segment1000 && segment800) ||
-                    (segment1000 && segment400) ||
-                    (segment4 && segment8 && segment200) ||
-                    (segment2 && segment4 && segment200) ||
-                    (segment1 && segment4 && segment200) ||
-                    (segment4 && segment80 && segment200 && segment800) ||
-                    (segment2 && segment80 && segment1000) ||
-                    (segment1 && segment80 && segment1000) ||
-                    (segment400 && segment80 && segment4 && segment200) ||
-                    (segment40 && segment80 && segment4 && segment200) ||
-                    (segment1000 && segment80 && segment4 && segment20) ||
-                    (segment1000 && segment80 && segment4 && segment10) ||
-                    (segment1000 && segment80 && segment4 && segment8) ||
-                    (segment40 && segment80 && segment1000))
-                {
-                    break;
                 }
                 else
                 {
                     segment4000 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
-                }
-                break;
-
-            case 14:
-                // Segment 200
-                if ((segment10 && segment4000) ||
-                    (segment200) ||
-                    (segment20 && segment100) ||
-                    (segment100 && segment8000) ||
-                    (segment10 && segment8000) ||
-                    (segment20 && segment4000) ||
-                    (segment20 && segment8000) ||
-                    (segment100 && segment1000 && segment2000) ||
-                    (segment100 && segment200 && segment2000) ||
-                    (segment4 && segment8 && segment100) ||
-                    (segment10 && segment100) ||
-                    (segment100 && segment4000) ||
-                    (segment4 && segment80 && segment1000) ||
-                    (segment1 && segment4 && segment400 && segment1000) ||
-                    (segment10 && segment400 && segment1000) ||
-                    (segment4 && segment80 && segment800 && segment4000) ||
-                    (segment2 && segment10 && segment80 && segment1000) ||
-                    (segment10 && segment400 && segment1000) ||
-                    (segment10 && segment800 && segment1000) ||
-                    (segment10 && segment1000 && segment2000) ||
-                    (segment20 && segment400 && segment1000) ||
-                    (segment20 && segment800 && segment1000) ||
-                    (segment20 && segment1000 && segment2000) ||
-                    (segment100 && segment400 && segment1000) ||
-                    (segment100 && segment800 && segment1000) ||
-                    (segment1 && segment4 && segment4000) ||
-                    (segment1 && segment4 && segment8000) ||
-                    (segment1 && segment4 && segment100) ||
-                    (segment2 && segment4 && segment4000) ||
-                    (segment2 && segment4 && segment8000) ||
-                    (segment2 && segment4 && segment100) ||
-                    (segment4 && segment8 && segment4000) ||
-                    (segment2 && segment80 && segment1000 && segment20) ||
-                    (segment2 && segment80 && segment1000 && segment100) ||
-                    (segment1 && segment80 && segment1000 && segment10) ||
-                    (segment1 && segment80 && segment1000 && segment20) ||
-                    (segment1 && segment80 && segment1000 && segment100) ||
-                    (segment40 && segment80 && segment1000 && segment10) ||
-                    (segment40 && segment80 && segment1000 && segment20) ||
-                    (segment40 && segment80 && segment1000 && segment100) ||
-                    (segment800 && segment80 && segment4 && segment8000) ||
-                    (segment800 && segment80 && segment4 && segment100) ||
-                    (segment400 && segment80 && segment4 && segment4000) ||
-                    (segment400 && segment80 && segment4 && segment8000) ||
-                    (segment400 && segment80 && segment4 && segment100) ||
-                    (segment40 && segment80 && segment4 && segment4000) ||
-                    (segment40 && segment80 && segment4 && segment8000) ||
-                    (segment40 && segment80 && segment4 && segment100) ||
-                    (segment400 && segment1000 && segment4 && segment2) ||
-                    (segment400 && segment1000 && segment4 && segment8) ||
-                    (segment800 && segment1000 && segment4 && segment1) ||
-                    (segment800 && segment1000 && segment4 && segment2) ||
-                    (segment800 && segment1000 && segment4 && segment8) ||
-                    (segment2000 && segment1000 && segment4 && segment1) ||
-                    (segment2000 && segment1000 && segment4 && segment2) ||
-                    (segment2000 && segment1000 && segment4 && segment8) ||
-                    (segment4 && segment8 && segment8000))
-                {
-                    break;
-                }
-                else
-                {
                     segment200 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
+                    segment10 = true;
                 }
-                break;
-
-            case 15:
-                // Segment 10
-                if ((segment20) ||
-                    (segment10) ||
-                    (segment200 && segment4000) ||
-                    (segment100 && segment200) ||
-                    (segment200 && segment8000) ||
-                    (segment4 && segment8) ||
-                    (segment2 && segment4) ||
-                    (segment1 && segment4) ||
-                    (segment200 && segment1000 && segment2000) ||
-                    (segment200 && segment800 && segment1000) ||
-                    (segment200 && segment400 && segment1000) ||
-                    (segment2 && segment80 && segment200 && segment1000) ||
-                    (segment4 && segment80 && segment800) ||
-                    (segment4 && segment80 && segment400) ||
-                    (segment1 && segment80 && segment1000 && segment200) ||
-                    (segment40 && segment80 && segment1000 && segment200) ||
-                    (segment8000 && segment1000 && segment80 && segment4) ||
-                    (segment4000 && segment1000 && segment80 && segment4) ||
-                    (segment2000 && segment1000 && segment80 && segment4) ||
-                    (segment4 && segment40 && segment80))
+                if (boobies < 50)
                 {
-                    break;
+                    segment20000 = true;
                 }
                 else
                 {
-                    segment10 = true;
-                    segmentCount = segmentCount - 1;
-                    wii::os::OSReport("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
+                    segment80000 = true;
                 }
-                break;
             }
-            ++i;
-        }
+            // Small
+            else if (structureRNG >= 23 && structureRNG < 26)
+            {
+                wii::os::OSReport("!!! Small Structure is generating !!!\n");
+                if (structureMiscRNG < 33)
+                {
+                    segment800 = true;
+                    segment400 = true;
+                    segment10 = true;
+                    segment20 = true;
+                    segment8000 = true;
+                    segment10000 = true;
+                    segment80000 = true;
+                    segmentCount = segmentCount - 3;
+                }
+                else if (structureMiscRNG < 67)
+                {
+                    segment8000 = true;
+                    segment4000 = true;
+                    segment1 = true;
+                    segment2 = true;
+                    segment400 = true;
+                    segment10000 = true;
+                    segment80000 = true;
+                    segmentCount = segmentCount - 3;
+                }
+                else
+                {
+                    if (boobies < 25)
+                    {
+                        segment8000 = true;
+                        segment4000 = true;
+                        segment400 = true;
+                        segment10000 = true;
+                        segmentCount = segmentCount - 1;
+                    }
+                    else if (boobies < 50)
+                    {
+                        segment800 = true;
+                        segment400 = true;
+                        segment8000 = true;
+                        segment10000 = true;
+                        segmentCount = segmentCount - 1;
+                    }
+                    else if (boobies < 75)
+                    {
+                        segment10 = true;
+                        segment20 = true;
+                        segment80000 = true;
+                    }
+                    else
+                    {
+                        segment1 = true;
+                        segment2 = true;
+                        segment80000 = true;
+                    }
+                }
+            }
+            // I'm sorry Tartt but I am leaving the stream during Lobates. They bore the hell out of me and frankly I can think of a whole host of things I'd rather be doing, including playing with a rubber band. Please
+            else if (structureRNG >= 26 && structureRNG < 32)
+            {
+                wii::os::OSReport("!!! Lobate Structure is generating !!!\n");
+                if (structureMiscRNG <= 66)
+                {
+                    if (boobies < 25)
+                    {
+                        segment4 = true;
+                        segment8 = true;
+                        segment200 = true;
+                        segment8000 = true;
+                        segment20000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 50)
+                    {
+                        segment4 = true;
+                        segment8 = true;
+                        segment80 = true;
+                        segment400 = true;
+                        segment20000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 75)
+                    {
+                        segment1000 = true;
+                        segment2000 = true;
+                        segment200 = true;
+                        segment20 = true;
+                        segment20000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else
+                    {
+                        segment1000 = true;
+                        segment2000 = true;
+                        segment80 = true;
+                        segment1 = true;
+                        segment20000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                }
+                else
+                {
+                    if (structureMiscRNG >= 80)
+                    {
+                        segment20000 = true;
+                    }
+                    else
+                    {
+                        segment80000 = true;
+                    }
+                    if (boobies < 12.5)
+                    {
+                        segment4 = true;
+                        segment8 = true;
+                        segment80 = true;
+                        segment800 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 25)
+                    {
+                        segment4 = true;
+                        segment8 = true;
+                        segment200 = true;
+                        segment4000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 37.5)
+                    {
+                        segment1000 = true;
+                        segment2000 = true;
+                        segment80 = true;
+                        segment2 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 50)
+                    {
+                        segment1000 = true;
+                        segment2000 = true;
+                        segment200 = true;
+                        segment10 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 62.5)
+                    {
+                        segment2 = true;
+                        segment4 = true;
+                        segment200 = true;
+                        segment4000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 75)
+                    {
+                        segment10 = true;
+                        segment200 = true;
+                        segment800 = true;
+                        segment1000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else if (boobies < 87.5)
+                    {
+                        segment4 = true;
+                        segment10 = true;
+                        segment80 = true;
+                        segment800 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                    else
+                    {
+                        segment2 = true;
+                        segment80 = true;
+                        segment1000 = true;
+                        segment4000 = true;
+                        segmentCount = segmentCount - 2;
+                    }
+                }
+            }
+            // Structure does not generate
+            else
+            {
+                structureGenerated = false;
+            }
+            wii::os::OSReport("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
 
-        // Room layout cleanup: choose from possible doors and add pipes
-        // Pipes
-        if (!structureGenerated)
-        {
-            int pipeRNG = spm::system::rand() % 133;
-            if (pipeRNG >= 0 && pipeRNG < 39)
+            // Random segment generation + add'l doors
+            while (segmentCount > 0 && i < 20)
             {
-                segment20000 = true;
-            }
-            else if (pipeRNG >= 39 && pipeRNG < 76)
-            {
-                segment80000 = true;
-            }
-            else if (pipeRNG >= 76 && pipeRNG < 80 && segment1 && segment20)
-            {
-                segment40000 = true;
-            }
-            else if (pipeRNG >= 80 && pipeRNG < 82 && segment400 && segment8000)
-            {
-                segment10000 = true;
-            }
-            else if (pipeRNG >= 82 && pipeRNG < 83)
-            {
-                segment20000 = true;
-                segment80000 = true;
-            }
-            else if (pipeRNG >= 83 && pipeRNG < 86 && segment1 && segment20 && segment400 && segment8000)
-            {
-                segment10000 = true;
-                segment20000 = true;
-                segment40000 = true;
-                segment80000 = true;
-            }
-        }
+                int segmentID = spm::system::rand() % 16;
+                switch (segmentID)
+                {
+                case 0:
+                    // Segment 400
+                    if ((segment400) ||
+                        (segment800) ||
+                        (segment1000 && segment2000) ||
+                        (segment1000 && segment4000) ||
+                        (segment1000 && segment8000) ||
+                        (segment10 && segment200 && segment1000) ||
+                        (segment2 && segment80) ||
+                        (segment1 && segment4 && segment200 && segment1000) ||
+                        (segment1 && segment4 && segment8 && segment2000) ||
+                        (segment1 && segment80) ||
+                        (segment40 && segment80) ||
+                        (segment4 && segment8 && segment80) ||
+                        (segment4 && segment10 && segment80) ||
+                        (segment4 && segment20 && segment80) ||
+                        (segment10 && segment200 && segment1000) ||
+                        (segment20 && segment200 && segment1000) ||
+                        (segment80 && segment4 && segment200 && segment4000) ||
+                        (segment80 && segment4 && segment200 && segment8000) ||
+                        (segment80 && segment4 && segment200 && segment100) ||
+                        (segment1000 && segment200 && segment4 && segment2) ||
+                        (segment1000 && segment200 && segment4 && segment8) ||
+                        (segment100 && segment200 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment400 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 1;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
 
-        // Add all segment values
-        if (segment400)
-        {
-            roomDecCode = roomDecCode + 1024;
-        }
-        if (segment800)
-        {
-            roomDecCode = roomDecCode + 2048;
-        }
-        if (segment1000)
-        {
-            roomDecCode = roomDecCode + 4096;
-        }
-        if (segment2000)
-        {
-            roomDecCode = roomDecCode + 8192;
-        }
-        if (segment4000)
-        {
-            roomDecCode = roomDecCode + 16384;
-        }
-        if (segment8000)
-        {
-            roomDecCode = roomDecCode + 32768;
-        }
-        if (segment40)
-        {
-            roomDecCode = roomDecCode + 64;
-        }
-        if (segment80)
-        {
-            roomDecCode = roomDecCode + 128;
-        }
-        if (segment100)
-        {
-            roomDecCode = roomDecCode + 256;
-        }
-        if (segment200)
-        {
-            roomDecCode = roomDecCode + 512;
-        }
-        if (segment1)
-        {
-            roomDecCode = roomDecCode + 1;
-        }
-        if (segment2)
-        {
-            roomDecCode = roomDecCode + 2;
-        }
-        if (segment4)
-        {
-            roomDecCode = roomDecCode + 4;
-        }
-        if (segment8)
-        {
-            roomDecCode = roomDecCode + 8;
-        }
-        if (segment10)
-        {
-            roomDecCode = roomDecCode + 16;
-        }
-        if (segment20)
-        {
-            roomDecCode = roomDecCode + 32;
-        }
+                case 1:
+                    // Segment 1
+                    if ((segment1) ||
+                        (segment2) ||
+                        (segment4 && segment8) ||
+                        (segment4 && segment10) ||
+                        (segment4 && segment20) ||
+                        (segment4 && segment200 && segment4000) ||
+                        (segment80 && segment800) ||
+                        (segment4 && segment200 && segment400 && segment1000) ||
+                        (segment8 && segment400 && segment1000 && segment2000) ||
+                        (segment80 && segment400) ||
+                        (segment40 && segment80) ||
+                        (segment80 && segment1000 && segment2000) ||
+                        (segment80 && segment1000 && segment4000) ||
+                        (segment80 && segment1000 && segment8000) ||
+                        (segment4 && segment200 && segment4000) ||
+                        (segment4 && segment200 && segment8000) ||
+                        (segment80 && segment1000 && segment200 && segment10) ||
+                        (segment80 && segment1000 && segment200 && segment20) ||
+                        (segment80 && segment1000 && segment200 && segment100) ||
+                        (segment800 && segment1000 && segment200 && segment4) ||
+                        (segment2000 && segment1000 && segment200 && segment4) ||
+                        (segment4 && segment100 && segment200))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment1 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 17;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
 
-        wii::os::OSReport("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
+                case 2:
+                    // Segment 40
+                    if ((segment80 && segment800) ||
+                        (segment40) ||
+                        (segment2 && segment80) ||
+                        (segment80 && segment400) ||
+                        (segment1 && segment80) ||
+                        (segment2000) ||
+                        (segment8) ||
+                        (segment100) ||
+                        (segment4 && segment20 && segment80) ||
+                        (segment4 && segment10 && segment80) ||
+                        (segment80 && segment1000 && segment8000) ||
+                        (segment80 && segment1000 && segment200 && segment10) ||
+                        (segment80 && segment1000 && segment200 && segment20) ||
+                        (segment80 && segment1000 && segment200 && segment100) ||
+                        (segment80 && segment4 && segment200 && segment4000) ||
+                        (segment80 && segment4 && segment200 && segment8000) ||
+                        (segment80 && segment4 && segment200 && segment100) ||
+                        (segment80 && segment1000 && segment4000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment40 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 10;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 11;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
 
-        if (segment10000)
-        {
-            roomDecCode = roomDecCode + 65536;
-        }
-        if (segment20000)
-        {
-            roomDecCode = roomDecCode + 131072;
-        }
-        if (segment40000)
-        {
-            roomDecCode = roomDecCode + 262144;
-        }
-        if (segment80000)
-        {
-            roomDecCode = roomDecCode + 524288;
-        }
+                case 3:
+                    // Segment 1000
+                    if ((segment400 && segment8000) ||
+                        (segment400 && segment4000) ||
+                        (segment800 && segment8000) ||
+                        (segment1000) ||
+                        (segment800 && segment4000) ||
+                        (segment800 && segment2000) ||
+                        (segment2000 && segment4000) ||
+                        (segment2000 && segment8000) ||
+                        (segment400 && segment2000) ||
+                        (segment2 && segment10 && segment80 && segment200) ||
+                        (segment4 && segment80 && segment200) ||
+                        (segment40 && segment80 && segment2000) ||
+                        (segment4 && segment8 && segment80 && segment2000) ||
+                        (segment4 && segment8 && segment200 && segment2000) ||
+                        (segment2 && segment8 && segment80 && segment2000) ||
+                        (segment8 && segment10 && segment200 && segment2000) ||
+                        (segment2 && segment80 && segment8000) ||
+                        (segment2 && segment80 && segment4000) ||
+                        (segment2 && segment80 && segment2000) ||
+                        (segment1 && segment80 && segment8000) ||
+                        (segment1 && segment80 && segment4000) ||
+                        (segment1 && segment80 && segment2000) ||
+                        (segment40 && segment80 && segment8000) ||
+                        (segment40 && segment80 && segment4000) ||
+                        (segment40 && segment80 && segment2000) ||
+                        (segment10 && segment200 && segment800) ||
+                        (segment10 && segment200 && segment400) ||
+                        (segment10 && segment200 && segment2000) ||
+                        (segment20 && segment200 && segment800) ||
+                        (segment20 && segment200 && segment400) ||
+                        (segment20 && segment200 && segment2000) ||
+                        (segment100 && segment200 && segment800) ||
+                        (segment100 && segment200 && segment2000) ||
+                        (segment1 && segment4 && segment200 && segment400) ||
+                        (segment4 && segment20 && segment80 && segment8000) ||
+                        (segment2 && segment80 && segment200 && segment20) ||
+                        (segment2 && segment80 && segment200 && segment100) ||
+                        (segment1 && segment80 && segment200 && segment10) ||
+                        (segment1 && segment80 && segment200 && segment20) ||
+                        (segment1 && segment80 && segment200 && segment100) ||
+                        (segment40 && segment80 && segment200 && segment10) ||
+                        (segment40 && segment80 && segment200 && segment20) ||
+                        (segment40 && segment80 && segment200 && segment100) ||
+                        (segment400 && segment200 && segment4 && segment2) ||
+                        (segment400 && segment200 && segment4 && segment8) ||
+                        (segment800 && segment200 && segment4 && segment1) ||
+                        (segment800 && segment200 && segment4 && segment2) ||
+                        (segment800 && segment200 && segment4 && segment8) ||
+                        (segment2000 && segment200 && segment4 && segment1) ||
+                        (segment2000 && segment200 && segment4 && segment2) ||
+                        (segment2000 && segment200 && segment4 && segment8) ||
+                        (segment8000 && segment80 && segment4 && segment10) ||
+                        (segment8000 && segment80 && segment4 && segment8) ||
+                        (segment4000 && segment80 && segment4 && segment20) ||
+                        (segment4000 && segment80 && segment4 && segment10) ||
+                        (segment4000 && segment80 && segment4 && segment8) ||
+                        (segment2000 && segment80 && segment4 && segment20) ||
+                        (segment2000 && segment80 && segment4 && segment10) ||
+                        (segment2000 && segment80 && segment4 && segment8) ||
+                        (segment100 && segment200 && segment400))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment1000 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 4;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 5;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
 
-        if (currentFloor == 198)
-        {
-            roomDecCode = 0;
-            activeDoorCount = 19;
+                case 4:
+                    // Segment 4
+                    if ((segment1 && segment20) ||
+                        (segment4) ||
+                        (segment2 && segment10) ||
+                        (segment1 && segment10) ||
+                        (segment2 && segment20) ||
+                        (segment2 && segment8) ||
+                        (segment8 && segment10) ||
+                        (segment8 && segment20) ||
+                        (segment1 && segment8) ||
+                        (segment80 && segment200 && segment800 && segment4000) ||
+                        (segment80 && segment200 && segment1000) ||
+                        (segment8 && segment40 && segment80) ||
+                        (segment8 && segment100 && segment200) ||
+                        (segment8 && segment80 && segment1000 && segment2000) ||
+                        (segment8 && segment200 && segment1000 && segment2000) ||
+                        (segment8 && segment80 && segment800 && segment2000) ||
+                        (segment8 && segment200 && segment2000 && segment4000) ||
+                        (segment20 && segment80 && segment800) ||
+                        (segment10 && segment80 && segment800) ||
+                        (segment8 && segment80 && segment800) ||
+                        (segment20 && segment80 && segment400) ||
+                        (segment10 && segment80 && segment400) ||
+                        (segment8 && segment80 && segment400) ||
+                        (segment20 && segment40 && segment80) ||
+                        (segment10 && segment40 && segment80) ||
+                        (segment1 && segment200 && segment4000) ||
+                        (segment2 && segment200 && segment4000) ||
+                        (segment8 && segment200 && segment4000) ||
+                        (segment1 && segment200 && segment8000) ||
+                        (segment2 && segment200 && segment8000) ||
+                        (segment8 && segment200 && segment8000) ||
+                        (segment1 && segment100 && segment200) ||
+                        (segment1 && segment200 && segment400 && segment1000) ||
+                        (segment20 && segment80 && segment1000 && segment8000) ||
+                        (segment800 && segment80 && segment200 && segment8000) ||
+                        (segment800 && segment80 && segment200 && segment100) ||
+                        (segment400 && segment80 && segment200 && segment4000) ||
+                        (segment400 && segment80 && segment200 && segment8000) ||
+                        (segment400 && segment80 && segment200 && segment100) ||
+                        (segment40 && segment80 && segment200 && segment4000) ||
+                        (segment40 && segment80 && segment200 && segment8000) ||
+                        (segment40 && segment80 && segment200 && segment100) ||
+                        (segment400 && segment1000 && segment200 && segment2) ||
+                        (segment400 && segment1000 && segment200 && segment8) ||
+                        (segment800 && segment1000 && segment200 && segment1) ||
+                        (segment800 && segment1000 && segment200 && segment2) ||
+                        (segment800 && segment1000 && segment200 && segment8) ||
+                        (segment2000 && segment1000 && segment200 && segment1) ||
+                        (segment2000 && segment1000 && segment200 && segment2) ||
+                        (segment2000 && segment1000 && segment200 && segment8) ||
+                        (segment8000 && segment1000 && segment80 && segment10) ||
+                        (segment8000 && segment1000 && segment80 && segment8) ||
+                        (segment4000 && segment1000 && segment80 && segment20) ||
+                        (segment4000 && segment1000 && segment80 && segment10) ||
+                        (segment4000 && segment1000 && segment80 && segment8) ||
+                        (segment2000 && segment1000 && segment80 && segment20) ||
+                        (segment2000 && segment1000 && segment80 && segment10) ||
+                        (segment2000 && segment1000 && segment80 && segment8) ||
+                        (segment2 && segment100 && segment200))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment4 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 20;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 21;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 5:
+                    // Segment 100
+                    if ((segment200 && segment4000) ||
+                        (segment100) ||
+                        (segment10 && segment200) ||
+                        (segment100 && segment200) ||
+                        (segment20 && segment200) ||
+                        (segment200 && segment8000) ||
+                        (segment2000) ||
+                        (segment8) ||
+                        (segment40) ||
+                        (segment1 && segment4 && segment200) ||
+                        (segment2 && segment4 && segment200) ||
+                        (segment200 && segment400 && segment1000) ||
+                        (segment2 && segment80 && segment1000 && segment200) ||
+                        (segment1 && segment80 && segment1000 && segment200) ||
+                        (segment40 && segment80 && segment1000 && segment200) ||
+                        (segment800 && segment80 && segment4 && segment200) ||
+                        (segment400 && segment80 && segment4 && segment200) ||
+                        (segment40 && segment80 && segment4 && segment200) ||
+                        (segment200 && segment800 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment100 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 14;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 15;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 6:
+                    // Segment 8000
+                    if ((segment4000) ||
+                        (segment8000) ||
+                        (segment1000 && segment2000) ||
+                        (segment1000 && segment800) ||
+                        (segment1000 && segment400) ||
+                        (segment2 && segment80 && segment1000) ||
+                        (segment10 && segment200) ||
+                        (segment4 && segment20 && segment80 && segment1000) ||
+                        (segment4 && segment8 && segment20 && segment2000) ||
+                        (segment20 && segment200) ||
+                        (segment100 && segment200) ||
+                        (segment4 && segment8 && segment200) ||
+                        (segment2 && segment4 && segment200) ||
+                        (segment1 && segment4 && segment200) ||
+                        (segment2 && segment80 && segment1000) ||
+                        (segment1 && segment80 && segment1000) ||
+                        (segment800 && segment80 && segment4 && segment200) ||
+                        (segment400 && segment80 && segment4 && segment200) ||
+                        (segment40 && segment80 && segment4 && segment200) ||
+                        (segment1000 && segment80 && segment4 && segment10) ||
+                        (segment1000 && segment80 && segment4 && segment8) ||
+                        (segment40 && segment80 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment8000 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 8;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 7:
+                    // Segment 20
+                    if ((segment10) ||
+                        (segment20) ||
+                        (segment4 && segment8) ||
+                        (segment2 && segment4) ||
+                        (segment1 && segment4) ||
+                        (segment4 && segment80 && segment800) ||
+                        (segment200 && segment4000) ||
+                        (segment4 && segment80 && segment1000 && segment8000) ||
+                        (segment8 && segment1000 && segment2000 && segment8000) ||
+                        (segment200 && segment8000) ||
+                        (segment100 && segment200) ||
+                        (segment200 && segment1000 && segment2000) ||
+                        (segment200 && segment800 && segment1000) ||
+                        (segment200 && segment400 && segment1000) ||
+                        (segment4 && segment80 && segment800) ||
+                        (segment4 && segment80 && segment400) ||
+                        (segment2 && segment80 && segment1000 && segment200) ||
+                        (segment1 && segment80 && segment1000 && segment200) ||
+                        (segment40 && segment80 && segment1000 && segment200) ||
+                        (segment4000 && segment1000 && segment80 && segment4) ||
+                        (segment2000 && segment1000 && segment80 && segment4) ||
+                        (segment4 && segment40 && segment80))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment20 = true;
+                        activeDoorCount = activeDoorCount + 1;
+                        doorOn[activeDoorCount] = 24;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 8:
+                    // Segment 800
+                    if ((segment400) ||
+                        (segment800) ||
+                        (segment80 && segment2) ||
+                        (segment80 && segment40) ||
+                        (segment80 && segment1) ||
+                        (segment1000 && segment2000) ||
+                        (segment1000 && segment4000) ||
+                        (segment1000 && segment8000) ||
+                        (segment4 && segment8 && segment80) ||
+                        (segment4 && segment10 && segment80) ||
+                        (segment4 && segment20 && segment80) ||
+                        (segment4 && segment80 && segment200 && segment4000) ||
+                        (segment10 && segment200 && segment1000) ||
+                        (segment20 && segment200 && segment1000) ||
+                        (segment80 && segment4 && segment200 && segment8000) ||
+                        (segment80 && segment4 && segment200 && segment100) ||
+                        (segment1000 && segment200 && segment4 && segment1) ||
+                        (segment1000 && segment200 && segment4 && segment2) ||
+                        (segment1000 && segment200 && segment4 && segment8) ||
+                        (segment100 && segment200 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment800 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 9:
+                    // Segment 80
+                    if ((segment2 && segment800) ||
+                        (segment80) ||
+                        (segment1 && segment40) ||
+                        (segment40 && segment400) ||
+                        (segment2 && segment400) ||
+                        (segment1 && segment800) ||
+                        (segment1 && segment400) ||
+                        (segment40 && segment1000 && segment2000) ||
+                        (segment40 && segment800) ||
+                        (segment4 && segment8 && segment40) ||
+                        (segment2 && segment40) ||
+                        (segment4 && segment200 && segment1000) ||
+                        (segment4 && segment20 && segment1000 && segment8000) ||
+                        (segment2 && segment1000 && segment8000) ||
+                        (segment4 && segment200 && segment800 && segment4000) ||
+                        (segment2 && segment10 && segment200 && segment1000) ||
+                        (segment2 && segment1000 && segment8000) ||
+                        (segment2 && segment1000 && segment4000) ||
+                        (segment2 && segment1000 && segment2000) ||
+                        (segment1 && segment1000 && segment8000) ||
+                        (segment1 && segment1000 && segment4000) ||
+                        (segment1 && segment1000 && segment2000) ||
+                        (segment40 && segment1000 && segment8000) ||
+                        (segment40 && segment1000 && segment4000) ||
+                        (segment4 && segment20 && segment800) ||
+                        (segment4 && segment20 && segment400) ||
+                        (segment4 && segment20 && segment40) ||
+                        (segment4 && segment10 && segment800) ||
+                        (segment4 && segment10 && segment400) ||
+                        (segment4 && segment10 && segment40) ||
+                        (segment4 && segment8 && segment800) ||
+                        (segment2 && segment1000 && segment200 && segment20) ||
+                        (segment2 && segment1000 && segment200 && segment100) ||
+                        (segment1 && segment1000 && segment200 && segment10) ||
+                        (segment1 && segment1000 && segment200 && segment20) ||
+                        (segment1 && segment1000 && segment200 && segment100) ||
+                        (segment40 && segment1000 && segment200 && segment10) ||
+                        (segment40 && segment1000 && segment200 && segment20) ||
+                        (segment40 && segment1000 && segment200 && segment100) ||
+                        (segment800 && segment4 && segment200 && segment8000) ||
+                        (segment800 && segment4 && segment200 && segment100) ||
+                        (segment400 && segment4 && segment200 && segment4000) ||
+                        (segment400 && segment4 && segment200 && segment8000) ||
+                        (segment400 && segment4 && segment200 && segment100) ||
+                        (segment40 && segment4 && segment200 && segment4000) ||
+                        (segment40 && segment4 && segment200 && segment8000) ||
+                        (segment40 && segment4 && segment200 && segment100) ||
+                        (segment8000 && segment1000 && segment4 && segment10) ||
+                        (segment8000 && segment1000 && segment4 && segment8) ||
+                        (segment4000 && segment1000 && segment4 && segment20) ||
+                        (segment4000 && segment1000 && segment4 && segment10) ||
+                        (segment4000 && segment1000 && segment4 && segment8) ||
+                        (segment2000 && segment1000 && segment4 && segment20) ||
+                        (segment2000 && segment1000 && segment4 && segment10) ||
+                        (segment2000 && segment1000 && segment4 && segment8) ||
+                        (segment4 && segment8 && segment400))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment80 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 10:
+                    // Segment 2
+                    if ((segment1) ||
+                        (segment2) ||
+                        (segment80 && segment800) ||
+                        (segment40 && segment80) ||
+                        (segment80 && segment400) ||
+                        (segment4 && segment8) ||
+                        (segment4 && segment10) ||
+                        (segment4 && segment20) ||
+                        (segment80 && segment1000 && segment2000) ||
+                        (segment80 && segment1000 && segment4000) ||
+                        (segment80 && segment1000 && segment8000) ||
+                        (segment4 && segment200 && segment4000) ||
+                        (segment10 && segment80 && segment200 && segment1000) ||
+                        (segment4 && segment200 && segment8000) ||
+                        (segment80 && segment1000 && segment200 && segment20) ||
+                        (segment80 && segment1000 && segment200 && segment100) ||
+                        (segment400 && segment1000 && segment200 && segment4) ||
+                        (segment800 && segment1000 && segment200 && segment4) ||
+                        (segment2000 && segment1000 && segment200 && segment4) ||
+                        (segment4 && segment100 && segment200))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment2 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 11:
+                    // Segment 2000
+                    if ((segment8) ||
+                        (segment2000) ||
+                        (segment800 && segment1000) ||
+                        (segment1000 && segment4000) ||
+                        (segment400 && segment1000) ||
+                        (segment1000 && segment8000) ||
+                        (segment40) ||
+                        (segment100) ||
+                        (segment2 && segment80 && segment1000) ||
+                        (segment1 && segment80 && segment1000) ||
+                        (segment10 && segment200 && segment1000) ||
+                        (segment1000 && segment200 && segment4 && segment1) ||
+                        (segment1000 && segment200 && segment4 && segment2) ||
+                        (segment1000 && segment200 && segment4 && segment8) ||
+                        (segment1000 && segment80 && segment4 && segment20) ||
+                        (segment1000 && segment80 && segment4 && segment10) ||
+                        (segment1000 && segment80 && segment4 && segment8) ||
+                        (segment20 && segment200 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment2000 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 12:
+                    // Segment 8
+                    if ((segment2000) ||
+                        (segment8) ||
+                        (segment2 && segment4) ||
+                        (segment4 && segment10) ||
+                        (segment1 && segment4) ||
+                        (segment4 && segment20) ||
+                        (segment40) ||
+                        (segment100) ||
+                        (segment4 && segment80 && segment800) ||
+                        (segment4 && segment80 && segment400) ||
+                        (segment4 && segment200 && segment4000) ||
+                        (segment400 && segment1000 && segment200 && segment4) ||
+                        (segment800 && segment1000 && segment200 && segment4) ||
+                        (segment2000 && segment1000 && segment200 && segment4) ||
+                        (segment8000 && segment1000 && segment80 && segment4) ||
+                        (segment4000 && segment1000 && segment80 && segment4) ||
+                        (segment2000 && segment1000 && segment80 && segment4) ||
+                        (segment4 && segment200 && segment8000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment8 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 13:
+                    // Segment 4000
+                    if ((segment8000) ||
+                        (segment4000) ||
+                        (segment10 && segment200) ||
+                        (segment100 && segment200) ||
+                        (segment20 && segment200) ||
+                        (segment1000 && segment2000) ||
+                        (segment1000 && segment800) ||
+                        (segment1000 && segment400) ||
+                        (segment4 && segment8 && segment200) ||
+                        (segment2 && segment4 && segment200) ||
+                        (segment1 && segment4 && segment200) ||
+                        (segment4 && segment80 && segment200 && segment800) ||
+                        (segment2 && segment80 && segment1000) ||
+                        (segment1 && segment80 && segment1000) ||
+                        (segment400 && segment80 && segment4 && segment200) ||
+                        (segment40 && segment80 && segment4 && segment200) ||
+                        (segment1000 && segment80 && segment4 && segment20) ||
+                        (segment1000 && segment80 && segment4 && segment10) ||
+                        (segment1000 && segment80 && segment4 && segment8) ||
+                        (segment40 && segment80 && segment1000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment4000 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 14:
+                    // Segment 200
+                    if ((segment10 && segment4000) ||
+                        (segment200) ||
+                        (segment20 && segment100) ||
+                        (segment100 && segment8000) ||
+                        (segment10 && segment8000) ||
+                        (segment20 && segment4000) ||
+                        (segment20 && segment8000) ||
+                        (segment100 && segment1000 && segment2000) ||
+                        (segment100 && segment200 && segment2000) ||
+                        (segment4 && segment8 && segment100) ||
+                        (segment10 && segment100) ||
+                        (segment100 && segment4000) ||
+                        (segment4 && segment80 && segment1000) ||
+                        (segment1 && segment4 && segment400 && segment1000) ||
+                        (segment10 && segment400 && segment1000) ||
+                        (segment4 && segment80 && segment800 && segment4000) ||
+                        (segment2 && segment10 && segment80 && segment1000) ||
+                        (segment10 && segment400 && segment1000) ||
+                        (segment10 && segment800 && segment1000) ||
+                        (segment10 && segment1000 && segment2000) ||
+                        (segment20 && segment400 && segment1000) ||
+                        (segment20 && segment800 && segment1000) ||
+                        (segment20 && segment1000 && segment2000) ||
+                        (segment100 && segment400 && segment1000) ||
+                        (segment100 && segment800 && segment1000) ||
+                        (segment1 && segment4 && segment4000) ||
+                        (segment1 && segment4 && segment8000) ||
+                        (segment1 && segment4 && segment100) ||
+                        (segment2 && segment4 && segment4000) ||
+                        (segment2 && segment4 && segment8000) ||
+                        (segment2 && segment4 && segment100) ||
+                        (segment4 && segment8 && segment4000) ||
+                        (segment2 && segment80 && segment1000 && segment20) ||
+                        (segment2 && segment80 && segment1000 && segment100) ||
+                        (segment1 && segment80 && segment1000 && segment10) ||
+                        (segment1 && segment80 && segment1000 && segment20) ||
+                        (segment1 && segment80 && segment1000 && segment100) ||
+                        (segment40 && segment80 && segment1000 && segment10) ||
+                        (segment40 && segment80 && segment1000 && segment20) ||
+                        (segment40 && segment80 && segment1000 && segment100) ||
+                        (segment800 && segment80 && segment4 && segment8000) ||
+                        (segment800 && segment80 && segment4 && segment100) ||
+                        (segment400 && segment80 && segment4 && segment4000) ||
+                        (segment400 && segment80 && segment4 && segment8000) ||
+                        (segment400 && segment80 && segment4 && segment100) ||
+                        (segment40 && segment80 && segment4 && segment4000) ||
+                        (segment40 && segment80 && segment4 && segment8000) ||
+                        (segment40 && segment80 && segment4 && segment100) ||
+                        (segment400 && segment1000 && segment4 && segment2) ||
+                        (segment400 && segment1000 && segment4 && segment8) ||
+                        (segment800 && segment1000 && segment4 && segment1) ||
+                        (segment800 && segment1000 && segment4 && segment2) ||
+                        (segment800 && segment1000 && segment4 && segment8) ||
+                        (segment2000 && segment1000 && segment4 && segment1) ||
+                        (segment2000 && segment1000 && segment4 && segment2) ||
+                        (segment2000 && segment1000 && segment4 && segment8) ||
+                        (segment4 && segment8 && segment8000))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment200 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+
+                case 15:
+                    // Segment 10
+                    if ((segment20) ||
+                        (segment10) ||
+                        (segment200 && segment4000) ||
+                        (segment100 && segment200) ||
+                        (segment200 && segment8000) ||
+                        (segment4 && segment8) ||
+                        (segment2 && segment4) ||
+                        (segment1 && segment4) ||
+                        (segment200 && segment1000 && segment2000) ||
+                        (segment200 && segment800 && segment1000) ||
+                        (segment200 && segment400 && segment1000) ||
+                        (segment2 && segment80 && segment200 && segment1000) ||
+                        (segment4 && segment80 && segment800) ||
+                        (segment4 && segment80 && segment400) ||
+                        (segment1 && segment80 && segment1000 && segment200) ||
+                        (segment40 && segment80 && segment1000 && segment200) ||
+                        (segment8000 && segment1000 && segment80 && segment4) ||
+                        (segment4000 && segment1000 && segment80 && segment4) ||
+                        (segment2000 && segment1000 && segment80 && segment4) ||
+                        (segment4 && segment40 && segment80))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        segment10 = true;
+                        segmentCount = segmentCount - 1;
+                        wii::os::OSReport("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
+                    }
+                    break;
+                }
+                ++i;
+            }
+
+            // Room layout cleanup: choose from possible doors and add pipes
+            // Pipes
+            if (!structureGenerated)
+            {
+                int pipeRNG = spm::system::rand() % 133;
+                if (pipeRNG >= 0 && pipeRNG < 39)
+                {
+                    segment20000 = true;
+                }
+                else if (pipeRNG >= 39 && pipeRNG < 76)
+                {
+                    segment80000 = true;
+                }
+                else if (pipeRNG >= 76 && pipeRNG < 80 && segment1 && segment20)
+                {
+                    segment40000 = true;
+                }
+                else if (pipeRNG >= 80 && pipeRNG < 82 && segment400 && segment8000)
+                {
+                    segment10000 = true;
+                }
+                else if (pipeRNG >= 82 && pipeRNG < 83)
+                {
+                    segment20000 = true;
+                    segment80000 = true;
+                }
+                else if (pipeRNG >= 83 && pipeRNG < 86 && segment1 && segment20 && segment400 && segment8000)
+                {
+                    segment10000 = true;
+                    segment20000 = true;
+                    segment40000 = true;
+                    segment80000 = true;
+                }
+            }
+
+            // Add all segment values
+            if (segment400)
+            {
+                roomDecCode = roomDecCode + 1024;
+            }
+            if (segment800)
+            {
+                roomDecCode = roomDecCode + 2048;
+            }
+            if (segment1000)
+            {
+                roomDecCode = roomDecCode + 4096;
+            }
+            if (segment2000)
+            {
+                roomDecCode = roomDecCode + 8192;
+            }
+            if (segment4000)
+            {
+                roomDecCode = roomDecCode + 16384;
+            }
+            if (segment8000)
+            {
+                roomDecCode = roomDecCode + 32768;
+            }
+            if (segment40)
+            {
+                roomDecCode = roomDecCode + 64;
+            }
+            if (segment80)
+            {
+                roomDecCode = roomDecCode + 128;
+            }
+            if (segment100)
+            {
+                roomDecCode = roomDecCode + 256;
+            }
+            if (segment200)
+            {
+                roomDecCode = roomDecCode + 512;
+            }
+            if (segment1)
+            {
+                roomDecCode = roomDecCode + 1;
+            }
+            if (segment2)
+            {
+                roomDecCode = roomDecCode + 2;
+            }
+            if (segment4)
+            {
+                roomDecCode = roomDecCode + 4;
+            }
+            if (segment8)
+            {
+                roomDecCode = roomDecCode + 8;
+            }
+            if (segment10)
+            {
+                roomDecCode = roomDecCode + 16;
+            }
+            if (segment20)
+            {
+                roomDecCode = roomDecCode + 32;
+            }
+
+            wii::os::OSReport("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
+
+            if (segment10000)
+            {
+                roomDecCode = roomDecCode + 65536;
+            }
+            if (segment20000)
+            {
+                roomDecCode = roomDecCode + 131072;
+            }
+            if (segment40000)
+            {
+                roomDecCode = roomDecCode + 262144;
+            }
+            if (segment80000)
+            {
+                roomDecCode = roomDecCode + 524288;
+            }
+
+            if (currentFloor == 198)
+            {
+                roomDecCode = 0;
+                activeDoorCount = 19;
+            }
         }
 
         // Doors
-        int doorEntranceArrayVal = spm::system::rand() % activeDoorCount;
-        int doorEntrance = doorOn[doorEntranceArrayVal];
-        int doorExitArrayVal = spm::system::rand() % activeDoorCount;
-        while (doorExitArrayVal == doorEntranceArrayVal)
+        int successfulDoors = 0;
+        int doorExit = 0;
+        int doorEntrance = 0;
+        int doorId = 0;
+        bool currentDoorSuccess = false;
+        bool doorOnToggleableSegment = false;
+        while (successfulDoors != 2)
         {
-            doorExitArrayVal = spm::system::rand() % activeDoorCount;
+            currentDoorSuccess = false;
+            doorOnToggleableSegment = false;
+            doorId = spm::system::rand() % 32 + 1;
+            while (doorEntrance == doorId)
+            {
+                doorId = spm::system::rand() % 32 + 1;
+            }
+            wii::os::OSReport("Generated doorId %d.\n", doorId);
+            if (doorId == 1)
+            {
+                doorOnToggleableSegment = true;
+                if (segment400)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 4 || doorId == 5)
+            {
+                doorOnToggleableSegment = true;
+                if (segment1000)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 8)
+            {
+                doorOnToggleableSegment = true;
+                if (segment8000)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 10 || doorId == 11)
+            {
+                doorOnToggleableSegment = true;
+                if (segment40)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 14 || doorId == 15)
+            {
+                doorOnToggleableSegment = true;
+                if (segment100)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 17)
+            {
+                doorOnToggleableSegment = true;
+                if (segment1)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 20 || doorId == 21)
+            {
+                doorOnToggleableSegment = true;
+                if (segment4)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            if (doorId == 24)
+            {
+                doorOnToggleableSegment = true;
+                if (segment20)
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                }
+            }
+            wii::os::OSReport("All toggleable segment checks finished; doorOnToggleableSegment is %d, successfulDoors is %d, currentDoorSuccess is %d.\n", doorOnToggleableSegment, successfulDoors, currentDoorSuccess);
+            if (!doorOnToggleableSegment)
+            {
+                if (doorId >= 25)
+                {
+                    if (boobies > 35)
+                    {
+                        successfulDoors = successfulDoors + 1;
+                        currentDoorSuccess = true;
+                        wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                    }
+                }
+                else
+                {
+                    successfulDoors = successfulDoors + 1;
+                    currentDoorSuccess = true;
+                    wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                }
+            }
+            if (currentDoorSuccess)
+            {
+                if (successfulDoors == 1)
+                {
+                    doorEntrance = doorId;
+                }
+                else if (successfulDoors == 2)
+                {
+                    doorExit = doorId;
+                }
+            }
+            wii::os::OSReport("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
         }
-        int doorExit = doorOn[doorExitArrayVal];
 
         i = 0;
 
@@ -1764,85 +1970,81 @@ namespace mod
         double F_DDeluxe = (F_USShake - DDeluxe);
 
         // The rabbit is landing
-        if (nipples == 0)
+        for (i = 0; i < 200; ++i)
         {
             if (boobies >= F_TStew)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
             else if (boobies >= F_SShake)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO");
             else if (boobies >= F_FBurst)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_HONOO_SAKURETU");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_HONOO_SAKURETU");
             else if (boobies >= F_SMedal)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_STAR_MEDAL");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_STAR_MEDAL");
             else if (boobies >= F_BEgg)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BIG_EGG");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BIG_EGG");
             else if (boobies >= F_SShock)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOURA_DE_PON");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOURA_DE_PON");
             else if (boobies >= F_FSPlate)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_FRY");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_FRY");
             else if (boobies >= F_HSuper)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO_S");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HUNNY_KINOKO_S");
             else if (boobies >= F_IStorm)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOORI_NO_IBUKI");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KOORI_NO_IBUKI");
             else if (boobies >= F_MBox)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_NANIGA_OKORUKANA");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_NANIGA_OKORUKANA");
             else if (boobies >= F_BBlock)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BARIA_FRAME");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_BARIA_FRAME");
             else if (boobies >= F_TRage)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KAMINARI_DOKKAN");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KAMINARI_DOKKAN");
             else if (boobies >= F_MTonic)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TUYOTUYO_DRINK");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TUYOTUYO_DRINK");
             else if (boobies >= F_RSDish)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_HOILE_FRY");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KINOKO_HOILE_FRY");
             else if (boobies >= F_SStar)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KIRAKIRA_OTOSHI");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KIRAKIRA_OTOSHI");
             else if (boobies >= F_LShroom)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KINKYU_KINOKO");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_KINKYU_KINOKO");
             else if (boobies >= F_MMeal)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DINNER");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DINNER");
             else if (boobies >= F_GMedal)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_GOLD_MEDAL");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_GOLD_MEDAL");
             else if (boobies >= F_USShake)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ULTRA_DRINK");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ULTRA_DRINK");
             else if (boobies >= F_EBomb)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_BOMB_EGG");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_BOMB_EGG");
             else if (boobies >= F_PBlock)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_POW_BLOCK");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_POW_BLOCK");
             else if (boobies >= F_HDog)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HOTDOG");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HOTDOG");
             else if (boobies >= F_ERation)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_EMERGENCY_MEAL");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_EMERGENCY_MEAL");
             else if (boobies >= F_KMango)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TOROPICO_MANGO");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_TOROPICO_MANGO");
             else if (boobies >= F_CBean)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_MILD_CACAO");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_MILD_CACAO");
             else if (boobies >= F_SSyrup)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HANAJIRU_SYRUP");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HANAJIRU_SYRUP");
             else if (boobies >= F_FPBunch)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ROW_PASTA");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_USE_ROW_PASTA");
             else if (boobies >= F_HTea)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HERB_TEA");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_HERB_TEA");
             else if (boobies >= F_KTea)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KAME_TEA");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_KAME_TEA");
             else if (boobies >= F_DDeluxe)
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DOROCY_DELUX");
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_DOROCY_DELUX");
             else
-                spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
-        }
-        else
-        {
-            spm::dan::dan_wp->dungeons[currentFloor].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
-        }
+                spm::dan::dan_wp->dungeons[i].item = spm::itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
 
-        // Read map (bitflags for parts of the map to enable and disable in enemy rooms, 0 & unused elsewhere)
-        spm::dan::dan_wp->dungeons[currentFloor].map = roomDecCode;
+            // Read map (bitflags for parts of the map to enable and disable in enemy rooms, 0 & unused elsewhere)
+            spm::dan::dan_wp->dungeons[i].map = roomDecCode;
+
+            // Door substitution
+            spm::dan::dan_wp->dungeons[i].doors[0].enter = doorEntrance;
+            spm::dan::dan_wp->dungeons[i].doors[0].exit = doorExit;
+            spm::dan::dan_wp->dungeons[i].doorCount = 1;
+        }
 
         i = 0;
-        // Door substitution
-        spm::dan::dan_wp->dungeons[currentFloor].doors[i].enter = doorEntrance;
-        spm::dan::dan_wp->dungeons[currentFloor].doors[i].exit = doorExit;
-        spm::dan::dan_wp->dungeons[currentFloor].doorCount = 1;
-
         if (currentFloor == 0)
         {
             int enemyArrayVal = 1;
@@ -1962,16 +2164,16 @@ namespace mod
                         }
                         else if (enemyGenRNG < 95)
                         {
-                            arrayRNG = spm::system::rand() % 38;
+                            arrayRNG = spm::system::rand() % 37;
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv2Odds[arrayRNG] == 195 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 38;
+                                    arrayRNG = spm::system::rand() % 37;
                                     if (lv2Odds[arrayRNG] == 195)
                                     {
-                                        arrayRNG = spm::system::rand() % 38;
+                                        arrayRNG = spm::system::rand() % 37;
                                     }
                                 }
                                 ++i;
@@ -2216,16 +2418,16 @@ namespace mod
                         }
                         else if (enemyGenRNG < 85)
                         {
-                            arrayRNG = spm::system::rand() % 38;
+                            arrayRNG = spm::system::rand() % 37;
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv2Odds[arrayRNG] == 195 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 38;
+                                    arrayRNG = spm::system::rand() % 37;
                                     if (lv2Odds[arrayRNG] == 195)
                                     {
-                                        arrayRNG = spm::system::rand() % 38;
+                                        arrayRNG = spm::system::rand() % 37;
                                     }
                                 }
                                 ++i;
@@ -2391,16 +2593,16 @@ namespace mod
                         enemyGenRNG = spm::system::rand() % 100;
                         if (enemyGenRNG < 15)
                         {
-                            arrayRNG = spm::system::rand() % 38;
+                            arrayRNG = spm::system::rand() % 37;
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv2Odds[arrayRNG] == 195 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 38;
+                                    arrayRNG = spm::system::rand() % 37;
                                     if (lv2Odds[arrayRNG] == 195)
                                     {
-                                        arrayRNG = spm::system::rand() % 38;
+                                        arrayRNG = spm::system::rand() % 37;
                                     }
                                 }
                                 ++i;
@@ -2561,16 +2763,16 @@ namespace mod
                         }
                         else
                         {
-                            arrayRNG = spm::system::rand() % 41;
+                            arrayRNG = spm::system::rand() % 40;
                             vsOdds = spm::system::rand() % 100;
                             if (lv4Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv4Odds[arrayRNG] == 197 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 41;
+                                    arrayRNG = spm::system::rand() % 40;
                                     if (lv4Odds[arrayRNG] == 197)
                                     {
-                                        arrayRNG = spm::system::rand() % 41;
+                                        arrayRNG = spm::system::rand() % 40;
                                     }
                                 }
                                 ++i;
@@ -2736,16 +2938,16 @@ namespace mod
                         }
                         else if (enemyGenRNG < 16)
                         {
-                            arrayRNG = spm::system::rand() % 38;
+                            arrayRNG = spm::system::rand() % 37;
                             vsOdds = spm::system::rand() % 100;
                             if (lv2Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv2Odds[arrayRNG] == 195 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 38;
+                                    arrayRNG = spm::system::rand() % 37;
                                     if (lv2Odds[arrayRNG] == 195)
                                     {
-                                        arrayRNG = spm::system::rand() % 38;
+                                        arrayRNG = spm::system::rand() % 37;
                                     }
                                 }
                                 ++i;
@@ -2906,16 +3108,16 @@ namespace mod
                         }
                         else
                         {
-                            arrayRNG = spm::system::rand() % 41;
+                            arrayRNG = spm::system::rand() % 40;
                             vsOdds = spm::system::rand() % 100;
                             if (lv4Odds[arrayRNG] > vsOdds)
                             {
                                 if (lv4Odds[arrayRNG] == 197 && i > 0)
                                 {
-                                    arrayRNG = spm::system::rand() % 41;
+                                    arrayRNG = spm::system::rand() % 40;
                                     if (lv4Odds[arrayRNG] == 197)
                                     {
-                                        arrayRNG = spm::system::rand() % 41;
+                                        arrayRNG = spm::system::rand() % 40;
                                     }
                                 }
                                 ++i;
@@ -3026,111 +3228,87 @@ namespace mod
         }
 
         // Determine enemy data for current room
-        enemyArrayOffset = (currentFloor * 10 + 1);
-        spm::dan::dan_wp->dungeons[currentFloor].enemyCount = enemyConfigArray[enemyArrayOffset];
-        enemyArrayOffset = enemyArrayOffset + 1;
-        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].name = enemyConfigArray[enemyArrayOffset];
-        enemyArrayOffset = enemyArrayOffset + 1;
-        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].num = enemyConfigArray[enemyArrayOffset];
-        enemyArrayOffset = enemyArrayOffset + 1;
-        spm::dan::dan_wp->dungeons[currentFloor].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
-        enemyArrayOffset = enemyArrayOffset + 1;
-        wii::os::OSReport("enemyCount for current floor #%d: %d.\n", currentFloor, spm::dan::dan_wp->dungeons[currentFloor].enemyCount);
-        if (enemyConfigArray[enemyArrayOffset] != 0)
+        if (moverRNG > 24)
         {
-            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].name = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].num = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            spm::dan::dan_wp->dungeons[currentFloor].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            if (enemyConfigArray[enemyArrayOffset] != 0)
+            for (i = 0; i < 200; ++i)
             {
-                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].name = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = (currentFloor * 10 + 1);
+                spm::dan::dan_wp->dungeons[i].enemyCount = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
-                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].num = enemyConfigArray[enemyArrayOffset];
+                spm::dan::dan_wp->dungeons[i].enemies[1].name = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
-                spm::dan::dan_wp->dungeons[currentFloor].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
+                spm::dan::dan_wp->dungeons[i].enemies[1].num = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
-            }
-        }
-
-        if (currentFloor >= 100)
-        {
-            int currentFloor2 = (currentFloor - 100);
-            enemyArrayOffset = (currentFloor * 10 + 1);
-            spm::dan::dan_wp->dungeons[currentFloor2].enemyCount = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].name = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].num = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            spm::dan::dan_wp->dungeons[currentFloor2].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            wii::os::OSReport("enemyCount for current floor #%d: %d.\n", currentFloor2, spm::dan::dan_wp->dungeons[currentFloor2].enemyCount);
-            if (enemyConfigArray[enemyArrayOffset] != 0)
-            {
-                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].name = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].num = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                spm::dan::dan_wp->dungeons[currentFloor2].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
+                spm::dan::dan_wp->dungeons[i].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
                 if (enemyConfigArray[enemyArrayOffset] != 0)
                 {
-                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].name = enemyConfigArray[enemyArrayOffset];
+                    spm::dan::dan_wp->dungeons[i].enemies[2].name = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
-                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].num = enemyConfigArray[enemyArrayOffset];
+                    spm::dan::dan_wp->dungeons[i].enemies[2].num = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
-                    spm::dan::dan_wp->dungeons[currentFloor2].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
+                    spm::dan::dan_wp->dungeons[i].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
+                    if (enemyConfigArray[enemyArrayOffset] != 0)
+                    {
+                        spm::dan::dan_wp->dungeons[i].enemies[3].name = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                        spm::dan::dan_wp->dungeons[i].enemies[3].num = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                        spm::dan::dan_wp->dungeons[i].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                    }
                 }
             }
-        }
 
-        nextFloor = 0;
-        nextEnemyCount = 0;
-        nextName1 = 0;
-        nextNum1 = 0;
-        nextPos1 = 0;
-        nextName2 = 0;
-        nextNum2 = 0;
-        nextPos2 = 0;
-        nextName3 = 0;
-        nextNum3 = 0;
-        nextPos3 = 0;
-        // Set up values for debug displays
-        if (currentFloor != 199)
-        {
-            nextFloor = currentFloor + 1;
-            enemyArrayOffset = ((nextFloor * 10) + 1);
-            nextEnemyCount = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            nextName1 = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            nextNum1 = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            nextPos1 = enemyConfigArray[enemyArrayOffset];
-            enemyArrayOffset = enemyArrayOffset + 1;
-            if (enemyConfigArray[enemyArrayOffset] != 0)
+            nextFloor = 0;
+            nextEnemyCount = 0;
+            nextName1 = 0;
+            nextNum1 = 0;
+            nextPos1 = 0;
+            nextName2 = 0;
+            nextNum2 = 0;
+            nextPos2 = 0;
+            nextName3 = 0;
+            nextNum3 = 0;
+            nextPos3 = 0;
+            // Set up values for debug displays
+            if (currentFloor != 199)
             {
-                nextName2 = enemyConfigArray[enemyArrayOffset];
+                nextFloor = currentFloor + 1;
+                enemyArrayOffset = ((nextFloor * 10) + 1);
+                nextEnemyCount = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
-                nextNum2 = enemyConfigArray[enemyArrayOffset];
+                nextName1 = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
-                nextPos2 = enemyConfigArray[enemyArrayOffset];
+                nextNum1 = enemyConfigArray[enemyArrayOffset];
+                enemyArrayOffset = enemyArrayOffset + 1;
+                nextPos1 = enemyConfigArray[enemyArrayOffset];
                 enemyArrayOffset = enemyArrayOffset + 1;
                 if (enemyConfigArray[enemyArrayOffset] != 0)
                 {
-                    nextName3 = enemyConfigArray[enemyArrayOffset];
+                    nextName2 = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
-                    nextNum3 = enemyConfigArray[enemyArrayOffset];
+                    nextNum2 = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
-                    nextPos3 = enemyConfigArray[enemyArrayOffset];
+                    nextPos2 = enemyConfigArray[enemyArrayOffset];
                     enemyArrayOffset = enemyArrayOffset + 1;
+                    if (enemyConfigArray[enemyArrayOffset] != 0)
+                    {
+                        nextName3 = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                        nextNum3 = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                        nextPos3 = enemyConfigArray[enemyArrayOffset];
+                        enemyArrayOffset = enemyArrayOffset + 1;
+                    }
                 }
             }
         }
+        //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
+        //  spm::dan::dan_wp->dungeons[0].enemies[1].name = 466;
+        //  spm::dan::dan_wp->dungeons[1].enemies[1].name = 224;
+        //  spm::dan::dan_wp->dungeons[2].enemies[1].name = 229;
 
         // Replace Flimm inventory; this sets a number of random items from the custom rotenShopItemPool to be selectable across the entire Pit session.
         if (currentFloor == 0)
@@ -3144,6 +3322,20 @@ namespace mod
             for (i = 0; i < 70; i++)
             {
                 spm::dan::dan_rotenShopItems[i] = newRotenShopItems[i];
+            }
+        }
+
+        // Mover logic
+        if (moverRNG <= 24)
+        {
+            for (i = 0; i < 200; ++i)
+            {
+                spm::dan::dan_wp->dungeons[i].enemies[1].name = 1;
+                spm::dan::dan_wp->dungeons[i].enemies[1].num = 1;
+                spm::dan::dan_wp->dungeons[i].enemyCount = 1;
+                spm::dan::dan_wp->dungeons[i].doors[0].enter = 28;
+                spm::dan::dan_wp->dungeons[i].doors[0].exit = 29;
+                spm::dan::dan_wp->dungeons[i].map = 0;
             }
         }
 
@@ -3173,7 +3365,7 @@ namespace mod
                                             });
     }
 
-    // I literally had to port this entire thing just to remove a condition that makes certain enemies force the Pit to fucking crash upon entry. Fuck you Intelligent Systems. 6
+    // I literally had to port this entire thing just to override a condition that makes certain enemies force the Pit to fucking crash upon entry. Thank you Intelligent Systems, very cool
     s32 evt_dan_get_enemy_info_new(spm::evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)isFirstCall;
@@ -3224,6 +3416,7 @@ namespace mod
                     spm::npcdrv::npcEnemyTemplates[276].unknown_0x8 = 0;
                     spm::npcdrv::npcEnemyTemplates[277].unknown_0x8 = 0;
                     spm::npcdrv::npcEnemyTemplates[279].unknown_0x8 = 0;
+                    spm::npcdrv::npcEnemyTemplates[23].unknown_0x8 = 0;
 
                     if (((curTemplate->unknown_0x8 & 1) == 0) && (curTemplate->tribeId == tribeId))
                         break;
@@ -3466,7 +3659,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "SPM Flipside Pit Randomizer beta v1.1.1";
+        const char *msg = "SPM Flipside Pit Randomizer beta v1.2";
         spm::fontmgr::FontDrawStart();
         spm::fontmgr::FontDrawEdge();
         spm::fontmgr::FontDrawColor(&notgreen);
@@ -3593,7 +3786,7 @@ namespace mod
         spm::npcdrv::npcTribes[465].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[465].coinDropExtraChance = 75;
         spm::npcdrv::npcTribes[465].coinDropExtraMax = 5;
-        spm::npcdrv::npcTribes[465].attackStrength = 5;
+        spm::npcdrv::npcTribes[465].attackStrength = 4;
 
         // Flip Shady Koopa, ATK 5 DEF 3
         spm::npcdrv::npcTribes[466].catchCardItemId = 304;
@@ -3604,7 +3797,7 @@ namespace mod
         spm::npcdrv::npcTribes[466].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[466].coinDropExtraChance = 75;
         spm::npcdrv::npcTribes[466].coinDropExtraMax = 5;
-        spm::npcdrv::npcTribes[466].attackStrength = 5;
+        spm::npcdrv::npcTribes[466].attackStrength = 4;
 
         // Spiked Gloomba, ATK 3
         spm::npcdrv::npcTribes[5].catchCardItemId = 336;
@@ -3676,7 +3869,7 @@ namespace mod
         spm::npcdrv::npcTribes[479].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[479].coinDropExtraChance = 60;
         spm::npcdrv::npcTribes[479].coinDropExtraMax = 4;
-        spm::npcdrv::npcTribes[479].attackStrength = 6;
+        spm::npcdrv::npcTribes[479].attackStrength = 5;
 
         // Red Broom Magikoopa
         spm::npcdrv::npcTribes[480].catchCardItemId = 351;
@@ -3701,7 +3894,7 @@ namespace mod
         spm::npcdrv::npcTribes[504].coinDropBaseCount = 0;
         spm::npcdrv::npcTribes[504].coinDropExtraChance = 45;
         spm::npcdrv::npcTribes[504].coinDropExtraMax = 3;
-        spm::npcdrv::npcTribes[504].attackStrength = 3;
+        spm::npcdrv::npcTribes[504].attackStrength = 4;
 
         // Kilo Muth, ATK 2
         spm::npcdrv::npcTribes[506].catchCardItemId = 427;
@@ -3777,7 +3970,7 @@ namespace mod
 
         // White Clubba nerf
         spm::npcdrv::npcTribes[95].maxHp = 30;
-        spm::npcdrv::npcTribes[95].attackStrength = 5;
+        spm::npcdrv::npcTribes[95].attackStrength = 4;
 
         // Frackle point buff
         spm::npcdrv::npcTribes[450].killXp = 10;
@@ -3800,6 +3993,304 @@ namespace mod
         return 2;
     }
     EVT_DECLARE_USER_FUNC(declare_shadoo_stats, 0)
+
+    s32 get_mot_id(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        spm::mario::MarioWork *mario = spm::mario::marioGetPtr();
+        motId = mario->prevMotionId;
+        spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], motId);
+        wii::os::OSReport("motId: %d.\n", motId);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(get_mot_id, 1)
+
+    s32 generate_mover_rng(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        moverRNG = spm::system::rand() % 1000;
+        int floor = spm::swdrv::swByteGet(1);
+        if (floor >= 43 && floor <= 148)
+        {
+            moverRNG = 999;
+        }
+        else if (floor > 194)
+        {
+            moverRNG = 999;
+        }
+        spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], moverRNG);
+        wii::os::OSReport("moverRNG: %d.\n", moverRNG);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(generate_mover_rng, 1)
+
+    s32 generate_mover_prices(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        // Change Mover prices based on Pit Level
+        int floor = spm::swdrv::swByteGet(1);
+        if (floor <= 24) // Lv1
+        {
+            moverDown2Price = 20;
+            moverDown5Price = 60;
+        }
+        else if (floor <= 48) // Lv2
+        {
+            moverDown2Price = 25;
+            moverDown5Price = 75;
+        }
+        else if (floor <= 174) // Lv3
+        {
+            moverDown2Price = 30;
+            moverDown5Price = 90;
+        }
+        else // Lv4
+        {
+            moverDown2Price = 40;
+            moverDown5Price = 120;
+        }
+        spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], moverDown2Price);
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[1], moverDown5Price);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(generate_mover_prices, 2)
+
+    s32 mover_down_2(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        int floor = spm::swdrv::swByteGet(1);
+        floor = floor + 1;
+        spm::swdrv::swByteSet(1, floor);
+        // Seeky, please forgive me for the copypasting I'm about to do.
+        switch (floor)
+        {
+        // Flipside special
+        case 9:
+        case 19:
+            destMap = "dan_21";
+            break;
+        case 29:
+        case 39:
+            destMap = "dan_22";
+            break;
+        case 49:
+        case 59:
+            destMap = "dan_23";
+            break;
+        case 69:
+        case 79:
+        case 89:
+            destMap = "dan_24";
+            break;
+        case 99:
+            destMap = "dan_30";
+            break;
+
+        // Flopside special
+        case 109:
+        case 119:
+            destMap = "dan_61";
+            break;
+        case 129:
+        case 139:
+            destMap = "dan_62";
+            break;
+        case 149:
+        case 159:
+            destMap = "dan_63";
+            break;
+        case 169:
+        case 179:
+        case 189:
+            destMap = "dan_64";
+            break;
+        case 199:
+            destMap = "dan_70";
+            break;
+
+        // Enemy rooms
+        default:
+            // Flipside
+            if ((floor >= 0) && (floor <= 24))
+                destMap = "dan_01";
+            else if ((floor >= 25) && (floor <= 49))
+                destMap = "dan_02";
+            else if ((floor >= 50) && (floor <= 74))
+                destMap = "dan_03";
+            else if ((floor >= 75) && (floor <= 99))
+                destMap = "dan_04";
+
+            // Flopside
+            else if ((floor >= 100) && (floor <= 124))
+                destMap = "dan_41";
+            else if ((floor >= 125) && (floor <= 149))
+                destMap = "dan_42";
+            else if ((floor >= 150) && (floor <= 174))
+                destMap = "dan_43";
+            else if ((floor >= 175) && (floor <= 199))
+                destMap = "dan_44";
+        }
+        spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], destMap);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(mover_down_2, 1)
+
+    s32 mover_down_5(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        int floor = spm::swdrv::swByteGet(1);
+        floor = floor + 4;
+        spm::swdrv::swByteSet(1, floor);
+        // Seeky, please forgive me for the copypasting I'm about to do.
+        switch (floor)
+        {
+        // Flipside special
+        case 9:
+        case 19:
+            destMap = "dan_21";
+            break;
+        case 29:
+        case 39:
+            destMap = "dan_22";
+            break;
+        case 49:
+        case 59:
+            destMap = "dan_23";
+            break;
+        case 69:
+        case 79:
+        case 89:
+            destMap = "dan_24";
+            break;
+        case 99:
+            destMap = "dan_30";
+            break;
+
+        // Flopside special
+        case 109:
+        case 119:
+            destMap = "dan_61";
+            break;
+        case 129:
+        case 139:
+            destMap = "dan_62";
+            break;
+        case 149:
+        case 159:
+            destMap = "dan_63";
+            break;
+        case 169:
+        case 179:
+        case 189:
+            destMap = "dan_64";
+            break;
+        case 199:
+            destMap = "dan_70";
+            break;
+
+        // Enemy rooms
+        default:
+            // Flipside
+            if ((floor >= 0) && (floor <= 24))
+                destMap = "dan_01";
+            else if ((floor >= 25) && (floor <= 49))
+                destMap = "dan_02";
+            else if ((floor >= 50) && (floor <= 74))
+                destMap = "dan_03";
+            else if ((floor >= 75) && (floor <= 99))
+                destMap = "dan_04";
+
+            // Flopside
+            else if ((floor >= 100) && (floor <= 124))
+                destMap = "dan_41";
+            else if ((floor >= 125) && (floor <= 149))
+                destMap = "dan_42";
+            else if ((floor >= 150) && (floor <= 174))
+                destMap = "dan_43";
+            else if ((floor >= 175) && (floor <= 199))
+                destMap = "dan_44";
+        }
+        spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], destMap);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(mover_down_5, 1)
+    /*
+        s32 lock_thoreau_open(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
+        {
+            int floor = spm::swdrv::swByteGet(1);
+            switch (floor)
+            {
+            // Flipside special
+            case 9:
+            case 19:
+                destMap = "dan_21";
+                break;
+            case 29:
+            case 39:
+                destMap = "dan_22";
+                break;
+            case 49:
+            case 59:
+                destMap = "dan_23";
+                break;
+            case 69:
+            case 79:
+            case 89:
+                destMap = "dan_24";
+                break;
+            case 99:
+                destMap = "dan_30";
+                break;
+
+            // Flopside special
+            case 109:
+            case 119:
+                destMap = "dan_61";
+                break;
+            case 129:
+            case 139:
+                destMap = "dan_62";
+                break;
+            case 149:
+            case 159:
+                destMap = "dan_63";
+                break;
+            case 169:
+            case 179:
+            case 189:
+                destMap = "dan_64";
+                break;
+            case 199:
+                destMap = "dan_70";
+                break;
+
+            // Enemy rooms
+            default:
+                // Flipside
+                if ((floor >= 0) && (floor <= 24))
+                    destMap = "dan_01";
+                else if ((floor >= 25) && (floor <= 49))
+                    destMap = "dan_02";
+                else if ((floor >= 50) && (floor <= 74))
+                    destMap = "dan_03";
+                else if ((floor >= 75) && (floor <= 99))
+                    destMap = "dan_04";
+
+                // Flopside
+                else if ((floor >= 100) && (floor <= 124))
+                    destMap = "dan_41";
+                else if ((floor >= 125) && (floor <= 149))
+                    destMap = "dan_42";
+                else if ((floor >= 150) && (floor <= 174))
+                    destMap = "dan_43";
+                else if ((floor >= 175) && (floor <= 199))
+                    destMap = "dan_44";
+            }
+            spm::evtmgr::EvtVar *args = (spm::evtmgr::EvtVar *)evtEntry->pCurData;
+            spm::evtmgr_cmd::evtSetValue(evtEntry, args[0], destMap);
+            return 2;
+        }
+        EVT_DECLARE_USER_FUNC(lock_thoreau_open, 1) */
 
     s32 start_from_21(spm::evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -3901,33 +4392,199 @@ namespace mod
     static spm::evt_door::DokanDesc new_dan_70_dokan_desc = {
         0, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
 
+    spm::npcdrv::NPCTribeAnimDef merlunaAnims[] = {
+        {0, "n_stg2_mistS_1"},      // Idle
+        {1, "n_stg2_mistW_1"},      // Walking
+        {2, "n_stg2_mistR_1"},      // Running
+        {3, "n_stg2_mistT_1"},      // Talking (Idle)
+        {25, "n_stg2_mistA_1"},     // ):<
+        {26, "n_stg2_mistA_2"},     // D:<
+        {27, "n_stg2_mistO_1"},     // O_O
+        {28, "n_stg2_mistTW_1_a"},  // KEK
+        {29, "n_stg2_mistTW_1_b"},  // LMAOOOOOO
+        {30, "n_stg2_mistTW_1_c"},  // lol
+        {31, "n_stg2_mistTOB_1_a"}, // >_<
+        {32, "n_stg2_mistTOB_1_b"}, // @_@
+        {33, "n_stg2_mistTOB_1_c"}, // Back to normal
+        {34, "n_stg2_mistHi_1"},    // :3
+        {35, "n_stg2_mistS_2"},     // Idle (demure)
+        {36, "n_stg2_mistJ_1_a"},   // Jump
+        {37, "n_stg2_mistJ_1_b"},   // Land
+        {-1, "n_stg2_mistZ_1"}};
+
+    spm::npcdrv::NPCTribeAnimDef moverAnims[] = {
+        {0, "stg2_syuuzin_b_S_1"}, // Idle
+        {1, "stg2_syuuzin_b_W_1"}, // Walking
+        {2, "stg2_syuuzin_b_R_1"}, // Running
+        {3, "stg2_syuuzin_b_T_1"}, // Talking (Idle)
+        {-1, "stg2_syuuzin_b_Z_1"}};
+
     /* static spm::evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
          0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
 
-    /*    spm::npcdrv::NPCTribeAnimDef nastasiaAnims[] = {
-            {0, "S_1"}, // Standing (idle)
-            {3, "T_1"}, // Talking
-            {-1, nullptr}};
+    EVT_BEGIN(mover_speech)
+    USER_FUNC(spm::evt_mario::evt_mario_key_off, 1)
+    USER_FUNC(generate_mover_prices, LW(3), LW(4))
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverIntro), 0, PTR("me"))
+    SWITCH(LW(3))
+    CASE_EQUAL(20)
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(moverChoicesLv1))
+    CASE_EQUAL(25)
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(moverChoicesLv2))
+    CASE_EQUAL(30)
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(moverChoicesLv3))
+    CASE_ETC()
+    USER_FUNC(spm::evt_msg::evt_msg_select, 1, PTR(moverChoicesLv4))
+    END_SWITCH()
+    USER_FUNC(spm::evt_msg::evt_msg_continue)
+    IF_EQUAL(LW(0), 2) // "I'm good, thanks"
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverNo), 0, PTR("me"))
+    USER_FUNC(spm::evt_mario::evt_mario_key_on)
+    END_IF()
+    USER_FUNC(spm::evt_pouch::evt_pouch_get_coins, LW(1))
+    IF_EQUAL(LW(0), 1)     // Down 5 Floors
+    IF_SMALL(LW(1), LW(4)) // Checks if Mario is poor...
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverScam), 0, PTR("me"))
+    USER_FUNC(spm::evt_mario::evt_mario_key_on)
+    ELSE() // ...but if he's not, Proceed tm
+    USER_FUNC(spm::evt_sub::evt_sub_hud_configure, 0)
+    WAIT_MSEC(500)
+    MUL(LW(4), -1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_add_coins, LW(4))
+    USER_FUNC(spm::evt_shop::evt_shop_wait_coin_sfx)
+    WAIT_MSEC(500)
+    USER_FUNC(spm::evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverYes), 0, PTR("me"))
+    USER_FUNC(mover_down_5, LW(2))
+    USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 44, LW(5)) // Removes Pit Key if Mario has one
+    IF_EQUAL(LW(5), 1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_remove_item, 44)
+    END_IF()
+    USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 48, LW(5))
+    IF_EQUAL(LW(5), 1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_remove_item, 48)
+    END_IF()
+    WAIT_MSEC(500)
+    USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, LW(2), PTR(0))
+    END_IF()
+    END_IF()
+    IF_EQUAL(LW(0), 0)     // Down 2 Floors
+    IF_SMALL(LW(1), LW(3)) // Checks if Mario is poor...
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverScam), 0, PTR("me"))
+    USER_FUNC(spm::evt_mario::evt_mario_key_on)
+    ELSE() // ...but if he's not, Proceed tm
+    USER_FUNC(spm::evt_sub::evt_sub_hud_configure, 0)
+    WAIT_MSEC(500)
+    MUL(LW(3), -1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_add_coins, LW(3))
+    USER_FUNC(spm::evt_shop::evt_shop_wait_coin_sfx)
+    WAIT_MSEC(500)
+    USER_FUNC(spm::evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(moverYes), 0, PTR("me"))
+    USER_FUNC(mover_down_2, LW(2))
+    USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 44, LW(5)) // Removes Pit Key if Mario has one
+    IF_EQUAL(LW(5), 1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_remove_item, 44)
+    END_IF()
+    USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 48, LW(5))
+    IF_EQUAL(LW(5), 1)
+    USER_FUNC(spm::evt_pouch::evt_pouch_remove_item, 48)
+    END_IF()
+    WAIT_MSEC(500)
+    USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, LW(2), PTR(0))
+    END_IF()
+    END_IF()
+    RETURN()
+    EVT_END()
 
-        EVT_BEGIN(nastasia_speech)
-        USER_FUNC(spm::evt_mario::evt_mario_key_off, 1)
-        USER_FUNC(spm::evt_msg::evt_msg_print, EVT_MSG_FLAG_DIRECT, PTR("Hey,<wait 250> nice to see you here.\n<k><p>I came here to Flipside to\ncheck out the renovations\nthey've done to the Pit.\n<k><p>Apparently,<wait 250> they completely\nremade the room layouts,\n<k><p>And I think there were some\nnew enemies too.\n<k><p>You should check it out,<wait 250> it\nseems like the kind of thing\nthat would interest you.<k>"), 0, PTR("me"))
-        USER_FUNC(spm::evt_mario::evt_mario_key_on)
-        RETURN()
-        EVT_END()
+    EVT_BEGIN(fwd_mover_speech)
+    RUN_EVT(mover_speech)
+    RETURN()
+    EVT_END()
 
-        EVT_BEGIN(fwd_nastasia_speech)
-        RUN_EVT(nastasia_speech)
-        RETURN()
-        EVT_END()
+    EVT_BEGIN(merluna_speech)
+    USER_FUNC(spm::evt_mario::evt_mario_key_off, 1)
+    USER_FUNC(spm::evt_cam::evt_cam3d_evt_zoom_in, 1, FLOAT(237), FLOAT(101), FLOAT(644), FLOAT(340), FLOAT(50), FLOAT(200), 1000, 11)
+    USER_FUNC(spm::evt_mario::evt_mario_get_pos, LW(4), LW(5), LW(6))
+    USER_FUNC(spm::evt_mario::evt_mario_walk_to, 350, LW(6), 800)
+    USER_FUNC(spm::evt_mario::evt_mario_face_npc, PTR("me"))
+    INLINE_EVT()
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 28, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 29, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 30, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 0, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    END_INLINE()
+    WAIT_MSEC(2000)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(merlunaIntro), 0, PTR("me"))
+    WAIT_MSEC(250)
+    MARIO_SPAWN_QUESTION_MARK()
+    USER_FUNC(spm::evt_mario::evt_mario_set_pose, PTR("T_10"), 0)
+    WAIT_MSEC(1000)
+    INLINE_EVT()
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 34, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 0, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    END_INLINE()
+    USER_FUNC(spm::evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    WAIT_MSEC(600)
+    USER_FUNC(spm::evt_msg::evt_msg_print, 1, PTR(merlunaIntro2), 0, PTR("me"))
+    INLINE_EVT()
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 28, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 29, 1)
+    END_INLINE()
+    USER_FUNC(spm::evt_cam::evt_cam_zoom_to_coords, 800, 11)
+    WAIT_MSEC(800)
+    USER_FUNC(spm::evt_mario::evt_mario_key_on)
+    SET(GSWF(586), 1)
+    WAIT_MSEC(500)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_delete, PTR("me"))
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_APPEAR1"), 398, 0, 0)
+    USER_FUNC(spm::evt_eff::evt_eff, FLOAT(0.0), PTR("kemuri_test"), 0, 398, 0, 0, FLOAT(3.5), 0, 0, 0, 0, 0, 0, 0)
+    RETURN()
+    EVT_END()
 
-        EVT_BEGIN(flipside_nastasia_funny)
-        USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("nastasiaFunny"), PTR("n_nasta"), 0)
-        USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(nastasiaAnims))
-        USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("nastasiaFunny"), 0, true)
-        USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("nastasiaFunny"), -75, 1500, -150)
-        USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("nastasiaFunny"), mod::cutscene_helpers::NPCProperty::INTERACT, PTR(fwd_nastasia_speech))
-        RETURN_FROM_CALL() */
+    EVT_BEGIN(fwd_merluna_speech)
+    RUN_EVT(merluna_speech)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(merluna_setup)
+    IF_LARGE_EQUAL(LW(0), 30)
+    IF_EQUAL(GSWF(586), 0)
+    USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("rebear"), PTR("n_rebear"), 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("rebear"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(merlunaAnims))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("rebear"), 0, true)
+    USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("rebear"), 398, 0, 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("rebear"), 9, PTR(fwd_merluna_speech))
+    END_IF()
+    END_IF()
+    USER_FUNC(generate_mover_rng, LW(0))
+    IF_SMALL_EQUAL(LW(0), 34)
+    USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("mover"), PTR("n_stg2_syuuzin_b"), 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("mover"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(moverAnims))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("mover"), 0, true)
+    USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("mover"), 200, 0, 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("mover"), 9, PTR(fwd_mover_speech))
+    END_IF()
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(mover_setup_eroom)
+    USER_FUNC(generate_mover_rng, LW(1))
+    IF_SMALL_EQUAL(LW(1), 24)
+    USER_FUNC(spm::evt_npc::evt_npc_entry, PTR("mover"), PTR("n_stg2_syuuzin_b"), 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("mover"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(moverAnims))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("mover"), 0, true)
+    USER_FUNC(spm::evt_npc::evt_npc_set_position, PTR("mover"), -40, 0, 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR("mover"), 9, PTR(fwd_mover_speech))
+    END_IF()
+    RETURN_FROM_CALL()
 
     // Dialogue to determine whether to enable/disable custom Pit music
     EVT_BEGIN(determine_custom_music)
@@ -3949,7 +4606,6 @@ namespace mod
     USER_FUNC(spm::evt_snd::evt_snd_bgmon, 0, PTR("BGM_EVT_RELAXATION1"))
     END_IF()
     RETURN_FROM_CALL()
-
 
     // Dialogue to determine quickstart or no
     EVT_BEGIN(determine_quickstart)
@@ -3986,6 +4642,23 @@ namespace mod
     USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, PTR("mac_05"), PTR("elv1"))
     END_IF()
     RETURN_FROM_CALL()
+    /*
+        // Make opening locks less slow and awful IF you use Thoreau
+        EVT_BEGIN(dan_lock_quicken)
+        USER_FUNC(get_mot_id, LW(2))
+        IF_EQUAL(LW(2), 36)
+        USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 48, LW(0))
+        IF_EQUAL(LW(0), 1)
+        USER_FUNC(lock_thoreau_open, LW(3))
+        USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, LW(3), PTR(0))
+        END_IF()
+        USER_FUNC(spm::evt_pouch::evt_pouch_check_have_item, 44, LW(0))
+        IF_EQUAL(LW(0), 1)
+        USER_FUNC(lock_thoreau_open, LW(3))
+        USER_FUNC(spm::evt_seq::evt_seq_set_seq, spm::seqdrv::SEQ_MAPCHANGE, LW(3), PTR(0))
+        END_IF()
+        END_IF()
+        RETURN_FROM_CALL() */
 
     EVT_BEGIN(overwrite_dark_mario_card_chest)
     USER_FUNC(spm::evt_item::evt_item_entry, PTR("item"), 523, 0, LW(0), LW(1), LW(2), 0, 0, 0)
@@ -4099,7 +4772,7 @@ namespace mod
 
     // White Clubba ATK patch
     EVT_BEGIN(w_clubba_atk)
-    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 5)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 4)
     RETURN_FROM_CALL()
 
     // Shady Boomerang Bro contact ATK patch
@@ -4152,6 +4825,213 @@ namespace mod
     END_IF()
     RETURN_FROM_CALL()
 
+    // Shady Magikoopa projectile speedup
+    EVT_BEGIN(s_magi_proj_speed)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(9))
+    IF_EQUAL(LW(9), 68)
+    USER_FUNC(spm::evt_npc::evt_npc_glide_to, PTR("me"), LW(0), LW(1), LW(2), 5000, FLOAT(255.0), 0, 0, 0, 0)
+    ELSE()
+    USER_FUNC(spm::evt_npc::evt_npc_glide_to, PTR("me"), LW(0), LW(1), LW(2), 5000, FLOAT(120.0), 0, 0, 0, 0)
+    END_IF()
+    RETURN_FROM_CALL()
+
+    // Shady Magikoopa projectile ATK
+    EVT_BEGIN(s_magi_proj_atk)
+    USER_FUNC(spm::evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 4)
+    RETURN_FROM_CALL()
+
+    // Shady Magikoopa animation delay
+    EVT_BEGIN(s_magi_delay)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(9))
+    SWITCH(LW(9))
+    CASE_EQUAL(66)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_KAMEKU_MAGIC_SING1"), PTR("me"))
+    WAIT_MSEC(666)
+    SWITCH_BREAK()
+    CASE_EQUAL(67)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_KAMEKU_MAGIC_SING1"), PTR("me"))
+    WAIT_MSEC(666)
+    SWITCH_BREAK()
+    CASE_ETC()
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_KAMEKU_MAGIC_SING1"), PTR("me"))
+    END_SWITCH()
+    RETURN_FROM_CALL()
+
+    // White Clubba movement speed
+    EVT_BEGIN(w_clubba_mvmt)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(14))
+    IF_EQUAL(LW(14), 95)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(3), LW(5), 0, 120, 4, 0, 0)
+    ELSE()
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(3), LW(5), 0, 60, 4, 0, 0)
+    END_IF()
+    RETURN_FROM_CALL()
+
+    // White Clubba triple attack
+    EVT_BEGIN(w_clubba_triple)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(14))
+    IF_EQUAL(LW(14), 95)
+    IF_SMALL(LW(6), 128)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_GABON_HURU1"), PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 26, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 27, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 1, 1)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_GABON_HURU1"), PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 26, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 27, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 1, 1)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_GABON_HURU1"), PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 26, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 27, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 1, 1)
+    END_IF()
+    ELSE()
+    IF_SMALL(LW(6), 60)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR("SFX_E_GABON_HURU1"), PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 26, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 27, 1)
+    USER_FUNC(spm::evt_npc::func_80103410, PTR("me"), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_anim, PTR("me"), 1, 1)
+    END_IF()
+    END_IF()
+    RETURN_FROM_CALL()
+
+    // Shady Koopa AI rework
+    EVT_BEGIN(uranoko_brain)
+    USER_FUNC(spm::evt_npc::evt_npc_get_unitwork, PTR("me"), 9, LW(8))
+    IF_EQUAL(LW(8), 1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_unitwork, PTR("me"), 9, 0)
+    USER_FUNC(spm::evt_npc::evt_npc_get_axis_movement_unit, PTR("me"), LW(9))
+    MUL(LW(9), -1)
+    USER_FUNC(spm::evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), LW(9))
+    END_IF()
+    RETURN_FROM_CALL()
+
+    // Shady Koopa movement speed
+    EVT_BEGIN(uranoko_mvmt)
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(4), LW(5), LW(6))
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("target"), LW(7), LW(8), LW(9))
+    SUB(LW(7), LW(4))
+    IF_SMALL(LW(7), 0)
+    SUB(LW(1), 250)
+    ELSE()
+    ADD(LW(1), 250)
+    END_IF()
+    USER_FUNC(spm::evt_npc::evt_npc_set_unitwork, PTR("me"), 9, 1)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(1), LW(3), 0, 300, 4, 0, 0)
+    USER_FUNC(spm::evt_npc::evt_npc_set_unitwork, PTR("me"), 9, 0)
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(uranoko_dendrite)
+    USER_FUNC(spm::evt_npc::evt_npc_set_unitwork, PTR("me"), 9, 0)
+    RETURN_FROM_CALL()
+
+    // Kamikaze Goomba explosion visuals & second attack
+    EVT_BEGIN(kami_no_dokkan)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(11))
+    IF_EQUAL(LW(11), 10)
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
+    USER_FUNC(spm::evt_eff::evt_eff, FLOAT(0.0), PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
+    INLINE_EVT()
+    USER_FUNC(spm::evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
+    END_INLINE()
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
+    ADD(LW(8), 50)
+    USER_FUNC(spm::evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(8), LW(9), 800, 0, 45, 0, 16, 0)
+    //  USER_FUNC(spm::evt_npc::func_801072a4, PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
+    USER_FUNC(spm::evt_eff::evt_eff, FLOAT(0.0), PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
+    INLINE_EVT()
+    USER_FUNC(spm::evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
+    END_INLINE()
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(13), LW(14), LW(15))
+    USER_FUNC(spm::evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(14), LW(9), 500, 0, 30, 0, 16, 0)
+    //  USER_FUNC(spm::evt_npc::func_801072a4, PTR("me"))
+    USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
+    END_IF()
+    USER_FUNC(spm::evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_KURIBOO_LANDING1"), LW(11), LW(8), LW(9))
+    RETURN_FROM_CALL()
+
+    // Skellobyte delay shorten
+    EVT_BEGIN(skello_ai)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(6))
+    SWITCH(LW(6))
+    CASE_EQUAL(225)
+    WAIT_MSEC(0)
+    SWITCH_BREAK()
+    CASE_EQUAL(228)
+    WAIT_MSEC(0)
+    SWITCH_BREAK()
+    CASE_ETC()
+    USER_FUNC(spm::evt_npc::evt_npc_arc_to, PTR("me"), LW(0), LW(1), LW(2), 200, 0, FLOAT(10.0), 0, 0, 0)
+    SWITCH_BREAK()
+    END_SWITCH()
+    RETURN_FROM_CALL()
+
+    // Skellobyte faster attacks
+    EVT_BEGIN(skello_ai2)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(6))
+    SWITCH(LW(6))
+    CASE_EQUAL(225)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(0), LW(2), 0, FLOAT(255.0), 28, 0, 0)
+    SWITCH_BREAK()
+    CASE_EQUAL(228)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(0), LW(2), 0, FLOAT(255.0), 28, 0, 0)
+    SWITCH_BREAK()
+    CASE_ETC()
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(0), LW(2), 0, FLOAT(100.0), 28, 0, 0)
+    SWITCH_BREAK()
+    END_SWITCH()
+    RETURN_FROM_CALL()
+
+    // Skellobyte faster movement in general
+    EVT_BEGIN(skello_ai3)
+    USER_FUNC(spm::evt_npc::evt_npc_get_property, PTR("me"), 13, LW(6))
+    SWITCH(LW(6))
+    CASE_EQUAL(225)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(1), LW(3), 0, FLOAT(60.0), 28, 0, 0)
+    SWITCH_BREAK()
+    CASE_EQUAL(228)
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(1), LW(3), 0, FLOAT(60.0), 28, 0, 0)
+    SWITCH_BREAK()
+    CASE_ETC()
+    USER_FUNC(spm::evt_npc::evt_npc_walk_to, PTR("me"), LW(1), LW(3), 0, FLOAT(40.0), 28, 0, 0)
+    SWITCH_BREAK()
+    END_SWITCH()
+    RETURN_FROM_CALL()
+
+    /*
+        EVT_BEGIN(uranoko_mvmtcheck)
+        LBL(73)
+        USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("target"), LW(4), LW(5), LW(6))
+        USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR("me"), LW(7), LW(8), LW(9))
+        SUB(LW(8), LW(5))
+        IF_LARGE(LW(8), 50)
+        WAIT_FRM(1)
+        GOTO(73)
+        END_IF()
+        IF_SMALL(LW(8), -50)
+        WAIT_FRM(1)
+        GOTO(73)
+        END_IF()
+        RETURN_FROM_CALL() */
+
+    // IF_SMALL(LW(7), 0)
+    // USER_FUNC(spm::evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 1)
+    // ELSE()
+    // USER_FUNC(spm::evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), -1)
+    // END_IF()
+
     static void evtPatches()
     {
         // Initialize the patches to the EVT interpreter to add custom opcodes
@@ -4192,8 +5072,15 @@ namespace mod
         spm::evtmgr_cmd::EvtScriptCode *dBowserAtkAgainAgain = spm::npcdrv::npcEnemyTemplates[285].unkScript2;
         spm::evtmgr_cmd::EvtScriptCode *dLuigiAtk = spm::npcdrv::npcEnemyTemplates[286].onSpawnScript;
         spm::evtmgr_cmd::EvtScriptCode *dLuigiAtkAgain = spm::npcdrv::npcEnemyTemplates[286].unkScript3;
+        spm::evtmgr_cmd::EvtScriptCode *sMagiProjSpeed = spm::npcdrv::npcEnemyTemplates[347].unkScript2;
+        spm::evtmgr_cmd::EvtScriptCode *sMagiProjAtk = spm::npcdrv::npcEnemyTemplates[347].onSpawnScript;
+        spm::evtmgr_cmd::EvtScriptCode *wClubbaTriple = spm::npcdrv::npcEnemyTemplates[350].unkScript7;
+        spm::evtmgr_cmd::EvtScriptCode *uranokoMvmt = spm::npcdrv::npcEnemyTemplates[10].unkScript7;
+        spm::evtmgr_cmd::EvtScriptCode *uranokoBrain = spm::npcdrv::npcEnemyTemplates[10].unkScript2;
+        spm::evtmgr_cmd::EvtScriptCode *uranokoOnDmgTaken = spm::npcdrv::npcEnemyTemplates[10].unkScript3;
+        spm::evtmgr_cmd::EvtScriptCode *kamiKuriAtk = spm::npcdrv::npcEnemyTemplates[330].unkScript7;
 
-        // ATK overwrite
+        // Enemy stat overwrite
         evtpatch::hookEvtReplace(dPuffDirAtk, 2, d_puff_dir_atk);
         evtpatch::hookEvtReplace(dPuffAtk, 11, d_puff_atk);
         evtpatch::hookEvtReplace(iBroDirAtk, 1, i_bro_dir_atk);
@@ -4223,6 +5110,22 @@ namespace mod
         evtpatch::hookEvtReplace(dLuigiAtk, 27, d_luigi_atk);
         evtpatch::hookEvt(dLuigiAtkAgain, 2, d_luigi_atk_again);
         writeWord(&spm::temp_unk::luigi_superjump_atk, 0x684, 0x3800000A); // Patch initial superjump ATK
+        evtpatch::hookEvtReplace(sMagiProjSpeed, 24, s_magi_proj_speed);
+        evtpatch::hookEvtReplace(sMagiProjAtk, 1, s_magi_proj_atk);
+        evtpatch::hookEvtReplace(wClubbaTriple, 36, w_clubba_mvmt);
+        evtpatch::hookEvtReplace(wClubbaTriple, 50, w_clubba_mvmt);
+        evtpatch::hookEvtReplaceBlock(wClubbaTriple, 52, w_clubba_triple, 59);
+        evtpatch::hookEvtReplace(uranokoMvmt, 16, uranoko_mvmt);
+        //    evtpatch::hookEvt(uranokoMvmt, 1, uranoko_mvmtcheck);
+        evtpatch::hookEvt(uranokoBrain, 1, uranoko_brain);
+        evtpatch::hookEvt(uranokoOnDmgTaken, 1, uranoko_dendrite);
+        evtpatch::hookEvtReplace(kamiKuriAtk, 51, kami_no_dokkan);
+        evtpatch::hookEvtReplace(spm::temp_unk::skellobits_unk7, 7, skello_ai);
+        evtpatch::hookEvtReplace(spm::temp_unk::skellobits_unk7, 25, skello_ai2);
+        evtpatch::hookEvtReplace(spm::temp_unk::skellobits_unk2, 16, skello_ai3);
+        evtpatch::hookEvtReplace(spm::temp_unk::skellobits_unk8, 16, skello_ai2);
+        evtpatch::hookEvt(spm::temp_unk::kameks_unk7, 18, s_magi_delay);
+        evtpatch::hookEvtReplace(spm::temp_unk::dark_broom_kamek_unk7, 17, s_magi_delay);
 
         // Post-Shadoo chest reward overwrites
         evtpatch::hookEvtReplace(spm::dan::dan_70_dark_mario_chest_open_evt, 3, overwrite_dark_mario_card_chest);
@@ -4247,17 +5150,24 @@ namespace mod
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_two, 83, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_three, 76, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_left_four, 62, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 108, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 119, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_two, 92, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_three, 85, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_four, 71, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 99, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_one, 110, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_two, 83, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_three, 76, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(spm::evt_door::evt_door_dan_dokan_right_four, 62, dan_enter_pipe_wait);
 
         // Quickstart
         evtpatch::hookEvt(spm::aa1_01::aa1_01_mario_house_transition_evt, 10, determine_quickstart);
+
+        // Lock stuff
+        //    evtpatch::hookEvt(spm::dan::dan_lock_interact_evt, 2, dan_lock_quicken);
+
+        // Custom NPCs
+        evtpatch::hookEvt(spm::dan::dan_chest_room_init_evt, 83, merluna_setup);
+        evtpatch::hookEvt(spm::dan::dan_enemy_room_init_evt, 2, mover_setup_eroom);
     }
 
     void main()

@@ -56,7 +56,7 @@ UNKNOWN_FUNCTION(evt_sub_get_fps);
 UNKNOWN_FUNCTION(evt_sub_fmt_str_int);
 UNKNOWN_FUNCTION(func_800d4b4c);
 UNKNOWN_FUNCTION(func_800d4b60);
-UNKNOWN_FUNCTION(evt_hud_configure);
+EVT_DECLARE_USER_FUNC(evt_sub_hud_configure, 1);
 UNKNOWN_FUNCTION(func_800d4db0);
 EVT_DECLARE_USER_FUNC(func_800d4de4, 2)
 UNKNOWN_FUNCTION(func_800d4e48);

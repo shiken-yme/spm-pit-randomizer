@@ -7,6 +7,10 @@ namespace mod::cutscene_helpers
 #define SET_CHAR_ANIMS(instanceName, tribeAnimDef) \
     USER_FUNC(spm::evt_npc::evt_npc_set_property, PTR(instanceName), spm::npcdrv::NPCProperty::ANIMS, PTR(tribeAnimDef))
 
+typedef enum {
+    ANIMS = 0xe
+} NPCProperty;
+
 #define SPAWN_CHARACTER(instanceName, modelName, initialAnimations) \
     USER_FUNC(spm::evt_npc::evt_npc_entry, PTR(instanceName), PTR(modelName), 0) \
     SET_CHAR_ANIMS(instanceName, initialAnimations)

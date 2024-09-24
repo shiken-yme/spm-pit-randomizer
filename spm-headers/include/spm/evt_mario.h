@@ -63,7 +63,9 @@ UNKNOWN_FUNCTION(func_800f01ac);
 UNKNOWN_FUNCTION(func_800f0210);
 UNKNOWN_FUNCTION(evt_mario_face);
 UNKNOWN_FUNCTION(evt_mario_face_free);
-UNKNOWN_FUNCTION(func_800f0304);
+
+// x, z, duration in ms
+EVT_DECLARE_USER_FUNC(evt_mario_walk_to, 3)
 
 EVT_DECLARE_USER_FUNC(evt_mario_pos_change, 3)
 
