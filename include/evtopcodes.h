@@ -123,5 +123,7 @@ enum EvtOpcode : s16 {
     DebugBp,
     // Custom
     Call,
-    ReturnFromCall
+    ReturnFromCall,
+
+    Max
 };

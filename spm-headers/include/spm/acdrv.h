@@ -76,8 +76,8 @@ void acInit();
 */
 void acReInit();
 
-UNKNOWN_FUNCTION(func_8003ebb8);
-UNKNOWN_FUNCTION(func_8003ec24);
+UNKNOWN_FUNCTION(func_8003ebb8)
+UNKNOWN_FUNCTION(func_8003ec24)
 
 /*
     Updates entries based on their state, calls their mainFuncs and queues their dispFuncs
@@ -125,7 +125,7 @@ void acDelete(AcEntry * entry);
 void acPauseAll();
 void acUnpauseAll();
 
-UNKNOWN_FUNCTION(func_8003f6bc);
+UNKNOWN_FUNCTION(func_8003f6bc)
 
 /*
     Returns whether any entries are in use
@@ -142,9 +142,9 @@ AcEntry * acNameToPtr(const char * name);
 */
 void acMsgDisp(PausewinEntry * entry);
 
-UNKNOWN_FUNCTION(func_8003f934);
-UNKNOWN_FUNCTION(func_8004077c);
-UNKNOWN_FUNCTION(func_80040dac);
-UNKNOWN_FUNCTION(func_80040eb4);
+UNKNOWN_FUNCTION(func_8003f934)
+UNKNOWN_FUNCTION(func_8004077c)
+UNKNOWN_FUNCTION(func_80040dac)
+UNKNOWN_FUNCTION(func_80040eb4)
 
 CPP_WRAPPER_END()

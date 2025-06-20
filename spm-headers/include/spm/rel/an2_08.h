@@ -8,10 +8,10 @@ CPP_WRAPPER(spm::an2_08)
 
 typedef struct RpgNPC {
 /* 0x00 */ s32 flags;
-/* 0x04 */ s32 unk_4;
+/* 0x04 */ s32 stunTime;
 /* 0x08 */ s32 maxHp;
 /* 0x0C */ s32 attackStrength;
-/* 0x10 */ s32 unk_10;
+/* 0x10 */ s32 killDisappearTimer;
 /* 0x14 */ s32 killXp;
 } RpgNPC;
 SIZE_ASSERT(RpgNPC, 0x18)
@@ -38,13 +38,13 @@ typedef struct An2_08Work {
 /* 0x04 */ s32 unk_04;
 /* 0x08 */ RpgMenu* rpgMenu;
 /* 0x0C */ RpgNPC rpgNpcInfo[3];
-/* 0x54 */ s32 unk_54;
-/* 0x58 */ s32 unk_58[15];
-/* 0x94 */ char unk_94[4];
+/* 0x54 */ s32 statusEffects;
+/* 0x58 */ s32 statusEffectsTimer[15]; // The amount of time in turns until a status effect wears off
+/* 0x94 */ s32 totalScore;
 } An2_08Work; //sizeof 0x98
 SIZE_ASSERT(An2_08Work, 0x98)
 
-DECOMP_STATIC(An2_08Work an2_08_wp)
+DECOMP_STATIC(An2_08Work *an2_08_wp)
 DECOMP_STATIC(const char * lbl_80def2c8[4])
 
 EVT_DECLARE(begin_rpg_parent_evt)
@@ -60,10 +60,10 @@ EVT_DECLARE(rpg_run_away_evt)
 EVT_DECLARE(rpg_snd_miss_evt)
 EVT_DECLARE(rpg_snd_hit_evt)
 
-UNKNOWN_FUNCTION(func_80c6c908);
+UNKNOWN_FUNCTION(func_80c6c908)
 u8 rpgHandleMenu(int param_1, RpgMenu * menu);
-UNKNOWN_FUNCTION(func_80c6cccc);
-UNKNOWN_FUNCTION(func_80c6ce24);
+UNKNOWN_FUNCTION(func_80c6cccc)
+UNKNOWN_FUNCTION(func_80c6ce24)
 void rpg_screen_draw();
 
 EVT_DECLARE_USER_FUNC(evt_rpg_npctribe_handle, 0)
@@ -87,7 +87,7 @@ EVT_DECLARE_USER_FUNC(evt_rpg_add_xp, 1)
 EVT_DECLARE_USER_FUNC(evt_rpg_point_handling, 1)
 EVT_DECLARE_USER_FUNC(evt_rpg_get_item_msg, 2)
 EVT_DECLARE_USER_FUNC(evt_an2_08_draw_face, 2)
-UNKNOWN_FUNCTION(func_80c72d5c);
-UNKNOWN_FUNCTION(func_80c72e10);
+UNKNOWN_FUNCTION(func_80c72d5c)
+UNKNOWN_FUNCTION(func_80c72e10)
 
 CPP_WRAPPER_END()

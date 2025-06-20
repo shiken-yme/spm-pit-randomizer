@@ -14,6 +14,7 @@ CPP_WRAPPER(spm::icondrv)
 
 USING(spm::filemgr::FileEntry)
 USING(wii::gx::GXTexObj)
+USING(wii::gx::GXColor)
 USING(wii::mtx::Vec3)
 USING(wii::mtx::Mtx34)
 
@@ -55,17 +56,29 @@ enum IconId
 
 typedef struct
 {
+/* 0x0 */ u16 texId;
+/* 0x2 */ u16 frames;
+} WiconEntryStage;
+SIZE_ASSERT(WiconEntryStage, 0x4)
+
+typedef struct
+{
 /* 0x00 */ u32 flags;
 /* 0x04 */ Vec3 position;
 /* 0x10 */ f32 scale;
-/* 0x14 */ u8 unknown_0x14[0x24 - 0x14];
+/* 0x14 */ Vec3 rotation;
+/* 0x20 */ GXColor colour;
 /* 0x24 */ char name[MAX_ICONOBJ_NAME];
 /* 0x34 */ s16 iconId;
 /* 0x36 */ u8 unknown_0x36[0x38 - 0x36];
 /* 0x38 */ s32 offscreenId;
 /* 0x3C */ u8 unknown_0x3c[0x3f - 0x3c];
 /* 0x3F */ u8 alpha;
-/* 0x40 */ u8 unknown_0x40[0x4c - 0x40];
+/* 0x40 */ u16 texWidth;
+/* 0x42 */ u16 texHeight;
+/* 0x44 */ u16 stageCount;
+/* 0x44 */ u16 curStageId;
+/* 0x48 */ WiconEntryStage curStage;
 } IconEntry;
 SIZE_ASSERT(IconEntry, 0x4c)
 
@@ -108,7 +121,7 @@ void iconDelete(const char * name);
 */
 void iconDisp(s8 cameraId, IconEntry * entry);
 
-UNKNOWN_FUNCTION(func_80072da0);
+UNKNOWN_FUNCTION(func_80072da0)
 
 void iconDispGxAlpha(f32 scale, Vec3 * position, Unk param_3, s32 iconId, u8 alpha);
 
@@ -136,7 +149,7 @@ void iconSetAlpha(const char * name, u8 alpha);
 void iconNumberDispGx(Mtx34 * param_1, s32 number, s32 keta, Unk param_4, void * param_5,
                       Unk param_6);
 
-UNKNOWN_FUNCTION(func_80074f80);
-UNKNOWN_FUNCTION(func_80074fe8);
+UNKNOWN_FUNCTION(func_80074f80)
+UNKNOWN_FUNCTION(func_80074fe8)
 
 CPP_WRAPPER_END()

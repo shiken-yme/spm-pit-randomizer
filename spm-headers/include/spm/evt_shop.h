@@ -15,9 +15,9 @@ typedef struct
 } EvtShopDef;
 SIZE_ASSERT(EvtShopDef, 0x14)
 
-EVT_DECLARE_USER_FUNC(evt_shop_wait_coin_sfx, 0)
+EVT_UNKNOWN_USER_FUNC(evt_shop_wait_coin_sfx)
 EVT_UNKNOWN_USER_FUNC(func_8010d2b8)
-EVT_DECLARE_USER_FUNC(evt_shop_get_name_items, 3)
+EVT_UNKNOWN_USER_FUNC(evt_shop_get_name_items)
 EVT_UNKNOWN_USER_FUNC(func_8010d3d4)
 EVT_UNKNOWN_USER_FUNC(evt_shop_get_fortune_message)
 EVT_UNKNOWN_USER_FUNC(func_8010d5b8)
@@ -61,13 +61,15 @@ EVT_UNKNOWN_USER_FUNC(evt_shop_filter_flimm_flipside_items)
 EVT_UNKNOWN_USER_FUNC(evt_shop_flimm_select_item)
 EVT_UNKNOWN_USER_FUNC(func_80111074)
 EVT_UNKNOWN_USER_FUNC(func_80111334)
-EVT_DECLARE_USER_FUNC(evt_shop_build_flimm_pit_item_tables, 1)
+EVT_UNKNOWN_USER_FUNC(evt_shop_build_flimm_pit_item_tables)
 EVT_UNKNOWN_USER_FUNC(evt_shop_restore_itemdata_prices)
 EVT_UNKNOWN_USER_FUNC(evt_shop_filter_flimm_pit_items)
 EVT_UNKNOWN_USER_FUNC(evt_shop_select_item)
 EVT_UNKNOWN_USER_FUNC(evt_shop_remove_item)
 EVT_UNKNOWN_USER_FUNC(evt_shop_handle_roten_item_flag)
 EVT_UNKNOWN_USER_FUNC(evt_shop_get_otoya_bgm)
+
+EVT_DECLARE(saffronCookingScript)
 
 // evt_shop_set_defs(EvtShopDef * defs, s32 count)
 EVT_DECLARE_USER_FUNC(evt_shop_set_defs, 2)

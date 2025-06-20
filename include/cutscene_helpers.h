@@ -42,15 +42,15 @@ typedef enum {
 #define REACTION_QUESTION 1
 
 #define MARIO_SPAWN_EXCLAMATION_MARK() \
-    USER_FUNC(spm::evt_eff::evt_eff_fukidashi, 0, 0, 0, REACTION_EXCLAMATION, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(spm::evt_eff::evt_eff_exclamation_question, 0, 0, 0, REACTION_EXCLAMATION, 0, 0, 0, 0, 0, 0, 0)
 #define MARIO_SPAWN_QUESTION_MARK() \
-    USER_FUNC(spm::evt_eff::evt_eff_fukidashi, 0, 0, 0, REACTION_QUESTION, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(spm::evt_eff::evt_eff_exclamation_question, 0, 0, 0, REACTION_QUESTION, 0, 0, 0, 0, 0, 0, 0)
 
 #define NPC_SPAWN_EXCLAMATION_OR_QUESTION_MARK(npcName, exclamationOrQuestion, sfxName) \
     USER_FUNC(spm::evt_npc::evt_npc_get_position, PTR(npcName), LW(0), LW(1), LW(2)) \
     ADD(LW(1), 80) \
     ADD(LW(2), 10) \
-    USER_FUNC(spm::evt_eff::evt_eff_fukidashi, 2, 0, 0, exclamationOrQuestion, 0, LW(0), LW(1), LW(2), 0, 0, 0) \
+    USER_FUNC(spm::evt_eff::evt_eff_exclamation_question, 2, 0, 0, exclamationOrQuestion, 0, LW(0), LW(1), LW(2), 0, 0, 0) \
     USER_FUNC(spm::evt_snd::evt_snd_sfxon_npc, PTR(sfxName), PTR(npcName))
 
 #define NPC_SPAWN_EXCLAMATION_MARK(npcName) \

@@ -66,7 +66,7 @@ void effInit();
 */
 void effGetTexObj(s32 id, GXTexObj * out);
 
-UNKNOWN_FUNCTION(func_800615cc);
+UNKNOWN_FUNCTION(func_800615cc)
 
 /*
     Gets a tex obj for a texture in the effect N64 TPL
@@ -98,8 +98,8 @@ void effSetName(const char * name);
 */
 void effMain();
 
-UNKNOWN_FUNCTION(func_80061a34);
-UNKNOWN_FUNCTION(func_80061a44);
+UNKNOWN_FUNCTION(func_80061a34)
+UNKNOWN_FUNCTION(func_80061a44)
 
 /*
     Delete an entry
@@ -112,25 +112,33 @@ void effSoftDelete(EffEntry * entry);
 */
 EffEntry * effNameToPtr(const char * name);
 
-UNKNOWN_FUNCTION(func_80061c28);
-UNKNOWN_FUNCTION(func_80061cd0);
+EffEntry * eff_item_thunder(float x, float y, float z, s32 param_4, s32 param_5, s32 param_6, s32 param_7, s32 param_8);
+
+EffEntry * damageEffect(float x, float y, float z,int param_4, s32 damage);
+
+UNKNOWN_FUNCTION(func_80061c28)
+UNKNOWN_FUNCTION(func_80061cd0)
 s32 func_80061d78();
-UNKNOWN_FUNCTION(func_80061e18);
-UNKNOWN_FUNCTION(func_80061eb8);
-UNKNOWN_FUNCTION(func_800623f8);
-UNKNOWN_FUNCTION(func_80062d04);
-UNKNOWN_FUNCTION(func_80062f9c);
-UNKNOWN_FUNCTION(func_800630b8);
-UNKNOWN_FUNCTION(func_80063130);
-UNKNOWN_FUNCTION(func_80063198);
-UNKNOWN_FUNCTION(func_800631a4);
-UNKNOWN_FUNCTION(func_800631ac);
-UNKNOWN_FUNCTION(func_800631b8);
-UNKNOWN_FUNCTION(func_800632ec);
-UNKNOWN_FUNCTION(func_800632fc);
-UNKNOWN_FUNCTION(func_80063308);
-UNKNOWN_FUNCTION(func_80063374);
-UNKNOWN_FUNCTION(func_8006339c);
-UNKNOWN_FUNCTION(func_800633fc);
+UNKNOWN_FUNCTION(func_80061e18)
+UNKNOWN_FUNCTION(func_80061eb8)
+UNKNOWN_FUNCTION(func_800623f8)
+UNKNOWN_FUNCTION(func_80062d04)
+UNKNOWN_FUNCTION(func_80062f9c)
+UNKNOWN_FUNCTION(func_800630b8)
+UNKNOWN_FUNCTION(func_80063130)
+UNKNOWN_FUNCTION(func_80063198)
+UNKNOWN_FUNCTION(func_800631a4)
+UNKNOWN_FUNCTION(func_800631ac)
+UNKNOWN_FUNCTION(func_800631b8)
+UNKNOWN_FUNCTION(func_800632ec)
+UNKNOWN_FUNCTION(func_800632fc)
+UNKNOWN_FUNCTION(func_80063308)
+UNKNOWN_FUNCTION(func_80063374)
+UNKNOWN_FUNCTION(func_8006339c)
+UNKNOWN_FUNCTION(func_800633fc)
+UNKNOWN_FUNCTION(func_800633fc)
+
+EffEntry* func_800a82c0(s32 type);
+void func_800a315c(EffEntry* entry, int blob, char name);
 
 CPP_WRAPPER_END()

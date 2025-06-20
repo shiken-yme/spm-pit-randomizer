@@ -74,9 +74,9 @@ SIZE_ASSERT(DanWork, 0x590)
 
 DECOMP_STATIC(DanWork * dan_wp)
 
-DECOMP_STATIC(const char * danMapParts[16])
-DECOMP_STATIC(DokanDesc danDokanDescs[8])
-DECOMP_STATIC(MapDoorDesc danMapDoorDescs[2])
+DECOMP_STATIC(const char * dan_mapParts[16])
+DECOMP_STATIC(DokanDesc dan_dokanDescs[8])
+DECOMP_STATIC(MapDoorDesc dan_mapDoorDescs[2])
 DECOMP_STATIC(s32 dan_flipsideLockItems[])
 DECOMP_STATIC(s32 dan_flopsideLockItems[])
 
@@ -84,15 +84,15 @@ EVT_DECLARE(dan_lock_interact_evt)
 EVT_DECLARE(dan_lock_open_evt)
 EVT_DECLARE(dan_enemy_room_init_evt)
 
-DECOMP_STATIC(DokanDesc danChestRoomDokanDesc)
-DECOMP_STATIC(MapDoorDesc danChestRoomMapDoorDescs[2])
+DECOMP_STATIC(DokanDesc dan_chestRoomDokanDesc)
+DECOMP_STATIC(MapDoorDesc dan_chestRoomMapDoorDescs[2])
 
 EVT_DECLARE(dan_exit_pipe_sign_interact_evt)
 EVT_DECLARE(dan_chest_open_evt)
 
-extern s32 dan_rotenShopItems[];
-DECOMP_STATIC(EvtShopDef rotenShopDef)
-DECOMP_STATIC(NPCTribeAnimDef rotenTribeAnimDefs[])
+DECOMP_STATIC(s32 dan_rotenShopItems[])
+DECOMP_STATIC(EvtShopDef dan_rotenShopDef)
+DECOMP_STATIC(NPCTribeAnimDef dan_rotenTribeAnimDefs[])
 
 EVT_DECLARE(dan_chest_room_init_evt)
 

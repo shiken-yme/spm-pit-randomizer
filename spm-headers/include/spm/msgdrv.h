@@ -158,7 +158,7 @@ void msgDispKeyWait();
 /*
     Configures GX settings for
 */
-UNKNOWN_FUNCTION(msgDispKeyWait_render);
+UNKNOWN_FUNCTION(msgDispKeyWait_render)
 
 /*
     Adds message text to a MsgSpeaker

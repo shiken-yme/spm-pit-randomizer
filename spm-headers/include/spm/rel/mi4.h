@@ -6,7 +6,10 @@
 
 CPP_WRAPPER(spm::mi4)
 
-void mi4MimiHolographicEffect(wii::gx::GXTexObj * tex, spm::evtmgr::EvtEntry * evtEntry);
+USING(wii::gx::GXTexObj)
+USING(spm::evtmgr::EvtEntry)
+
+void mi4MimiHolographicEffect(GXTexObj * tex, EvtEntry * evtEntry);
 // more
 
 CPP_WRAPPER_END()

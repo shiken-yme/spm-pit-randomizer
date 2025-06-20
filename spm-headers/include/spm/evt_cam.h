@@ -7,12 +7,9 @@ CPP_WRAPPER(spm::evt_cam)
 
 EVT_UNKNOWN_USER_FUNC(evt_cam_flag_onoff)
 EVT_UNKNOWN_USER_FUNC(evt_cam_get_at)
-EVT_DECLARE_USER_FUNC(evt_cam_get_pos, 4)
+EVT_UNKNOWN_USER_FUNC(evt_cam_get_pos)
 EVT_DECLARE_USER_FUNC(evt_cam_shake, 6)
-
-// evt_cam3d_evt_zoom_in(int arg1, f32 posX, f32 posY, f32 posZ, f32 targetX, f32 targetY, f32 targetZ, s32 zoomDuration, s32 destCamId)
 EVT_DECLARE_USER_FUNC(evt_cam3d_evt_zoom_in, 9)
-
 EVT_UNKNOWN_USER_FUNC(func_800e01f8)
 EVT_UNKNOWN_USER_FUNC(func_800e02bc)
 EVT_DECLARE_USER_FUNC(evt_cam_zoom_to_coords, 2)
