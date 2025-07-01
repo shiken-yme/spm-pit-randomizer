@@ -9,7 +9,7 @@ Please do not enable any more than one SPM mod at one time, as they are not cros
 
 ### For Console (Wii or vWii):
 - If you have a legally-obtained ISO/WBFS rip of the game & a modded Wii/Wii U, you can use [Flipside Mod Manager](https://github.com/L5050/Flipside-Mod-Manager) to directly patch the game and then use your favorite USB Loader to load the game (I recommend using [Wii Backup Manager](https://wiibackupmanager.co.uk/WiiBackupManager_Build78.html) to load your game onto your console).
-- Be sure to enable Gecko Codes on your USB Loader and include the REL Loader GCT for your version; instructions for how to do this can be found [here.](https://github.com/SeekyCt/spm-practice-codes/blob/main/INSTALLING.md#console-with-usb-loader-and-patched-iso)
+- You no longer need a Gecko Code to load mods on console if you build your game with Flipside Mod Manager! If you have a REL Loader Gecko Code on your SD card, please remove it.
 
 **ALTERNATIVELY,** you may load the mod through Riivolution. Download the ZIP for your version in Releases, then drag & drop the contents of the ZIP to the root of your SD card, insert the SD card into your console, and boot up Riivolution. (To be clear, you want the "PitRando" and "riivolution" folders on the root of your SD card.)
 
@@ -37,7 +37,7 @@ Please do not enable any more than one SPM mod at one time, as they are not cros
 * JohnP55 for creating/implementing the evtpatch engine
 * Little Crap, FRN6Phantom, KoraFloof, Nevu_z, and SeekyCt for testing the mod in its alpha stage
 * Emily the Koopa, Nevu_z, Justintheosu, The Cursed Goomba, and Zaku for testing since the beta v1.2 major update, helping find tons of bugs, pointing out balance issues, and recommending all sorts of changes/features
-* Tater-Tot Tunes, Plazzap, and Jdaster64 for letting me use their fantastic Pit of 100 Trials covers as optional background music
+* [Tater-Tot Tunes](youtu.be/C8Va9GnpAtc), [Plazzap](youtu.be/WS6mewhqp18), and [Jdaster64](https://youtu.be/7xt3YQYxWrQ) for letting me use their fantastic Pit of 100 Trials covers as optional background music
 * Zaku for the Wedding Hall-themed Floors 81-89 background, and blvebvrrie for the skull-themed Pit Key texture
 * Various members of the SPM Speedrunning community and my friends for encouraging me to continue this project <3
 
