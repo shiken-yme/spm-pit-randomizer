@@ -31,6 +31,12 @@
 8002c980:mobjRunEvent
 8002b664:mobjDelete
 8002b390:mobjEntry
+8002ca04:mobjCalcMtx
+8002eb38:mobjGetModelName
+8002d640:mobjHitOff
+8002b72c:mobjSetPosition
+8002ed80:func_8002ed80
+8002ed90:func_8002ed90
 // more
 
 // msgdrv.c
@@ -83,6 +89,7 @@
 // animdrv.c
 8004249c:animPoseEntry
 80043410:animPoseSetAnim
+80044664:animPoseGetLoopTimes
 80044734:animPoseSetMaterialFlagOn
 80044818:animPoseSetMaterialFlagOff
 80044c8c:animPoseSetMaterialEvtColor
@@ -358,6 +365,12 @@
 // sdata
 805ae020:evt_door_wp
 
+// eff_map_block_del.c
+800b5938:effMapBlockDelEntry
+
+// eff_small_star.c
+800c1d60:effSmallStarEntry
+
 // evt_eff.c
 800e57bc:evt_eff
 800e6148:evt_eff_softdelete
@@ -477,6 +490,7 @@
 800f6610:evt_mobj_arrow
 800f8be8:evt_mobj_blk
 800fb118:evt_mobj_save_blk
+800f430c:mobj_sui
 800f49bc:evt_mobj_sui
 800f379c:evt_mobj_get_joint_names
 800f548c:evt_mobj_hunmer_blk
@@ -1417,7 +1431,7 @@
 1,5,fe150:final_rpg_child_evt
 1,5,fe1cc:begin_rpg_parent_evt
 // bss
-1,6,1320:an2_08_wp
+1,6,1320:rpgdrv_wp
 
 //an.c
 1,1,319ac:evt_an_init_tpl

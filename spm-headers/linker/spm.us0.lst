@@ -608,7 +608,7 @@
 800FFB14:evt_npc_jump_to
 1,1,2c998:evt_rpg_enemy_death_check
 1,5,aa450:evt_door_openable_onoff
-1,6,920:an2_08_wp
+1,6,920:rpgdrv_wp
 1,1,26c80:func_80c6c908
 8014E58C:pouchGetPixlInfo
 8019C100:qqsort

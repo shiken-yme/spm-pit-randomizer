@@ -5,6 +5,8 @@
 
 CPP_WRAPPER(spm::search)
 
+USING(spm::npcdrv::NPCEntry)
+
 typedef struct
 {
 /* 0x000 */ u8 unknown_0x000[0x034 - 0x000];
@@ -16,6 +18,6 @@ SIZE_ASSERT(SearchWork, 0x4a8)
 
 DECOMP_STATIC(SearchWork * search_wp)
 
-const char *searchGetNpcMsg(spm::npcdrv::NPCEntry *npc);
+const char *searchGetNpcMsg(NPCEntry *npc);
 
 CPP_WRAPPER_END()

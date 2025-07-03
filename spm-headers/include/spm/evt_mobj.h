@@ -5,9 +5,12 @@
 
 #pragma once
 
+#include <spm/mobjdrv.h>
 #include <evt_cmd.h>
 
 CPP_WRAPPER(spm::evt_mobj)
+
+USING(spm::mobjdrv::MobjEntry)
 
 // evt_mobj_sui handles switches, specifically those with a distinctive yellow stand
 enum MobjSuiType
@@ -137,7 +140,7 @@ UNKNOWN_FUNCTION(func_800f3fa8)
 UNKNOWN_FUNCTION(func_800f4018)
 UNKNOWN_FUNCTION(evt_mobj_check)
 UNKNOWN_FUNCTION(func_800f429c)
-UNKNOWN_FUNCTION(mobj_sui)
+s32 mobj_sui(MobjEntry * mobj);
 UNKNOWN_FUNCTION(mobj_sui_15)
 
 // evt_mobj_sui(s32 type, const char * instanceName, f32 x, f32 y, f32 z, 

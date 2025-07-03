@@ -608,7 +608,7 @@
 800F1AD8:evt_mario_wait_anim
 800FFF44:evt_npc_jump_to
 1,5,aa470:evt_door_openable_onoff
-1,6,920:an2_08_wp
+1,6,920:rpgdrv_wp
 1,1,26c80:func_80c6c908
 8014E9E4:pouchGetPixlInfo
 8019C56C:qqsort

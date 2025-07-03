@@ -46,8 +46,8 @@ UNKNOWN_FUNCTION(func_800ff2a8)
 UNKNOWN_FUNCTION(func_800ff3ec)
 
 EVT_DECLARE_USER_FUNC(evt_npc_set_color, 5)
-EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopy, 5);
-EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopytwo, 5);
+EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopy, 5)
+EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopytwo, 5)
 UNKNOWN_FUNCTION(func_800ff86c)
 EVT_UNKNOWN_USER_FUNC(func_800ff8f8)
 UNKNOWN_FUNCTION(func_800ff9a4)

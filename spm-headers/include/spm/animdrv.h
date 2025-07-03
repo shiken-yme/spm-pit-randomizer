@@ -4,12 +4,14 @@
 #include <wii/os.h>
 #include <wii/mtx.h>
 #include <wii/gx.h>
+#include <spm/filemgr.h>
 
 CPP_WRAPPER(spm::animdrv)
 
 USING(wii::os::OSTime)
 USING(wii::mtx::Mtx34)
 USING(wii::gx::GXColor)
+USING(spm::filemgr::FileEntry)
 
 typedef void (AnimPoseDisplayCb)(void * param, s32 animGroupIdx, s32 param_3);
 
@@ -31,8 +33,46 @@ SIZE_ASSERT(AnimationModelFileHeader, 0x1b0)
 
 typedef struct
 {
-/* 0x000 */ u8 unknown_0x0[0x110 - 0x0];
-} AnimWork; // Uncertain size;
+/* 0x00 */ s32 inUse;
+/* 0x04 */ s32 refCnt;
+/* 0x08 */ FileEntry * file;
+} TextureGroup;
+SIZE_ASSERT(TextureGroup, 0xc)
+
+typedef struct
+{
+/* 0x00 */ s32 inUse;
+/* 0x04 */ s32 refCnt;
+/* 0x08 */ FileEntry * file;
+/* 0x0C */ s32 textureGroupId;
+} AnimGroup;
+SIZE_ASSERT(AnimGroup, 0x10)
+
+typedef struct
+{
+/* 0x000 */ AnimGroup * animGroups;
+/* 0x004 */ s32 animGroupNum;
+/* 0x008 */ TextureGroup * textureGroups;
+/* 0x00C */ s32 textureGroupNum;
+/* 0x008 */ u8 unknown_0x8[0x110 - 0x010];
+} AnimWork; // Uncertain size
+SIZE_ASSERT(AnimWork, 0x110)
+
+DECOMP_STATIC(AnimWork * animdrv_wp)
+
+typedef struct 
+{
+/* 0x000 */ u32 flag;
+/* 0x004 */ s32 paperPoseFlag; // typeFlags
+/* 0x008 */ Unk paperPoseSharedCnt; // refCount
+/* 0x00C */ s32 releaseType;
+/* 0x010 */ s32 animGroupId;
+/* 0x014 */ Unk curAnimIndex;
+/* 0x018 */ u8 unknown_0x18[0x020 - 0x018];
+/* 0x020 */ f32 frmCounter; // unconfirmed
+/* 0x024 */ u8 unknown_0x24[0x188 - 0x024];
+} AnimPose;
+SIZE_ASSERT(AnimPose, 0x188)
 
 AnimWork * animGetPtr();
 OSTime animTimeGetTime();
@@ -55,22 +95,33 @@ UNKNOWN_FUNCTION(animPoseSetPaperAnimGroup)
 UNKNOWN_FUNCTION(animPoseSetPaperAnim)
 UNKNOWN_FUNCTION(func_80043b90)
 UNKNOWN_FUNCTION(func_80043ca4)
-UNKNOWN_FUNCTION(animPoseSetEffect)
+void animPoseSetEffect(s32 animPoseId, char *name, u32 effect);
 UNKNOWN_FUNCTION(animPoseSetEffectAnim)
 UNKNOWN_FUNCTION(animPoseSetGXFunc)
-UNKNOWN_FUNCTION(animPoseGetLoopTimes)
+f32 animPoseGetLoopTimes(s32 animPoseId);
 UNKNOWN_FUNCTION(animPoseSetFlagF0On)
 UNKNOWN_FUNCTION(animPoseSetFlagF0Off)
 UNKNOWN_FUNCTION(animPoseSetFlagF4On)
 UNKNOWN_FUNCTION(animPoseSetFlagF4Off)
 UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOn)
 UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOff)
-void animPoseSetMaterialEvtColor(s32 animPoseId, GXColor color);
+
+void animPoseSetMaterialFlagOn(s32 animPoseId, u32 flag);
+
+void animPoseSetMaterialFlagOff(s32 animPoseId, u32 flag);
+
 UNKNOWN_FUNCTION(animPoseSetMaterialAnmColor)
-UNKNOWN_FUNCTION(animPoseGetFlagF0)
+
+GXColor animPoseGetMaterialEvtColor(s32 animPoseId);
+
+u32 animPoseGetMaterialFlag(s32 animPoseId);
+
 UNKNOWN_FUNCTION(animPoseGetFlagF4)
-UNKNOWN_FUNCTION(animPoseGetMaterialEvtColor)
+
+void animPoseSetMaterialEvtColor(s32 animPoseId, GXColor color);
+
 void animPoseSetDispCallback2(s32 id, void * func, void * evt);
+
 UNKNOWN_FUNCTION(func_800451c4)
 void animPoseMain(s32 id);
 UNKNOWN_FUNCTION(pushGXModelMtx_TransformNode__)
@@ -93,7 +144,7 @@ UNKNOWN_FUNCTION(animPaperPoseDispSub)
 UNKNOWN_FUNCTION(animPoseDisp_MakeExtTexture)
 UNKNOWN_FUNCTION(animSetPaperTexMtx)
 u32 animGroupBaseAsync(const char * animPoseName, s32 param_2, void * readDoneCb);
-UNKNOWN_FUNCTION(animPoseGetAnimPosePtr)
+AnimPose * animPoseGetAnimPosePtr(s32 animPoseId);
 UNKNOWN_FUNCTION(animPoseGetAnimDataPtr)
 AnimationModelFileHeader * animPoseGetAnimBaseDataPtr(s32 id);
 UNKNOWN_FUNCTION(animPoseGetCurrentAnim)
@@ -109,11 +160,6 @@ UNKNOWN_FUNCTION(animPoseDrawShape)
 UNKNOWN_FUNCTION(func_8004d96c)
 UNKNOWN_FUNCTION(animPoseGetShapeIdx)
 s32 animPoseGetGroupIdx(s32 id, const char * name);
-
-void animPoseSetMaterialFlagOn(s32 animPoseId, u32 flag);
-
-void animPoseSetMaterialFlagOff(s32 animPoseId, u32 flag);
-
 UNKNOWN_FUNCTION(animPoseGetGroupIdxSubname)
 
 CPP_WRAPPER_END()
