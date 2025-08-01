@@ -229,7 +229,7 @@ typedef struct
 /* 0x180 */ s32 mapObjCount;
 /* 0x184 */ MapObj * mapObjs;
 /* 0x188 */ s32 hitObjCount;
-/* 0x18C */ struct _HitObj * hitObj;
+/* 0x18C */ struct _HitObj * hitObjs;
 /* 0x190 */ s32 animCount;
 /* 0x194 */ MapAnimObj * animData;
 /* 0x198 */ u32 dl_size; // display list size

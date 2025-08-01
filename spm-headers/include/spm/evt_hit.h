@@ -22,7 +22,9 @@ EVT_DECLARE_USER_FUNC(evt_hit_bind_mapobj, 2)
 // evt_hit_bind_update(const char * hit_name)
 EVT_DECLARE_USER_FUNC(evt_hit_bind_update, 1)
 
-UNKNOWN_FUNCTION(func_800eb564)
+// evt_hitobj_get_pos(const char * hit_name, f32 x, f32 y, f32 z)
+EVT_DECLARE_USER_FUNC(evt_hitobj_get_pos, 4)
+
 UNKNOWN_FUNCTION(func_800eb5dc)
 UNKNOWN_FUNCTION(func_800eb654)
 

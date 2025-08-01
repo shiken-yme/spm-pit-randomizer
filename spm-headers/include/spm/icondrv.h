@@ -87,7 +87,7 @@ typedef struct
 /* 0x00 */ s32 num; // 0x100
 /* 0x04 */ IconEntry * entries; // array of num
 /* 0x08 */ FileEntry * wiconTpl; // wicon.tpl from dvd root
-/* 0x0C */ FileEntry * wiconbin; // wicon.bin from dvd root
+/* 0x0C */ FileEntry * wiconBin; // wicon.bin from dvd root
 } IconWork;
 SIZE_ASSERT(IconWork, 0x10)
 
@@ -121,7 +121,7 @@ void iconDelete(const char * name);
 */
 void iconDisp(s8 cameraId, IconEntry * entry);
 
-UNKNOWN_FUNCTION(func_80072da0)
+UNKNOWN_FUNCTION(func_80072da0);
 
 void iconDispGxAlpha(f32 scale, Vec3 * position, Unk param_3, s32 iconId, u8 alpha);
 
@@ -135,7 +135,7 @@ void iconDispGxAlpha(f32 scale, Vec3 * position, Unk param_3, s32 iconId, u8 alp
 void iconDispGx(f32 scale, const Vec3 * position, u32 flags, s32 iconId);
 
 void iconDispGx2(Mtx34 * param_1, Unk param_2, s32 iconId);
-void iconDispGxCol(Mtx34 * param_1, Unk param_2, s32 iconId, void * param_4);
+void iconDispGxCol(Mtx34 * param_1, u32 flags, s32 iconId, GXColor color);
 void iconGetTexObj(GXTexObj * dest, s32 iconId);
 void iconGetTexObj2(GXTexObj * dest, s32 iconId, Unk param_3, Unk param_4);
 void iconGetWidthHeight(s16 * width, s16 * height, s32 iconId);

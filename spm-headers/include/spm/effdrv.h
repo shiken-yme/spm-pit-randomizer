@@ -66,7 +66,7 @@ void effInit();
 */
 void effGetTexObj(s32 id, GXTexObj * out);
 
-UNKNOWN_FUNCTION(func_800615cc)
+UNKNOWN_FUNCTION(func_800615cc);
 
 /*
     Gets a tex obj for a texture in the effect N64 TPL
@@ -91,7 +91,7 @@ EffEntry * effEntryType(s32 type);
 /*
     Sets the name of an entry
 */
-void effSetName(const char * name);
+void effSetName(EffEntry * entry, const char * name);
 
 /*
     Loads TPLs if not loaded, calls effSubMain and calls the mainFunc of each entry

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <common.h>
-#include "evt_cmd.h"
 
 CPP_WRAPPER(spm::aa1_01)
 

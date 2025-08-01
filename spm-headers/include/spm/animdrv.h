@@ -79,87 +79,87 @@ OSTime animTimeGetTime();
 DECOMP_STATIC(void * animdrv_testAlloc(u32 size))
 void animInit();
 void animMain();
-UNKNOWN_FUNCTION(textureGroupEntry)
-UNKNOWN_FUNCTION(animGroupEntry)
-UNKNOWN_FUNCTION(animPoseRefresh)
+UNKNOWN_FUNCTION(textureGroupEntry);
+UNKNOWN_FUNCTION(animGroupEntry);
+UNKNOWN_FUNCTION(animPoseRefresh);
 s32 animPoseEntry(const char * filename, s32 releaseType);
-UNKNOWN_FUNCTION(animPaperPoseEntry)
-UNKNOWN_FUNCTION(func_80042ec8)
-UNKNOWN_FUNCTION(animPosePeraOff)
-UNKNOWN_FUNCTION(animPoseSetLocalTimeRate)
-UNKNOWN_FUNCTION(animPoseSetLocalTime)
-UNKNOWN_FUNCTION(animPoseSetStartTime)
+UNKNOWN_FUNCTION(animPaperPoseEntry);
+UNKNOWN_FUNCTION(func_80042ec8);
+UNKNOWN_FUNCTION(animPosePeraOff);
+UNKNOWN_FUNCTION(animPoseSetLocalTimeRate);
+UNKNOWN_FUNCTION(animPoseSetLocalTime);
+UNKNOWN_FUNCTION(animPoseSetStartTime);
 void animPoseSetAnim(s32 id, const char * animName, bool forceReset);
-UNKNOWN_FUNCTION(animPaperPoseGetId)
-UNKNOWN_FUNCTION(animPoseSetPaperAnimGroup)
-UNKNOWN_FUNCTION(animPoseSetPaperAnim)
-UNKNOWN_FUNCTION(func_80043b90)
-UNKNOWN_FUNCTION(func_80043ca4)
-void animPoseSetEffect(s32 animPoseId, char *name, u32 effect);
-UNKNOWN_FUNCTION(animPoseSetEffectAnim)
-UNKNOWN_FUNCTION(animPoseSetGXFunc)
+UNKNOWN_FUNCTION(animPaperPoseGetId);
+UNKNOWN_FUNCTION(animPoseSetPaperAnimGroup);
+UNKNOWN_FUNCTION(animPoseSetPaperAnim);
+UNKNOWN_FUNCTION(func_80043b90);
+UNKNOWN_FUNCTION(func_80043ca4);
+UNKNOWN_FUNCTION(animPoseSetEffect);
+UNKNOWN_FUNCTION(animPoseSetEffectAnim);
+UNKNOWN_FUNCTION(animPoseSetGXFunc);
 f32 animPoseGetLoopTimes(s32 animPoseId);
-UNKNOWN_FUNCTION(animPoseSetFlagF0On)
-UNKNOWN_FUNCTION(animPoseSetFlagF0Off)
-UNKNOWN_FUNCTION(animPoseSetFlagF4On)
-UNKNOWN_FUNCTION(animPoseSetFlagF4Off)
-UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOn)
-UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOff)
+UNKNOWN_FUNCTION(animPoseSetFlagF0On);
+UNKNOWN_FUNCTION(animPoseSetFlagF0Off);
+UNKNOWN_FUNCTION(animPoseSetFlagF4On);
+UNKNOWN_FUNCTION(animPoseSetFlagF4Off);
+UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOn);
+UNKNOWN_FUNCTION(animPoseSetMaterialLightFlagOff);
 
 void animPoseSetMaterialFlagOn(s32 animPoseId, u32 flag);
 
 void animPoseSetMaterialFlagOff(s32 animPoseId, u32 flag);
 
-UNKNOWN_FUNCTION(animPoseSetMaterialAnmColor)
+UNKNOWN_FUNCTION(animPoseSetMaterialAnmColor);
 
 GXColor animPoseGetMaterialEvtColor(s32 animPoseId);
 
 u32 animPoseGetMaterialFlag(s32 animPoseId);
 
-UNKNOWN_FUNCTION(animPoseGetFlagF4)
+UNKNOWN_FUNCTION(animPoseGetFlagF4);
 
 void animPoseSetMaterialEvtColor(s32 animPoseId, GXColor color);
 
 void animPoseSetDispCallback2(s32 id, void * func, void * evt);
 
-UNKNOWN_FUNCTION(func_800451c4)
+UNKNOWN_FUNCTION(func_800451c4);
 void animPoseMain(s32 id);
-UNKNOWN_FUNCTION(pushGXModelMtx_TransformNode__)
-UNKNOWN_FUNCTION(pushGXModelMtx_JointNode__)
-UNKNOWN_FUNCTION(func_80047170)
-UNKNOWN_FUNCTION(animSetMaterial_Texture)
-UNKNOWN_FUNCTION(animSetMaterial_ChangeTexture)
-UNKNOWN_FUNCTION(materialProc)
-UNKNOWN_FUNCTION(renderProc)
-UNKNOWN_FUNCTION(dispProc)
-UNKNOWN_FUNCTION(animPoseDraw)
-UNKNOWN_FUNCTION(_animPoseDrawMtx)
+UNKNOWN_FUNCTION(pushGXModelMtx_TransformNode__);
+UNKNOWN_FUNCTION(pushGXModelMtx_JointNode__);
+UNKNOWN_FUNCTION(func_80047170);
+UNKNOWN_FUNCTION(animSetMaterial_Texture);
+UNKNOWN_FUNCTION(animSetMaterial_ChangeTexture);
+UNKNOWN_FUNCTION(materialProc);
+UNKNOWN_FUNCTION(renderProc);
+UNKNOWN_FUNCTION(dispProc);
+UNKNOWN_FUNCTION(animPoseDraw);
+UNKNOWN_FUNCTION(_animPoseDrawMtx);
 void animPoseDrawMtx(s32 id, Mtx34 * mtx, s32 xluStage, f32 rotY, f32 scale);
-UNKNOWN_FUNCTION(animSetPaperTexObj)
+UNKNOWN_FUNCTION(animSetPaperTexObj);
 s32 animPoseRelease(s32 id);
-UNKNOWN_FUNCTION(animPaperPoseRelease)
+UNKNOWN_FUNCTION(animPaperPoseRelease);
 void animPoseAutoRelease(s32 releaseType);
-UNKNOWN_FUNCTION(animPaperPoseDisp)
-UNKNOWN_FUNCTION(animPaperPoseDispSub)
-UNKNOWN_FUNCTION(animPoseDisp_MakeExtTexture)
-UNKNOWN_FUNCTION(animSetPaperTexMtx)
+UNKNOWN_FUNCTION(animPaperPoseDisp);
+UNKNOWN_FUNCTION(animPaperPoseDispSub);
+UNKNOWN_FUNCTION(animPoseDisp_MakeExtTexture);
+UNKNOWN_FUNCTION(animSetPaperTexMtx);
 u32 animGroupBaseAsync(const char * animPoseName, s32 param_2, void * readDoneCb);
 AnimPose * animPoseGetAnimPosePtr(s32 animPoseId);
-UNKNOWN_FUNCTION(animPoseGetAnimDataPtr)
+UNKNOWN_FUNCTION(animPoseGetAnimDataPtr);
 AnimationModelFileHeader * animPoseGetAnimBaseDataPtr(s32 id);
-UNKNOWN_FUNCTION(animPoseGetCurrentAnim)
-UNKNOWN_FUNCTION(func_8004ca08)
-UNKNOWN_FUNCTION(func_8004caec)
-UNKNOWN_FUNCTION(func_8004cd30)
-UNKNOWN_FUNCTION(func_8004cfa8)
-UNKNOWN_FUNCTION(evalProc)
-UNKNOWN_FUNCTION(animPoseWorldPositionEvalOn)
-UNKNOWN_FUNCTION(animPoseWorldMatrixEvalOn)
+UNKNOWN_FUNCTION(animPoseGetCurrentAnim);
+UNKNOWN_FUNCTION(func_8004ca08);
+UNKNOWN_FUNCTION(func_8004caec);
+UNKNOWN_FUNCTION(func_8004cd30);
+UNKNOWN_FUNCTION(func_8004cfa8);
+UNKNOWN_FUNCTION(evalProc);
+UNKNOWN_FUNCTION(animPoseWorldPositionEvalOn);
+UNKNOWN_FUNCTION(animPoseWorldMatrixEvalOn);
 void animPoseSetDispCallback(s32 animPoseId, AnimPoseDisplayCb * cb, void * param);
-UNKNOWN_FUNCTION(animPoseDrawShape)
-UNKNOWN_FUNCTION(func_8004d96c)
-UNKNOWN_FUNCTION(animPoseGetShapeIdx)
+UNKNOWN_FUNCTION(animPoseDrawShape);
+UNKNOWN_FUNCTION(func_8004d96c);
+UNKNOWN_FUNCTION(animPoseGetShapeIdx);
 s32 animPoseGetGroupIdx(s32 id, const char * name);
-UNKNOWN_FUNCTION(animPoseGetGroupIdxSubname)
+UNKNOWN_FUNCTION(animPoseGetGroupIdxSubname);
 
 CPP_WRAPPER_END()

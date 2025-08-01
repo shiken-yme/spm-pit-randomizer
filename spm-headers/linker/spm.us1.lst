@@ -1,9 +1,9 @@
 // OS Globals
-800000e4:OS_CURRENT_THREAD
+800000e4:currentThread
 800030c8:firstRel
 800030cc:lastRel
 
-// Automatically generated from spm.eu0.lst
+// Automatically generated from spm.eu0.lst 
 80004000:memcpy
 80004104:memset
 800293E4:mapDataPtr
@@ -54,12 +54,14 @@
 800F881C:evt_mobj_blk
 800FB688:evt_msg_print
 800FBAA8:evt_msg_continue
+800FBB80:evt_msg_select
 80109F50:evt_npc_teleport_effect
 8010C604:evt_seq_set_seq
 8010C67C:evt_seq_wait
 8012150C:marioGetPtr
 8012212C:marioCtrlOffChk
 80122140:marioKeyOffChk
+8012996C:marioCalcDamageToEnemy
 8012AAB0:marioSetGravity
 80146460:func_80146f0c
 8014B5DC:pouchGetPtr
@@ -127,7 +129,7 @@
 803EA128:seq_data
 801A5690:__memAlloc
 801A5714:__memFree
-803EBD68:memory_size_table
+803EBD68:size_table
 8056C9E8:memory_wp
 8056C9EC:memory_swp
 80235778:wpadGetButtonsHeld
@@ -270,12 +272,14 @@
 800D76E8:func_800d74a0
 800DDF4C:evtmgrCmd
 800DF3EC:evtSetFloat
+800D8D1C:evtmgrReInit
 800E13C8:evt_door_wait_flag
 800E1398:evtDoorGetActiveDoorDesc
 800E27F8:evt_door_set_door_descs
 800E3770:evt_door_set_dokan_descs
 800E4300:evt_door_set_map_door_descs
 800E44F0:evt_door_enable_disable_map_door_desc
+803D46D0:evt_door_dan_dokan
 803DBC68:door_init_evt
 8056C8A0:evt_door_wp
 800EB5E0:evt_hitobj_attr_onoff
@@ -292,11 +296,12 @@
 8010259C:evt_npc_entry
 80102694:func_80103054
 80102748:evt_npc_set_anim
-80103CD4:evt_npc_set_move_mode
+80103CD4:func_80104694
 80102CCC:evt_npc_flag8_onoff
 80102FF8:evt_npc_animflag_onoff
 801042D4:evt_npc_set_property
 801045EC:evt_npc_modify_part
+801046CC:evt_npc_get_property
 80105010:func_801059d0
 80105D64:evt_npc_entry_from_template
 8010733C:func_80107cfc
@@ -388,6 +393,16 @@
 804F6758:Ecb
 802E0F9C:TPLBind
 800D49BC:evt_sub_get_entername
+800D9B34:evtDelete
+800D8AFC:make_jump_table
+802622B4:pow
+800FEAE4:evt_npc_set_rgba
+800FEC18:evt_npc_set_rgbacopy
+800FED68:evt_npc_set_rgbacopytwo
+801083D8:evt_npc_set_part_attack_power
+800E39EC:evt_door_enable_disable_dokan_desc
+800EAB08:evt_hitobj_onoff
+800ECB38:evt_item_entry
 1,1,3c0d8:evt_dan_handle_map_parts
 1,1,3c398:evt_dan_handle_dokans
 1,1,3c5ec:evt_dan_handle_doors
@@ -424,7 +439,7 @@
 1,5,159c58:danChestRoomMapDoorDescs
 1,5,159c98:dan_exit_pipe_sign_interact_evt
 1,5,159cd0:dan_chest_open_evt
-1,5,159e08:rotenShopItems
+1,5,159e08:dan_rotenShopItems
 1,5,159f20:rotenShopDef
 1,5,159f38:rotenTribeAnimDefs
 1,5,159f78:dan_chest_room_init_evt
@@ -469,13 +484,6 @@
 8026F298:Run
 8056d3f0:SaveStart
 8056d3f4:SaveEnd
-
-// new to v10
-8056C950:seq_load_sub_wp
-8056CA30:nandmgr_wp
-802391E0:spsndSFXOn
-8017C55C:loadMain
-
 
 // temp_unk for pit rando
 80202508:bowser_spawn_fire
@@ -615,6 +623,7 @@
 800E72F8:evt_fade_set_center_pos
 800F30D4:evt_mario_check_3d
 1,1,c7e0:mi4MimiHolographicEffect
+802391E0:spsndSFXOn
 80129C44:marioTakeDamage
 8010BCF0:evt_pouch_add_hp
 800D2440:evt_snd_bgmoff_f_d
