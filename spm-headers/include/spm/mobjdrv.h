@@ -63,6 +63,11 @@ typedef struct _MobjEntry
 /* 0x03C */ u8 unknown_0x3c[0x48 - 0x3c];
 /* 0x048 */ s32 animPoseId;
 /* 0x04C */ u8 unknown_0x4c[0x5c - 0x4c];
+    /*
+        0 is 3D joint
+        1 is 2D joint
+        2 is unknown
+    */
 /* 0x05C */ MobjJoint joints[3];
 /* 0x1F4 */ Vec3 unkScale;
 /* 0x200 */ Vec3 translation;
@@ -105,6 +110,8 @@ typedef struct
 /* 0x15 */ u8 unknown_0x15[0x18 - 0x15];
 } MobjWork;
 SIZE_ASSERT(MobjWork, 0x18)
+
+DECOMP_STATIC(MobjWork * mobjdrv_wp)
 
 UNKNOWN_FUNCTION(func_800297c0)
 UNKNOWN_FUNCTION(func_80029c34)

@@ -12,9 +12,10 @@ UNKNOWN_FUNCTION(evt_mario_flag4_onoff)
 EVT_DECLARE_USER_FUNC(evt_mario_flag8_onoff, 2)
 
 UNKNOWN_FUNCTION(func_800ef53c)
-UNKNOWN_FUNCTION(evt_mario_cont_onoff)
 
-
+// evt_mario_ctrl_onoff(s32 ctrl)
+// 0 is ctrlOff, 1 is ctrlOn
+EVT_DECLARE_USER_FUNC(evt_mario_ctrl_onoff, 1)
 
 // evt_mario_key_on()
 EVT_DECLARE_USER_FUNC(evt_mario_key_on, 0)
@@ -73,7 +74,9 @@ EVT_DECLARE_USER_FUNC(evt_mario_pos_change, 3)
 
 EVT_UNKNOWN_USER_FUNC(func_800f05b0)
 UNKNOWN_FUNCTION(func_800f074c)
-EVT_UNKNOWN_USER_FUNC(func_800f09c4)
+
+EVT_DECLARE_USER_FUNC(evt_mario_walk_back_from_pos, 6)
+
 UNKNOWN_FUNCTION(func_800f0c28)
 
 // evt_mario_jump_to(f32 x, f32 y, f32 z, f32 jumpHeight, f32 time_msec)

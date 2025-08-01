@@ -5,8 +5,8 @@
 
 CPP_WRAPPER(spm::evt_guide)
 
-UNKNOWN_FUNCTION(evt_guide_set_pos)
-UNKNOWN_FUNCTION(evt_guide_get_pos)
+EVT_DECLARE_USER_FUNC(evt_guide_set_pos, 3)
+EVT_DECLARE_USER_FUNC(evt_guide_get_pos, 3)
 UNKNOWN_FUNCTION(func_800e9ce8)
 UNKNOWN_FUNCTION(func_800e9da4)
 UNKNOWN_FUNCTION(func_800e9ddc)

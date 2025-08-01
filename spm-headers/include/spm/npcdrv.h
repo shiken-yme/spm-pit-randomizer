@@ -19,7 +19,6 @@ USING(wii::mtx::Vec3)
 #define NPCTRIBE_MAX 535
 #define NPCTEMPLATE_MAX 435
 
-// exported from Yme's NPCTribeId enum off Ghidra
 enum NPCTribeId
 {
     NPC_GOOMBA = 0,
@@ -478,15 +477,37 @@ typedef enum NPCMoveMode {
     NPC_MOVE_BARRY=9
 } NPCMoveMode;
 
+typedef struct _NPCPart
+{
+/* 0x000 */ u16 id;
+/* 0x002 */ s16 mode;
+/* 0x004 */ s32 minimum_damage;
+/* 0x008 */ Vec3 position;
+/* 0x014 */ Vec3 ownerPosLastAnimChange;
+/* 0x020 */ Vec3 positionDelta;
+/* 0x02C */ u32 flag2c;
+/* 0x030 */ u32 hitFlags;
+/* 0x034 */ u8 unknown_0x34[0x3c - 0x34];
+/* 0x03c */ Vec3 hitboxSize;
+/* 0x034 */ u8 unknown_0x48[0x378 - 0x48];
+/* 0x378 */ s32 attackPower; // initialised as 1, changed by onSpawnScript if needed
+/* 0x37C */ u8 unknown_0x37c[0x388 - 0x37c];
+/* 0x388 */ struct _NPCEntry * owner;
+/* 0x38C */ struct _NPCPart * prevPart;
+/* 0x390 */ struct _NPCPart * nextPart;
+/* 0x394 */ u8 unknown_0x394[0x398 - 0x394];
+} NPCPart;
+SIZE_ASSERT(NPCPart, 0x398)
+
 typedef struct
 {
 /* 0x00 */ u16 id;
 /* 0x02 */ s16 mode;
 /* 0x04 */ s32 minimum_damage;
 /* 0x08 */ Vec3 position;
-/* 0x14 */ u32 flag14; // assigned to flag2c in NPCPart
-/* 0x18 */ u32 hitFlags; // assigned to hitFlags in NPCPart
-/* 0x1c */ u8 unknown_0x1c[0x28 - 0x1c];
+/* 0x14 */ u32 flag14;
+/* 0x18 */ u32 hitFlags;
+/* 0x1C */ Vec3 hitboxScale;
 /* 0x28 */ NPCDefense * defenses;
 /* 0x2C */ Unk * unknown_0x2c;
 /* 0x30 */ NPCPartUpdateFunc * updateFunc;
@@ -538,7 +559,7 @@ typedef struct
 /* 0x5c */ f32 jumpEjection;
 /* 0x60 */ f32 unk_float;
 /* 0x64 */ u8 attackStrength; // only used for the tattle and turn-based combat, doesn't affect normal damage
-/* 0x65 */ u8 padding_0x65[0x68 - 0x65]; // paddhitFlagsing
+/* 0x65 */ u8 padding_0x65[0x68 - 0x65]; // padding
 } NPCTribe;
 SIZE_ASSERT(NPCTribe, 0x68)
 
@@ -557,28 +578,6 @@ typedef struct
 } NPCAnim; // unknown size
 SIZE_ASSERT(NPCAnim, 0x254)
 
-typedef struct _NPCPart
-{
-/* 0x000 */ u16 id;
-/* 0x002 */ s16 mode;
-/* 0x004 */ s32 minimum_damage;
-/* 0x008 */ Vec3 position;
-/* 0x014 */ Vec3 ownerPosLastAnimChange;
-/* 0x020 */ Vec3 positionDelta;
-/* 0x02C */ u32 flag2c;
-/* 0x030 */ u32 hitFlags;
-/* 0x034 */ u8 unknown_0x34[0x3c - 0x34];
-/* 0x03c */ Vec3 hitBoxScale;
-/* 0x034 */ u8 unknown_0x48[0x378 - 0x48];
-/* 0x378 */ s32 attackPower; // initialised as 1, changed by onSpawnScript if needed
-/* 0x37C */ u8 unknown_0x37c[0x388 - 0x37c];
-/* 0x388 */ struct _NPCEntry * owner;
-/* 0x38C */ struct _NPCPart * prevPart;
-/* 0x390 */ struct _NPCPart * nextPart;
-/* 0x394 */ u8 unknown_0x394[0x398 - 0x394];
-} NPCPart;
-SIZE_ASSERT(NPCPart, 0x398)
-
 typedef struct _NPCEntry
 {
 /* 0x000 */ s32 id;
@@ -593,12 +592,13 @@ typedef struct _NPCEntry
 /* 0x014 */ u8 unknown_0x14[0x24 - 0x14];
 /* 0x024 */ char name[32]; // name of this instance, npc_XXXXXXXX for template-spawned ones
                            // where XXXXXXXX is id in hex
-/* 0x044 */ NPCAnim m_Anim; // unknown size
-/* ????? */ u8 unknown_unk[0x2a0 - 0x44 - sizeof(NPCAnim)];
+/* 0x044 */ NPCAnim m_Anim;
+/* 0x298 */ s32 cameraId;
+/* 0x29C */ s32 offscreenId;
 /* 0x2A0 */ Vec3 position;
 /* 0x2AC */ u8 unknown_0x2ac[0x2ec - 0x2ac];
 /* 0x2EC */ s32 flippedTo3d;
-/* 0x2AC */ u8 unknown_0x2f0[0x2f8 - 0x2f0];
+/* 0x2F0 */ u8 unknown_0x2f0[0x2f8 - 0x2f0];
 /* 0x2F8 */ NPCMoveMode moveMode;
 /* 0x2FC */ u8 unknown_0x2fc[0x348 - 0x2fc];
 /* 0x348 */ EvtScriptCode * templateUnkScript1; // unkScript1 from spawning SetupEnemyTemplate
@@ -736,6 +736,16 @@ SIZE_ASSERT(NPCEnemyTemplate, 0x68)
 extern NPCTribe npcTribes[535];
 extern NPCEnemyTemplate npcEnemyTemplates[NPCTEMPLATE_MAX];
 
+typedef struct
+{
+/* 0x00 */ u8 unknown_0x00[0x04 - 0x00];
+/* 0x04 */ NPCEntry * npcDealingDamage;
+/* 0x08 */ u32 collisionDefenseType;
+/* 0x0C */ NPCEntry * npcTakingDamage;
+/* 0x10 */ u8 unknown_0x10[0x80 - 0x10];
+} NPCCollide;
+SIZE_ASSERT(NPCCollide, 0x80)
+
 UNKNOWN_FUNCTION(npcSfxOn)
 UNKNOWN_FUNCTION(func_801a96a4)
 void npcInit();
@@ -759,7 +769,7 @@ UNKNOWN_FUNCTION(func_801b0264)
 UNKNOWN_FUNCTION(func_801b0480)
 UNKNOWN_FUNCTION(func_801b0d10)
 UNKNOWN_FUNCTION(func_801b0ed4)
-UNKNOWN_FUNCTION(func_801b19e4)
+void func_801b19e4();
 UNKNOWN_FUNCTION(func_801b20dc)
 UNKNOWN_FUNCTION(func_801b2460)
 UNKNOWN_FUNCTION(func_801b24c0)
@@ -767,7 +777,10 @@ UNKNOWN_FUNCTION(func_801b2574)
 UNKNOWN_FUNCTION(func_801b2640)
 UNKNOWN_FUNCTION(func_801b285c)
 UNKNOWN_FUNCTION(func_801b2928)
-void throwDamage(int* unknown); // pointer is to a non reverse engineered struct
+
+// Handles damage & behavior when two enemies collide, e.g. via Thoreau or shells
+void npcHandleCollision(NPCCollide * collision);
+
 UNKNOWN_FUNCTION(npcDispSub)
 UNKNOWN_FUNCTION(func_801b3860)
 UNKNOWN_FUNCTION(mtx_setup)
@@ -793,7 +806,7 @@ void npcDelete(char *name);
 UNKNOWN_FUNCTION(func_801b73cc)
 UNKNOWN_FUNCTION(func_801b7a20)
 UNKNOWN_FUNCTION(func_801b8064)
-UNKNOWN_FUNCTION(func_801b84d4)
+UNKNOWN_FUNCTION(npcHandleDmg)
 UNKNOWN_FUNCTION(func_801ba124)
 UNKNOWN_FUNCTION(func_801bb6fc)
 UNKNOWN_FUNCTION(func_801bba3c)
@@ -850,10 +863,10 @@ s32 npcGetMaxEntries();
 UNKNOWN_FUNCTION(func_801c213c)
 NPCPart * npcAddPart(NPCEntry * entry, NPCPartDef * partDef);
 UNKNOWN_FUNCTION(func_801c23b0)
-NPCPart * npcGetPartById(NPCEntry *npc, u32 id);
+NPCPart * npcGetPartById(NPCEntry * npc, u32 id);
 UNKNOWN_FUNCTION(func_801c2480)
 UNKNOWN_FUNCTION(func_801c24cc)
-UNKNOWN_FUNCTION(func_801c2558)
+void npcPartUpdatePosition(NPCPart * part);
 UNKNOWN_FUNCTION(func_801c25d8)
 UNKNOWN_FUNCTION(func_801c3050)
 UNKNOWN_FUNCTION(func_801c35fc)
@@ -883,13 +896,15 @@ UNKNOWN_FUNCTION(func_801c498c)
 UNKNOWN_FUNCTION(func_801c4afc)
 UNKNOWN_FUNCTION(func_801c5140)
 
-s32 npcTakeDamage(NPCEntry *npcEntry, NPCPart *npcPart, s32 defenseType, s32 power, u32 param_5, s32 param_6);
+// NOTE: npc is the one dealing damage, npcPart->owner is the one taking damage
+s32 npcTakeDamage(NPCEntry * npc, NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
 
 UNKNOWN_FUNCTION(func_801c7f68)
 UNKNOWN_FUNCTION(func_801c7fe0)
 UNKNOWN_FUNCTION(func_801c7ff0)
 UNKNOWN_FUNCTION(func_801c8000)
 UNKNOWN_FUNCTION(npcTimerDisp)
+// npcHandleHitXp would go here
 UNKNOWN_FUNCTION(npcTimerMain)
 UNKNOWN_FUNCTION(func_801c85e4)
 UNKNOWN_FUNCTION(func_801c85ec)
@@ -936,7 +951,7 @@ UNKNOWN_FUNCTION(func_801cc0cc)
 UNKNOWN_FUNCTION(npcGetKillXp)
 UNKNOWN_FUNCTION(func_801cc134)
 
-s32 npcDamageMario(NPCEntry *npcEntry, NPCPart *part, Vec3 *position, u32 param_4, s32 damage, u32 flags);
+s32 npcDamageMario(NPCEntry * npcEntry, NPCPart * part, Vec3 * position, u32 status, s32 damage, u32 flags);
 
 UNKNOWN_FUNCTION(func_801cc644)
 UNKNOWN_FUNCTION(func_801cc8d0)
@@ -981,7 +996,7 @@ UNKNOWN_FUNCTION(func_801d1d7c)
 UNKNOWN_FUNCTION(func_801d2028)
 UNKNOWN_FUNCTION(func_801d2208)
 UNKNOWN_FUNCTION(func_801d2304)
-UNKNOWN_FUNCTION(npcFreezeAll)
+void npcFreezeAll();
 UNKNOWN_FUNCTION(func_801d2384)
 UNKNOWN_FUNCTION(func_801d23cc)
 UNKNOWN_FUNCTION(func_801d23d4)

@@ -46,8 +46,8 @@ UNKNOWN_FUNCTION(func_800ff2a8)
 UNKNOWN_FUNCTION(func_800ff3ec)
 
 EVT_DECLARE_USER_FUNC(evt_npc_set_color, 5)
-EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopy, 5)
-EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopytwo, 5)
+EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopy, 5);
+EVT_DECLARE_USER_FUNC(evt_npc_set_colorcopytwo, 5);
 UNKNOWN_FUNCTION(func_800ff86c)
 EVT_UNKNOWN_USER_FUNC(func_800ff8f8)
 UNKNOWN_FUNCTION(func_800ff9a4)
@@ -196,7 +196,7 @@ UNKNOWN_FUNCTION(func_801061c8)
 UNKNOWN_FUNCTION(func_80106260)
 UNKNOWN_FUNCTION(func_801062b0)
 UNKNOWN_FUNCTION(func_80106300)
-UNKNOWN_FUNCTION(evt_read_setup_file)
+EVT_DECLARE_USER_FUNC(evt_read_setup_file, 0)
 
 // evt_npc_entry_from_template(s32 instanceIdOverride, s32 templateId, s32 x, s32 y,
 //                             s32 z, &s32 instanceId, &char * instanceName)

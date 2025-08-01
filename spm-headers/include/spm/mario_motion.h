@@ -7,8 +7,10 @@ CPP_WRAPPER(spm::mario_motion)
 
 USING(spm::mario::MarioMotFuncs)
 
-UNKNOWN_FUNCTION(marioMotion)
+void marioMotion();
+
 void marioChgMot(s32 nextMotionId);
+
 UNKNOWN_FUNCTION(marioChgMotSub)
 UNKNOWN_FUNCTION(marioChgMot2)
 UNKNOWN_FUNCTION(marioClearJumpPara)
@@ -20,8 +22,8 @@ UNKNOWN_FUNCTION(func_801440f4)
 UNKNOWN_FUNCTION(marioGetJumpParaDef)
 UNKNOWN_FUNCTION(func_801442b4)
 UNKNOWN_FUNCTION(func_801444d0)
-UNKNOWN_FUNCTION(func_8014465c)
-UNKNOWN_FUNCTION(func_80144908)
+f32 marioCalcFramesToPeak(f32 param_1, f32 param_2, f32 param_3, f32 param_4);
+f32 marioCalcFramesToTerminalVel(f32 initJumpYSpeed, f32 jumpAccel, f32 param_3, f32 param_4, f32 terminalVelocity);
 UNKNOWN_FUNCTION(func_80144bbc)
 UNKNOWN_FUNCTION(func_80144cf4)
 UNKNOWN_FUNCTION(func_80144de4)
@@ -38,7 +40,7 @@ UNKNOWN_FUNCTION(marioLandCamShake)
 UNKNOWN_FUNCTION(marioLandon)
 UNKNOWN_FUNCTION(func_80146448)
 UNKNOWN_FUNCTION(func_8014651c)
-UNKNOWN_FUNCTION(func_80146570)
+s32 marioEndMotIfJump();
 UNKNOWN_FUNCTION(func_801466a8)
 UNKNOWN_FUNCTION(func_8014680c)
 UNKNOWN_FUNCTION(func_801468c8)
@@ -53,8 +55,8 @@ UNKNOWN_FUNCTION(func_801471e8)
 UNKNOWN_FUNCTION(func_801472b4)
 UNKNOWN_FUNCTION(func_801472ec)
 UNKNOWN_FUNCTION(func_8014744c)
-UNKNOWN_FUNCTION(marioChangeCharacter)
-UNKNOWN_FUNCTION(_marioChangeCharacter)
+void marioChangeCharacter(s8 charMode);
+void _marioChangeCharacter(s8 character);
 UNKNOWN_FUNCTION(func_80147748)
 UNKNOWN_FUNCTION(mot_character_change)
 
@@ -70,7 +72,7 @@ UNKNOWN_FUNCTION(func_80148928)
 UNKNOWN_FUNCTION(mot_dummy)
 UNKNOWN_FUNCTION(mot_22)
 UNKNOWN_FUNCTION(mot_23)
-UNKNOWN_FUNCTION(func_80148c28)
+void func_80148c28(spm::mario::MarioWork * mw, s32 param_2, s32 param_3);
 UNKNOWN_FUNCTION(func_80149680)
 UNKNOWN_FUNCTION(func_801496cc)
 UNKNOWN_FUNCTION(mot_parasol_guard)

@@ -64,11 +64,11 @@ s32 __spsndSFXOn(const char * name, u8 volume, u8 pan, s32 delay, Vec3 * positio
 void spsndSFXOn(const char * name);
 void spsndSFXOnVol(const char * name, u8 volume);
 UNKNOWN_FUNCTION(spsndSFXOn_UnkEffect)
-UNKNOWN_FUNCTION(_spsndSFXOn)
-void spsndSFXOn_3D(const char * name, Vec3 * position);
-UNKNOWN_FUNCTION(spsndSFXOff)
+u32 _spsndSFXOn(const char * name, Vec3 * position, u32 param_3);
+s32 spsndSFXOn_3D(const char * name, Vec3 * position); // Thunks to _spsndSFXOn, technically void on its own
+void spsndSFXOff(s32 player);
 void func_8023b38c(u32 param_1, u32 param_2);
-UNKNOWN_FUNCTION(spsndSetSfxPlayerPos)
+void spsndSetSfxPlayerPos(u32 player, Vec3 * position);
 UNKNOWN_FUNCTION(spsndSFX_vol)
 UNKNOWN_FUNCTION(spsndSFX_pit)
 UNKNOWN_FUNCTION(spsndSFX_delay)

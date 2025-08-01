@@ -22,7 +22,7 @@ UNKNOWN_FUNCTION(func_800e747c)
 // evt_fairy_set_pos(s32 id, f32 x, f32 y, f32 z)
 EVT_DECLARE_USER_FUNC(evt_fairy_set_pos, 4)
 
-UNKNOWN_FUNCTION(evt_fairy_set_pos_all)
+EVT_DECLARE_USER_FUNC(evt_fairy_set_pos_all, 3)
 
 // evt_fairy_get_pos(s32 id, f32 x, f32 y, f32 z)
 EVT_DECLARE_USER_FUNC(evt_fairy_get_pos, 4)

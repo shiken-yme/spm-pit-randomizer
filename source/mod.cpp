@@ -25,13 +25,13 @@
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
 #include <spm/npc_ninja.h>
-#include <spm/eff_fire.h>
-#include <spm/eff_small_star.h>
-#include <spm/eff_spm_confetti.h>
-#include <spm/eff_zunbaba.h>
-#include <spm/eff_spm_recovery.h>
-#include <spm/eff_spm_spindash.h>
-#include <spm/eff_spm_hit.h>
+#include <spm/eff/eff_fire.h>
+#include <spm/eff/eff_small_star.h>
+#include <spm/eff/eff_spm_confetti.h>
+#include <spm/eff/eff_zunbaba.h>
+#include <spm/eff/eff_spm_recovery.h>
+#include <spm/eff/eff_spm_spindash.h>
+#include <spm/eff/eff_spm_hit.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
@@ -4982,9 +4982,9 @@ namespace mod
         f32 yVal = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
         f32 zVal = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
         npcdrv::NPCEntry *ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
-        ownerNpc->parts[partId].hitBoxScale.x = xVal;
-        ownerNpc->parts[partId].hitBoxScale.y = yVal;
-        ownerNpc->parts[partId].hitBoxScale.z = zVal;
+        ownerNpc->parts[partId].hitboxSize.x = xVal;
+        ownerNpc->parts[partId].hitboxSize.y = yVal;
+        ownerNpc->parts[partId].hitboxSize.z = zVal;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(setHitboxSize, 4)
@@ -7888,7 +7888,7 @@ namespace mod
     USER_FUNC(evt_pouch::evt_pouch_remove_item, 48)
     END_IF()
     RUN_CHILD_EVT(handle_dj_misc_behavior)
-    USER_FUNC(evt_npc::evt_npc_entry, PTR("jimbo"), PTR("e_antho"), 0)
+    USER_FUNC(evt_npc::evt_npc_entry, PTR("jimbo"), PTR("e_kazmi"), 0)
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("jimbo"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(heihoAnims))
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("jimbo"), 0, true)
     USER_FUNC(evt_npc::evt_npc_set_position, PTR("jimbo"), -50, 0, -1250)
@@ -8590,26 +8590,26 @@ namespace mod
         evtpatch::hookEvt(dan::dan_shadoo_fight_evt, 15, patch_shadoo_health);
 
         // Pit music replacement
-        evtpatch::hookEvt(evt_door::evt_door_dan_dokan, 79, determine_custom_music);
+        evtpatch::hookEvt(evt_door::evt_door_enter_dokan_down_evt, 79, determine_custom_music);
         evtpatch::hookEvtReplace(dan::dan_exit_pipe_sign_interact_evt, 2, custom_music_sign);
 
         // Pit room pipe speedup
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_one, 108, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_two, 92, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_three, 85, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_four, 71, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_one, 99, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_two, 83, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_three, 76, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_left_four, 62, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_one, 119, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_two, 92, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_three, 85, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_four, 71, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_one, 110, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_two, 83, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_three, 76, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_dan_dokan_right_four, 62, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_left_same_map_evt, 108, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414a80, 92, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414ad0, 85, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414b88, 71, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_left_same_map_evt, 99, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414a80, 83, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414ad0, 76, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80414b88, 62, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 119, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80415154, 92, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_804151a4, 85, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_8041525c, 71, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 110, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_80415154, 83, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_804151a4, 76, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_8041525c, 62, dan_enter_pipe_wait);
 
         // Quickstart
         evtpatch::hookEvt(aa1_01::aa1_01_mario_house_transition_evt, 10, determine_quickstart);
@@ -8625,7 +8625,7 @@ namespace mod
         evtpatch::hookEvt(evt_door::door_init_evt, 1, run_global_operations);
 
         // Flipside Pit 3D Thoreau Lock patch
-        writeWord(&mario_motion::func_80144908, 0x164, 0x60000000);
+        writeWord(&mario_motion::marioCalcFramesToTerminalVel, 0x164, 0x60000000);
 
         // Holo coin patch
         evtpatch::hookEvtReplace(temp_unk::npc_drop_item_evt, 3, npc_drop_item_patch);

@@ -23,8 +23,8 @@ typedef struct
 /* 0x0C */ const char * hitName2d;
 /* 0x10 */ const char * hitName3d;
 /* 0x14 */ const char * destMapName;
-/* 0x18 */ const char * unknown_0x18;
-/* 0x1C */ s32 unknown_0x1c;
+/* 0x18 */ const char * destBeroName; // loading zone; door, pipe, etc.
+/* 0x1C */ u32 doorSfxIdx;
 } MapDoorDesc;
 SIZE_ASSERT(MapDoorDesc, 0x20)
 
@@ -38,7 +38,7 @@ typedef struct
 /* 0x10 */ const char * hitName2d;
 /* 0x14 */ const char * hitName3d;
 /* 0x19 */ const char * destMapName;
-/* 0x1C */ const char * unknown_0x1c;
+/* 0x1C */ const char * destBeroName;
 } DokanDesc;
 SIZE_ASSERT(DokanDesc, 0x20)
 
@@ -47,7 +47,22 @@ SIZE_ASSERT(DokanDesc, 0x20)
 typedef struct
 {
 /* 0x000 */ u16 flags;
-/* 0x002 */ u8 unknown_0x2[0x57c - 0x2];
+/* 0x002 */ u8 unknown_0x002[0x004 - 0x002];
+/* 0x004 */ DoorDesc * doorDescs;
+/* 0x008 */ s32 door_desc_num;
+/* 0x00C */ s32 doorCaseIds[96];
+/* 0x18C */ u8 unknown_0x18c[0x2d8 - 0x18c];
+/* 0x2D8 */ DoorDesc * activeDoorDesc;
+/* 0x2DC */ DokanDesc * dokanDescs;
+/* 0x2E0 */ s32 dokan_desc_num;
+/* 0x2E4 */ s32 dokan2dCaseIds[16];
+/* 0x324 */ s32 dokan3dCaseIds[16];
+/* 0x364 */ u8 unknown_0x364[0x36c - 0x364];
+/* 0x36C */ MapDoorDesc * mapDoorDescs;
+/* 0x370 */ s32 map_door_desc_num;
+/* 0x374 */ u8 unknown_0x374[0x47c - 0x374];
+/* 0x47C */ s32 mapDoor2dCaseIds[32];
+/* 0x4FC */ s32 mapDoor3dCaseIds[32];
 } EvtDoorWork;
 SIZE_ASSERT(EvtDoorWork, 0x57c)
 
@@ -81,8 +96,9 @@ UNKNOWN_FUNCTION(roomBottomlesssCb)
 // evt_door_set_door_descs(DoorDesc * descs, s32 count)
 EVT_DECLARE_USER_FUNC(evt_door_set_door_descs, 1)
 
+// evt_door_enable_disable_door_desc(bool enableDisable, const char * doorName)
+EVT_DECLARE_USER_FUNC(evt_door_enable_disable_door_desc, 2)
 
-UNKNOWN_FUNCTION(evt_door_enable_disable_door_desc)
 UNKNOWN_FUNCTION(func_800e2b78)
 UNKNOWN_FUNCTION(func_800e3050)
 UNKNOWN_FUNCTION(func_800e32a0)
@@ -116,25 +132,32 @@ EVT_DECLARE_USER_FUNC(evt_door_set_event, 3)
 
 EVT_DECLARE_USER_FUNC(evt_door_openable_onoff, 1)
 UNKNOWN_FUNCTION(evt_door_get_map_door_desc)
-UNKNOWN_FUNCTION(func_800e47a8)
+EVT_DECLARE_USER_FUNC(evt_door_handle_spawn, 6)
 UNKNOWN_FUNCTION(func_800e56b4)
 UNKNOWN_FUNCTION(evt_door_get_dokan_descs)
 UNKNOWN_FUNCTION(evt_door_get_dokan_desc_num)
 UNKNOWN_FUNCTION(evt_door_get_map_door_descs)
 UNKNOWN_FUNCTION(evt_door_get_map_door_desc_num)
 
-EVT_DECLARE(evt_door_dan_dokan)
-EVT_DECLARE(lbl_80417e10)
-EVT_DECLARE(door_init_evt)
-EVT_DECLARE(evt_door_dan_dokan_left_one)
-EVT_DECLARE(evt_door_dan_dokan_left_two)
-EVT_DECLARE(evt_door_dan_dokan_left_three)
-EVT_DECLARE(evt_door_dan_dokan_left_four)
-EVT_DECLARE(evt_door_dan_dokan_right_one)
-EVT_DECLARE(evt_door_dan_dokan_right_two)
-EVT_DECLARE(evt_door_dan_dokan_right_three)
-EVT_DECLARE(evt_door_dan_dokan_right_four)
+EVT_DECLARE(lock_pre_open_evt)
+EVT_DECLARE(evt_door_enter_dokan_down_same_map_evt)
+EVT_DECLARE(evt_door_enter_dokan_left_same_map_evt)
+EVT_DECLARE(evt_door_enter_dokan_right_same_map_evt)
+EVT_DECLARE(evt_door_enter_dokan_down_evt)
+EVT_DECLARE(evt_door_enter_dokan_up_evt)
+EVT_DECLARE(evt_door_enter_dokan_left_evt)
+EVT_DECLARE(evt_door_enter_dokan_right_evt)
 
+/* These are really just parts of evt_door_enter_dokan_left_same_map_evt and evt_door_enter_dokan_right_same_map_evt, but they seem to be called unconventionally */
+EVT_DECLARE(lbl_80414a80)
+EVT_DECLARE(lbl_80414ad0)
+EVT_DECLARE(lbl_80414b88)
+EVT_DECLARE(lbl_80415154)
+EVT_DECLARE(lbl_804151a4)
+EVT_DECLARE(lbl_8041525c)
+
+EVT_DECLARE(door_init_evt)
+        
 DECOMP_STATIC(EvtDoorWork * evt_door_wp)
 
 CPP_WRAPPER_END()

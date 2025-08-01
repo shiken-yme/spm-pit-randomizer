@@ -1,5 +1,5 @@
 // OS Globals
-800000e4:OS_CURRENT_THREAD
+800000e4:currentThread
 800030c8:firstRel
 800030cc:lastRel
 
@@ -117,7 +117,7 @@
 804597B8:seq_data
 8019EB44:__memAlloc
 8019EBC8:__memFree
-8045B3C8:memory_size_table
+8045B3C8:size_table
 805D7968:memory_wp
 805D796C:memory_swp
 8022FEF8:wpadGetButtonsHeld
@@ -282,7 +282,7 @@
 800FEA58:evt_npc_entry
 800FEB50:func_80103054
 800FEC04:evt_npc_set_anim
-80100190:evt_npc_set_move_mode
+80100190:func_80104694
 800FF188:evt_npc_flag8_onoff
 800FF4B4:evt_npc_animflag_onoff
 80100790:evt_npc_set_property
@@ -459,9 +459,3 @@
 80273B28:Run
 805d8308:SaveStart
 805d830c:SaveEnd
-
-// new to v10
-805D78D0:seq_load_sub_wp
-805d79b0:nandmgr_wp
-80233884:spsndSFXOn
-80178EFC:loadMain

@@ -43,7 +43,10 @@ EVT_DECLARE_USER_FUNC(evt_sub_get_mapname, -1)
 // evt_sub_get_entername(&char* ret)
 EVT_DECLARE_USER_FUNC(evt_sub_get_entername, 1)
 
-UNKNOWN_FUNCTION(evt_sub_set_entername)
+// Sets the next bero, often used for cutscenes
+// evt_sub_set_entername(&char* ret)
+EVT_DECLARE_USER_FUNC(evt_sub_set_entername, 1)
+
 UNKNOWN_FUNCTION(func_800d47e4)
 EVT_DECLARE_USER_FUNC(evt_sub_get_language, 1)
 
