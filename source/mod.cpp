@@ -7,7 +7,6 @@
 #include "patch.h"
 #include <util.h>
 
-#include "lunatic/npcdata.h"
 #include "lunatic/localize.h"
 #include <gen.h>
 
@@ -836,7 +835,7 @@ namespace mod
         {
             moverRNG = 999;
         }
-         moverRNG = 20; // DEBUG
+        // moverRNG = 20; // DEBUG
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", moverRNG);
         return 2;
