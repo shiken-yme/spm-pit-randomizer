@@ -1,17 +1,21 @@
 #pragma once
 #include <common.h>
-#include <spm/npcdrv.h>
+#include <evt_cmd.h>
+#include <gen.h>
 #include <util.h>
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
 #include <sndpatch.h>
-#include <evt_cmd.h>
+#include <mod.h>
+#include <lunatic/npcdata.h>
+
 #include <spm/rel/aa1_01.h>
 #include <spm/rel/mi4.h>
 #include <spm/rel/relocatable_module.h>
 #include <spm/temp_unk.h>
 #include <spm/animdrv.h>
+#include <spm/npcdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
@@ -99,6 +103,102 @@ namespace mod
     using namespace spm;
 
     static double boobies = 0;
+    static s32 enemyArrayOffset = 0;
+
+    s32 rfcCommon[] = {
+        item_data::ItemType::ITEM_ID_COOK_HUNNY_KINOKO, 1,
+        item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU, 1,
+        item_data::ItemType::ITEM_ID_USE_STAR_MEDAL, 2,
+        item_data::ItemType::ITEM_ID_USE_BIG_EGG, 1,
+        item_data::ItemType::ITEM_ID_USE_KOURA_DE_PON, 2,
+        item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI, 2,
+        item_data::ItemType::ITEM_ID_USE_BARIA_FRAME, 2,
+        item_data::ItemType::ITEM_ID_COOK_BOMB_EGG, 3,
+        item_data::ItemType::ITEM_ID_USE_POW_BLOCK, 2,
+        item_data::ItemType::ITEM_ID_USE_TOROPICO_MANGO, 1,
+        item_data::ItemType::ITEM_ID_USE_MILD_CACAO, 1,
+        item_data::ItemType::ITEM_ID_USE_ROW_PASTA, 1,
+        item_data::ItemType::ITEM_ID_USE_INGREDIENTS_OF_SWEET, 1,
+        item_data::ItemType::ITEM_ID_USE_TUKUSHINBO, 1,
+        item_data::ItemType::ITEM_ID_USE_PRIMITIVENUT, 1,
+        item_data::ItemType::ITEM_ID_USE_HERB, 1,
+        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1,
+        item_data::ItemType::ITEM_ID_COOK_FAIL_COOKING1, 1,
+        item_data::ItemType::ITEM_ID_COOK_FAIL_COOKING2, 1,
+        item_data::ItemType::ITEM_ID_COOK_HOT_COCOA, 2,
+        item_data::ItemType::ITEM_ID_COOK_KAME_TEA, 3,
+        item_data::ItemType::ITEM_ID_COOK_HERB_TEA, 3};
+
+    s32 rfcUncommon[] = {
+        item_data::ItemType::ITEM_ID_COOK_KINOKO_FRY, 1,
+        item_data::ItemType::ITEM_ID_COOK_HUNNY_KINOKO_S, 2,
+        item_data::ItemType::ITEM_ID_USE_NANIGA_OKORUKANA, 2,
+        item_data::ItemType::ITEM_ID_USE_KAMINARI_DOKKAN, 1,
+        item_data::ItemType::ITEM_ID_USE_TUYOTUYO_DRINK, 1,
+        item_data::ItemType::ITEM_ID_COOK_HOTDOG, 2,
+        item_data::ItemType::ITEM_ID_COOK_HANAJIRU_SYRUP, 2,
+        item_data::ItemType::ITEM_ID_COOK_MOUSSE_CAKE, 2,
+        item_data::ItemType::ITEM_ID_COOK_CHOCOLA_CAKE, 2,
+        item_data::ItemType::ITEM_ID_USE_KINKYU_KINOKO, 2,
+        item_data::ItemType::ITEM_ID_COOK_PEACH_TART, 1,
+        item_data::ItemType::ITEM_ID_COOK_MIX_SHAKE, 2,
+        item_data::ItemType::ITEM_ID_USE_POWERFUL_MEET, 2,
+        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1};
+
+    s32 rfcRare[] = {
+        item_data::ItemType::ITEM_ID_COOK_KINOKO_HOILE_FRY, 1,
+        item_data::ItemType::ITEM_ID_USE_KIRAKIRA_OTOSHI, 1,
+        item_data::ItemType::ITEM_ID_COOK_DINNER, 2,
+        item_data::ItemType::ITEM_ID_COOK_HANA_DANGO, 1,
+        item_data::ItemType::ITEM_ID_COOK_MANGO_PUDDING, 1,
+        item_data::ItemType::ITEM_ID_COOK_GOLD_CHOKO, 2,
+        item_data::ItemType::ITEM_ID_USE_GOLD_MEDAL, 1,
+        item_data::ItemType::ITEM_ID_COOK_ICHIGO_RABBIT, 1,
+        item_data::ItemType::ITEM_ID_COOK_SNOW_RABBIT, 1,
+        item_data::ItemType::ITEM_ID_COOK_LOVE_NOODLE, 2,
+        item_data::ItemType::ITEM_ID_USE_ULTRA_DRINK, 2,
+        item_data::ItemType::ITEM_ID_COOK_EMERGENCY_MEAL, 2,
+        item_data::ItemType::ITEM_ID_COOK_FRUITS_HUMBURG, 1,
+        item_data::ItemType::ITEM_ID_USE_KINKYU_KINOKO, 2,
+        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1,
+        item_data::ItemType::ITEM_ID_COOK_TRIAL_PAN, 3};
+    
+    s32 enemyConfigArray[2001] = {169};
+
+    // Set the Pit Flimm inventory
+    s32 newRotenShopItems[] = {
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        -1};
+
+    // Pit Flimm item pool to iterate from
+    s32 rotenShopItemPool[] = {81, 82, 84, 89, 90, 95, 99, 106, 106, 106, 106, 118, 123, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
+                               141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 160, 161, 162, 163, 164, 166, 168, 169, 170,
+                               171, 173, 174, 177, 178, 180, 181, 182, 183, 184, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 198, 199, 200,
+                               201, 202, 203, 204, 205, 207, 208, 209, 211, 212, 214, 215};
+
+    s32 rotenShopLowerClassItemPool[] = {65, 66, 67, 68, 69, 70, 73, 74, 75, 76, 77, 78, 79, 83, 86, 98, 104, 109, 113};
 
     s32 rfcItems[] = {0, 0, 0, -1};
 
@@ -118,7 +218,6 @@ namespace mod
 
     void DanGen_Items(s32 currentFloor)
     {
-        i = 0;
         s32 itemRarity = 0; // Common by default. 1 is Uncommon, 2 is Rare
         s32 n = 0;
         f32 scaling = 0;
@@ -135,7 +234,7 @@ namespace mod
             floorFloor = floorFloor - 100;
         }
         // Get 3 items.
-        for (i = 0; i < 3; ++i)
+        for (s32 i = 0; i < 3; ++i)
         {
             itemRarity = 0;
             n = 0;
@@ -143,7 +242,7 @@ namespace mod
             do
             {
                 n = n + 1;
-                rand100Num = system::rand() % 100;
+                s32 rand100Num = system::rand() % 100;
                 if (rand100Num < (s32)msl::math::floor(floorFloor / 1.2))
                 {
                     itemRarity = itemRarity + 1;
@@ -178,7 +277,7 @@ namespace mod
                     //            wii::os::OSReport("Item %d is Rare. itemId is %d.\n", i, itemId);
                     break;
                 }
-                rand100Num = system::rand() % 4;
+                s32 rand100Num = system::rand() % 4;
                 if (itemId != rfcItems[0] && itemId != rfcItems[1] && itemId != rfcItems[2] && itemSubrarity > rand100Num)
                 {
                     rfcItems[i] = itemId; // Assigns the item to the rfcItems array
@@ -1497,7 +1596,7 @@ namespace mod
             wii::os::OSReport("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
         }
 
-        for (i = 0; i < 200; ++i)
+        for (s32 i = 0; i < 200; ++i)
         {
             // Placeholder item, true items are determined by above protocol and chosen upon opening chest
             dan::dan_wp->dungeons[i].item = itemdrv::itemTypeNameToId("ITEM_ID_COOK_TRIAL_PAN");
@@ -1607,7 +1706,7 @@ namespace mod
                 s32 enemyGenLim1 = 0;
                 s32 enemyGenLim2 = 0;
                 s32 enemyGenRNG = system::rand() % 100;
-                difficulty = swdrv::swByteGet(1620);
+                s32 difficulty = swdrv::swByteGet(1620);
                 switch (difficulty)
                 {
                 case 0:
@@ -1660,7 +1759,7 @@ namespace mod
                         danLevelData = mod::danLevelDataPtr(4);
                     }
                     // Set enemy Lv threshold modifiers based on Difficulty.
-                    difficulty = swdrv::swByteGet(1620);
+                    s32 difficulty = swdrv::swByteGet(1620);
                     limiterMod = system::rand() % 11;
                     if (difficulty == 0)
                     {
@@ -1678,30 +1777,30 @@ namespace mod
                     enemyGenRNG = system::rand() % 100;
                     if (enemyGenRNG < ((danLevelData->lv1Limiter) + limiterMod))
                     {
-                        arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
+                        arrayRNG = system::rand() % (sizeof(mod::getlv1Tribes()) / 4);
                         tribeArray = 1;
-                        enemyTribe = mod::lv1Tribes[arrayRNG];
+                        enemyTribe = mod::getlv1Tribes()[arrayRNG];
                         wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
                     }
                     else if (enemyGenRNG < ((danLevelData->lv2Limiter) + limiterMod))
                     {
-                        arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
+                        arrayRNG = system::rand() % (sizeof(mod::getlv2Tribes()) / 4);
                         tribeArray = 2;
-                        enemyTribe = mod::lv2Tribes[arrayRNG];
+                        enemyTribe = mod::getlv2Tribes()[arrayRNG];
                         wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
                     }
                     else if (enemyGenRNG < ((danLevelData->lv3Limiter) + limiterMod))
                     {
-                        arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
+                        arrayRNG = system::rand() % (sizeof(mod::getlv3Tribes()) / 4);
                         tribeArray = 3;
-                        enemyTribe = mod::lv3Tribes[arrayRNG];
+                        enemyTribe = mod::getlv3Tribes()[arrayRNG];
                         wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
                     }
                     else
                     {
-                        arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
+                        arrayRNG = system::rand() % (sizeof(mod::getlv4Tribes()) / 4);
                         tribeArray = 4;
-                        enemyTribe = mod::lv4Tribes[arrayRNG];
+                        enemyTribe = mod::getlv4Tribes()[arrayRNG];
                         wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
                     }
                     // Pulls danEnemy from the static array of DanNPCData structs.
@@ -1714,23 +1813,23 @@ namespace mod
                     {
                         if (tribeArray == 1)
                         {
-                            arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
-                            enemyTribe = mod::lv1Tribes[arrayRNG];
+                            arrayRNG = system::rand() % (sizeof(mod::getlv1Tribes()) / 4);
+                            enemyTribe = mod::getlv1Tribes()[arrayRNG];
                         }
                         else if (tribeArray == 2)
                         {
-                            arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
-                            enemyTribe = mod::lv2Tribes[arrayRNG];
+                            arrayRNG = system::rand() % (sizeof(mod::getlv2Tribes()) / 4);
+                            enemyTribe = mod::getlv2Tribes()[arrayRNG];
                         }
                         else if (tribeArray == 3)
                         {
-                            arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
-                            enemyTribe = mod::lv3Tribes[arrayRNG];
+                            arrayRNG = system::rand() % (sizeof(mod::getlv3Tribes()) / 4);
+                            enemyTribe = mod::getlv3Tribes()[arrayRNG];
                         }
                         else
                         {
-                            arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
-                            enemyTribe = mod::lv4Tribes[arrayRNG];
+                            arrayRNG = system::rand() % (sizeof(mod::getlv4Tribes()) / 4);
+                            enemyTribe = mod::getlv4Tribes()[arrayRNG];
                         }
                         vsOdds = system::rand() % 100;
                         danEnemy = danEnemies[enemyTribe];
@@ -1851,7 +1950,7 @@ namespace mod
         }
 
         // Determine enemy data for current room
-        if (moverRNG > 14)
+        if (returnMoverRng() > 14)
         {
             for (i = 0; i < 200; ++i)
             {
@@ -1895,7 +1994,7 @@ namespace mod
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;
-        difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
         case 0:
@@ -1940,7 +2039,7 @@ namespace mod
         }
 
         // Mover logic
-        if (moverRNG <= 14)
+        if (returnMoverRng() <= 14)
         {
             for (i = 0; i < 200; ++i)
             {
@@ -1955,7 +2054,7 @@ namespace mod
             danClearMapParts();
         }
 
-        blessingRoomCounter = swdrv::swByteGet(1602);
+        s32 blessingRoomCounter = swdrv::swByteGet(1602);
         if (blessingRoomCounter > 0)
         {
             blessingRoomCounter = blessingRoomCounter - 1;
@@ -2055,5 +2154,9 @@ namespace mod
 
             return EVT_RET_CONTINUE;
         }
+    }
+    s32 * getRfcItems()
+    {
+      return rfcItems;
     }
 }
