@@ -18,9 +18,8 @@ namespace mod
         /* 0x2 */ CARD_DESC
     };
 
-    char cardNameBuffer[64];
 
-    s32 shadooHealth = 0;
+    extern s32 *shadooHealth;
 
     // Custom Selects, Difficulty Options, and RFC
     const char difficultyOptions[] =
@@ -41,98 +40,98 @@ namespace mod
         "this sign!\n"
         "<k>";
 
-    const char *vMusicName =
+    const char vMusicName[] =
         "Pit of 100 Trials";
 
-    const char *vMusicDesc =
+    const char vMusicDesc[] =
         "Mysterious and entrancing!\n"
         "The classic Pit music.";
 
-    const char *ttMusicName =
+    const char ttMusicName[] =
         "8-Bit Mix";
 
-    const char *ttMusicDesc =
+    const char ttMusicDesc[] =
         "A chiptune jam! Composed by\n"
         "Tater-Tot Tunes.";
 
-    const char *plMusicName =
+    const char plMusicName[] =
         "Synth Mix";
 
-    const char *plMusicDesc =
+    const char plMusicDesc[] =
         "Synthy and orchestral!\n"
         "Composed by Plazzap.";
 
-    const char *noMusicName =
+    const char noMusicName[] =
         "No Music";
 
-    const char *noMusicDesc =
+    const char noMusicDesc[] =
         "Play your own music in the\n"
         "background, if you'd like!";
 
-    const char *jdMusicName =
+    const char jdMusicName[] =
         "Piano Mix";
 
-    const char *jdMusicDesc =
+    const char jdMusicDesc[] =
         "Jazzy and emotional! Performed\n"
         "live by Jdaster64.";
 
-    const char *moverFeaturesName =
+    const char moverFeaturesName[] =
         "Movers";
 
-    const char *moverFeaturesDesc =
+    const char moverFeaturesDesc[] =
         "These guys can help you skip\n"
         "floors, if you have coin!";
 
-    const char *merlunaFeaturesName =
+    const char merlunaFeaturesName[] =
         "Merluna";
 
-    const char *merlunaFeaturesDesc =
+    const char merlunaFeaturesDesc[] =
         "The esoteric purveyor of\n"
         "Divine Judgement!";
 
-    const char *marioFeaturesName =
+    const char marioFeaturesName[] =
         "Mario";
 
-    const char *marioFeaturesDesc =
+    const char marioFeaturesDesc[] =
         "Our hero, Mario! You wouldn't\n"
         "disable him, right?";
 
-    const char *lockPatchesName =
+    const char lockPatchesName[] =
         "Patched Locks";
 
-    const char *lockPatchesDesc =
+    const char lockPatchesDesc[] =
         "Were you tired of selecting\n"
         "a key every time? Me, too.";
 
-    const char *hpPatchesName =
+    const char hpPatchesName[] =
         "Low HP Sounds";
 
-    const char *hpPatchesDesc =
+    const char hpPatchesDesc[] =
         "The only sound worse than your\n"
         "Wii crashing on a loading zone.";
 
-    const char *explosionShakeAccessName =
+    const char explosionShakeAccessName[] =
         "Explosions Shake Camera";
 
-    const char *explosionShakeAccessDesc =
+    const char explosionShakeAccessDesc[] =
         "Toggles camera vibrations when\n"
         "certain enemies explode.";
 
-    const char *selectMusicBox =
+    const char selectMusicBox[14] =
         "Select a Tune";
 
-    const char *selectMusicBlueText =
+    const char selectMusicBlueText[6] =
         "Music";
 
-    const char *selectJimboBox =
+    const char selectJimboBox[93] =
         "Select your Settings\n"
         "<icon PAD_1 0.67 0 0 0> is Enabled\n"
         "<icon PAD_2 0.67 0 0 0> is Disabled\n";
 
-    const char *selectJimboBlueText =
+    const char selectJimboBlueText[8] =
         "Options";
 
-    const char chestText[] =
+    const char chestText[58] =
         "<system>"
         "Open the chest?\n"
         "(%d percent chance to explode)"
@@ -826,17 +825,17 @@ namespace mod
         "<wait 200>wicky-whackety-whack-a-do!\n"
         "<k>";
 
-    const char *mystBumpDescPtr =
+    const char mystBumpDescPtr[] =
         "msg_blue_bump_desc";
 
-    const char *mystBumpNamePtr =
+    const char mystBumpNamePtr[] =
         "msg_blue_bump_name";
 
-    const char *mystBumpDesc =
+    const char mystBumpDesc[] =
         "A weird bump with an odd ability.\n"
         "Given to you by a \"blue\" Whacka.";
 
-    const char *mystBumpName =
+    const char mystBumpName[] =
         "Mysterious Whacka Bump";
 
     const char bumpUseMsg[] =
@@ -1010,14 +1009,14 @@ namespace mod
         "Yes\n"
         "No";
 
-    const char *mac_kanban_004 =
+    const char mac_kanban_004[] =
         "<kanban>\n"
         "<center>Flopside's #1 Useless Pipe</center>\n"
         "<col c00000ff><center>IT'S USELESS! Try it out!</center>\n"
         "</col><center>-Flopside City Hall-</center>\n"
         "<k>";
 
-    const char *D100_entrance_03 =
+    const char D100_entrance_03[] =
         "<system>\n"
         "I can't promise this will\n"
         "work correctly, but hey,\n"
@@ -1919,310 +1918,6 @@ namespace mod
         "hurt to give him a chance...\n"
         "<k>";
 
-    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type)
-    {
-        spm::npcdrv::NPCTribe *tribe = spm::npcdrv::npcGetTribe(tribeId);
-        char tattleBuffer[512];
-        char cardDescBuffer[512];
-        if (npc != nullptr || npc != 0)
-        {
-            if (msl::string::strstr(npc->name, "rebear") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_merluna);
-            }
-            if (msl::string::strstr(npc->name, "dan_card") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, spm::msgdrv::msgSearch("mac_19_card"));
-            }
-            if (msl::string::strstr(npc->name, "mover") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_mover);
-            }
-            if (msl::string::strstr(npc->name, "dan_koburon") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_whacka);
-            }
-            if (msl::string::strstr(npc->name, "jimbo") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_jimbo);
-            }
-        }
-        switch (tribeId)
-        {
-        case 2:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Goomba");
-            break;
-        case 5:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiked_gloomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiked_gloomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiked Gloomba");
-            break;
-        case 6:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiked_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiked_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiked Hyper Goomba");
-            break;
-        case 8:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_paragoomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_paragoomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Paragoomba");
-            break;
-        case 10:
-            msl::stdio::sprintf(tattleBuffer, tattle_kamikaze_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_kamikaze_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Kamikaze Goomba");
-            break;
-        case 16:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Koopa");
-            break;
-        case 19:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_koopatrol, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_koopatrol, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Koopatrol");
-            break;
-        case 24:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_paratroopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_paratroopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Paratroopa");
-            break;
-        case 29:
-            msl::stdio::sprintf(tattleBuffer, tattle_red_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_red_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Red Spike Top");
-            break;
-        case 38:
-            msl::stdio::sprintf(tattleBuffer, tattle_sky_blue_spiny, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_sky_blue_spiny, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Sky-Blue Spiny");
-            break;
-        case 43:
-        case 44:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_bones, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_bones, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Bones");
-            break;
-        case 49:
-        case 50:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_hammer_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_hammer_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Hammer Bro");
-            break;
-        case 55:
-        case 56:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_boomerang_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_boomerang_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Boomerang Bro");
-            break;
-        case 61:
-        case 62:
-            msl::stdio::sprintf(tattleBuffer, tattle_ice_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ice_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ice Bro");
-            break;
-        case 66:
-        case 67:
-        case 68:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Magikoopa");
-            break;
-        case 75:
-        case 76:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_striker, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_striker, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Striker");
-            break;
-        case 86:
-            msl::stdio::sprintf(tattleBuffer, tattle_bomb_boo, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bomb_boo, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bomb Boo");
-            break;
-        case 95:
-            msl::stdio::sprintf(tattleBuffer, tattle_white_clubba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_white_clubba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "White Clubba");
-            break;
-        case 98:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_fuzzy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_fuzzy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Green Fuzzy");
-            break;
-        case 101:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_cleft, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_cleft, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Cleft");
-            break;
-        case 111:
-        case 112:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_puff, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_puff, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Puff");
-            break;
-            case 124:
-            msl::stdio::sprintf(tattleBuffer, tattle_gold_chomp, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_gold_chomp, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Gold Chomp");
-            break;
-        case 167:
-            msl::stdio::sprintf(tattleBuffer, tattle_tileoid_pu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_tileoid_pu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Tileoid PU");
-            break;
-        case 171:
-            msl::stdio::sprintf(tattleBuffer, tattle_bawbus, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bawbus, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bawbus");
-            break;
-        case 220:
-        case 221:
-        case 222:
-            msl::stdio::sprintf(tattleBuffer, tattle_ninjeremiah, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ninjeremiah, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ninjeremiah");
-            break;
-        case 225:
-            msl::stdio::sprintf(tattleBuffer, tattle_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Skellobyte");
-            break;
-        case 228:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiky_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiky_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiky Skellobyte");
-            break;
-        case 330:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_mario, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_mario, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Mario");
-            break;
-        case 332:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_peach, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_peach, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Peach");
-            break;
-        case 333:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_bowser, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_bowser, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Bowser");
-            break;
-        case 331:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_luigi, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_luigi, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Luigi");
-            break;
-        case 446:
-            msl::stdio::sprintf(tattleBuffer, tattle_ash_cherbil, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ash_cherbil, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ash Cherbil");
-            break;
-        case 465:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Koopa");
-            break;
-        case 466:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Koopa");
-            break;
-        case 470:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_buzzy_beetle, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_buzzy_beetle, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Buzzy Beetle");
-            break;
-        case 471:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spike Top");
-            break;
-        case 473:
-        case 474:
-        case 475:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Green Magikoopa");
-            break;
-        case 476:
-        case 477:
-        case 478:
-            msl::stdio::sprintf(tattleBuffer, tattle_white_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_white_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "White Magikoopa");
-            break;
-        case 479:
-        case 480:
-        case 481:
-            msl::stdio::sprintf(tattleBuffer, tattle_red_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_red_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Red Magikoopa");
-            break;
-        case 495:
-            msl::stdio::sprintf(tattleBuffer, tattle_spinia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spinia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spinia");
-            break;
-        case 496:
-            msl::stdio::sprintf(tattleBuffer, tattle_spunia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spunia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spunia");
-            break;
-        case 504:
-        case 505:
-            msl::stdio::sprintf(tattleBuffer, tattle_bleepboxer, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bleepboxer, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bleepboxer");
-            break;
-        case 506:
-            msl::stdio::sprintf(tattleBuffer, tattle_kilo_muth, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_kilo_muth, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Kilo Muth");
-            break;
-        case 529:
-            msl::stdio::sprintf(tattleBuffer, tattle_yellow_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_yellow_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 530:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 531:
-            msl::stdio::sprintf(tattleBuffer, tattle_blue_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_blue_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 532:
-            msl::stdio::sprintf(tattleBuffer, tattle_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 534:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_lakitu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_lakitu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Lakitu");
-            break;
-        }
-        if (type == TATTLE)
-        {
-            msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattleBuffer);
-            const char *tattleMsg = spm::search::search_wp->msgBuf;
-            return tattleMsg;
-        }
-        else if (type == CARD_NAME)
-        {
-            const char *nameMsg = cardNameBuffer;
-            return nameMsg;
-        }
-        else
-        {
-            msl::stdio::sprintf(spm::pausewin::pausewinCardDescBuf, cardDescBuffer);
-            const char *descMsg = spm::pausewin::pausewinCardDescBuf;
-            return descMsg;
-        }
-    }
+    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type);
+
 }

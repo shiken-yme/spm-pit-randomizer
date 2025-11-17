@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.h>
+#include <evt_cmd.h>
 
 namespace mod {
 
@@ -38,6 +39,13 @@ namespace mod {
   extern bool gIsRiivolution;
   extern bool gIsPatchedDisc;
   extern bool gIs4_3;
+
+  EVT_DECLARE(fwd_mover_speech)
+  EVT_DECLARE(custom_pit_music)
+
+  EVT_DECLARE_USER_FUNC(rand100, 1)
+  EVT_DECLARE_USER_FUNC(handleBlessingWearOff, 0)
+  EVT_DECLARE_USER_FUNC(get_mover_rng, 1)
 
   s32 danClearMapParts();
   s32 returnMoverRng();
