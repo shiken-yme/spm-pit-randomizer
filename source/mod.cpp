@@ -1,11 +1,6 @@
 #include "mod.h"
 #include "patch.h"
 
-/*
-    NOTE TO ALL FUTURE MODDERS:
-    I do not advise forking this project, because the code is bad and I have some very outdated libraries for evtpatch.
-    If you're looking to make your own mods, please consider forking L5050's Hard Mode: Rubies and Magic or her mod template instead.
-*/
 #include "lunatic/npcdata.h"
 #include "lunatic/localize.h"
 
@@ -348,9 +343,6 @@ namespace mod
         /* 0x4 */ SELECT_ACCESSIBILITY
     };
 
-    s32 no = 0;
-    s32 i = 0;
-    s32 currentFloor = 0;
     s32 nextFloor = 0;
     s32 enemyArrayOffset = 0;
     s32 nextEnemyCount = 0;
@@ -988,7 +980,7 @@ namespace mod
         if (msl::string::strstr(loadMap, "dan") != nullptr && msl::string::strstr(loadMap, "dan_70") == nullptr && seq != 4 && seq != 1)
         {
             generateMoverRng(); // Generates mover RNG in every dan map
-            currentFloor = swdrv::swByteGet(1);
+            s32 currentFloor = swdrv::swByteGet(1);
             bool overwriteMap = false;
             s32 danTexNum = -1;
             if (currentFloor >= 189 && msl::string::strstr(loadMap, "dan_44") != nullptr)
@@ -1255,25 +1247,10 @@ namespace mod
         }
 
         // Reset Pit chests
-        swdrv::swClear(433);
-        swdrv::swClear(434);
-        swdrv::swClear(435);
-        swdrv::swClear(436);
-        swdrv::swClear(437);
-        swdrv::swClear(438);
-        swdrv::swClear(439);
-        swdrv::swClear(440);
-        swdrv::swClear(441);
-        swdrv::swClear(442);
-        swdrv::swClear(443);
-        swdrv::swClear(444);
-        swdrv::swClear(445);
-        swdrv::swClear(446);
-        swdrv::swClear(447);
-        swdrv::swClear(448);
-        swdrv::swClear(449);
-        swdrv::swClear(450);
-        bool nipples = swdrv::swGet(409);
+        for (u8 ThakoGswf = 433; ThakoGswf >= 450; ++ThakoGswf)
+        {
+            swdrv::swClear(ThakoGswf);
+        }
 
         // Clear Merluna judgement flag
         swdrv::swClear(1669);
@@ -1284,7 +1261,7 @@ namespace mod
             wii::cx::CXUncompressLZ(lz_embedded::pitText, decompPitText);
             parse::parseInit(decompPitText, size); */
         i = 0;
-        currentFloor = swdrv::swByteGet(1);
+        s32 currentFloor = swdrv::swByteGet(1);
         s32 shadooEntries = swdrv::swByteGet(24);
 
         // Global room generation RNG value (1-100, 5 decimal places)
@@ -3290,7 +3267,7 @@ namespace mod
                                                     return mystBumpDesc;
                                                 }
                                                 // Patch all custom/modified NPCs to return their new name
-                                                i = 0;
+                                                s32 i = 0;
                                                 while (patchEnemyList[i] != -1)
                                                 {
                                                     if (msl::string::strcmp(msgName, item_data::itemDataTable[npcdrv::npcGetTribe(patchEnemyList[i])->catchCardItemId].nameMsg) == 0 && msl::string::strcmp(msgName, "ename_000") != 0)
@@ -3383,7 +3360,7 @@ namespace mod
                                                           }
 
                                                           // Patch all custom/modified NPCs to return their new name
-                                                          i = 0;
+                                                          s32 i = 0;
                                                           while (patchEnemyList[i] != -1)
                                                           {
                                                               if (msl::string::strcmp(msgName, item_data::itemDataTable[npcdrv::npcGetTribe(patchEnemyList[i])->catchCardItemId].nameMsg) == 0 && msl::string::strcmp(msgName, "ename_000") != 0)
@@ -3399,7 +3376,7 @@ namespace mod
                                                   [](npcdrv::NPCEntry *npc)
                                                   {
                                                       // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
-                                                      i = 0;
+                                                      s32 i = 0;
                                                       if (msl::string::strstr(npc->name, "rebear") != nullptr || msl::string::strstr(npc->name, "dan_card") != nullptr ||
                                                           msl::string::strstr(npc->name, "mover") != nullptr || msl::string::strstr(npc->name, "dan_koburon") != nullptr ||
                                                           msl::string::strstr(npc->name, "jimbo") != nullptr)
@@ -3439,7 +3416,7 @@ namespace mod
                                                          [](pausewin::PausewinEntry *entry, s32 itemId)
                                                          {
                                                              // Patch all custom/modified NPCs to toss a custom description into pausewinCardDescBuf
-                                                             i = 0;
+                                                             s32 i = 0;
                                                              while (patchEnemyList[i] != -1)
                                                              {
                                                                  if (item_data::itemDataTable[itemId].tribe == patchEnemyList[i])
@@ -4026,6 +4003,7 @@ namespace mod
         s32 blueToggle = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         mario::MarioWork *mario = mario::marioGetPtr();
         s32 marioRemoved = swdrv::swGet(1612);
+        s32 i;
         /*    // DEBUG
             if (spmario::gp->frameCounter % 30 == 0)
             {
@@ -5038,7 +5016,7 @@ namespace mod
         s32 disorderId = swdrv::swByteGet(1630);
         s32 roomsRemaining = swdrv::swByteGet(1631);
         s32 prevDisorderState = 0; // Used to handle post-disorder behavior if a disorder has just ended
-        currentFloor = swdrv::swByteGet(1);
+        s32 currentFloor = swdrv::swByteGet(1);
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         if (roomsRemaining > 0)
         {
@@ -5500,7 +5478,7 @@ namespace mod
         evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
         npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert(evtmgr_cmd::evtGetValue(evtEntry, args[0]));
         s32 sup = system::rand() % 100;
-        currentFloor = swdrv::swByteGet(1);
+        s32 currentFloor = swdrv::swByteGet(1);
         s32 tribe = npc->tribeId;
         npcdrv::NPCDropItem *dropItems = npcdrv::npcTribes[tribe].dropItemList;
         // While we're here, let's nerf all item drops!
@@ -5565,6 +5543,7 @@ namespace mod
                     if (npc->dropItemId == 0 && dropItems[0].itemId != 0) // If it doesn't already have an item, continue
                     {
                         sup = 1;
+                        s32 i = 0;
                         for (i = 0; sup != 0; ++i)
                         {
                             sup = dropItems[i].itemId;
@@ -5649,6 +5628,7 @@ namespace mod
         s32 cardNum = system::rand() % 9 + 5; // 5-13
         boodinBalls.cardCount = cardNum;
         s32 poolCard = 0;
+        s32 i = 0;
         for (i = 1; i <= cardNum; ++i)
         {
             s32 size = (sizeof(boodinShopItemPool) / 8);
@@ -5668,6 +5648,7 @@ namespace mod
         // Check if there are any cards remaining
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         // Format array to eliminate zeroes before opening the shop
+        s32 i;
         for (i = 1; i <= 14; ++i)
         {
             finalCardArray[i] = -1;
@@ -5731,6 +5712,7 @@ namespace mod
         {
             finalCardArray[finalCardSelectedIdx] = 0;
             s32 n = 1;
+            s32 i;
             for (i = 1; i <= 14; ++i)
             {
                 if (finalCardArray[i] != 0)
@@ -8483,9 +8465,6 @@ namespace mod
 
     static void evtPatches()
     {
-        // Initialize the patches to the EVT interpreter to add custom opcodes
-        evtpatch::evtmgrExtensionInit();
-
         /* // Get Flipside Tower's init EVT script
          evtmgr_cmd::EvtScriptCode *flipsideInitEvt = map_data::mapDataPtr("mac_02")->initScript;
 
@@ -8634,6 +8613,7 @@ namespace mod
     void main()
     {
         wii::os::OSReport("SPM Rel Loader: the mod has ran!\n");
+        evtpatch::evtmgrExtensionInit();
         tplpatch::iconPatch("wicon2");
         titleScreenCustomTextPatch();
         messagePatch();
