@@ -56,14 +56,14 @@ namespace mod::tplpatch
   Have fun!!!!
   */
 
-  char *TPLPatchIconTPLName = nullptr;           // This corresponds to the name of your custom TPL! i.e.
+  char *TPLPatchIconTPLName = nullptr;           // This corresponds to the name of your custom TPL! i.e. 
   filemgr::FileEntry *TPLPatchIconTPL = nullptr; // Initializes the custom TPL pointer
 
   // These hook into vanilla icondrv functions right before they run.
   // These patches are meant to allocate the custom TPL to memory, make it accessible at any time, and help make the custom icons display properly.
   void (*iconMainReal)();
   void (*iconEntryReal)(const char *name, s32 iconId);
-  void (*iconGXReal)(wii::mtx::Mtx34 mtx, icondrv::IconEntry *icon);
+  void (*iconGXReal)(wii::mtx::Mtx34 *mtx, icondrv::IconEntry *icon);
   static void iconFuncPatch()
   {
     iconMainReal = patch::hookFunction(icondrv::iconMain,
@@ -102,7 +102,7 @@ namespace mod::tplpatch
                                         });
 
     iconGXReal = patch::hookFunction(icondrv::iconGX,
-                                     [](wii::mtx::Mtx34 mtx, icondrv::IconEntry *icon)
+                                     [](wii::mtx::Mtx34 *mtx, icondrv::IconEntry *icon)
                                      {
                                        if (icon->iconId >= TPLPATCH_ICON_REDIRECT)
                                        {
@@ -125,8 +125,7 @@ namespace mod::tplpatch
       imgTbl = palette->imageTable;
       idx = id % TPLPATCH_ICON_REDIRECT;
     }
-    else
-      idx = id % palette->imageCount;
+    idx = id % palette->imageCount;
     wii::tpl::ImageHeader *img = imgTbl[idx].image;
     wii::gx::GXInitTexObj(dest, img->data, img->width, img->height, img->format, img->wrapS, img->wrapT, (((u32)img->maxLOD - (u32)img->minLOD) | ((u32)img->minLOD - (u32)img->maxLOD)) >> 0x1f);
     img = imgTbl[idx].image;

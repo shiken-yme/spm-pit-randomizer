@@ -152,7 +152,7 @@ DECOMP_STATIC(PluswinWork * pausewin_pluswinWp)
 DECOMP_STATIC(PausewinWork * pausewin_wp)
 DECOMP_STATIC(char pausewinCardDescBuf[512])
 
-PausewinEntry * pausewinGetEntry(s32 id);
+UNKNOWN_FUNCTION(pausewinGetEntry)
 UNKNOWN_FUNCTION(pausewinGetTpl)
 void pausewinInit();
 UNKNOWN_FUNCTION(pausewinReInit)
@@ -175,12 +175,12 @@ void pausewinDisappear(s32 id);
 void pausewinDelete(s32 id);
 UNKNOWN_FUNCTION(pausewinGoNeutral)
 UNKNOWN_FUNCTION(pausewinHide)
-bool pausewinCheckVisible(s32 id);
+UNKNOWN_FUNCTION(pausewinCheckVisible)
 UNKNOWN_FUNCTION(_pausewinDelete)
 void pausewinPauseGame();
 void pausewinUnpauseGame();
 UNKNOWN_FUNCTION(pausewinUpdate)
-const char *pausewinNumberToString(s32 value, s32 length);
+UNKNOWN_FUNCTION(pausewinNumberToString)
 UNKNOWN_FUNCTION(pausewinCheckHavePixls)
 UNKNOWN_FUNCTION(pausewinCheckHaveCards)
 UNKNOWN_FUNCTION(pausewinCheckHaveRecipes)
@@ -196,7 +196,7 @@ UNKNOWN_FUNCTION(pluswinBgDispSub)
 UNKNOWN_FUNCTION(pluswinBgDisp)
 UNKNOWN_FUNCTION(pausewinMsgBoxInit)
 UNKNOWN_FUNCTION(pausewinMsgBoxMain)
-PausewinFunc pausewinMsgBoxDisp;
+UNKNOWN_FUNCTION(pausewinMsgBoxDisp)
 UNKNOWN_FUNCTION(pausewinMsgBoxDelete)
 void pausewinSetMessage(PausewinEntry * entry, s32 itemId, const char * msgName);
 void pausewinSetMessageCard(PausewinEntry * entry, s32 itemId);

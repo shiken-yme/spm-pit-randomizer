@@ -50,9 +50,9 @@ SIZE_ASSERT(MsgSpeaker, 0xf258)
 typedef struct
 {
 /* 0x0 */ u32 size;
-/* 0x4 */ const char *contents;
+/* 0x4 */ const char * contents;
 /* 0x8 */ s32 messageCount;
-/* 0xC */ SmartAllocation *messages;
+/* 0xC */ u8 unknown_0xc[0x10 - 0xc];
 } MsgFile;
 SIZE_ASSERT(MsgFile, 0x10)
 
@@ -71,15 +71,8 @@ DECOMP_STATIC(MsgWork msgdrv_work)
 
 typedef struct
 {
-/* 0x0 */ const char *nameOffset;
-/* 0x4 */ const char *contentsOffset;
-} MsgEntry;
-SIZE_ASSERT(MsgEntry, 0x8)
-
-typedef struct
-{
 /* 0x0 */ const char * name;
-/* 0x4 */ s32 iconId;
+/* 0x4 */ s32 iconid;
 } IconNameIdDef;
 SIZE_ASSERT(IconNameIdDef, 0x8)
 

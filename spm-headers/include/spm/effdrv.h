@@ -25,10 +25,10 @@ typedef struct _EffEntry
 /* 0x02 */ u16 type; // 0 or 1, groups entries for limits
 /* 0x04 */ s32 releaseType; // 0 or 1, groups entries for freeing
                             // (1 means 'in battle', unused TTYD leftover)
-/* 0x08 */ s32 count;
+/* 0x08 */ u8 unknown_0x8[0xc - 0x8];
 /* 0x0C */ void * userWork;
 /* 0x10 */ EffFunc * mainFunc;
-/* 0x14 */ const char * effName;
+/* 0x14 */ u8 unknown_0x14[0x18 - 0x14];
 /* 0x18 */ char instanceName[16];
 /* 0x28 */ u8 unknown_0x28[0x2c - 0x28];
 } EffEntry;

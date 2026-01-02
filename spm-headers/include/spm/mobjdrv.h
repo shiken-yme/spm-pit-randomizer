@@ -69,7 +69,7 @@ typedef struct _MobjEntry
         2 is unknown
     */
 /* 0x05C */ MobjJoint joints[3];
-/* 0x1F4 */ Vec3 objSize;
+/* 0x1F4 */ Vec3 unkScale;
 /* 0x200 */ Vec3 translation;
 /* 0x20C */ u8 unknown_0x20c[0x210 - 0x20c];
 /* 0x210 */ union
