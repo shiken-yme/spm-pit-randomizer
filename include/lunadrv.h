@@ -73,5 +73,5 @@ namespace mod
     EVT_DECLARE_USER_FUNC(LunaGetConditionInfo, 6)
 
     void PrejudiceAction();
-    EVT_DECLARE_USER_FUNC(IndifferenceAction, 4)
+    EVT_DECLARE_USER_FUNC(IndifferenceAction, 8)
 }

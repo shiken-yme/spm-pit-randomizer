@@ -522,7 +522,7 @@ namespace mod
                                                  // Indolence
                                                  if (disorderId == DISORDER_PURPLE)
                                                   {
-                                                    odds = system::rand() % 100;
+                                                    s32 odds = system::rand() % 100;
                                                     if (odds < Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance)
                                                     {
                                                         odds = system::rand() % 100;
@@ -663,18 +663,6 @@ namespace mod
                                                 }
                                                 s32 odds;
                                                 s32 disorderId = Lunatic->Luna.disorder;
-                                                if (disorderId = DISORDER_CYAN) // Damage Mario if damage type is stomp
-                                                {
-                                                    odds = system::irand(100);
-                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage)
-                                                    {
-                                                        s32 marioDmg = (s32)(msl::math::sqrt((f32)power)) + 1;
-                                                        if (marioDmg > Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg)
-                                                            marioDmg = Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg;
-                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 4); // Find damage flags for spiky enemies
-                                                    }
-                                                   
-                                                }
                                                 if (disorderId == DISORDER_ORANGE && power > 0)
                                                 {
                                                     odds = system::irand(100);
@@ -701,11 +689,22 @@ namespace mod
                                                     }
                                                 }
                                                 // Check if crit should actually occur
-                                                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
                                                 u32 hp = npcPart->owner->hp;
+                                                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
                                                 if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33)
                                                     critActuate = false;
                                                 // wii::os::OSReport("%d damage dealt of type %d.\n", power, ret);
+                                                if (disorderId == DISORDER_CYAN) // Damage Mario AFTER damaging npc if damage type is stomp
+                                                {
+                                                    odds = system::irand(100);
+                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage)
+                                                    {
+                                                        s32 marioDmg = (s32)(msl::math::sqrt((f32)power)) + 1;
+                                                        if (marioDmg > Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg)
+                                                            marioDmg = Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg;
+                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 4); // Find damage flags for spiky enemies
+                                                    }
+                                                }
                                                 return ret;
                                             });
 

@@ -248,63 +248,37 @@ namespace mod
         return;
     }
 
+    
+
     s32 IndifferenceAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        u8 difficulty2 = swdrv::swByteGet(1620);
-        u8 loops = 1;
-        if (difficulty2 == 2)
-        {
-            loops = 2;
-        }
-        u8 thresh = 0;
-        u8 j = 0;
         s32 indiffItems[] = {83, 95, 98, 160, 174, 175, 176, 178};
-        const char *indiffINames[] = {"indiff_i1", "indiff_i2"};
-        s32 indiffItemIdx = 0;
-        u8 itemsRmd = 0;
-        u8 itemsAdded = 0;
-        while (loops != j)
+        s32 i, idx;
+        s32 itemsSpawned = 0;
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        for (i = 0; i < 8; i += 1)
+            evtmgr_cmd::evtSetValue(evtEntry, args[i], 0);
+        for (i = 0; i < Lunatic->Luna.DisorderWork.UserWork.Indifference->repeat; i += 1)
         {
-            switch (difficulty2)
-            {
-            case 0:
-                thresh = 25;
-                break;
-            case 1:
-                thresh = 50;
-                break;
-            case 2:
-                thresh = 50;
-                break;
-            }
             s32 odds = system::rand() % 100;
-            if (thresh > odds)
+            if (odds < 100)
             {
-                indiffItemIdx = system::rand() % 8;
-                mario::MarioWork *mario = mario::marioGetPtr();
-                if ((mario_pouch::pouchCountUseItems() + itemsAdded) < 10)
+                idx = system::rand() % (sizeof(indiffItems) / 4);
+                if ((mario_pouch::pouchCountUseItems() + itemsSpawned) < 10)
                 {
-                    itemdrv::ItemEntry *item = itemdrv::itemEntry(indiffINames[itemsAdded], indiffItems[indiffItemIdx], 0, mario->position.x, mario->position.y, mario->position.z, NULL, 0);
-                    item->flags = (item->flags | 0x800);
-                    itemsAdded = itemsAdded + 1;
+                    itemsSpawned += 1;
+                    evtmgr_cmd::evtSetValue(evtEntry, args[(i*2)], indiffItems[idx]);
                 }
                 else
                 {
                     s32 invIdx = system::rand() % 10;
-                    mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-                    itemsRmd = itemsRmd + 1;
-                    evtmgr_cmd::evtSetValue(evtEntry, args[itemsRmd], msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
-                    mario_pouch::pouchRemoveItemIdx(pouch->useItem[invIdx], invIdx);
-                    itemdrv::ItemEntry *item = itemdrv::itemEntry(indiffINames[itemsAdded], indiffItems[indiffItemIdx], 0, mario->position.x, mario->position.y, mario->position.z, NULL, 0);
-                    item->flags = (item->flags | 0x800);
-                    itemsAdded = itemsAdded + 1;
+                    evtmgr_cmd::evtSetValue(evtEntry, args[(i*2)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
+                    pouch->useItem[invIdx] = indiffItems[idx];
+                    evtmgr_cmd::evtSetValue(evtEntry, args[((i*2)+1)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
                 }
             }
-            j = j + 1;
         }
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], itemsRmd);
-        evtmgr_cmd::evtSetValue(evtEntry, args[3], itemsAdded);
         return 2;
     }
 
@@ -380,17 +354,17 @@ namespace mod
         case 1:
             wp->attackEffectChance = 50;
             wp->dispDmgPctBonus = 50;
-            wp->slowDuration = 10;
+            wp->slowDuration = 5;
             break;
         case 2:
             wp->attackEffectChance = 75;
             wp->dispDmgPctBonus = 100;
-            wp->slowDuration = 15;
+            wp->slowDuration = 10;
             break;
         default:
             wp->attackEffectChance = 100;
             wp->dispDmgPctBonus = 100;
-            wp->slowDuration = 20;
+            wp->slowDuration = 10;
             break;
         }
         return;

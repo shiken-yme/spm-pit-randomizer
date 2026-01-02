@@ -144,19 +144,6 @@ namespace mod
         "(%d percent chance to explode)"
         "<o>";
 
-    // Disorders
-
-    const char disorderIndifferenceItemNotif[] =
-        "<system>Your %s has\n"
-        "been removed!\n"
-        "<k>";
-
-    const char disorderIndifferenceItemNotif2[] =
-        "<system>Your %s and\n"
-        "%s have been\n"
-        "removed!\n"
-        "<k>";
-
     // Shadoo
     const char shadooIntro[] =
         "<housou><wave>Hiiiii, Heroes!</wave><wait 500> Did you have a\n"
@@ -873,6 +860,8 @@ namespace mod
         "conditions to view right now!\n"
         "<k>";
 
+    // Disorders
+
     const char apathyName[] =
         "Apathy";
 
@@ -946,7 +935,7 @@ namespace mod
         "Disorder: Indifference\n"
         "\"What a waste of energy...\"\n"
         "<k>\n<p>\n"
-        "30%% chance to add a random\n"
+        "50%% chance to add a random\n"
         "trash item to the inventory.\n"
         "<k>\n<p>\n"
         "If there is no space, a random\n"
@@ -1005,6 +994,21 @@ namespace mod
         "\"Please... turn the lights back on...\"\n"
         "<k>\n<p>\n"
         "Placeholder";
+
+    const char disorderIndifferenceItemNotif[] =
+        "<system><center>Your inventory is full!</center>\n"
+        "<k>\n<p>\n"
+        "<center>%s has been</center>\n"
+        "<center>replaced with</center>\n"
+        "<center>%s!</center>\n"
+        "<k>";
+
+    const char disorderIndifferenceItemNotif2[] =
+        "\n<p>\n"
+        "<center>%s has been</center>\n"
+        "</center><center>replaced with</center>\n"
+        "<center>%s!</center>\n"
+        "<k>";
 
     // Jimbo
     const char jimboIntro[] =
