@@ -32,6 +32,7 @@
 8002b664:mobjDelete
 8002b390:mobjEntry
 8002ca04:mobjCalcMtx
+8002cdf4:mobjCalcMtx2
 8002eb38:mobjGetModelName
 8002d640:mobjHitOff
 8002b72c:mobjSetPosition
@@ -48,6 +49,7 @@
 800327e4:msgSearchNoFallback
 //data
 80405bd8:msgdrv_msgIcon
+805adf18:msgdrv_msgw
 // more
 
 // swdrv.c
@@ -70,9 +72,19 @@
 // more
 
 // winmgr.c
+8003b2c8:winMgrDisp
 8003bc78:winMgrSelectEntry
 8003c8a8:winMgrSelect
+8003c9d0:winMgrSelectGetIndex
 8003c90c:winMgrSelectDelete
+8003bc2c:winMgrSetSize
+8003c9d8:select_main
+8003d2ac:select_disp
+8003e5e0:select_disp2
+// data
+80326400:select_disp_arrow_move
+80406e98:winmgr_select_desc_tbl
+805adf48:winmgr_wp
 
 // acdrv.c
 8003eb4c:acInit
@@ -106,7 +118,9 @@
 8004c828:animPoseGetAnimBaseDataPtr
 8004d52c:animPoseSetDispCallback
 8004c660:animPoseGetAnimPosePtr
+8004c910:animPoseGetCurrentAnim
 8004158c:animGetPtr
+8004df54:animPoseGetGroupIdxSubname
 // data 
 805adf58:animdrv_wp
 // more
@@ -117,6 +131,9 @@
 80055b38:camGetCurPtr
 80056a60:cam3dMain
 80058294:getScreenPoint
+800586c8:func_800586c8
+80058700:camShakeInit
+800587a0:camShakeInit_Frm
 // bss
 8050b580:camPtrTbl
 // more
@@ -127,12 +144,22 @@
 
 // dispdrv.c
 8005af04:dispEntry
+8005b1a0:dispDraw
+8005b46c:dispCalcZ
+// data
+8050b620:dispdrv_dispScissors
+805ae7c8:dispdrv_pDispWork
+805ae7cc:dispdrv_pSortWork
+805ae7d0:dispdrv_entry_n
+805ae7d4:dispdrv_currentWorkPtr
+805ae7d8:dispdrv_currentCallbackPtr
 // more
 
 // effdrv.c
 800616e4:effEntryType
 800618b0:effMain
 800617fc:effSetName
+80061a74:effDelete
 80061af4:effSoftDelete
 80061d78:func_80061d78
 800a2fe4:eff_item_thunder
@@ -145,6 +172,9 @@
 
 // eff_sub.c
 8005bf08:effSubMain
+8005c47c:func_8005c47c
+8005f82c:effSubDisp
+8005fb00:effSubSetColorOverride
 // data
 805ae7e4:effsub_wp
 
@@ -157,7 +187,8 @@
 // framedrv.c
 80067ab8:frameInit
 80067b24:frameMain
-80069b8c:frameDispCb
+80068708:frameWireEntry
+80069b8c:frameDisp
 805adfc8:framedrv_wp
 
 // hitdrv.c
@@ -174,8 +205,10 @@
 
 // icondrv.c
 800721dc:iconReInit
+80072ea8:iconDispGxAlpha
 80073980:iconGX
 800731b0:iconDispGx
+800731b8:iconDispGx2
 800721f4:iconMain
 80072710:iconEntry
 80072cdc:iconDisp
@@ -213,6 +246,9 @@
 8008e4e8:mapGrpFlag4Off
 8008c440:mapObjFlagOn
 8008c618:mapObjFlagOff
+80090488:mapSetBlend
+800904c8:mapSetBlend2
+80090640:mapSetColor
 80090680:mapObjSetColor
 80090a80:mapGrpSetColor
 // more
@@ -225,6 +261,11 @@
 
 // eff_spm_recovery.c
 80091654:effSpmRecoveryEntry
+80091794:func_80091794
+
+// eff_spm_levelup.c
+800abfe4:func_800abfe4
+800abf3c:effSpmLevelupEntry
 
 // eff_spm_spindash.c
 800970ac:effSpmSpindashEntry
@@ -235,6 +276,12 @@
 
 // eff_spm_hit.c
 80094020:effSpmHitEntry
+
+// eff_3d_switch.c
+800b7678:eff3dSwitchEntry
+
+// eff_damage_star.c
+800bc828:effDamageStarEntry
 
 // eff_small_star.c
 800c1d60:effSmallStarEntry
@@ -303,7 +350,12 @@
 800d4d30:evt_sub_hud_configure
 800d74a0:evt_sub_display_room_name
 800d7930:evt_sub_item_select_menu
+800d8498:evt_sub_keypad
 800d8700:func_800d8700
+// data
+80410558:evt_subKeypadKeysJP
+80410588:evt_subKeypadKeys
+8050c970:evt_subKeypadInputStorage
 // more
 
 // evtmgr.c
@@ -410,6 +462,25 @@
 8011f45c:func_8011f45c
 // more
 
+// evt_frame.c
+800e8824:evt_frame_delete
+800e8854:evt_frame_offscreen_draw_flag_onoff
+800e88d0:evt_frame_offscreen_entry
+800e89d4:evt_frame_bind_offscreen
+800e8a58:evt_frame_set_img_anim
+800e8ab4:evt_frame_set_color
+800e8b48:evt_frame_flag_onoff
+800e8be8:evt_frame_wire_entry
+800e8cd0:evt_frame_wire_wait_draw_finished
+800e8d0c:evt_frame_set_draw_speed
+800e8d98:evt_frame_set_wire_color
+800e8e2c:evt_frame_set_wire_line_width
+800e8e94:evt_frame_set_wire_draw_rotation
+800e8f4c:evt_frame_evt_entry
+800e902c:evt_frame_set_rotation
+800e90e4:evt_frame_set_color2
+800e9178:evt_frame_spin_device_entry
+
 // evt_guide.c
 800e9bb4:evt_guide_set_pos
 800e9c70:evt_guide_get_pos
@@ -451,6 +522,7 @@
 
 // evt_mario.c
 800ef4c0:evt_mario_flag8_onoff
+800ef53c:evt_mario_get_flags
 800ef5ec:evt_mario_ctrl_onoff
 800ef62c:evt_mario_key_on
 800ef650:evt_mario_key_off
@@ -500,6 +572,7 @@
 800f61ac:evt_mobj_thako
 800f6440:evt_mobj_kan
 800f6610:evt_mobj_arrow
+800f8408:mobj_blk_gravity
 800f8be8:evt_mobj_blk
 800fb118:evt_mobj_save_blk
 800f430c:mobj_sui
@@ -687,8 +760,9 @@
 80122af0:marioChkKey
 80122b4c:marioCtrlOnChk
 80122b68:marioCtrlOffChk
-80122bbc:marioCtrlOn
 80122b7c:marioKeyOffChk
+80122b90:marioCtrlOff
+80122bbc:marioCtrlOn
 80122bf4:marioKeyOff
 80122c2c:marioKeyOn
 801243a8:marioMain
@@ -696,6 +770,7 @@
 80126940:marioChgPaper
 80126aac:marioPaperOn
 8012a680:marioTakeDamage
+8012af74:marioDropCatch
 8012b080:marioCheck3d
 8012b50c:marioSetGravity
 8012a3a8:marioCalcDamageToEnemy
@@ -704,14 +779,21 @@
 801266e4:marioChgPose
 8012823c:marioEffectFlagOn
 80128360:marioEffectFlagOff
+8012b090:marioCheckIfCanTakeDamage
+8012b6cc:marioGetGravity
 8012bd5c:marioHandleSquash
 // more
 
 // mario_motion.c
 80143370:marioMotion
 801433dc:marioChgMot
+801433e4:marioChgMotSub
+801435dc:marioSetJumpPara
 8014465c:marioCalcFramesToPeak
 80144908:marioCalcFramesToTerminalVel
+80144bbc:marioSetJumpParaDirect
+80145398:marioJump
+80145a44:marioFall
 80146570:marioEndMotIfJump
 80146f0c:func_80146f0c
 80147604:_marioChangeCharacter
@@ -720,6 +802,7 @@
 801624b8:boomerFuseMain
 // data
 80426bb8:marioMotTbl
+80426e28:marioJumpFallParaDefs
 // more
 
 // mario_pouch.c
@@ -728,6 +811,8 @@
 // text
 8014c088:pouchGetPtr
 8014d1bc:pouchSetLevel
+8014d1f0:pouchGetLevel
+8014d200:pouchGetNextLevelXp
 8014d394:pouchSetAttack
 8014d3c8:pouchGetAttack
 8014d3d8:pouchAddAttack
@@ -762,10 +847,11 @@
 80511a28:mario_pouch_work
 
 // mario_sbr.c
-801502bc:marioAdjustMoveDir
-8015161c:marioCheck1HeldFor3
-801504e8:revise360
 80146570:marioCheck2HeldFor2
+801502bc:marioAdjustMoveDir
+801504e8:revise360
+8015161c:marioCheck1HeldFor3
+80152900:marioSetDispCamId
 
 // mario_status.c
 80154f3c:marioStatusApplyStatuses
@@ -785,19 +871,36 @@
 8016c0b4:mot_spindash
 8016c568:mot_spindash_post
 8016ece4:func_8016ece4
+80166904:func_80166904
+80167320:func_80167320
 80170384:func_80170384
 8016e520:mot_hammer
 8016ebb0:mot_hammer_post
 
 // mario_hit.c
-801317a0:func_801317a0
+80131488:clear_hitobj_ride
+801317a0:marioGetWidth
 801318f8:marioGetHeight
+80133dbc:func_80133dbc
+80143064:marioJumpNpc
 
 // mot_walk.c
 80118f80:marioGetDashSpd
 
+// mot_swim.c
+80113cb0:func_80113cb0
+801177e4:func_801177e4
+
 // mot_damage.c
 80161cf8:onHpEquals0
+
+// mot_jump.c
+801750fc:motJumpNpcPlaySfx
+80174fec:motJumpPlaySfx
+
+// mot_slit.c
+80176a10:func_80176a10
+80176758:func_80176758
 
 // seq_logo.c
 80179140:seq_logoMain
@@ -829,21 +932,40 @@
 // data
 80512360:seqWork
 
-//seq_load_sub.c
+// seq_load_sub.c
 // text
 8017d1ac:loadMain
 // data
 805ae0d0:seq_load_sub_wp
 
+// levelupwindow.c
+80180cd0:levelUpWindowInit
+80180cf0:levelUpDispMaxHpIncrease
+80180e2c:levelUpDispAttackIncrease
+80180f6c:levelUpDispBackdrop
+80181248:levelUpWindowMain
+801817b8:levelUpWindowCheckIfCanDisplay
+801818e8:levelUpGetBackdropAlpha
+// data
+80513600:levelUpWindowWork
+805ae0d8:levelupwindow_wp
+805ae928:levelUpWindowState2Timer
+
+// charmwindow.c
+80182a74:charmWindowCheckIfCanDisplay
+
 // pausewin.c
 // text
+80183fb0:pausewinGetEntry
 80184c18:pausewinEntry
 80185088:pausewinMoveTo
 801850d8:pausewinAppear
 80185110:pausewinDisappear
 80185148:pausewinDelete
+80185220:pausewinCheckVisible
 801853cc:pausewinPauseGame
 80185510:pausewinUnpauseGame
+8018824c:pausewinMsgBoxDisp
 80188508:pausewinSetMessage
 80188628:pausewinSetMessageCard
 80188a64:pluswinKeyItemMain
@@ -865,6 +987,8 @@
 80199cc4:hudStartCountdown
 8019a16c:hudDisp
 801994e0:hudMain
+80199ba8:hudUnhide
+80199a90:hudUnhideAlt
 // data
 805ae100:hud_wp
 // more
@@ -1007,6 +1131,7 @@
 801b7064:npcDelete
 801b84d4:npcHandleDmg
 801be198:npcEntryFromTemplate
+801bf6a4:func_801bf6a4
 801bf7a0:npcEntryFromSetupEnemy
 801bfc48:npcSearchAnimDefs
 801c2130:npcGetMaxEntries
@@ -1050,6 +1175,7 @@
 
 // wpadmgr.c
 8023697c:wpadGetWork
+80237664:wpadRumbleOff
 80237688:wpadGetButtonsHeld
 802376b0:wpadGetButtonsPressed
 802376c4:wpadGetButtonsHeldRepeat
@@ -1057,19 +1183,24 @@
 
 // spmario_snd.c
 80238598:spsndExit
+802388b4:spsndSetFlag
+802388cc:spsndClearFlag
 8023a818:__spsndSFXOn
 8023b0f0:spsndSFXOn
 8023b2a0:spsndSFXOff
 8023b108:spsndSFXOnVol
 8023b298:spsndSFXOn_3D
+8023b77c:func_8023b77c
 8023cfe8:spsndBGMSetVol
 8023cab4:spsndBGMFadeout
 8023cc9c:spsndBGMFadein
 8023c93c:spsndBGMOn
 8023c4d8:spsndBGMOn_f_d
 8023c948:spsndBGMOff_f_d
+8023cab0:spsndBGMOff_f_d_alt
 8023d1b0:spsndCheckBgmPlaying
 8023b4d4:spsndSetSfxPlayerPos
+8023b680:func_8023b680
 // data
 80532fe0:spsndBgmPlayers
 // more
@@ -1149,9 +1280,10 @@
 80267018:strlen
 // more
 
-// math workarounds
-80264408:pow
+// math
 80263f74:floor
+80264408:pow
+80264658:sqrt
 
 // s_cos.c
 80263ea0:cos
@@ -1224,7 +1356,9 @@
 
 // mtx.a
 // mtx.c
+8027a2d0:PSMTXConcat
 8027a270:PSMTXIdentity
+8027a55c:PSMTXRotRad
 8027a7b4:PSMTXTrans
 8027a7e8:PSMTXTransApply
 8027a834:PSMTXScale
@@ -1278,16 +1412,22 @@
 802915a0:GXInitTexObj
 802917f4:GXInitTexObjLOD
 802929d4:GXSetTevOp
+80292b98:GXSetTevColor
 80292e10:GXSetAlphaCompare
 80292ed4:GXSetTevOrder
 80293030:GXSetNumTevStages
 80293054:GXSetFog
 802933a4:GXSetBlendMode
+802933f4:GXSetColorUpdate
+80293420:GXSetAlphaUpdate
 8029344c:GXSetZMode
 80293480:GXSetZCompLoc
 80294214:GXSetProjection
 80294304:GXLoadPosMtxImm
 802943ac:GXSetCurrentMtx
+80294598:GXSetZScaleOffset
+802945c8:GXSetScissor
+80294630:GXGetScissor
 // more
 
 // mem.a
@@ -1399,6 +1539,9 @@
 
 // mi4.c
 1,1,cac4:mi4MimiHolographicEffect
+
+// mi4_06.c
+1,5,67620:mi4_06_merlee_cutscene_evt
 
 // ta3_02.c
 1,5,85b00:tree_block_trigger

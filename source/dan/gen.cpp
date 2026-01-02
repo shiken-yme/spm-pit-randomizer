@@ -1,4 +1,3 @@
-#pragma once
 #include <common.h>
 #include <evt_cmd.h>
 #include <gen.h>
@@ -6,7 +5,6 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
-#include <sndpatch.h>
 #include <mod.h>
 
 #include <spm/rel/aa1_01.h>
@@ -1110,7 +1108,7 @@ namespace mod
 
     s32 rotenShopLowerClassItemPool[] = {65, 66, 67, 68, 69, 70, 73, 74, 75, 76, 77, 78, 79, 83, 86, 98, 104, 109, 113};
 
-    s32 rfcItems[] = {0, 0, 0, -1};
+    s32 rfcItems[4] = {0, 0, 0, -1};
 
     /*
         HIGH PRIORITY TODO (I BROKE HELLA SHIT):
@@ -1133,6 +1131,7 @@ namespace mod
         s32 itemArraySize = 0;
         s32 itemSubrarity = 0;
         s32 itemId = 0;
+        s32 rand100Num;
         rfcItems[0] = 0;
         rfcItems[1] = 0;
         rfcItems[2] = 0;
@@ -1151,7 +1150,7 @@ namespace mod
             do
             {
                 n = n + 1;
-                s32 rand100Num = system::rand() % 100;
+                rand100Num = system::rand() % 100;
                 if (rand100Num < (s32)msl::math::floor(floorFloor / 1.2))
                 {
                     itemRarity = itemRarity + 1;
@@ -1186,7 +1185,7 @@ namespace mod
                     //            wii::os::OSReport("Item %d is Rare. itemId is %d.\n", i, itemId);
                     break;
                 }
-                s32 rand100Num = system::rand() % 4;
+                rand100Num = system::rand() % 4;
                 if (itemId != rfcItems[0] && itemId != rfcItems[1] && itemId != rfcItems[2] && itemSubrarity > rand100Num)
                 {
                     rfcItems[i] = itemId; // Assigns the item to the rfcItems array
@@ -1252,11 +1251,9 @@ namespace mod
             }
             else
                 segmentCount = 5;
-            s32 disorderId = swdrv::swByteGet(1630);
+            s32 disorderId = Lunatic->Luna.disorder;
             if (disorderId == DisorderId::DISORDER_GREEN) // Guarantee a maximally complex layout while Indifference is active
-            {
                 segmentCount = 16;
-            }
             wii::os::OSReport("Rolled segmentRNG = %d, queueing %d segment generations for this room.\n", segmentRNG, segmentCount);
 
             /*
@@ -2524,10 +2521,6 @@ namespace mod
     s32 evt_dan_read_data_new(evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)entry;
-
-        /*
-            NO CLUE IF THIS IS STILL NECESSARY, BUT FUCK IT WE BALL
-        */
         if (isFirstCall)
         {
             dan::dan_wp = (dan::DanWork *)memory::__memAlloc(memory::Heap::HEAP_MAP, sizeof(dan::DanWork));
@@ -2540,9 +2533,8 @@ namespace mod
             SET UP VARIABLES AND DO RANDOM PIT/ROOM ENTRY THINGS
             (Some of this CAN be thrown into a new entry-only function later!)
         */
-
         // Reset Pit chests
-        for (u16 ThakoGswf = 433; ThakoGswf <= 450; ++ThakoGswf) // This loop is untested, I hope it works lol
+        for (u16 ThakoGswf = 433; ThakoGswf <= 450; ++ThakoGswf) // This loop is untested
         {
             swdrv::swClear(ThakoGswf);
         }
@@ -2593,6 +2585,7 @@ namespace mod
         s32 e = 0;
         if (currentFloor == 0)
         {
+            // Begin DanGen_Enemies
             s32 enemyArrayVal = 1;
             s32 enemyName = 0;
             for (s32 roomGens = 0; roomGens <= 199; roomGens = roomGens + 1)
@@ -2859,7 +2852,7 @@ namespace mod
         }
 
         // Determine enemy data for current room
-        if (returnMoverRng() > 14)
+        if (Lunatic->Mover.moverRNG > 14)
         {
             for (i = 0; i < 200; ++i)
             {
@@ -2948,7 +2941,7 @@ namespace mod
         }
 
         // Mover logic
-        if (returnMoverRng() <= 14)
+        if (Lunatic->Mover.moverRNG <= 14)
         {
             for (i = 0; i < 200; ++i)
             {
@@ -3063,9 +3056,5 @@ namespace mod
 
             return EVT_RET_CONTINUE;
         }
-    }
-    s32 *getRfcItems()
-    {
-        return rfcItems;
     }
 }

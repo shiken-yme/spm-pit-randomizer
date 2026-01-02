@@ -1,4 +1,3 @@
-#pragma once
 #include <common.h>
 #include <evt_cmd.h>
 #include <gen.h>
@@ -6,8 +5,9 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
-#include <sndpatch.h>
 #include <lunatic/localize.h>
+#include <rewrite.h>
+#include <lunadrv.h>
 #include <mod.h>
 
 #include <spm/rel/aa1_01.h>
@@ -102,7 +102,6 @@ namespace mod
 {
     using namespace spm;
 
-    s32 apathyStoredHp = 0;
     npcdrv::NPCTribeAnimDef _moverAnims[] = {
         {0, "stg2_syuuzin_b_S_1"}, // Idle
         {1, "stg2_syuuzin_b_W_1"}, // Walking
@@ -112,89 +111,50 @@ namespace mod
 
     using namespace spm::npcdrv;
 
-    s32 evt_dan_read_mover_rng(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 evt_dan_try_disorder(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         // This function currently handles rolling for Disorders and sets relevant GSWs.
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 disorderId = swdrv::swByteGet(1630);
-        s32 roomsRemaining = swdrv::swByteGet(1631);
-        s32 prevDisorderState = 0; // Used to handle post-disorder behavior if a disorder has just ended
+        (void)firstRun;
+        (void)evtEntry;
         s32 currentFloor = swdrv::swByteGet(1);
-        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
-        if (roomsRemaining > 0)
-        {
-            prevDisorderState = 1;
-            roomsRemaining = roomsRemaining - 1;
-            swdrv::swByteSet(1631, roomsRemaining);
-        }
-        if (roomsRemaining == 0)
-        {
-            if (prevDisorderState == 1) // Post-Disorder behavior
-            {
-                s32 currentDisorder = swdrv::swByteGet(1630);
-                switch (currentDisorder)
-                {
-                    case DisorderId::DISORDER_RED:
-                    pouch->maxHp = pouch->maxHp + apathyStoredHp;
-                    pouch->hp = pouch->hp + apathyStoredHp;
-                    break;
-                }
-            }
-            prevDisorderState = 0;
-            disorderId = 0;
-            swdrv::swByteSet(1631, roomsRemaining);
-            swdrv::swByteSet(1630, disorderId);
-        }
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 currentFloorLastDigit = currentFloor % 10;
-        wii::os::OSReport("currentFloorLastDigit: %d\n", currentFloorLastDigit);
-        if (disorderId > 0 || roomsRemaining > 0 || currentFloorLastDigit >= 4)
-            return 2; // Return if there is an active disorder or if the Floor isn't 1-4
-        // Roll through each difficulty to decide whether or not to set a disorder
-        s32 moverRNG2 = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        s32 difficulty2 = swdrv::swByteGet(1620);
-        if (difficulty2 == 0 && moverRNG2 >= 15 && moverRNG2 < 30)
-            goto setDisorder; // EASY DIFFICULTY, 15/1000
-        if (difficulty2 == 1 && moverRNG2 >= 15 && moverRNG2 < 55)
-            goto setDisorder; // MEDIUM DIFFICULTY, 40/1000
-        if (difficulty2 == 2 && moverRNG2 >= 15 && moverRNG2 < 95)
-            goto setDisorder; // HARD DIFFICULTY, 80/1000
-        return 2;
-    setDisorder:
-        s32 disorderRNG = system::rand() % 5 + 1;
-        switch (disorderRNG)
+        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DisorderWork.floorsRem == 0 && currentFloorLastDigit < 4 && Lunatic->Mover.moverRNG >= 15)
         {
-            case DisorderId::DISORDER_RED:
-            switch (difficulty2)
-            {
-                case 0:
-                apathyStoredHp = msl::math::floor(pouch->maxHp * 0.05);
-                break;
-                case 1:
-                apathyStoredHp = msl::math::floor(pouch->maxHp * 0.1);
-                break;
-                case 2:
-                apathyStoredHp = msl::math::floor(pouch->maxHp * 0.15);
-                break;
-            }
-            pouch->hp = pouch->hp - apathyStoredHp;
-            pouch->maxHp = pouch->maxHp - apathyStoredHp;
-            break;
+            s32 difficulty = swdrv::swByteGet(1620);
+            DecideDisorder(Lunatic->Mover.moverRNG, difficulty);
         }
-        swdrv::swByteSet(1631, 5);
-        swdrv::swByteSet(1630, disorderRNG);
+        else if (Lunatic->Luna.DisorderWork.floorsRem > 0)
+            Lunatic->Luna.DisorderWork.floorsRem -= 1;
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(evt_dan_read_mover_rng, 1)
+    EVT_DECLARE_USER_FUNC(evt_dan_try_disorder, 0)
+
+    s32 evt_dan_disorder_set_or_clear(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        (void)evtEntry;
+        if (Lunatic->Luna.DisorderWork.floorsRem == 0)
+        {
+            if (Lunatic->Luna.disorder > DISORDER_NULL)
+            {
+                ClearDisorder((s32)Lunatic->Luna.disorder);
+            }
+            else if (Lunatic->Luna.DisorderWork.preId > 0)
+                SetDisorder(Lunatic->Luna.DisorderWork.preId);
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_dan_disorder_set_or_clear, 0)
 
     // Like so many other functions used in this mod, this was adapted heavily from decomp dan.c
     // Thank you Seeky! This mod and many others would not exist without your work.
-    // You are greatly appreciated by all of us in the SPM Community.
+    // You are greatly appreciated by all of us in the SPM modding and reverse engineering community.
     s32 evt_dan_handle_key_failsafe_new(evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)isFirstCall;
         // Check whether the key exists anywhere
-        if (
-            !dan::danCheckEnemyInMapBbox() && !dan::danCheckKeyInMapBbox() &&
+        if (!dan::danCheckEnemyInMapBbox() && !dan::danCheckKeyInMapBbox() &&
             !mario_pouch::pouchCheckHaveItem(48) &&
             !itemdrv::itemCheckForId(48))
         {
@@ -204,91 +164,9 @@ namespace mod
             return 2;
         }
         else
-        {
             return 0;
-        }
     }
     EVT_DECLARE_USER_FUNC(evt_dan_handle_key_failsafe_new, 0)
-
-    s32 indifferenceItems(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        u8 difficulty2 = swdrv::swByteGet(1620);
-        u8 loops = 1;
-        if (difficulty2 == 2)
-        {
-            loops = 2;
-        }
-        u8 thresh = 0;
-        u8 j = 0;
-        s32 indiffItems[] = {83, 95, 98, 160, 174, 175, 176, 178};
-        const char *indiffINames[] = {"indiff_i1", "indiff_i2"};
-        s32 indiffItemIdx = 0;
-        u8 itemsRmd = 0;
-        u8 itemsAdded = 0;
-        while (loops != j)
-        {
-            switch (difficulty2)
-            {
-            case 0:
-                thresh = 25;
-                break;
-            case 1:
-                thresh = 50;
-                break;
-            case 2:
-                thresh = 50;
-                break;
-            }
-            s32 odds = system::rand() % 100;
-            if (thresh > odds)
-            {
-                indiffItemIdx = system::rand() % 8;
-                mario::MarioWork * mario = mario::marioGetPtr();
-                if ((mario_pouch::pouchCountUseItems() + itemsAdded) < 10)
-                {
-                    itemdrv::ItemEntry * item = itemdrv::itemEntry(indiffINames[itemsAdded], indiffItems[indiffItemIdx], 0, mario->position.x, mario->position.y, mario->position.z, NULL, 0);
-                    item->flags = (item->flags | 0x800);
-                    itemsAdded = itemsAdded + 1;
-                }
-                else
-                {
-                    s32 invIdx = system::rand() % 10;
-                    mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
-                    itemsRmd = itemsRmd + 1;
-                    evtmgr_cmd::evtSetValue(evtEntry, args[itemsRmd], msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
-                    mario_pouch::pouchRemoveItemIdx(pouch->useItem[invIdx], invIdx);
-                    itemdrv::ItemEntry * item = itemdrv::itemEntry(indiffINames[itemsAdded], indiffItems[indiffItemIdx], 0, mario->position.x, mario->position.y, mario->position.z, NULL, 0);
-                    item->flags = (item->flags | 0x800);
-                    itemsAdded = itemsAdded + 1;
-                }
-            }
-            j = j + 1;
-        }
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], itemsRmd);
-        evtmgr_cmd::evtSetValue(evtEntry, args[3], itemsAdded);
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(indifferenceItems, 4)
-
-    s32 IntplUltra(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 x1 = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        s32 y1 = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        s32 x2 = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
-        s32 y2 = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
-        s32 in = evtmgr_cmd::evtGetValue(evtEntry, args[4]);
-        // Prepare the linear function's slope and y-intercept.
-        f32 m = (((f32)y1 - (f32)y2) / ((f32)x1 - (f32)x2));
-        f32 b = ((f32)y1 / m);
-        b = (((f32)x1 - b) * (m * -1));
-        // Feed the input through this linear function as x.
-        s32 out = msl::math::floor((m * (f32)in) + b);
-        evtmgr_cmd::evtSetValue(evtEntry, args[5], out);
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(IntplUltra, 6)
 
     s32 create_holographic_enemy(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -326,22 +204,9 @@ namespace mod
         s32 disorderId = swdrv::swByteGet(1630);
         switch (disorderId)
         {
-            case DisorderId::DISORDER_RED:
-            switch (difficulty)
-            {
-                case 0:
-                npc->hp = (u32)msl::math::floor(npc->hp * 0.85);
-                npc->maxHp = (u32)msl::math::floor(npc->maxHp * 0.85);
-                break;
-                case 1:
-                npc->hp = (u32)msl::math::floor(npc->hp * 0.75);
-                npc->maxHp = (u32)msl::math::floor(npc->maxHp * 0.75);
-                break;
-                case 2:
-                npc->hp = (u32)msl::math::floor(npc->hp * 0.67);
-                npc->maxHp = (u32)msl::math::floor(npc->maxHp * 0.67);
-                break;
-            }
+        case DisorderId::DISORDER_RED: // APATHY
+            npc->maxHp = (u32)msl::math::floor(npc->maxHp * Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyMaxHPMult);
+            npc->hp = npc->maxHp;
             break;
         }
         sup = system::rand() % 100;
@@ -388,137 +253,6 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(create_holographic_enemy, 2)
 
-    EVT_BEGIN(disorder_pulse)
-     // Thank you Kora for teaching me how to do linear functions for secondary interpolations, I haven't done these since 10th grade lol
-     // This aided immensely in creating my own function to do all the work for me so I never have to remember rise over run again! I hope.
-    IF_EQUAL(GSW(1630), 0)
-    RETURN()
-    END_IF()
-    SET(LW(2), 255)
-    SET(LW(3), 255)
-    SET(LW(4), 1700)
-    SET(LW(5), 255)
-    DO(0)
-    WAIT_MSEC(2000)
-    SWITCH(GSW(1630))
-        CASE_EQUAL(1) // APATHY/RED; 255/200/200 <-> 255/225/225
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, LW(2), 200, LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, LW(0), LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-            WAIT_MSEC(500)
-            SET(LW(2), 225)
-            SET(LW(4), 1000)
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 200, LW(2), LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, LW(0), LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-        CASE_EQUAL(2) // DREAD/ORANGE; 255/210/150 <-> 255/235/180
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, LW(2), 210, LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(IntplUltra, 210, 150, LW(2), LW(5), LW(0), LW(3))
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, LW(0), LW(3), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-            WAIT_MSEC(500)
-            SET(LW(2), 235)
-            SET(LW(5), 180)
-            SET(LW(4), 1000)
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 210, LW(2), LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(IntplUltra, 210, 150, LW(2), LW(5), LW(0), LW(3))
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, LW(0), LW(3), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-        CASE_EQUAL(3) // PREJUDICE/YELLOW; 255/255/115 <-> 255/255/200
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, LW(2), 115, LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, 255, LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-            WAIT_MSEC(500)
-            SET(LW(2), 200)
-            SET(LW(4), 1000)
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 115, LW(2), LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, 255, 255, LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-        CASE_EQUAL(4) // INDIFFERENCE/GREEN; 215/255/215 <-> 235/255/235
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, LW(2), 215, LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, LW(0), 255, LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-            WAIT_MSEC(500)
-            SET(LW(2), 235)
-            SET(LW(4), 1000)
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 215, LW(2), LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, LW(0), 255, LW(0), 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-        CASE_EQUAL(5) // RECALCITRANCE/CYAN; 225/255/255 <-> 210/255/210
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, LW(2), 210, LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, LW(0), 255, 255, 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-            WAIT_MSEC(500)
-            SET(LW(2), 225)
-            SET(LW(4), 1000)
-            USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 210, LW(2), LW(4))
-            DO(0)
-                USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
-                USER_FUNC(evt_map::evt_map_set_blend, 0, LW(0), 255, 255, 255)
-                WAIT_FRM(1)
-                IF_EQUAL(LW(1), 0)
-                    DO_BREAK()
-                END_IF()
-            WHILE()
-    END_SWITCH()
-    WHILE()
-    RETURN()
-    EVT_END()
-
     EVT_BEGIN(homogenize_lock_interact)
     USER_FUNC(evt_mario::evt_mario_key_off, 0)
     IF_EQUAL(GSWF(1620), 1)
@@ -534,9 +268,9 @@ namespace mod
     RETURN()
     EVT_END()
 
-    EVT_BEGIN(handle_indifference)
+    EVT_BEGIN(dan_disorder_indifference)
     USER_FUNC(evt_mario::evt_mario_key_off, 0)
-    USER_FUNC(indifferenceItems, LW(0), LW(1), LW(2), LW(3))
+    USER_FUNC(IndifferenceAction, LW(0), LW(1), LW(2), LW(3))
     IF_EQUAL(LW(0), 1)
     USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(disorderIndifferenceItemNotif), 0, 0, LW(1))
     ELSE()
@@ -556,8 +290,11 @@ namespace mod
 
     EVT_BEGIN(dan_enemy_room_init_evt_new)
     SET(LW(0), GSW(1))
+    IF_EQUAL(LW(0), 0)
+    USER_FUNC(evt_dan_init_lunatic)
+    END_IF()
+    USER_FUNC(set_mover_rng)
     USER_FUNC(get_mover_rng, LW(1)) // Movers
-    USER_FUNC(evt_dan_read_mover_rng, LW(1))
     IF_SMALL_EQUAL(LW(1), 14)
     USER_FUNC(evt_npc::evt_npc_entry, PTR("mover"), PTR("n_stg2_syuuzin_b"), 0)
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("mover"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(_moverAnims))
@@ -566,9 +303,10 @@ namespace mod
     USER_FUNC(evt_npc::evt_npc_set_position, PTR("mover"), -40, 0, 0)
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("mover"), 9, PTR(fwd_mover_speech))
     ELSE()
-    IF_LARGE(GSW(1630), 0)
-    RUN_EVT(disorder_pulse)
-    END_IF()
+    USER_FUNC(evt_dan_try_disorder)
+    INLINE_EVT()
+    USER_FUNC(DisorderDraw)
+    END_INLINE()
     END_IF()
     USER_FUNC(dan::evt_dan_read_data)
     USER_FUNC(dan::evt_dan_handle_map_parts, LW(0))
@@ -625,6 +363,7 @@ namespace mod
     USER_FUNC(dan::evt_dan_start_countdown)
     INLINE_EVT()
     USER_FUNC(evt_door::evt_door_wait_flag, 256)
+    USER_FUNC(evt_dan_disorder_set_or_clear)
     IF_EQUAL(GSW(1620), 2)
     IF_EQUAL(GSWF(1603), 0)
     SET(GSWF(1603), 1)
@@ -633,8 +372,9 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_key_on)
     END_IF()
     END_IF()
-    IF_EQUAL(GSW(1630), 4) // GREEN/INDIFFERENCE
-    RUN_CHILD_EVT(handle_indifference)
+    USER_FUNC(DisorderGetId, LW(2))
+    IF_EQUAL(LW(2), 4)
+    RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 0, 1000)
@@ -656,10 +396,10 @@ namespace mod
     RETURN()
     EVT_END()
 
-  void rewrite_main()
-  {
+    void rewrite_main()
+    {
         // Enemy room init evt complete rewrite
         evtpatch::hookEvtReplace(dan::dan_enemy_room_init_evt, 1, dan_enemy_room_init_evt_new);
-  }
+    }
 
 }

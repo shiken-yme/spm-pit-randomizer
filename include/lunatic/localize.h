@@ -11,6 +11,8 @@
 
 namespace mod
 {
+    using namespace spm;
+
     enum Tribe2Tattle_Types
     {
         /* 0x0 */ TATTLE,
@@ -18,8 +20,13 @@ namespace mod
         /* 0x2 */ CARD_DESC
     };
 
-
-    extern s32 *shadooHealth;
+    struct NPCMessagePatchData
+    {
+        npcdrv::NPCTribeId tribeId;
+        const char *nameMsg;
+        const char *cardMsg;
+        const char *tattleMsg;
+    };
 
     // Custom Selects, Difficulty Options, and RFC
     const char difficultyOptions[] =
@@ -117,21 +124,21 @@ namespace mod
         "Toggles camera vibrations when\n"
         "certain enemies explode.";
 
-    const char selectMusicBox[14] =
+    const char selectMusicBox[] =
         "Select a Tune";
 
-    const char selectMusicBlueText[6] =
+    const char selectMusicBlueText[] =
         "Music";
 
-    const char selectJimboBox[93] =
+    const char selectJimboBox[] =
         "Select your Settings\n"
         "<icon PAD_1 0.67 0 0 0> is Enabled\n"
         "<icon PAD_2 0.67 0 0 0> is Disabled\n";
 
-    const char selectJimboBlueText[8] =
+    const char selectJimboBlueText[] =
         "Options";
 
-    const char chestText[58] =
+    const char chestText[] =
         "<system>"
         "Open the chest?\n"
         "(%d percent chance to explode)"
@@ -845,9 +852,8 @@ namespace mod
 
     const char bumpUnuseMsg[] =
         "<system>"
-        "Would you like to go back to\n"
-        "the way things were, back when\n"
-        "when we first met each other?\n"
+        "Would you like to stop\n"
+        "being blue?\n"
         "<o>";
 
     const char bumpYoureBlueNow[] =
@@ -858,6 +864,147 @@ namespace mod
         "<system>"
         "* You're no longer blue.\n"
         "<k>";
+
+    // Interface
+
+    const char activeConditionsNone[] =
+        "<system>\n"
+        "There are no active\n"
+        "conditions to view right now!\n"
+        "<k>";
+
+    const char apathyName[] =
+        "Apathy";
+
+    const char dreadName[] =
+        "Dread";
+
+    const char prejudiceName[] =
+        "Prejudice";
+
+    const char indifferenceName[] =
+        "Indifference";
+
+    const char recalcitranceName[] =
+        "Recalcitrance";
+
+    const char depravityName[] =
+        "Depravity";
+
+    const char indolenceName[] =
+        "Indolence";
+
+    const char melancholyName[] =
+        "Melancholy";
+
+    const char ruinName[] =
+        "Ruin";
+
+    const char apathyDesc[] =
+        "Disorder: Apathy\n"
+        "\"This is taking way too long...\"\n"
+        "<k>\n<p>\n"
+        "Decreases max HP by %d%%.\n"
+        "Increases enemy HP by %d%%.\n"
+        "<k>\n<p>\n"
+        "Increases damage taken by %d.\n"
+        "Decreases damage dealt by %d.\n"
+        "<k>\n<p>\n"
+        "Halves CRIT Rate.\n"
+        "Halves CRIT Mult.\n"
+        "<k>\n<p>\n"
+        "All stats are restored when\n"
+        "the Disorder ends.";
+
+    const char dreadDesc[] =
+        "Disorder: Dread\n"
+        "\"I'm never getting out of here...\"\n"
+        "<k>\n<p>\n"
+        "Enemies drop no coins or items.\n"
+        "XP gain from enemies is disabled.\n"
+        "<k>\n<p>\n"
+        "%d%% chance for enemies to\n"
+        "heal instead of taking damage.\n"
+        "<k>\n<p>\n"
+        "Enemy healing is silent and\n"
+        "based on your Attack.";
+
+    const char prejudiceDesc[] =
+        "Disorder: Prejudice\n"
+        "\"Wretched, audacious beasts...\"\n"
+        "<k>\n<p>\n"
+        "Instantly lose about %d%% of all\n"
+        "coins when entering a room.\n"
+        "<k>\n<p>\n"
+        "%d%% chance to lose a coin when\n"
+        "the timer counts down.\n"
+        "<k>\n<p>\n"
+        "If coins drop below %d, halves\n"
+        "damage dealt to enemies.";
+
+    const char indifferenceDesc[] =
+        "Disorder: Indifference\n"
+        "\"What a waste of energy...\"\n"
+        "<k>\n<p>\n"
+        "30%% chance to add a random\n"
+        "trash item to the inventory.\n"
+        "<k>\n<p>\n"
+        "If there is no space, a random\n"
+        "item will be replaced.\n"
+        "<k>\n<p>\n"
+        "This can repeat up to %d\n"
+        "times per room entry.\n"
+        "<k>\n<p>\n"
+        "Every room will have a\n"
+        "complex layout.";
+
+    const char recalcitranceDesc[] =
+        "Disorder: Recalcitrance\n"
+        "\"I will make them pay tenfold...\"\n"
+        "<k>\n<p>\n"
+        "XP gain from all sources is\n"
+        "modified by -%d%%.\n"
+        "<k>\n<p>\n"
+        "%d%% chance for enemies to\n"
+        "return some damage from jumps.\n"
+        "<k>\n<p>\n"
+        "Up to %d damage can be taken\n"
+        "in this manner.";
+
+    const char depravityDesc[] =
+        "Disorder: Depravity\n"
+        "\"Torture of the highest degree...\"\n"
+        "<k>\n<p>\n"
+        "A very difficult enemy will spawn\n"
+        "plentifully in each room.\n"
+        "<k>\n<p>\n"
+        "All enemies are guaranteed to spawn\n"
+        "at more-or-less their maximum rates.\n"
+        "<k>\n<p>\n"
+        "All enemies will be very difficult\n"
+        "after Floor %d.";
+
+    const char indolenceDesc[] =
+        "Disorder: Indolence\n"
+        "\"Guess I'll just stay put...\"\n"
+        "<k>\n<p>\n"
+        "When taking damage, %d%% chance\n"
+        "for one of the following effects:\n"
+        "<k>\n<p>\n"
+        "Get frozen; take %d%% more damage;\n"
+        "become Slow for %d seconds.";
+
+    const char melancholyDesc[] =
+        "Disorder: Melancholy\n"
+        "\"I'm so over this...\"\n"
+        "<k>\n<p>\n"
+        "Placeholder";
+
+    const char ruinDesc[] =
+        "Disorder: Ruin\n"
+        "\"Please... turn the lights back on...\"\n"
+        "<k>\n<p>\n"
+        "Placeholder";
 
     // Jimbo
     const char jimboIntro[] =
@@ -952,12 +1099,8 @@ namespace mod
     const char boodinItemSelected[] =
         "The %s card?\n"
         "<wait 200>That basically goes for\n"
-        "%d coins,<wait 200> buuut...\n"
-        "<k>\n<p>\n"
-        "I'll cut you a deal.\n"
-        "<wait 300><dynamic 3>%d coins.</dynamic><wait 300> That's half price!\n"
-        "<wait 200>How 'bout it?\n"
-        "<o>";
+        "%d coins.<wait 200> How 'bout it?\n"
+        "<wait 200><o>";
 
     const char boodinSelect[] =
         "<select 0 -1 160 40>\n"
@@ -1043,8 +1186,11 @@ namespace mod
         "fake Mario lives in the Pit\n"
         "of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "<wait 150>He has high attack power\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
+        "He has high attack power\n"
         "and jumps and hammers well...\n"
         "<k>\n<p>\n"
         "If you don't plan your stomp,\n"
@@ -1061,7 +1207,7 @@ namespace mod
 
     const char desc_phantom_mario[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's Mario's dark-power\n"
         "doppelganger!\n"
@@ -1074,8 +1220,11 @@ namespace mod
         "Peach that dwells in the\n"
         "Pit of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "<wait 150>This Peach uses her parasol\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
+        "This Peach uses her parasol\n"
         "just like the original.\n"
         "<k>\n<p>\n"
         "And if she uses it in midair,\n"
@@ -1092,7 +1241,7 @@ namespace mod
 
     const char desc_phantom_peach[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of Peach!\n"
         "\n"
@@ -1105,11 +1254,15 @@ namespace mod
         "fake Bowser rules the Pit\n"
         "of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "Defense is 4. <wait 150>He has spikes,\n"
-        "so you can't stomp on him...\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
         "<k>\n<p>\n"
-        "He has high Defense, so you\n"
+        "I know his Defense is 4...<wait 150> \n"
+        "He has spikes, so you can't\n"
+        "stomp on him...\n"
+        "<k>\n<p>\n"
+        "Because of his high Defense, you\n"
         "might need to use Boomer and\n"
         "Cudge...\n"
         "<k>\n<p>\n"
@@ -1123,7 +1276,7 @@ namespace mod
 
     const char desc_phantom_bowser[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of\n"
         "Bowser!\n"
@@ -1135,7 +1288,10 @@ namespace mod
         "That's Dark Luigi. <wait 150>He lurks in\n"
         "the Pit of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
         "<wait 150>He has the same incredible\n"
         "jumping ability as Luigi.\n"
         "<k>\n<p>\n"
@@ -1154,7 +1310,7 @@ namespace mod
 
     const char desc_phantom_luigi[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of Luigi!\n"
         "\n"
@@ -1914,10 +2070,11 @@ namespace mod
         "here, anyway?\n"
         "<k>\n<p>\n"
         "He's definitely more powerful\n"
-        "than he looks, though...<wait 250> It won't\n"
-        "hurt to give him a chance...\n"
+        "than he looks... <wait 250>You should ask\n"
+        "what he can do for you...\n"
         "<k>";
 
+    void npcMessagePatches();
     const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type);
 
 }

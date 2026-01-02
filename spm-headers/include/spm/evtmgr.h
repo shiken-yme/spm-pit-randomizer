@@ -69,10 +69,11 @@ typedef struct _EvtEntry
                                              // this one is
 /* 0x074 */ union
             {
-                s32 tempS[3];
-                u32 tempU[3];
+                s32 tempS[4];
+                u32 tempU[4];
+                f32 tempF[4];
             }; // Temp values with meanings varying by instruction / user func
-/* 0x080 */ u8 unknown_0x80[0x94 - 0x80];
+/* 0x084 */ u8 unknown_0x84[0x94 - 0x84];
 /* 0x094 */ UserFunc * userFunc; // Function set & called by the user_func opcode
 /* 0x098 */ s32 lw[16]; // Local Work variables
 /* 0x0D8 */ u32 lf[3]; // Local Flag variables

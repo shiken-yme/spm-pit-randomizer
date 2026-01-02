@@ -2,13 +2,20 @@
 #include <common.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
-#include <sndpatch.h>
 #include <evt_cmd.h>
 #include "patch.h"
 #include <util.h>
+#include <globalop.h>
+#include <msgpatch.h>
+#include <effpatch.h>
+#include <customwin.h>
+#include <ymetools.h>
 
 #include "lunatic/localize.h"
 #include <gen.h>
+#include <rewrite.h>
+#include <lunadrv.h>
+#include <interface.h>
 
 #include <cutscene_helpers.h>
 #include <spm/rel/aa1_01.h>
@@ -25,6 +32,7 @@
 #include <spm/eff/eff_spm_confetti.h>
 #include <spm/eff/eff_zunbaba.h>
 #include <spm/eff/eff_spm_recovery.h>
+#include <spm/eff/eff_damage_star.h>
 #include <spm/eff/eff_spm_spindash.h>
 #include <spm/eff/eff_spm_hit.h>
 #include <spm/evt_cam.h>
@@ -102,9 +110,9 @@
 namespace mod
 {
     using namespace spm;
+    using namespace customwin;
 
-    bool youSuck = false;
-    s32 * rfcItemsRef = nullptr;
+    LunaticPitWork *Lunatic = nullptr;
 
     // Patches Dimentio to have a dynamic movement zone rather than being hardcoded for one room.
     s32 dimen_determine_move_pos_new(evtmgr::EvtEntry *entry, bool isFirstCall)
@@ -161,88 +169,24 @@ namespace mod
         return 2;
     }
 
-    static double boobies = 0;
-
-    const char *destMap;
-    const char *loadMap;
-
-    const char *models[] = {"e_heiho", "e_buross_h", "e_buross_b", "e_burosu_i",
-                            "e_cheririn_a", "e_chorobon_g", "e_gabow", "e_jugemu_d", "e_jyama_b", "e_card_jyama_b", "e_k_kuribo", "e_k_shoote4",
-                            "e_kamek_g", "e_kamek_r", "e_kamek_w", "e_kames", "e_karon_d", "e_kmond", "e_kuribo_h",
-                            "e_mer", "e_nin_d", "e_nokoteki_d", "e_ntl_p", "e_sinemoh", "e_tesita_bt", "e_tesita_sb",
-                            "e_togenokd", "e_togezb", "e_touginoko", "e_wanwan_g", "e_teresa_b", "terminator"};
-
-    s32 patchEnemyList[] = {2, 5, 6, 8, 10, 16, 19, 24, 29, 38, 43, 44, 49, 50, 55, 56, 61, 62, 66, 67, 68, 75, 76, 86, 95, 98, 101, 111,
-                            112, 124, 167, 171, 220, 221, 222, 225, 228, 330, 331, 332, 333, 446, 465, 466, 470, 471, 473, 474, 475, 476, 477, 478, 479, 480,
-                            481, 495, 496, 504, 505, 506, 529, 530, 531, 532, 534, -1};
-
-    s32 boodinShopItemPool[] = {
-        // Custom Pit Rando enemies
-        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
-        344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
-        // Vanilla enemies
-        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
-        328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
-        372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
-        401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
-        444, 446, 447, 448, 528, 529, 530, 531};
-
-    struct
-    {
-        s32 cardCount = 13;
-        s32 cardArray[15] = {0x58, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    } boodinBalls;
-
-    s32 finalCardArray[15] = {0x58, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    s32 finalCardSelectedIdx = 0;
+    wii::gx::GXColor MusicHeaderCol = {213, 168, 255, 255};
 
     s32 whackaItems[] = {106, -1};
 
-    s32 musicItems[] = {0x41, 0x42, 0x43, 0x45, 0x44, -1};
-
-    s32 featuresItems[] = {0x41, 0x42, 0x43, -1};
-
-    s32 patchesItems[] = {0x41, 0x42, -1};
-
-    s32 accessibilityItems[] = {0x41, -1};
-
-    s32 customSelectType = 0;
-
     enum CustomSelects
     {
-        /* 0x0 */ SELECT_DEFAULT,
+        /* 0x0 */ SELECT_NULL,
         /* 0x1 */ SELECT_MUSIC,
         /* 0x2 */ SELECT_FEATURES,
         /* 0x3 */ SELECT_PATCHES,
-        /* 0x4 */ SELECT_ACCESSIBILITY
+        /* 0x4 */ SELECT_ACCESSIBILITY,
+        /* 0x5 */ SELECT_BOODIN
     };
 
-    s32 nextFloor = 0;
-    s32 nextEnemyCount = 0;
-    s32 nextName1 = 0;
-    s32 nextNum1 = 0;
-    s32 nextPos1 = 0;
-    s32 nextName2 = 0;
-    s32 nextNum2 = 0;
-    s32 nextPos2 = 0;
-    s32 nextName3 = 0;
-    s32 nextNum3 = 0;
-    s32 nextPos3 = 0;
-
     s32 marioMaxHp = 0;
-    s32 marioAtk = 0;
-    s32 bowserAtk = 0;
-
-    s32 moverRNG = 0;
     s32 houraiStoredAtk = 0;
     bool hpMaxed = false;
-    bool roomOnHud = false;
     bool houraiActivation = 0;
-    s32 blessingNum = 0;
-    s32 curseNum = 0;
-    s32 disorderNum = 0;
-    s32 disorderRooms = 0;
-    s32 rand100Num = 0;
     s32 blessStorage = 0;
     s32 curseStorage = 0;
     s32 moverDown2Price = 0;
@@ -406,6 +350,8 @@ namespace mod
     npcdrv::NPCDefense defterm = createDef(41, 0x64, 0x0);
     static npcdrv::NPCDefense defaultDefenses[] = {def0, def48, defterm};
 
+    bool critActuate;
+
     // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't override all defenses with damage reduction.
     // There are certainly a few in this array that can use DEFs, DR is just easier for me right now.
     s32 (*marioCalcDamageToEnemy)(s32 damageType, s32 tribeId);
@@ -413,13 +359,15 @@ namespace mod
     s32 (*npcDamageMario)(npcdrv::NPCEntry *npcEntry, npcdrv::NPCPart *part, wii::mtx::Vec3 *position, u32 status, s32 damage, u32 flags);
     s32 (*npcHandleHitXp)(mario::MarioWork *marioWork, npcdrv::NPCEntry *npcEntry, s32 killXp, s32 unk_variant);
     s32 (*npcTakeDamage)(npcdrv::NPCEntry *npc, npcdrv::NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
+    effdrv::EffEntry *(*effDamageStarEntry)(f32 x, f32 y, f32 z, s32 variant, s32 damage);
+    void (*camShakeInit)(f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration);
     void patchMarioDamage()
     {
         marioCalcDamageToEnemy = patch::hookFunction(mario::marioCalcDamageToEnemy,
                                                      [](s32 damageType, s32 tribeId)
                                                      {
                                                          // handle enemy damage reduction
-                                                         s32 dmg = marioCalcDamageToEnemy(damageType, tribeId); // mod::marioCalcDamageToEnemyNew when combined with the spindash library
+                                                         s32 dmg = marioCalcDamageToEnemy(damageType, tribeId);
                                                          s32 paramitaTimer = swdrv::swByteGet(1610);
                                                          s32 floor = swdrv::swByteGet(1);
                                                          if (paramitaTimer > 20)
@@ -437,23 +385,9 @@ namespace mod
                                                                  dmg = (dmg * 4);
                                                              }
                                                          }
-                                                         s32 disorderId = swdrv::swByteGet(1630);
-                                                         if (disorderId == DisorderId::DISORDER_RED)
-                                                         {
-                                                             s32 difficulty = swdrv::swByteGet(1620);
-                                                             switch (difficulty)
-                                                             {
-                                                             case 0:
-                                                                 dmg = dmg + 1;
-                                                                 break;
-                                                             case 1:
-                                                                 dmg = dmg + 2;
-                                                                 break;
-                                                             case 2:
-                                                                 dmg = dmg + 3;
-                                                                 break;
-                                                             }
-                                                         }
+                                                         s32 disorderId = Lunatic->Luna.disorder;
+                                                         if (disorderId == DISORDER_RED)
+                                                             dmg -= Lunatic->Luna.DisorderWork.UserWork.Apathy->marioDamageDecrease;
                                                          // Kilo Muth, DEF 3 -> 1
                                                          // Ice Bro, DEF 3 --> 1
                                                          // Red Spike Top, DEF 6 --> 4
@@ -495,6 +429,11 @@ namespace mod
                                                          {
                                                              dmg += 4;
                                                          }
+                                                         if (disorderId == DISORDER_YELLOW)
+                                                         {
+                                                             if (mario_pouch::pouchGetPtr()->coins < Lunatic->Luna.DisorderWork.UserWork.Prejudice->coinThreshold)
+                                                                 dmg = (s32)(dmg / 2);
+                                                         }
                                                          if (dmg < 0)
                                                          {
                                                              dmg = 0;
@@ -505,6 +444,7 @@ namespace mod
         marioTakeDamage = patch::hookFunction(mario::marioTakeDamage,
                                               [](wii::mtx::Vec3 *position, u32 flags, s32 damage)
                                               {
+                                                  s32 odds;
                                                   // Vulnerability Hex
                                                   s32 curse = swdrv::swByteGet(1601);
                                                   if (curse == CurseId::MERLUNA_HEX)
@@ -530,44 +470,26 @@ namespace mod
                                                   // Migraine
                                                   if (curse == CurseId::MERLUNA_MIGRAINE)
                                                   {
-                                                      s32 procMigraine = system::rand() % 100;
-                                                      if (procMigraine < 40) // 40%
+                                                      odds = system::rand() % 100;
+                                                      if (odds < 40) // 40%
                                                       {
                                                           mario_status::marioStatusApplyStatuses(STATUS_FLIPPED_CONTROLS, 2);
                                                           swdrv::swSet(1670);
                                                       }
-                                                      else if (procMigraine < 60) // 20%
+                                                      else if (odds < 60) // 20%
                                                       {
                                                           mario_status::marioStatusApplyStatuses(STATUS_NO_SKILLS, 2);
                                                           swdrv::swSet(1670);
                                                       }
-                                                      else if (procMigraine < 70) // 10%
+                                                      else if (odds < 70) // 10%
                                                       {
                                                           mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
                                                           swdrv::swSet(1670);
                                                       }
-                                                      else if (procMigraine < 75) // 5%, otherwise no status.
+                                                      else if (odds < 75) // 5%, otherwise no status.
                                                       {
                                                           mario_status::marioStatusApplyStatuses(STATUS_NO_JUMP, 2);
                                                           swdrv::swSet(1670);
-                                                      }
-                                                  }
-                                                  // Disorder: Red/Apathy
-                                                  s32 disorderId = swdrv::swByteGet(1630);
-                                                  if (disorderId == DisorderId::DISORDER_RED)
-                                                  {
-                                                      s32 difficulty = swdrv::swByteGet(1620);
-                                                      switch (difficulty)
-                                                      {
-                                                      case 0:
-                                                          damage = damage + 1;
-                                                          break;
-                                                      case 1:
-                                                          damage = damage + 1;
-                                                          break;
-                                                      case 2:
-                                                          damage = damage + 2;
-                                                          break;
                                                       }
                                                   }
                                                   marioTakeDamage(position, flags, damage);
@@ -593,9 +515,36 @@ namespace mod
                                                      }
                                                      return npcDamageMario(npcEntry, part, position, status, damage, flags);
                                                  }
+                                                 // Disorder: Red/Apathy
+                                                 s32 disorderId = Lunatic->Luna.disorder;
+                                                 if (disorderId == DISORDER_RED)
+                                                     damage += Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyDamageIncrease;
+                                                 // Indolence
+                                                 if (disorderId == DISORDER_PURPLE)
+                                                  {
+                                                    odds = system::rand() % 100;
+                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance)
+                                                    {
+                                                        odds = system::rand() % 100;
+                                                        if (odds < 34) // Freeze
+                                                        {
+                                                            status |= 0x2000;
+                                                        }
+                                                        else if (odds < 66) // Damage bonus
+                                                        {
+                                                            f32 fDmg = (f32)damage * ((f32)Lunatic->Luna.DisorderWork.UserWork.Indolence->dispDmgPctBonus / 100) + 1.0;
+                                                            damage = (s32)fDmg;
+                                                        }
+                                                        else
+                                                        {
+                                                            mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
+                                                            swdrv::swSet(1670);
+                                                        }
+                                                    }
+                                                  }
                                                  if (npcEntry->tribeId == 62) // Ice Bro projectiles will freeze you
                                                  {
-                                                     status = status + 0x2000;
+                                                     status |= 0x2000;
                                                  }
                                                  if (npcEntry->tribeId <= 333 && npcEntry->tribeId >= 330) // Patch Shadoo damage
                                                  {
@@ -627,60 +576,17 @@ namespace mod
         npcHandleHitXp = patch::hookFunction(temp_unk::npcHandleHitXp,
                                              [](mario::MarioWork *marioWork, npcdrv::NPCEntry *npcEntry, s32 killXp, s32 unk_variant)
                                              {
-                                                 s32 disorderId = swdrv::swByteGet(1630);
-                                                 if (disorderId == DisorderId::DISORDER_ORANGE) // If Dread is active, multiply XP
+                                                 s32 disorderId = Lunatic->Luna.disorder;
+                                                 if (disorderId == DisorderId::DISORDER_ORANGE) // If Dread is active, disable XP
+                                                     killXp = 0;
+                                                 if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, *invert* XP
                                                  {
-                                                    s32 difficulty = swdrv::swByteGet(1620);
-                                                    switch (difficulty)
-                                                    {
-                                                        case 0:
-                                                        killXp = (msl::math::floor((f32)killXp * 1.5));
-                                                        break;
-                                                        case 1:
-                                                        killXp = (msl::math::floor((f32)killXp * 1.25));
-                                                        break;
-                                                        case 2:
-                                                        killXp = (msl::math::floor((f32)killXp * 1.1));
-                                                        break;
-                                                    }
-                                                 }
-                                                 if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, chance to multiply XP negatively and heal
-                                                 {
-                                                    s32 difficulty = swdrv::swByteGet(1620);
-                                                    s32 odds = system::rand() % 100;
-                                                    u8 thresh = 0;
-                                                    f32 xpMod = 0;
-                                                    s32 hpMod = 0;
-                                                    switch (difficulty)
-                                                    {
-                                                        case 0:
-                                                        thresh = 20;
-                                                        xpMod = -1.5;
-                                                        hpMod = 2;
-                                                        break;
-                                                        case 1:
-                                                        thresh = 35;
-                                                        xpMod = -2;
-                                                        hpMod = 2;
-                                                        break;
-                                                        case 2:
-                                                        thresh = 50;
-                                                        xpMod = -3;
-                                                        hpMod = 1;
-                                                        break;
-                                                    }
-                                                    if (thresh > odds)
-                                                    {
-                                                        killXp = (msl::math::floor((f32)killXp * xpMod));
-                                                        mario::MarioWork *mario = mario::marioGetPtr();
-                                                        f32 height = mario_hit::marioGetHeight();
-                                                        eff_spm_recovery::effSpmRecoveryEntry(mario->position.x, ((mario->position.y) + height), mario->position.z, hpMod);
-                                                        mario_pouch::pouchAddHp(hpMod);
-                                                    }
+                                                     f32 xp = (f32)Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispXpPct / 100.0f;
+                                                     killXp *= (s32)-xp;
                                                  }
                                                  if (npcEntry->unkShellSfx == "holo") // Holographic enemies in the Pit will give 2x score
                                                  {
-                                                     killXp = killXp * 2;
+                                                     killXp *= 2;
                                                  }
                                                  return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
                                              });
@@ -689,7 +595,7 @@ namespace mod
                                             [](npcdrv::NPCEntry *npc, npcdrv::NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6)
                                             {
                                                 s32 difficulty = swdrv::swByteGet(1620);
-                                                if (defenseType == 5 && difficulty == 2)
+                                                if (defenseType == 5 && difficulty >= 2)
                                                 {
                                                     if (npcPart->owner->unkShellSfx != 0 && msl::string::strcmp(npcPart->owner->unkShellSfx, "holo") != 0)
                                                     {
@@ -755,8 +661,76 @@ namespace mod
                                                         eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
                                                     }
                                                 }
-                                                return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                                                s32 odds;
+                                                s32 disorderId = Lunatic->Luna.disorder;
+                                                if (disorderId = DISORDER_CYAN) // Damage Mario if damage type is stomp
+                                                {
+                                                    odds = system::irand(100);
+                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage)
+                                                    {
+                                                        s32 marioDmg = (s32)(msl::math::sqrt((f32)power)) + 1;
+                                                        if (marioDmg > Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg)
+                                                            marioDmg = Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg;
+                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 4); // Find damage flags for spiky enemies
+                                                    }
+                                                   
+                                                }
+                                                if (disorderId == DISORDER_ORANGE && power > 0)
+                                                {
+                                                    odds = system::irand(100);
+                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Dread->dispBlockChance)
+                                                    {
+                                                        npcPart->owner->hp += (s32)(msl::math::sqrt(power));
+                                                        if (npcPart->owner->hp > npcPart->owner->maxHp)
+                                                            npcPart->owner->hp = npcPart->owner->maxHp;
+                                                        // effdrv::EffEntry *recovery = eff_spm_recovery::effSpmRecoveryEntry(npcPart->owner->position.x, npcPart->owner->position.y, npcPart->owner->position.z, (power / 2));
+                                                        // eff_spm_recovery::func_80091794(recovery, -1, npcPart->owner->name);
+                                                        power = 0;
+                                                    }
+                                                }
+                                                else // Crits should be mutually exclusive from forced dodges
+                                                {
+                                                    // Calculate critical strikes
+                                                    f32 critOdds = system::rand() % 100;
+                                                    if (Lunatic->Crit.Rate > critOdds)
+                                                    {
+                                                        f32 fDmg = (f32)power;
+                                                        fDmg *= (Lunatic->Crit.Mult / 100 + 1);
+                                                        power = (s32)msl::math::floor(fDmg) + 1;
+                                                        critActuate = true;
+                                                    }
+                                                }
+                                                // Check if crit should actually occur
+                                                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                                                u32 hp = npcPart->owner->hp;
+                                                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33)
+                                                    critActuate = false;
+                                                // wii::os::OSReport("%d damage dealt of type %d.\n", power, ret);
+                                                return ret;
                                             });
+
+        effDamageStarEntry = patch::hookFunction(eff_damage_star::effDamageStarEntry,
+                                                 [](f32 x, f32 y, f32 z, s32 variant, s32 damage)
+                                                 {
+                                                     effdrv::EffEntry *eff = effDamageStarEntry(x, y, z, variant, damage);
+                                                     if (critActuate)
+                                                     {
+                                                         wii::gx::GXColor CritPurple = {150, 70, 200, 255};
+                                                         wii::gx::GXColor CritPurple2 = {70, 35, 150, 255};
+                                                         effpatch::effpatchColorMaskEntry(eff, CritPurple, CritPurple2, nullptr);
+                                                         spmario_snd::spsndSFXOn_3D("SFX_P_ACROBAT_RENZOKU3", &mario::marioGetPtr()->position);
+                                                         critActuate = false;
+                                                     }
+                                                     return eff;
+                                                 });
+
+        camShakeInit = patch::hookFunction(camdrv::camShakeInit,
+                                           [](f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration)
+                                           {
+                                               if (Lunatic->Luna.DisorderWork.tremorState > 0)
+                                                   return;
+                                               camShakeInit(x, y, z, camId, duration);
+                                           });
     }
 
     // Called to remove default segments and their shadows from the map (Top 7 are the hitobjs, followed by mapobjs for visible segment and dropshadow)
@@ -812,49 +786,15 @@ namespace mod
         return 2;
     }
 
-    s32 generateMoverRng()
-    {
-        moverRNG = system::rand() % 1000;
-        s32 floor = swdrv::swByteGet(1);
-        if (floor >= 43 && floor <= 148)
-        {
-            moverRNG = 999;
-        }
-        else if (floor > 194)
-        {
-            moverRNG = 999;
-        }
-        s32 blockMovers = swdrv::swGet(1610);
-        if (blockMovers == 1)
-        {
-            moverRNG = 999;
-        }
-        s32 hasDisorder = swdrv::swByteGet(1630);
-        if (hasDisorder > 0)
-        {
-            moverRNG = 999;
-        }
-        // moverRNG = 20; // DEBUG
-        // THRESHOLD IS 14!!!!
-        wii::os::OSReport("moverRNG: %d.\n", moverRNG);
-        return 2;
-    }
-
-    s32 returnMoverRng()
-    {
-      return moverRNG;
-    }
-
     // Gigantic shoutouts to L and Seeky for helping me get this function to work!!!!!! Loading custom TPLs into existing binaries is no small task!
     static void loadNewDanTex()
     {
-        loadMap = seq_mapchange::seq_mapchange_wp->mapName;
+        const char *loadMap = seq_mapchange::seq_mapchange_wp->mapName;
         mapdrv::MapWorkGroup *mapWork = mapdrv::mapGetWork(); // Gets MapWorkGroup, which should contain the MapEntry for the current map
         mapdrv::MapEntry *mapEntry = &mapWork->entries[0];    // The MapEntry for current map
         s32 seq = seqdrv::seqGetSeq();
         if (msl::string::strstr(loadMap, "dan") != nullptr && msl::string::strstr(loadMap, "dan_70") == nullptr && seq != 4 && seq != 1)
         {
-            generateMoverRng(); // Generates mover RNG in every dan map
             s32 currentFloor = swdrv::swByteGet(1);
             bool overwriteMap = false;
             s32 danTexNum = -1;
@@ -965,14 +905,14 @@ namespace mod
 
     static void debugModeGayFrame()
     {
-        framedrv::FrameEntry * frame = framedrv::framedrv_wp->entries;
+        framedrv::FrameEntry *frame = framedrv::framedrv_wp->entries;
         s32 cur = 0;
         for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1)
         {
-            //if (frame->type != 3) // FRAME_TYPE_EVT
-           // {
-                frame->color = {frameR, frameG, frameB, 255};
-          //  }
+            // if (frame->type != 3) // FRAME_TYPE_EVT
+            // {
+            frame->color = {frameR, frameG, frameB, 255};
+            //  }
             frame = frame + 1;
         }
         msl::string::strncmp(spmario::gp->mapName, "ls", 2);
@@ -1038,50 +978,16 @@ namespace mod
         }
     }
 
-    static void disorderCoinAttrition()
+    static void OnDanCountdown()
     {
         hud::hud_wp->countdownTimer = hud::hud_wp->countdownTimer - 1;
-        s32 disorderId = swdrv::swByteGet(1630);
+        s32 disorderId = (s32)Lunatic->Luna.disorder;
+        // Handle random Disorder tremors
+        if (disorderId > 0)
+            DisorderHandleTremors();
+        // Handle Prejudice
         if (disorderId == DisorderId::DISORDER_YELLOW)
-        {
-            mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-            s32 difficulty = swdrv::swByteGet(1620);
-            u8 thresh = 0;
-            u16 coinsLost = 0;
-            f32 mult = 0;
-            switch (difficulty)
-            {
-            case 0:
-                thresh = 30;
-                mult = system::rand() % 11 + 5;
-                break;
-            case 1:
-                thresh = 50;
-                mult = system::rand() % 21 + 10;
-                break;
-            case 2:
-                thresh = 70;
-                mult = system::rand() % 21 + 20;
-                break;
-            }
-            mult = mult / 100;
-            coinsLost = (u16)msl::math::floor(pouch->coins * mult);
-            if (hud::hud_wp->countdownTimer == 299)
-            {
-                if (pouch->coins > 0 && coinsLost != 0)
-                {
-                    pouch->coins = pouch->coins - coinsLost;
-                }
-            }
-            else if (hud::hud_wp->countdownTimer < 290)
-            {
-                s32 odds = system::rand() % 100;
-                if (pouch->coins > 0 && odds < thresh)
-                {
-                    pouch->coins = pouch->coins - 1;
-                }
-            }
-        }
+            PrejudiceAction();
         return;
     }
 
@@ -1106,252 +1012,42 @@ namespace mod
         return 2;
     }
 
-    static const char *(*msgSearchReal)(const char *msgName);
-    static const char *(*msgSearchNoFallbackReal)(const char *msgName);
     static const char *(*searchGetNpcMsgReal)(npcdrv::NPCEntry *npc);
-    void (*pausewinSetMessageCardReal)(pausewin::PausewinEntry *entry, s32 itemId);
+    //   void (*pausewinSetMessageCardReal)(pausewin::PausewinEntry *entry, s32 itemId);
     u32 (*animGroupBaseAsyncReal)(const char *animPoseName, s32 param_2, void *readDoneCb);
     void (*spsndSFXOnReal)(const char *name);
     void (*spsndSFXOnVolReal)(const char *name, u8 volume);
-    itemdrv::ItemEntry *(*itemEntryReal)(const char * name, s32 type, s32 behaviour, f64 x, f64 y, f64 z, evtmgr::EvtScriptCode * pickupScript, evtmgr::EvtVar switchNumber);
-    static void messagePatch()
+    itemdrv::ItemEntry *(*itemEntryReal)(const char *name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode *pickupScript, evtmgr::EvtVar switchNumber);
+    static void miscLambdas()
     {
-        msgSearchReal = patch::hookFunction(msgdrv::msgSearch,
-                                            [](const char *msgName)
-                                            {
-                                                // Handle custom music name modifiers & the blue whacka bump
-                                                if (customSelectType == CustomSelects::SELECT_MUSIC)
-                                                {
-                                                    if (msl::string::strcmp(msgName, "in_honoo_sakuretsu") == 0)
-                                                    {
-                                                        return vMusicName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_koori_no_ibuki") == 0)
-                                                    {
-                                                        return ttMusicName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_kaminari_dokkan") == 0)
-                                                    {
-                                                        return plMusicName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_kirakira_otoshi") == 0)
-                                                    {
-                                                        return noMusicName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_pow_block") == 0)
-                                                    {
-                                                        return jdMusicName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_select_1") == 0)
-                                                    {
-                                                        return selectMusicBox;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_title_1") == 0)
-                                                    {
-                                                        return selectMusicBlueText;
-                                                    }
-                                                }
-                                                if (customSelectType == CustomSelects::SELECT_FEATURES)
-                                                {
-                                                    if (msl::string::strcmp(msgName, "in_honoo_sakuretsu") == 0)
-                                                    {
-                                                        return moverFeaturesName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_koori_no_ibuki") == 0)
-                                                    {
-                                                        return merlunaFeaturesName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_kaminari_dokkan") == 0)
-                                                    {
-                                                        return marioFeaturesName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_select_1") == 0)
-                                                    {
-                                                        return selectJimboBox;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_title_1") == 0)
-                                                    {
-                                                        return selectJimboBlueText;
-                                                    }
-                                                }
-                                                if (customSelectType == CustomSelects::SELECT_PATCHES)
-                                                {
-                                                    if (msl::string::strcmp(msgName, "in_honoo_sakuretsu") == 0)
-                                                    {
-                                                        return lockPatchesName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "in_koori_no_ibuki") == 0)
-                                                    {
-                                                        return hpPatchesName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_select_1") == 0)
-                                                    {
-                                                        return selectJimboBox;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_title_1") == 0)
-                                                    {
-                                                        return selectJimboBlueText;
-                                                    }
-                                                }
-                                                if (customSelectType == CustomSelects::SELECT_ACCESSIBILITY)
-                                                {
-                                                    if (msl::string::strcmp(msgName, "in_honoo_sakuretsu") == 0)
-                                                    {
-                                                        return explosionShakeAccessName;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_select_1") == 0)
-                                                    {
-                                                        return selectJimboBox;
-                                                    }
-                                                    else if (msl::string::strcmp(msgName, "msg_window_title_1") == 0)
-                                                    {
-                                                        return selectJimboBlueText;
-                                                    }
-                                                }
-                                                if (msl::string::strcmp(msgName, "msg_blue_bump_name") == 0)
-                                                {
-                                                    return mystBumpName;
-                                                }
-                                                else if (msl::string::strcmp(msgName, "msg_blue_bump_desc") == 0)
-                                                {
-                                                    return mystBumpDesc;
-                                                }
-                                                else if (msl::string::strcmp(msgName, "msg_blue_bump_desc_ex") == 0)
-                                                {
-                                                    return mystBumpDesc;
-                                                }
-                                                // Patch all custom/modified NPCs to return their new name
-                                                s32 i = 0;
-                                                while (patchEnemyList[i] != -1)
-                                                {
-                                                    if (msl::string::strcmp(msgName, item_data::itemDataTable[npcdrv::npcGetTribe(patchEnemyList[i])->catchCardItemId].nameMsg) == 0 && msl::string::strcmp(msgName, "ename_000") != 0)
-                                                    {
-                                                        return msgSearchTribeToTattle(0, patchEnemyList[i], Tribe2Tattle_Types::CARD_NAME);
-                                                    }
-                                                    ++i;
-                                                };
-                                                if (msl::string::strcmp(msgName, "D100_entrance_03") == 0)
-                                                    // flopsite pit 1st pipe interaction (should never be seen)
-                                                    return D100_entrance_03;
-                                                else if (msl::string::strcmp(msgName, "mac_kanban_004") == 0)
-                                                    // flopside pit entrance sign
-                                                    return mac_kanban_004;
-                                                else
-                                                    return msgSearchReal(msgName);
-                                            });
-
-        msgSearchNoFallbackReal = patch::hookFunction(msgdrv::msgSearchNoFallback,
-                                                      [](const char *msgName)
-                                                      {
-                                                          // Handle custom music description modifiers & the blue whacka bump
-                                                          if (customSelectType == CustomSelects::SELECT_MUSIC)
-                                                          {
-                                                              if (msl::string::strcmp(msgName, "msg_honoo_sakuretsu_ex") == 0)
-                                                              {
-                                                                  return vMusicDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_koori_no_ibuki_ex") == 0)
-                                                              {
-                                                                  return ttMusicDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_kaminari_dokkan_ex") == 0)
-                                                              {
-                                                                  return plMusicDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_kirakira_otoshi_ex") == 0)
-                                                              {
-                                                                  return noMusicDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_pow_block_ex") == 0)
-                                                              {
-                                                                  return jdMusicDesc;
-                                                              }
-                                                          }
-                                                          if (customSelectType == CustomSelects::SELECT_FEATURES)
-                                                          {
-                                                              if (msl::string::strcmp(msgName, "msg_honoo_sakuretsu_ex") == 0)
-                                                              {
-                                                                  return moverFeaturesDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_koori_no_ibuki_ex") == 0)
-                                                              {
-                                                                  return merlunaFeaturesDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_kaminari_dokkan_ex") == 0)
-                                                              {
-                                                                  return marioFeaturesDesc;
-                                                              }
-                                                          }
-                                                          if (customSelectType == CustomSelects::SELECT_PATCHES)
-                                                          {
-                                                              if (msl::string::strcmp(msgName, "msg_honoo_sakuretsu_ex") == 0)
-                                                              {
-                                                                  return lockPatchesDesc;
-                                                              }
-                                                              else if (msl::string::strcmp(msgName, "msg_koori_no_ibuki_ex") == 0)
-                                                              {
-                                                                  return hpPatchesDesc;
-                                                              }
-                                                          }
-                                                          if (customSelectType == CustomSelects::SELECT_ACCESSIBILITY)
-                                                          {
-                                                              if (msl::string::strcmp(msgName, "msg_honoo_sakuretsu_ex") == 0)
-                                                              {
-                                                                  return explosionShakeAccessDesc;
-                                                              }
-                                                          }
-                                                          if (msl::string::strcmp(msgName, "msg_blue_bump_name") == 0)
-                                                          {
-                                                              return mystBumpName;
-                                                          }
-                                                          else if (msl::string::strcmp(msgName, "msg_blue_bump_desc") == 0)
-                                                          {
-                                                              return mystBumpDesc;
-                                                          }
-                                                          else if (msl::string::strcmp(msgName, "msg_blue_bump_desc_ex") == 0)
-                                                          {
-                                                              return mystBumpDesc;
-                                                          }
-
-                                                          // Patch all custom/modified NPCs to return their new name
-                                                          s32 i = 0;
-                                                          while (patchEnemyList[i] != -1)
-                                                          {
-                                                              if (msl::string::strcmp(msgName, item_data::itemDataTable[npcdrv::npcGetTribe(patchEnemyList[i])->catchCardItemId].nameMsg) == 0 && msl::string::strcmp(msgName, "ename_000") != 0)
-                                                              {
-                                                                  return msgSearchTribeToTattle(0, patchEnemyList[i], Tribe2Tattle_Types::CARD_NAME);
-                                                              }
-                                                              ++i;
-                                                          };
-                                                          return msgSearchNoFallbackReal(msgName);
-                                                      });
-
         searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg,
                                                   [](npcdrv::NPCEntry *npc)
                                                   {
                                                       // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
-                                                      s32 i = 0;
-                                                      if (msl::string::strstr(npc->name, "rebear") != nullptr || msl::string::strstr(npc->name, "dan_card") != nullptr ||
-                                                          msl::string::strstr(npc->name, "mover") != nullptr || msl::string::strstr(npc->name, "dan_koburon") != nullptr ||
-                                                          msl::string::strstr(npc->name, "jimbo") != nullptr)
+                                                      const char *tattle = msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
+                                                      if (tattle == nullptr)
                                                       {
-                                                          return msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
+                                                          return searchGetNpcMsgReal(npc);
                                                       }
-                                                      while (patchEnemyList[i] != -1)
+                                                      else if (msl::string::strcmp(tattle, "") == 0)
                                                       {
-                                                          if (npc->tribeId == patchEnemyList[i])
-                                                          {
-                                                              return msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
-                                                          }
-                                                          ++i;
-                                                      };
-                                                      return searchGetNpcMsgReal(npc);
+                                                          return searchGetNpcMsgReal(npc);
+                                                      }
+                                                      else
+                                                      {
+                                                          return tattle;
+                                                      }
                                                   });
 
         animGroupBaseAsyncReal = patch::hookFunction(animdrv::animGroupBaseAsync,
                                                      [](const char *animPoseName, s32 param_2, void *readDoneCb)
                                                      {
                                                          // Patch functions that rely on ag2tg to fileAsyncf custom textures
+                                                         const char *models[] = {"e_heiho", "e_buross_h", "e_buross_b", "e_burosu_i",
+                                                                                 "e_cheririn_a", "e_chorobon_g", "e_gabow", "e_jugemu_d", "e_jyama_b", "e_card_jyama_b", "e_k_kuribo", "e_k_shoote4",
+                                                                                 "e_kamek_g", "e_kamek_r", "e_kamek_w", "e_kames", "e_karon_d", "e_kmond", "e_kuribo_h",
+                                                                                 "e_mer", "e_nin_d", "e_nokoteki_d", "e_ntl_p", "e_sinemoh", "e_tesita_bt", "e_tesita_sb",
+                                                                                 "e_togenokd", "e_togezb", "e_touginoko", "e_wanwan_g", "e_teresa_b", "terminator"};
                                                          bool patch = false;
                                                          for (s32 idx = 0; msl::string::strcmp(models[idx], "terminator") != 0; idx = idx + 1)
                                                          {
@@ -1366,39 +1062,12 @@ namespace mod
                                                              return animGroupBaseAsyncReal(animPoseName, param_2, readDoneCb);
                                                      });
 
-        pausewinSetMessageCardReal = patch::hookFunction(pausewin::pausewinSetMessageCard,
-                                                         [](pausewin::PausewinEntry *entry, s32 itemId)
-                                                         {
-                                                             // Patch all custom/modified NPCs to toss a custom description into pausewinCardDescBuf
-                                                             s32 i = 0;
-                                                             while (patchEnemyList[i] != -1)
-                                                             {
-                                                                 if (item_data::itemDataTable[itemId].tribe == patchEnemyList[i])
-                                                                 {
-                                                                     entry->msg = msgSearchTribeToTattle(0, patchEnemyList[i], Tribe2Tattle_Types::CARD_DESC);
-                                                                     u16 outlines[6] = {0, 0, 0, 0, 0, 0};
-                                                                     fontmgr::FontGetMessageWidthLine(entry->msg, outlines);
-                                                                     entry->curMsgLine = 0;
-                                                                     entry->msgWidth = outlines[0] + 1;
-                                                                     entry->unk_float = 0;
-                                                                     return;
-                                                                 }
-                                                                 ++i;
-                                                             };
-                                                             pausewinSetMessageCardReal(entry, itemId);
-                                                         });
-
         spsndSFXOnReal = patch::hookFunction(spmario_snd::spsndSFXOn,
                                              [](const char *name)
                                              {
-                                                 u8 hpSoundsPatched = swdrv::swGet(1621);
-                                                 if (hpSoundsPatched == 1)
-                                                 {
-                                                     if (msl::string::strcmp(name, "SFX_SYS_PINCH1") == 0 || msl::string::strcmp(name, "SFX_SYS_DANGER1") == 0)
-                                                     {
-                                                         return;
-                                                     }
-                                                 }
+                                                 bool hpSoundsPatched = swdrv::swGet(1621);
+                                                 if (hpSoundsPatched && (msl::string::strcmp(name, "SFX_SYS_PINCH1") == 0 || msl::string::strcmp(name, "SFX_SYS_DANGER1") == 0))
+                                                     return;
                                                  spmario_snd::__spsndSFXOn(name, -1, 255, 0, 0, 0);
                                                  return;
                                              });
@@ -1419,358 +1088,13 @@ namespace mod
                                                 });
 
         itemEntryReal = patch::hookFunction(itemdrv::itemEntry,
-                                                [](const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode * pickupScript, evtmgr::EvtVar switchNumber)
-                                                {
-                                                    if (type == 1 && switchNumber == 0 && behaviour != 0) // Coins dropped by enemies are no longer searchable
-                                                    {
-                                                        itemdrv::ItemEntry * item = itemEntryReal(name, type, behaviour, x, y, z, pickupScript, switchNumber);
-                                                        item->flags = (item->flags | 0x4000000);
-                                                        return item;
-                                                    }
-                                                    return itemEntryReal(name, type, behaviour, x, y, z, pickupScript, switchNumber);
-                                                });
-    }
-
-    static seqdef::SeqFunc *seq_gameMainReal;
-
-    void youSuckDisplay(seqdrv::SeqWork *wp)
-    {
-        if (youSuck)
-        {
-            wii::gx::GXColor funnyColor = {255, 255, 255, 255};
-            f32 scale = 2.8f;
-            char buffer[50];
-            const char *youSuckText = "YOU SUCK";
-            msl::stdio::sprintf(buffer, "%s", youSuckText);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart();
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColor();
-            f32 x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
-            fontmgr::FontDrawString(x, 200.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void new_dan_gameover()
-    {
-        youSuck = true;
-    }
-
-    void merlunaBlessingDisplay(seqdrv::SeqWork *wp)
-    {
-        s32 blessingRoomCounter = swdrv::swByteGet(1602);
-        if (blessingRoomCounter > 0)
-        {
-            roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {18, 227, 178, 255};
-            f32 scale = 0.64f;
-            char buffer[100];
-            blessingNum = swdrv::swByteGet(1600);
-            houraiActivation = swdrv::swGet(1671);
-            // Iterate through exceptional cases that modify message text
-            if (houraiActivation)
-            {
-                funnyColor = {227, 178, 18, 255};
-                msl::stdio::sprintf(buffer, "Affliction: Phoenix's Tail");
-                if (roomOnHud)
-                {
-                    alpha = 80;
-                }
-            }
-            else if (blessingNum == BlessId::MERLUNA_PARAMITA)
-            {
-                s32 paramitaTimer = swdrv::swByteGet(1610);
-                if (paramitaTimer > 20)
-                {
-                    paramitaTimer = paramitaTimer - 20;
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Active, %d)", paramitaTimer);
-                }
-                else if (paramitaTimer > 0)
-                {
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Cooldown, %d)", paramitaTimer);
-                }
-                else
-                {
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Press B to use)", paramitaTimer);
-                }
-            }
-            else
-            {
-                const char *blessingNames[] = {"DUMMY", "Spectre", "Hourai Doll", "Paramita"};
-                const char *blessingDisp = blessingNames[blessingNum];
-                msl::stdio::sprintf(buffer, "Blessing: %s", blessingDisp);
-            }
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -170.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void merlunaBlessingNumDisplay(seqdrv::SeqWork *wp)
-    {
-        s32 blessingRoomCounter = swdrv::swByteGet(1602);
-        if (blessingRoomCounter > 0)
-        {
-            roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {8, 110, 102, 255};
-            f32 scale = 0.64f;
-            char buffer[50];
-            houraiActivation = swdrv::swGet(1671);
-            if (houraiActivation)
-            {
-                funnyColor = {140, 110, 18, 225};
-                if (roomOnHud)
-                {
-                    funnyColor = {140, 110, 18, 80};
-                }
-            }
-            msl::stdio::sprintf(buffer, "Neutralizes in %d rooms", blessingRoomCounter);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -190.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void merlunaCurseDisplay(seqdrv::SeqWork *wp)
-    {
-        curseNum = swdrv::swByteGet(1601);
-        if (curseNum > 0)
-        {
-            roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {138, 0, 207, 255};
-            f32 scale = 0.64f;
-            char buffer[100];
-            const char *curseNames[] = {"DUMMY", "Tatarian Aster", "Vulnerability Hex", "Migraine"};
-            const char *curseDisp = curseNames[curseNum];
-            msl::stdio::sprintf(buffer, "Curse: %s", curseDisp);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -170.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void merlunaCurseNumDisplay(seqdrv::SeqWork *wp)
-    {
-        curseNum = swdrv::swByteGet(1601);
-        if (curseNum > 0)
-        {
-            roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {71, 4, 99, 255};
-            f32 scale = 0.64f;
-            char buffer[50];
-            msl::stdio::sprintf(buffer, "Pay Merluna to clear");
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -190.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void disorderDisplay(seqdrv::SeqWork *wp)
-    {
-        disorderNum = swdrv::swByteGet(1630);
-        if (disorderNum > 0)
-        {
-            s32 alpha = 225;
-            wii::gx::GXColor funnyColor = {25, 25, 25, 255};
-            switch (disorderNum)
-            {
-                case DisorderId::DISORDER_RED:
-                funnyColor.r = 255;
-                break;
-                case DisorderId::DISORDER_ORANGE:
-                funnyColor.r = 255;
-                funnyColor.g = 127;
-                break;
-                case DisorderId::DISORDER_YELLOW:
-                funnyColor.r = 220;
-                funnyColor.g = 210;
-                break;
-                case DisorderId::DISORDER_GREEN:
-                funnyColor.r = 30;
-                funnyColor.g = 255;
-                funnyColor.b = 70;
-                break;
-                case DisorderId::DISORDER_CYAN:
-                funnyColor.r = 50;
-                funnyColor.g = 230;
-                funnyColor.b = 255;
-                break;
-                case DisorderId::DISORDER_BLUE:
-                funnyColor.r = 40;
-                funnyColor.g = 60;
-                funnyColor.b = 255;
-                break;
-                case DisorderId::DISORDER_PURPLE:
-                funnyColor.r = 128;
-                funnyColor.g = 64;
-                funnyColor.b = 255;
-                break;
-                case DisorderId::DISORDER_WHITE:
-                funnyColor.r = 255;
-                funnyColor.g = 255;
-                funnyColor.b = 255;
-                break;
-            }
-            f32 scale = 0.64f;
-            char buffer[100];
-            const char *disorderNames[] = {"DUMMY", "Apathy", "Dread", "Prejudice", "Indifference", "Recalcitrance", "Depravity", "Servility", "Melancholy", "Ruin"};
-            const char *disorderDisp = disorderNames[disorderNum];
-            msl::stdio::sprintf(buffer, "Disorder: %s", disorderDisp);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            f32 x = (360 - (fontmgr::FontGetMessageWidth(msg) * scale));
-            fontmgr::FontDrawString(x, -170.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void disorderNumDisplay(seqdrv::SeqWork *wp)
-    {
-        disorderRooms = swdrv::swByteGet(1631);
-        if (disorderRooms > 0)
-        {
-            s32 alpha = 225;
-            wii::gx::GXColor funnyColor = {25, 25, 25, 255};
-            disorderNum = swdrv::swByteGet(1630);
-            switch (disorderNum)
-            {
-                case DisorderId::DISORDER_RED:
-                funnyColor.r = 125;
-                break;
-                case DisorderId::DISORDER_ORANGE:
-                funnyColor.r = 125;
-                funnyColor.g = 63;
-                break;
-                case DisorderId::DISORDER_YELLOW:
-                funnyColor.r = 105;
-                funnyColor.g = 100;
-                break;
-                case DisorderId::DISORDER_GREEN:
-                funnyColor.r = 10;
-                funnyColor.g = 125;
-                funnyColor.b = 30;
-                break;
-                case DisorderId::DISORDER_CYAN:
-                funnyColor.g = 90;
-                funnyColor.b = 115;
-                break;
-                case DisorderId::DISORDER_BLUE:
-                funnyColor.g = 40;
-                funnyColor.b = 127;
-                break;
-                case DisorderId::DISORDER_PURPLE:
-                funnyColor.r = 64;
-                funnyColor.g = 42;
-                funnyColor.b = 127;
-                break;
-                case DisorderId::DISORDER_WHITE:
-                funnyColor.r = 127;
-                funnyColor.g = 127;
-                funnyColor.b = 127;
-                break;
-            }
-            f32 scale = 0.64f;
-            char buffer[50];
-            msl::stdio::sprintf(buffer, "%d rooms remaining", disorderRooms);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            f32 x = (360 - (fontmgr::FontGetMessageWidth(msg) * scale));
-            fontmgr::FontDrawString(x, -190.0f, msg);
-        }
-        seq_gameMainReal(wp);
-    }
-
-    void textDisplay(seqdrv::SeqWork *wp)
-    {
-        merlunaBlessingDisplay(wp);
-        merlunaBlessingNumDisplay(wp);
-        merlunaCurseDisplay(wp);
-        merlunaCurseNumDisplay(wp);
-        disorderDisplay(wp);
-        disorderNumDisplay(wp);
-        youSuckDisplay(wp);
-    }
-
-    static seqdef::SeqFunc *seq_titleMainReal;
-    static void seq_titleMainOverride(seqdrv::SeqWork *wp)
-    {
-        wii::gx::GXColor notgreen = {230, 116, 216, 255};
-        f32 scale = 0.8f;
-        const char *msg = "SPM Pit Randomizer beta v2.2";
-        fontmgr::FontDrawStart();
-        fontmgr::FontDrawEdge();
-        fontmgr::FontDrawColor(&notgreen);
-        fontmgr::FontDrawScale(scale);
-        fontmgr::FontDrawNoiseOff();
-        fontmgr::FontDrawRainbowColorOff();
-        f32 x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
-        fontmgr::FontDrawString(x, 200.0f, msg);
-        seq_titleMainReal(wp);
-    }
-    static void titleScreenCustomTextPatch()
-    {
-        seq_titleMainReal = seqdef::seq_data[seqdrv::SEQ_TITLE].main;
-        seqdef::seq_data[seqdrv::SEQ_TITLE].main = &seq_titleMainOverride;
-        seq_gameMainReal = seqdef::seq_data[seqdrv::SEQ_GAME].main;
-        seqdef::seq_data[seqdrv::SEQ_GAME].main = &textDisplay;
+                                            [](const char *name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode *pickupScript, evtmgr::EvtVar switchNumber)
+                                            {
+                                                itemdrv::ItemEntry *item = itemEntryReal(name, type, behaviour, x, y, z, pickupScript, switchNumber);
+                                                if (type == 1 && switchNumber == 0 && behaviour != 0) // Coins dropped by enemies are no longer searchable
+                                                    item->flags = (item->flags | 0x4000000);
+                                                return item;
+                                            });
     }
 
     static void danOverwrite()
@@ -1779,7 +1103,7 @@ namespace mod
         patch::hookFunction(seq_title::getNextDanMapname, getNextDanMapnameNew);
         writeBranchLink(mapdrv::mapLoad, 0x3B8, loadNewDanTex);
         writeBranchLink(mot_damage::onHpEquals0, 0x68, handleHouraiDoll);
-        writeBranchLink(hud::hudMain, 0x47C, disorderCoinAttrition);
+        writeBranchLink(hud::hudMain, 0x47C, OnDanCountdown);
         // just throwing this here
         writeBranchLink(temp_unk::backCursyaHit, 0x104, patchBackCursya);
         // also throwing these here
@@ -1788,12 +1112,7 @@ namespace mod
         writeBranchLink(npcdrv::func_801b19e4, 0x588, neutralize);
         writeBranchLink(npcdrv::func_801b19e4, 0x494, neutralize);
         // lol why not
-        writeBranchLink(framedrv::frameDispCb, 0x3EC, debugModeGayFrame);
-    }
-
-    static void danYouSuck()
-    {
-        patch::hookFunction(dan::danCountdownDone, new_dan_gameover);
+        writeBranchLink(framedrv::frameDisp, 0x3EC, debugModeGayFrame);
     }
 
     static void danDontFuckingCrash()
@@ -1813,7 +1132,7 @@ namespace mod
         // 255,0,0 -> 255,255,0 -> 0,255,0 -> 0,255,255 -> 0,0,255 -> 255,0,255 -> 255,0,0
         switch (frameColPhase)
         {
-            case 0:
+        case 0:
             frameG = frameG + 16;
             if (frameG > 255)
             {
@@ -1821,7 +1140,7 @@ namespace mod
                 frameColPhase = 1;
             }
             break;
-            case 1:
+        case 1:
             frameR = frameR - 16;
             if (frameR < 0)
             {
@@ -1829,7 +1148,7 @@ namespace mod
                 frameColPhase = 2;
             }
             break;
-            case 2:
+        case 2:
             frameB = frameB + 16;
             if (frameB > 255)
             {
@@ -1837,7 +1156,7 @@ namespace mod
                 frameColPhase = 3;
             }
             break;
-            case 3:
+        case 3:
             frameG = frameG - 16;
             if (frameG < 0)
             {
@@ -1845,7 +1164,7 @@ namespace mod
                 frameColPhase = 4;
             }
             break;
-            case 4:
+        case 4:
             frameR = frameR + 16;
             if (frameR > 255)
             {
@@ -1853,7 +1172,7 @@ namespace mod
                 frameColPhase = 5;
             }
             break;
-            case 5:
+        case 5:
             frameB = frameB - 16;
             if (frameB < 0)
             {
@@ -1936,11 +1255,11 @@ namespace mod
         // Whacka Bump
         if (swdrv::swGet(1643) == 0)
         {
-            item_data::itemDataTable[45].iconId = 0 + TPLPATCH_ICON_REDIRECT; // Icon/Item ID of the unused peach in vanilla
+            item_data::itemDataTable[45].iconId = ICON_BUMP_GRAY + TPLPATCH_ICON_REDIRECT; // Icon/Item ID of the unused peach in vanilla
         }
         else
         {
-            item_data::itemDataTable[45].iconId = 61; // Icon of unused "negative" gray key in vanilla
+            item_data::itemDataTable[45].iconId = ICON_BUMP_BLUE + TPLPATCH_ICON_REDIRECT; // Icon of unused "negative" gray key in vanilla
         }
         return 2;
     }
@@ -2357,7 +1676,8 @@ namespace mod
 
         // Bleepboxer, ATK 3
         npcdrv::npcTribes[504].catchCardItemId = 384;
-        item_data::itemDataTable[384].tribe = 504; // Vanilla card data works fine
+        npcdrv::npcTribes[505].catchCardItemId = 384; // Projectile
+        item_data::itemDataTable[384].tribe = 504;    // Vanilla card data works fine
         npcdrv::npcTribes[504].catchCardDefense = 15;
         npcdrv::npcTribes[504].maxHp = 12;
         npcdrv::npcTribes[504].killXp = 500;
@@ -2780,7 +2100,7 @@ namespace mod
 
         // Let's replace the pit key texture while we're at it lol
         // Ty kiki!!! <3
-        item_data::itemDataTable[48].iconId = 60;
+        item_data::itemDataTable[48].iconId = ICON_SKULL_KEY + TPLPATCH_ICON_REDIRECT;
 
         // Change some names for the blue whacka bump
         item_data::itemDataTable[45].nameMsg = mystBumpNamePtr;
@@ -2857,19 +2177,16 @@ namespace mod
         case 0:
             npc->maxHp = marioMaxHp;
             npc->hp = npc->maxHp;
-            *shadooHealth = npc->maxHp;
             npcdrv::npcTribes[npc->tribeId].attackStrength = 5;
             break;
         case 1:
             npc->maxHp = marioMaxHp * 2;
             npc->hp = npc->maxHp;
-            *shadooHealth = npc->maxHp;
             npcdrv::npcTribes[npc->tribeId].attackStrength = 10;
             break;
         case 2:
             npc->maxHp = marioMaxHp * 3;
             npc->hp = npc->maxHp;
-            *shadooHealth = npc->maxHp;
             npcdrv::npcTribes[npc->tribeId].attackStrength = 15;
             break;
         }
@@ -2879,14 +2196,41 @@ namespace mod
 
     s32 get_mover_rng(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], moverRNG);
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Mover.moverRNG);
+        return 2;
+    }
+
+    s32 set_mover_rng(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        (void)evtEntry;
+        Lunatic->Mover.moverRNG = system::rand() % 1000;
+        s32 floor = swdrv::swByteGet(1);
+        bool blockMovers = swdrv::swGet(1610);
+        if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
+            Lunatic->Mover.moverRNG = 999;
+        // vv DEBUG vv
+        // Lunatic->Mover.moverRNG = 2;
+        // THRESHOLD IS 14!!!!
+        wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
+        return 2;
+    }
+
+    s32 evt_dan_init_lunatic(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
+        Lunatic->Crit.Rate = 4;
+        Lunatic->Crit.Mult = 50;
         return 2;
     }
 
     s32 rand100(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
-        rand100Num = system::rand() % 100;
+        s32 rand100Num = system::rand() % 100;
         wii::os::OSReport("rand100Num: %d.\n", rand100Num);
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], rand100Num);
@@ -2906,30 +2250,28 @@ namespace mod
         }
         else
         {
-            wii::os::OSReport("%s %f\n", introStr, printFloat);
+            wii::os::OSReport("%s: %f\n", introStr, printFloat);
         }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(osReportFloat, 2)
 
-    s32 osReportOther(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 osReportInt(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
-        // arg1 is like PTR("Variable name:"), arg2 is actual value to pass through
-        // You can also just use one variable if you only want to pass a ptr string or float on its own
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         char *introStr = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        f32 printFloat = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        if (introStr == nullptr || introStr == 0)
+        s32 printInt = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        if (introStr == nullptr)
         {
-            wii::os::OSReport("%f\n", printFloat);
+            wii::os::OSReport("%f\n", printInt);
         }
         else
         {
-            wii::os::OSReport("%s %f\n", introStr, printFloat);
+            wii::os::OSReport("%s: %d\n", introStr, printInt);
         }
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(osReportOther, 2)
+    EVT_DECLARE_USER_FUNC(osReportInt, 2)
 
     s32 evt_mario_motion_chg_mot(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -2975,13 +2317,18 @@ namespace mod
     s32 migraineShortenCurseTimers(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         mario::MarioWork *mario = mario::marioGetPtr();
+        s32 yesRand;
         for (mario::MarioStatus *yes = mario->firstStatus; yes != 0; yes = yes->next)
         {
-            if (yes->type == STATUS_FLIPPED_CONTROLS || yes->type == STATUS_NO_SKILLS || yes->type == STATUS_NO_JUMP || yes->type == STATUS_SLOW)
+            if (Lunatic->Luna.disorder == DISORDER_PURPLE && yes->type == STATUS_SLOW)
+            {
+                yes->timer = (Lunatic->Luna.DisorderWork.UserWork.Indolence->slowDuration * 60) - 30;
+            }
+            else if (yes->type == STATUS_FLIPPED_CONTROLS || yes->type == STATUS_NO_SKILLS || yes->type == STATUS_NO_JUMP || yes->type == STATUS_SLOW)
             {
                 // WAIT_MSEC(500) precedes this user func, so it starts with .5s
                 // Thus, status conditions may last anywhere from 1-10s
-                s32 yesRand = system::rand() % 540 + 30;
+                yesRand = system::rand() % 540 + 30;
                 yes->timer = (f32)yesRand;
             }
         }
@@ -3223,7 +2570,7 @@ namespace mod
         s32 itemType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 coinCount = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key.
-        disorderNum = swdrv::swByteGet(1630);
+        s32 disorderNum = Lunatic->Luna.disorder;
         if (disorderNum == DisorderId::DISORDER_ORANGE && itemType != 48)
         {
             return 2;
@@ -3231,7 +2578,7 @@ namespace mod
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
         if (npc->unkShellSfx == "holo")
         {
-            coinCount = coinCount * 5;
+            coinCount *= 5;
             if (coinCount < 10)
             {
                 coinCount = 10;
@@ -3241,195 +2588,87 @@ namespace mod
                 coinCount = 30;
             }
         }
-        // If Disorder: Prejudice is active, multiply coinCount and have a chance to set a Gold Bar x3 as the itemType.
-        if (disorderNum == DisorderId::DISORDER_YELLOW)
-        {
-            s32 difficulty = swdrv::swByteGet(1620);
-            switch (difficulty)
-            {
-                case 0:
-                coinCount = coinCount * 2.5;
-                break;
-                case 1:
-                coinCount = coinCount * 2;
-                break;
-                case 2:
-                coinCount = coinCount * 1.5;
-                break;
-            }
-            if (coinCount < 5)
-            {
-                coinCount = 5;
-            }
-            s32 goldBarChance = system::rand() % 100;
-            if (goldBarChance < 7 && itemType == 0)
-            {
-                itemType = item_data::ItemType::ITEM_ID_USE_KINKAI_100;
-            }
-        }
         temp_unk::npcDropItem(npc, itemType, coinCount);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_npc_drop_item_new, 2)
 
-    s32 loadCustomSelectTex(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 cwselectSettingsIcons(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        customSelectType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        s32 icon = 0;
-        if (customSelectType == CustomSelects::SELECT_MUSIC)
+        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        if (onOff > 0)
         {
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU].iconId = 0x85;  // Normal Pit Music; Power Plus icon
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI].iconId = 0x84;  // Tater-Tot Tunes; HP Plus icon
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KAMINARI_DOKKAN].iconId = 0x84; // Plazzap; HP Plus icon
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KIRAKIRA_OTOSHI].iconId = 0x87; // No music; Catch Card SP icon
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_POW_BLOCK].iconId = 0x84;       // Jdaster64; HP Plus icon
+            msgdrv::msgdrv_msgIcon[3].iconId = 0x86;
+            msgdrv::msgdrv_msgIcon[4].iconId = 0x87;
         }
-        if (customSelectType >= CustomSelects::SELECT_FEATURES)
+        else
         {
-            msgdrv::msgdrv_msgIcon[3].iconid = 0x86;
-            msgdrv::msgdrv_msgIcon[4].iconid = 0x87;
-        }
-        if (customSelectType == CustomSelects::SELECT_FEATURES)
-        {
-            icon = (0x86 + swdrv::swGet(1610));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU].iconId = icon; // Movers
-            icon = (0x86 + swdrv::swGet(1611));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI].iconId = icon; // Merluna
-            icon = (0x86 + swdrv::swGet(1612));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KAMINARI_DOKKAN].iconId = icon; // Mario
-        }
-        if (customSelectType == CustomSelects::SELECT_PATCHES)
-        {
-            icon = (0x86 + swdrv::swGet(1620));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU].iconId = icon; // Quicker Locks
-            icon = (0x86 + swdrv::swGet(1621));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI].iconId = icon; // Quicker Locks
-        }
-        if (customSelectType == CustomSelects::SELECT_ACCESSIBILITY)
-        {
-            icon = (0x86 + swdrv::swGet(1630));
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU].iconId = icon; // Explosions Shake Camera
-        }
-        if (customSelectType == 0)
-        {
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU].iconId = 0x6C;
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI].iconId = 0x6D;
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KAMINARI_DOKKAN].iconId = 0x6E;
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_KIRAKIRA_OTOSHI].iconId = 0x6F;
-            item_data::itemDataTable[item_data::ItemType::ITEM_ID_USE_POW_BLOCK].iconId = 0x70;
-            msgdrv::msgdrv_msgIcon[3].iconid = 0xF;
-            msgdrv::msgdrv_msgIcon[4].iconid = 0x10;
+            msgdrv::msgdrv_msgIcon[3].iconId = 0xF;
+            msgdrv::msgdrv_msgIcon[4].iconId = 0x10;
         }
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(loadCustomSelectTex, 1)
+    EVT_DECLARE_USER_FUNC(cwselectSettingsIcons, 1)
+
+    s32 boodinShopItemPool[] = {
+        // Custom Pit Rando enemies
+        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
+        344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
+        // Vanilla enemies
+        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
+        328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
+        372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
+        401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
+        444, 446, 447, 448, 528, 529, 530, 531};
 
     s32 dan_boodin_setup_cards(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)firstRun;
+        Lunatic->Boodin.Cards[0].itemId = (s32)item_data::ItemType::ITEM_ID_USE_SUPER_BLANK_KUN;
+        Lunatic->Boodin.Cards[0].iconId = -1;
+        Lunatic->Boodin.Cards[0].cost = 80;
+        s32 i;
         s32 cardNum = system::rand() % 9 + 5; // 5-13
-        boodinBalls.cardCount = cardNum;
-        s32 poolCard = 0;
-        s32 i = 0;
-        for (i = 1; i <= cardNum; ++i)
+        Lunatic->Boodin.cardNum = cardNum + 1;
+        s32 poolCard;
+        for (i = 1; i <= cardNum; i += 1)
         {
-            s32 size = (sizeof(boodinShopItemPool) / 8);
-            poolCard = system::rand() % size;
-            boodinBalls.cardArray[i] = boodinShopItemPool[poolCard];
-            if (i == cardNum)
-            {
-                boodinBalls.cardArray[i] = -1;
-            }
+            CWSelectItemDesc *Card = &Lunatic->Boodin.Cards[i];
+            poolCard = system::rand() % (sizeof(boodinShopItemPool) / 8);
+            Card->itemId = boodinShopItemPool[poolCard];
+            Card->iconId = -1;
+            Card->cost = (s32)msl::math::floor((f32)item_data::itemDataTable[Card->itemId].buyPrice * 0.8f);
         }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_setup_cards, 0)
 
-    s32 dan_boodin_card_select(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 dan_boodin_get_descs(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
-        // Check if there are any cards remaining
+        (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        // Format array to eliminate zeroes before opening the shop
-        s32 i;
-        for (i = 1; i <= 14; ++i)
-        {
-            finalCardArray[i] = -1;
-        }
-        s32 n = 1;
-        for (i = 1; i <= 14; ++i)
-        {
-            if (boodinBalls.cardArray[i] != 0)
-            {
-                finalCardArray[n] = boodinBalls.cardArray[i];
-                n = n + 1;
-            }
-        }
-        // Open shop
-        if (firstRun)
-        {
-            spmario_snd::spsndSFXOn("SFX_SYS_MENU_OPEN1");
-            winmgr::WinmgrSelect *shop = winmgr::winMgrSelectEntry(&finalCardArray, 0, 9);
-            evtEntry->tempU[0] = (u32)shop;
-        }
-        s32 selectedCard = winmgr::winMgrSelect((winmgr::WinmgrSelect *)evtEntry->tempU[0]);
-        s32 ret = 0;
-        if (selectedCard == 0)
-        {
-            ret = 0;
-        }
-        else
-        {
-            winmgr::WinmgrSelect *shop = (winmgr::WinmgrSelect *)evtEntry->tempU[0];
-            finalCardSelectedIdx = shop->selectedItemIdx;
-            winmgr::winMgrSelectDelete((winmgr::WinmgrSelect *)evtEntry->tempU[0]);
-            if (selectedCard == -1)
-            {
-                evtmgr_cmd::evtSetValue(evtEntry, args[0], -1);
-            }
-            else
-            {
-                evtmgr_cmd::evtSetValue(evtEntry, args[0], selectedCard);
-                evtmgr_cmd::evtSetValue(evtEntry, args[1], msgdrv::msgSearch(item_data::itemDataTable[selectedCard].nameMsg));
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], (u32)item_data::itemDataTable[selectedCard].buyPrice);
-                u32 halvedCardPrice = 0;
-                if (((u32)item_data::itemDataTable[selectedCard].buyPrice) % 2 == 1) // Variable is odd, so round up.
-                {
-                    halvedCardPrice = ((f32)item_data::itemDataTable[selectedCard].buyPrice / 2) + 0.5;
-                }
-                else
-                {
-                    halvedCardPrice = (u32)item_data::itemDataTable[selectedCard].buyPrice / 2;
-                }
-                evtmgr_cmd::evtSetValue(evtEntry, args[3], halvedCardPrice);
-            }
-            ret = 2;
-        }
-        return ret;
-    }
-    EVT_DECLARE_USER_FUNC(dan_boodin_card_select, 4) // Return item ID, item name, and its original/new sell value
-
-    s32 dan_boodin_card_remove(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        if (finalCardSelectedIdx != 0)
-        {
-            finalCardArray[finalCardSelectedIdx] = 0;
-            s32 n = 1;
-            s32 i;
-            for (i = 1; i <= 14; ++i)
-            {
-                if (finalCardArray[i] != 0)
-                {
-                    boodinBalls.cardArray[n] = finalCardArray[i];
-                    n = n + 1;
-                }
-            }
-        }
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], s32(&Lunatic->Boodin.Cards));
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->Boodin.cardNum);
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(dan_boodin_card_remove, 0)
+    EVT_DECLARE_USER_FUNC(dan_boodin_get_descs, 2)
+
+    s32 dan_boodin_backup_descs(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)evtEntry;
+        (void)firstRun;
+        Lunatic->Boodin.cardNum = GlobalCW->Select[GlobalCW->activeSelect]->num;
+        msl::string::memset(&Lunatic->Boodin.Cards, 0, sizeof(Lunatic->Boodin.Cards));
+        msl::string::memcpy(&Lunatic->Boodin.Cards, GlobalCW->Select[GlobalCW->activeSelect]->Descs, sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(dan_boodin_backup_descs, 0)
 
     s32 chestBakudaaaan(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], 0);
         s32 difficulty = swdrv::swByteGet(1620);
@@ -3833,9 +3072,9 @@ namespace mod
     CASE_EQUAL(2)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FSYNTH"), 500)
     CASE_EQUAL(3)
-    USER_FUNC(evt_snd::evt_snd_bgmoff, 0)
-    CASE_EQUAL(4)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FPIANO"), 500)
+    CASE_EQUAL(4)
+    USER_FUNC(evt_snd::evt_snd_bgmoff, 0)
     END_SWITCH()
     USER_FUNC(evt_snd::evt_snd_set_sfx_reverb_mode, 0)
     RETURN()
@@ -3869,7 +3108,7 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("E_3"), 0)
     USER_FUNC(evt_snd::evt_snd_sfxon, PTR("SFX_EVT_QUAKE1L"))
     USER_FUNC(evt_snd::evt_snd_get_last_sfx_id, LW(0))
-    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(1.5), FLOAT(1.5), FLOAT(0.0), 2000, 0)
+    USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, FLOAT(1.5), FLOAT(1.5), FLOAT(0.0), 2000, 0)
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     USER_FUNC(evt_mario::evt_mario_get_character, LW(1))
     IF_EQUAL(LW(1), 1)
@@ -4478,19 +3717,24 @@ namespace mod
     IF_EQUAL(LW(7), 0)
     USER_FUNC(evt_mario::evt_mario_key_off, 0)
     SET(LW(6), 0)
+    USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
+    USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-    USER_FUNC(dan_boodin_card_select, LW(4), LW(5), LW(1), LW(2)) // Returns item ID, item name, buy price, and buy price div 2
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Cards"), 0, LW(2)) // LW(4) item ID, LW(5) item name, LW(1) buy price
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-    IF_NOT_EQUAL(LW(4), -1)
-    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1), LW(2))
+    IF_NOT_EQUAL(LW(2), -1)
+    USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
+    USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
+    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
     USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
     USER_FUNC(evt_msg::evt_msg_continue)
     IF_EQUAL(LW(0), 0)
     USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
-    IF_SMALL(LW(3), LW(2))
+    IF_SMALL(LW(3), LW(1))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
     ELSE()
     USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
@@ -4499,16 +3743,18 @@ namespace mod
     ELSE()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
     WAIT_MSEC(500)
-    MUL(LW(2), -1)
-    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(2))
+    MUL(LW(1), -1)
+    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
     USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
     WAIT_MSEC(500)
-    USER_FUNC(dan_boodin_card_remove)
     USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
     USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
     USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    IF_LARGE(LW(2), 0)
+    USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+    END_IF()
     // BUY ANOTHER?
     SET(LW(6), 1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
@@ -4530,6 +3776,9 @@ namespace mod
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(evt_mario::evt_mario_key_on)
+    USER_FUNC(dan_boodin_backup_descs)
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
     INLINE_EVT()
     IF_EQUAL(LW(6), 1)
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
@@ -4585,7 +3834,7 @@ namespace mod
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
     RETURN()
     END_IF()
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(rfcItemsRef), LW(0), 0)
+    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&rfcItems), LW(0), 0)
     IF_SMALL_EQUAL(LW(0), 0) // Select menu cancelled
     USER_FUNC(evt_mobj::evt_mobj_set_anim, PTR("box"), PTR("A_3"))
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("box"), 0)
@@ -4926,6 +4175,23 @@ namespace mod
     USER_FUNC(evt_dan_patch_dokan)
     RETURN_FROM_CALL()
 
+    EVT_BEGIN(cwselect_music)
+    USER_FUNC(EvtCWSelectEntry, PTR("Music"), CWSELECT_DEFAULT, PTR(selectMusicBlueText), PTR(selectMusicBox), 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), 0x85, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), 0x84, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), 0x84, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), 0x84, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), 0x87, 0, 0, 0)
+    USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
+    IF_NOT_EQUAL(LW(0), -1)
+    SET(GSW(1621), LW(0))
+    END_IF()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Music"))
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(determine_custom_music)
     // Difficulty
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(difficultyText), 0, 0)
@@ -4933,21 +4199,7 @@ namespace mod
     USER_FUNC(evt_msg::evt_msg_continue)
     SET(GSW(1620), LW(0))
     // Music
-    USER_FUNC(loadCustomSelectTex, 1)
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&musicItems), LW(0), 0)
-    SWITCH(LW(0))
-    CASE_EQUAL(65) // Vanilla
-    SET(GSW(1621), 0)
-    CASE_EQUAL(66) // 8Bit
-    SET(GSW(1621), 1)
-    CASE_EQUAL(67) // Synth
-    SET(GSW(1621), 2)
-    CASE_EQUAL(68) // No Music
-    SET(GSW(1621), 3)
-    CASE_EQUAL(69)
-    SET(GSW(1621), 4)
-    END_SWITCH()
-    USER_FUNC(loadCustomSelectTex, 0)
+    RUN_CHILD_EVT(cwselect_music)
     SET(GW(5), 0) // Fixes the Dark Prognosticus breaking holographic enemies. What a funny ass bug
     RETURN_FROM_CALL()
 
@@ -4956,21 +4208,7 @@ namespace mod
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(musicSignRFText), 0, 0)
     SET(GSWF(1601), 1)
     END_IF()
-    USER_FUNC(loadCustomSelectTex, 1)
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&musicItems), LW(0), 0)
-    SWITCH(LW(0))
-    CASE_EQUAL(65) // Vanilla
-    SET(GSW(1621), 0)
-    CASE_EQUAL(66) // 8Bit
-    SET(GSW(1621), 1)
-    CASE_EQUAL(67) // Synth
-    SET(GSW(1621), 2)
-    CASE_EQUAL(68) // No Music
-    SET(GSW(1621), 3)
-    CASE_EQUAL(69) // Piano
-    SET(GSW(1621), 4)
-    END_SWITCH()
-    USER_FUNC(loadCustomSelectTex, 0)
+    RUN_CHILD_EVT(cwselect_music)
     IF_NOT_EQUAL(LW(0), -1)
     USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 0, 1000)
     WAIT_MSEC(1200)
@@ -5001,9 +4239,6 @@ namespace mod
     EVT_BEGIN(npc_drop_item_patch)
     USER_FUNC(evt_npc_drop_item_new, LW(10), LW(11))
     RETURN_FROM_CALL()
-
-    // TODO, why is this unused?
-    s32 danPitLock[] = {48, -1};
 
     // Dialogue to determine quickstart or no
     EVT_BEGIN(determine_quickstart)
@@ -5077,7 +4312,68 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(ToggleGSWF, 1)
 
+    EVT_BEGIN(cwselect_features)
+    USER_FUNC(EvtCWSelectEntry, PTR("Features"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1610))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(moverFeaturesName), PTR(moverFeaturesDesc), LW(1), 0, 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1611))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(merlunaFeaturesName), PTR(merlunaFeaturesDesc), LW(1), 0, 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1612))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(marioFeaturesName), PTR(marioFeaturesDesc), LW(1), 0, 0, 0)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Features"), 0, LW(1))
+    SWITCH(LW(1))
+    CASE_EQUAL(0) // MOVERS
+    USER_FUNC(ToggleGSWF, 1610)
+    CASE_EQUAL(1) // MERLUNA
+    USER_FUNC(ToggleGSWF, 1611)
+    CASE_EQUAL(2) // MARIO
+    USER_FUNC(ToggleGSWF, 1612)
+    END_SWITCH()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Features"))
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(cwselect_patches)
+    USER_FUNC(EvtCWSelectEntry, PTR("Patches"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1620))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(lockPatchesName), PTR(lockPatchesDesc), LW(1), 0, 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1621))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(hpPatchesName), PTR(hpPatchesDesc), LW(1), 0, 0, 0)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Patches"), 0, LW(1))
+    SWITCH(LW(1))
+    CASE_EQUAL(0) // LOCKS
+    USER_FUNC(ToggleGSWF, 1620)
+    CASE_EQUAL(1) // HP SOUND
+    USER_FUNC(ToggleGSWF, 1621)
+    END_SWITCH()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Patches"))
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(cwselect_accessibility)
+    USER_FUNC(EvtCWSelectEntry, PTR("Accessibility"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
+    SET(LW(1), 0x87)
+    SUB(LW(1), GSWF(1630))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(explosionShakeAccessName), PTR(explosionShakeAccessDesc), LW(1), 0, 0, 0)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Accessibility"), 0, LW(1))
+    SWITCH(LW(1))
+    CASE_EQUAL(0) // EXPLOSION SHAKES
+    USER_FUNC(ToggleGSWF, 1630)
+    END_SWITCH()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Accessibility"))
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(jimbo_real)
+    USER_FUNC(cwselectSettingsIcons, 1)
     SWITCH(GW(0))
     // FEATURES
     CASE_EQUAL(0)
@@ -5094,35 +4390,14 @@ namespace mod
     END_IF()
     END_IF()
     IF_NOT_EQUAL(GW(0), -1)
-    USER_FUNC(loadCustomSelectTex, 2)
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&featuresItems), LW(1), 0)
-    SWITCH(LW(1))
-    CASE_EQUAL(65) // MOVERS
-    USER_FUNC(ToggleGSWF, 1610)
-    CASE_EQUAL(66) // MERLUNA
-    USER_FUNC(ToggleGSWF, 1611)
-    CASE_EQUAL(67) // MARIO
-    USER_FUNC(ToggleGSWF, 1612)
-    END_SWITCH()
+    RUN_CHILD_EVT(cwselect_features)
     END_IF()
     // PATCHES
     CASE_EQUAL(1)
-    USER_FUNC(loadCustomSelectTex, 3)
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&patchesItems), LW(1), 0)
-    SWITCH(LW(1))
-    CASE_EQUAL(65) // LOCKS
-    USER_FUNC(ToggleGSWF, 1620)
-    CASE_EQUAL(66) // HP SOUND
-    USER_FUNC(ToggleGSWF, 1621)
-    END_SWITCH()
+    RUN_CHILD_EVT(cwselect_patches)
     // ACCESSIBILITY
     CASE_EQUAL(2)
-    USER_FUNC(loadCustomSelectTex, 4)
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&accessibilityItems), LW(1), 0)
-    SWITCH(LW(1))
-    CASE_EQUAL(65) // EXPLOSION SHAKES
-    USER_FUNC(ToggleGSWF, 1630)
-    END_SWITCH()
+    RUN_CHILD_EVT(cwselect_accessibility)
     // LOOP OR END SEQUENCE
     END_SWITCH()
     IF_NOT_EQUAL(LW(1), -1)
@@ -5140,7 +4415,7 @@ namespace mod
     ELSE()
     // END JIMBO CUTSCENE
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(jimboBye), 0, PTR("me"))
-    USER_FUNC(loadCustomSelectTex, 0)
+    USER_FUNC(cwselectSettingsIcons, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 1000, 11)
     WAIT_MSEC(1000)
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -5176,7 +4451,7 @@ namespace mod
     END_IF()
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(jimboBye), 0, PTR("me"))
     // END JIMBO CUTSCENE
-    USER_FUNC(loadCustomSelectTex, 0)
+    USER_FUNC(cwselectSettingsIcons, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 1000, 11)
     WAIT_MSEC(1000)
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -5236,7 +4511,7 @@ namespace mod
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
     USER_FUNC(evt_mario::evt_mario_key_on)
     END_IF()
-    IF_EQUAL(GSWF(1670), 1) // If Migraine has just been activated
+    IF_EQUAL(GSWF(1670), 1) // If Migraine or Indolence (Slow) has just been activated
     SET(GSWF(1670), 0)
     INLINE_EVT()
     WAIT_MSEC(500)
@@ -5796,12 +5071,6 @@ namespace mod
 
     static void evtPatches()
     {
-        /* // Get Flipside Tower's init EVT script
-         evtmgr_cmd::EvtScriptCode *flipsideInitEvt = map_data::mapDataPtr("mac_02")->initScript;
-
-         // Add a hook at the beginning of Flipside's init EVT script that will play our custom script first
-         evtpatch::hookEvt(flipsideInitEvt, 1, flipside_nastasia_funny); */
-
         // Render Flopside Pit pipe useless and patch Pit exit pipe
         evtmgr_cmd::EvtScriptCode *disableFlopsidePitEntrance = map_data::mapDataPtr("mac_15")->initScript;
         evtpatch::hookEvt(disableFlopsidePitEntrance, 11, disable_flopside_pit_entrance);
@@ -5940,20 +5209,31 @@ namespace mod
 
     void main()
     {
-        wii::os::OSReport("SPM Rel Loader: the mod has ran!\n");
+        // Allocate memory for LunaticPitWork
+        Lunatic = (LunaticPitWork *)memory::__memAlloc(0, sizeof(LunaticPitWork));
+        msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
+        // Library inits
+        globalop::GlobalOperationsInit();
+        msgpatch::msgpatchMain();
+        customwin::CustomWinMain();
         evtpatch::evtmgrExtensionInit();
         tplpatch::iconPatch("wicon2");
-        titleScreenCustomTextPatch();
-        messagePatch();
+        effpatch::effpatchInit();
+        // Mod functions
+        guiOverrides();
+        rewrite_main();
+        miscLambdas();
         danOverwrite();
         pluswinWhackaBump();
-        danYouSuck();
         danDontFuckingCrash();
         patchNpcRgbaFuncs();
         danPatchPitEnemies();
+        npcMessagePatches();
         evtPatches();
         patchMarioDamage();
         dimenPatch();
-        rfcItemsRef = getRfcItems();
+        // Debug tools
+        yme::ymeMain();
+        wii::os::OSReport("SPM Rel Loader: Lunatic Pit is now active.\n");
     }
 }

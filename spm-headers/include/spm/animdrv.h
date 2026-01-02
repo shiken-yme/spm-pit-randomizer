@@ -24,7 +24,12 @@ SIZE_ASSERT(AnimationModelFileAnimTableEntry, 0x40)
 
 typedef struct 
 {
-/* 0x000 */ u8 unknown_0x0[0x148 - 0x0];
+/* 0x000 */ u32 headerSize;
+/* 0x004 */ char modelName[64];
+/* 0x044 */ char textureName[64];
+/* 0x084 */ char buildTime[64];
+/* 0x0C4 */ u32 flags;
+/* 0x0C8 */ u8 unknown_0x0c8[0x148 - 0x0c8];
 /* 0x148 */ u32 animCount;
 /* 0x14C */ u8 unknown_0x14c[0x1ac - 0x14c];
 /* 0x1AC */ AnimationModelFileAnimTableEntry * anims;
@@ -147,7 +152,7 @@ u32 animGroupBaseAsync(const char * animPoseName, s32 param_2, void * readDoneCb
 AnimPose * animPoseGetAnimPosePtr(s32 animPoseId);
 UNKNOWN_FUNCTION(animPoseGetAnimDataPtr);
 AnimationModelFileHeader * animPoseGetAnimBaseDataPtr(s32 id);
-UNKNOWN_FUNCTION(animPoseGetCurrentAnim);
+const char * animPoseGetCurrentAnim(s32 animPoseId);
 UNKNOWN_FUNCTION(func_8004ca08);
 UNKNOWN_FUNCTION(func_8004caec);
 UNKNOWN_FUNCTION(func_8004cd30);
@@ -160,6 +165,6 @@ UNKNOWN_FUNCTION(animPoseDrawShape);
 UNKNOWN_FUNCTION(func_8004d96c);
 UNKNOWN_FUNCTION(animPoseGetShapeIdx);
 s32 animPoseGetGroupIdx(s32 id, const char * name);
-UNKNOWN_FUNCTION(animPoseGetGroupIdxSubname);
+s32 animPoseGetGroupIdxSubname(s32 id, const char * name);
 
 CPP_WRAPPER_END()
