@@ -11,7 +11,9 @@ UNKNOWN_FUNCTION(evt_mario_flag4_onoff)
 // evt_mario_flag8_onoff(bool onOff, u32 mask)
 EVT_DECLARE_USER_FUNC(evt_mario_flag8_onoff, 2)
 
-UNKNOWN_FUNCTION(func_800ef53c)
+// evt_mario_get_flags(s32 type, u32 flags)
+// type 0 is flags, 1 is misc flags, 2 is disp flags
+EVT_DECLARE_USER_FUNC(evt_mario_get_flags, 2)
 
 // evt_mario_ctrl_onoff(s32 ctrl)
 // 0 is ctrlOff, 1 is ctrlOn

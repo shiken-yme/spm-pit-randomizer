@@ -6,16 +6,17 @@
 CPP_WRAPPER(spm::mario_motion)
 
 USING(spm::mario::MarioMotFuncs)
+USING(spm::mario::MarioJumpFallPara)
 
 void marioMotion();
 
 void marioChgMot(s32 nextMotionId);
 
-UNKNOWN_FUNCTION(marioChgMotSub)
+void marioChgMotSub(s32 motionId, s32 param_2);
 UNKNOWN_FUNCTION(marioChgMot2)
 UNKNOWN_FUNCTION(marioClearJumpPara)
 UNKNOWN_FUNCTION(func_801435a0)
-UNKNOWN_FUNCTION(marioSetJumpPara)
+void marioSetJumpPara();
 UNKNOWN_FUNCTION(marioSetFallPara)
 UNKNOWN_FUNCTION(func_801440a0)
 UNKNOWN_FUNCTION(func_801440f4)
@@ -24,7 +25,7 @@ UNKNOWN_FUNCTION(func_801442b4)
 UNKNOWN_FUNCTION(func_801444d0)
 f32 marioCalcFramesToPeak(f32 param_1, f32 param_2, f32 param_3, f32 param_4);
 f32 marioCalcFramesToTerminalVel(f32 initJumpYSpeed, f32 jumpAccel, f32 param_3, f32 param_4, f32 terminalVelocity);
-UNKNOWN_FUNCTION(func_80144bbc)
+f32 marioSetJumpParaDirect(f32 param_1, f32 param_2, f32 param_3, f32 param_4);
 UNKNOWN_FUNCTION(func_80144cf4)
 UNKNOWN_FUNCTION(func_80144de4)
 UNKNOWN_FUNCTION(func_80144e44)
@@ -34,8 +35,8 @@ UNKNOWN_FUNCTION(func_8014503c)
 UNKNOWN_FUNCTION(func_801450f8)
 UNKNOWN_FUNCTION(func_80145108)
 UNKNOWN_FUNCTION(func_80145174)
-UNKNOWN_FUNCTION(marioJump)
-UNKNOWN_FUNCTION(marioFall)
+void marioJump();
+void marioFall();
 UNKNOWN_FUNCTION(marioLandCamShake)
 UNKNOWN_FUNCTION(marioLandon)
 UNKNOWN_FUNCTION(func_80146448)
@@ -102,5 +103,7 @@ UNKNOWN_FUNCTION(mot_34_post)
 int boomerFuseMain(void* boomerWork);
 
 extern MarioMotFuncs marioMotTbl[78]; // index motion id
+
+extern f32 marioJumpFallParaDefs[4][15]; // index character id
 
 CPP_WRAPPER_END()

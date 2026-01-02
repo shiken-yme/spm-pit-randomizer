@@ -346,7 +346,7 @@ using evt_helper_int_array = s32[];
 #define START_ID(evt_id) \
     EVT_HELPER_CMD(1, 106), EVT_HELPER_OP(evt_id),
 #define CHK_EVT(evt_id, is_running) \
-    EVT_HELPER_CMD(2, 107), EVT_HELPER_OP(evt_id), EVT_HELPER_OP(is_running)
+    EVT_HELPER_CMD(2, 107), EVT_HELPER_OP(evt_id), EVT_HELPER_OP(is_running),
 
 #define INLINE_EVT() \
     EVT_HELPER_CMD(0, 108),

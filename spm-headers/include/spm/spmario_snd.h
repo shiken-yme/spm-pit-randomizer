@@ -54,7 +54,7 @@ UNKNOWN_FUNCTION(spsndSetPosDirListener)
 void spsndSetSFXReverbMode(u8 mode);
 UNKNOWN_FUNCTION(func_80238804)
 UNKNOWN_FUNCTION(func_80238868)
-UNKNOWN_FUNCTION(spsndSetFlag)
+void spsndSetFlag(u16 flags);
 void spsndClearFlag(u16 flags);
 UNKNOWN_FUNCTION(spsndGetFlag)
 UNKNOWN_FUNCTION(func_802388f4)
@@ -72,8 +72,8 @@ void spsndSetSfxPlayerPos(u32 player, Vec3 * position);
 UNKNOWN_FUNCTION(spsndSFX_vol)
 UNKNOWN_FUNCTION(spsndSFX_pit)
 UNKNOWN_FUNCTION(spsndSFX_delay)
-UNKNOWN_FUNCTION(func_8023b680)
-UNKNOWN_FUNCTION(func_8023b77c)
+void func_8023b680(s32 p1, u32 p2);
+void func_8023b77c(u32 p1);
 UNKNOWN_FUNCTION(func_8023b858)
 UNKNOWN_FUNCTION(func_8023b974)
 UNKNOWN_FUNCTION(spsndSFX_flagOn)

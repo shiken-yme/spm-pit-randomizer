@@ -11,6 +11,8 @@
 
 namespace mod
 {
+    using namespace spm;
+
     enum Tribe2Tattle_Types
     {
         /* 0x0 */ TATTLE,
@@ -18,9 +20,13 @@ namespace mod
         /* 0x2 */ CARD_DESC
     };
 
-    char cardNameBuffer[64];
-
-    s32 shadooHealth = 0;
+    struct NPCMessagePatchData
+    {
+        npcdrv::NPCTribeId tribeId;
+        const char *nameMsg;
+        const char *cardMsg;
+        const char *tattleMsg;
+    };
 
     // Custom Selects, Difficulty Options, and RFC
     const char difficultyOptions[] =
@@ -41,95 +47,95 @@ namespace mod
         "this sign!\n"
         "<k>";
 
-    const char *vMusicName =
+    const char vMusicName[] =
         "Pit of 100 Trials";
 
-    const char *vMusicDesc =
+    const char vMusicDesc[] =
         "Mysterious and entrancing!\n"
         "The classic Pit music.";
 
-    const char *ttMusicName =
+    const char ttMusicName[] =
         "8-Bit Mix";
 
-    const char *ttMusicDesc =
+    const char ttMusicDesc[] =
         "A chiptune jam! Composed by\n"
         "Tater-Tot Tunes.";
 
-    const char *plMusicName =
+    const char plMusicName[] =
         "Synth Mix";
 
-    const char *plMusicDesc =
+    const char plMusicDesc[] =
         "Synthy and orchestral!\n"
         "Composed by Plazzap.";
 
-    const char *noMusicName =
+    const char noMusicName[] =
         "No Music";
 
-    const char *noMusicDesc =
+    const char noMusicDesc[] =
         "Play your own music in the\n"
         "background, if you'd like!";
 
-    const char *jdMusicName =
+    const char jdMusicName[] =
         "Piano Mix";
 
-    const char *jdMusicDesc =
+    const char jdMusicDesc[] =
         "Jazzy and emotional! Performed\n"
         "live by Jdaster64.";
 
-    const char *moverFeaturesName =
+    const char moverFeaturesName[] =
         "Movers";
 
-    const char *moverFeaturesDesc =
+    const char moverFeaturesDesc[] =
         "These guys can help you skip\n"
         "floors, if you have coin!";
 
-    const char *merlunaFeaturesName =
+    const char merlunaFeaturesName[] =
         "Merluna";
 
-    const char *merlunaFeaturesDesc =
+    const char merlunaFeaturesDesc[] =
         "The esoteric purveyor of\n"
         "Divine Judgement!";
 
-    const char *marioFeaturesName =
+    const char marioFeaturesName[] =
         "Mario";
 
-    const char *marioFeaturesDesc =
+    const char marioFeaturesDesc[] =
         "Our hero, Mario! You wouldn't\n"
         "disable him, right?";
 
-    const char *lockPatchesName =
+    const char lockPatchesName[] =
         "Patched Locks";
 
-    const char *lockPatchesDesc =
+    const char lockPatchesDesc[] =
         "Were you tired of selecting\n"
         "a key every time? Me, too.";
 
-    const char *hpPatchesName =
+    const char hpPatchesName[] =
         "Low HP Sounds";
 
-    const char *hpPatchesDesc =
+    const char hpPatchesDesc[] =
         "The only sound worse than your\n"
         "Wii crashing on a loading zone.";
 
-    const char *explosionShakeAccessName =
+    const char explosionShakeAccessName[] =
         "Explosions Shake Camera";
 
-    const char *explosionShakeAccessDesc =
+    const char explosionShakeAccessDesc[] =
         "Toggles camera vibrations when\n"
         "certain enemies explode.";
 
-    const char *selectMusicBox =
+    const char selectMusicBox[] =
         "Select a Tune";
 
-    const char *selectMusicBlueText =
+    const char selectMusicBlueText[] =
         "Music";
 
-    const char *selectJimboBox =
+    const char selectJimboBox[] =
         "Select your Settings\n"
         "<icon PAD_1 0.67 0 0 0> is Enabled\n"
         "<icon PAD_2 0.67 0 0 0> is Disabled\n";
 
-    const char *selectJimboBlueText =
+    const char selectJimboBlueText[] =
         "Options";
 
     const char chestText[] =
@@ -826,17 +832,17 @@ namespace mod
         "<wait 200>wicky-whackety-whack-a-do!\n"
         "<k>";
 
-    const char *mystBumpDescPtr =
+    const char mystBumpDescPtr[] =
         "msg_blue_bump_desc";
 
-    const char *mystBumpNamePtr =
+    const char mystBumpNamePtr[] =
         "msg_blue_bump_name";
 
-    const char *mystBumpDesc =
+    const char mystBumpDesc[] =
         "A weird bump with an odd ability.\n"
         "Given to you by a \"blue\" Whacka.";
 
-    const char *mystBumpName =
+    const char mystBumpName[] =
         "Mysterious Whacka Bump";
 
     const char bumpUseMsg[] =
@@ -846,9 +852,8 @@ namespace mod
 
     const char bumpUnuseMsg[] =
         "<system>"
-        "Would you like to go back to\n"
-        "the way things were, back when\n"
-        "when we first met each other?\n"
+        "Would you like to stop\n"
+        "being blue?\n"
         "<o>";
 
     const char bumpYoureBlueNow[] =
@@ -859,6 +864,147 @@ namespace mod
         "<system>"
         "* You're no longer blue.\n"
         "<k>";
+
+    // Interface
+
+    const char activeConditionsNone[] =
+        "<system>\n"
+        "There are no active\n"
+        "conditions to view right now!\n"
+        "<k>";
+
+    const char apathyName[] =
+        "Apathy";
+
+    const char dreadName[] =
+        "Dread";
+
+    const char prejudiceName[] =
+        "Prejudice";
+
+    const char indifferenceName[] =
+        "Indifference";
+
+    const char recalcitranceName[] =
+        "Recalcitrance";
+
+    const char depravityName[] =
+        "Depravity";
+
+    const char indolenceName[] =
+        "Indolence";
+
+    const char melancholyName[] =
+        "Melancholy";
+
+    const char ruinName[] =
+        "Ruin";
+
+    const char apathyDesc[] =
+        "Disorder: Apathy\n"
+        "\"This is taking way too long...\"\n"
+        "<k>\n<p>\n"
+        "Decreases max HP by %d%%.\n"
+        "Increases enemy HP by %d%%.\n"
+        "<k>\n<p>\n"
+        "Increases damage taken by %d.\n"
+        "Decreases damage dealt by %d.\n"
+        "<k>\n<p>\n"
+        "Halves CRIT Rate.\n"
+        "Halves CRIT Mult.\n"
+        "<k>\n<p>\n"
+        "All stats are restored when\n"
+        "the Disorder ends.";
+
+    const char dreadDesc[] =
+        "Disorder: Dread\n"
+        "\"I'm never getting out of here...\"\n"
+        "<k>\n<p>\n"
+        "Enemies drop no coins or items.\n"
+        "XP gain from enemies is disabled.\n"
+        "<k>\n<p>\n"
+        "%d%% chance for enemies to\n"
+        "heal instead of taking damage.\n"
+        "<k>\n<p>\n"
+        "Enemy healing is silent and\n"
+        "based on your Attack.";
+
+    const char prejudiceDesc[] =
+        "Disorder: Prejudice\n"
+        "\"Wretched, audacious beasts...\"\n"
+        "<k>\n<p>\n"
+        "Instantly lose about %d%% of all\n"
+        "coins when entering a room.\n"
+        "<k>\n<p>\n"
+        "%d%% chance to lose a coin when\n"
+        "the timer counts down.\n"
+        "<k>\n<p>\n"
+        "If coins drop below %d, halves\n"
+        "damage dealt to enemies.";
+
+    const char indifferenceDesc[] =
+        "Disorder: Indifference\n"
+        "\"What a waste of energy...\"\n"
+        "<k>\n<p>\n"
+        "30%% chance to add a random\n"
+        "trash item to the inventory.\n"
+        "<k>\n<p>\n"
+        "If there is no space, a random\n"
+        "item will be replaced.\n"
+        "<k>\n<p>\n"
+        "This can repeat up to %d\n"
+        "times per room entry.\n"
+        "<k>\n<p>\n"
+        "Every room will have a\n"
+        "complex layout.";
+
+    const char recalcitranceDesc[] =
+        "Disorder: Recalcitrance\n"
+        "\"I will make them pay tenfold...\"\n"
+        "<k>\n<p>\n"
+        "XP gain from all sources is\n"
+        "modified by -%d%%.\n"
+        "<k>\n<p>\n"
+        "%d%% chance for enemies to\n"
+        "return some damage from jumps.\n"
+        "<k>\n<p>\n"
+        "Up to %d damage can be taken\n"
+        "in this manner.";
+
+    const char depravityDesc[] =
+        "Disorder: Depravity\n"
+        "\"Torture of the highest degree...\"\n"
+        "<k>\n<p>\n"
+        "A very difficult enemy will spawn\n"
+        "plentifully in each room.\n"
+        "<k>\n<p>\n"
+        "All enemies are guaranteed to spawn\n"
+        "at more-or-less their maximum rates.\n"
+        "<k>\n<p>\n"
+        "All enemies will be very difficult\n"
+        "after Floor %d.";
+
+    const char indolenceDesc[] =
+        "Disorder: Indolence\n"
+        "\"Guess I'll just stay put...\"\n"
+        "<k>\n<p>\n"
+        "When taking damage, %d%% chance\n"
+        "for one of the following effects:\n"
+        "<k>\n<p>\n"
+        "Get frozen; take %d%% more damage;\n"
+        "become Slow for %d seconds.";
+
+    const char melancholyDesc[] =
+        "Disorder: Melancholy\n"
+        "\"I'm so over this...\"\n"
+        "<k>\n<p>\n"
+        "Placeholder";
+
+    const char ruinDesc[] =
+        "Disorder: Ruin\n"
+        "\"Please... turn the lights back on...\"\n"
+        "<k>\n<p>\n"
+        "Placeholder";
 
     // Jimbo
     const char jimboIntro[] =
@@ -953,12 +1099,8 @@ namespace mod
     const char boodinItemSelected[] =
         "The %s card?\n"
         "<wait 200>That basically goes for\n"
-        "%d coins,<wait 200> buuut...\n"
-        "<k>\n<p>\n"
-        "I'll cut you a deal.\n"
-        "<wait 300><dynamic 3>%d coins.</dynamic><wait 300> That's half price!\n"
-        "<wait 200>How 'bout it?\n"
-        "<o>";
+        "%d coins.<wait 200> How 'bout it?\n"
+        "<wait 200><o>";
 
     const char boodinSelect[] =
         "<select 0 -1 160 40>\n"
@@ -1010,14 +1152,14 @@ namespace mod
         "Yes\n"
         "No";
 
-    const char *mac_kanban_004 =
+    const char mac_kanban_004[] =
         "<kanban>\n"
         "<center>Flopside's #1 Useless Pipe</center>\n"
         "<col c00000ff><center>IT'S USELESS! Try it out!</center>\n"
         "</col><center>-Flopside City Hall-</center>\n"
         "<k>";
 
-    const char *D100_entrance_03 =
+    const char D100_entrance_03[] =
         "<system>\n"
         "I can't promise this will\n"
         "work correctly, but hey,\n"
@@ -1044,8 +1186,11 @@ namespace mod
         "fake Mario lives in the Pit\n"
         "of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "<wait 150>He has high attack power\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
+        "He has high attack power\n"
         "and jumps and hammers well...\n"
         "<k>\n<p>\n"
         "If you don't plan your stomp,\n"
@@ -1062,7 +1207,7 @@ namespace mod
 
     const char desc_phantom_mario[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's Mario's dark-power\n"
         "doppelganger!\n"
@@ -1075,8 +1220,11 @@ namespace mod
         "Peach that dwells in the\n"
         "Pit of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "<wait 150>This Peach uses her parasol\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
+        "This Peach uses her parasol\n"
         "just like the original.\n"
         "<k>\n<p>\n"
         "And if she uses it in midair,\n"
@@ -1093,7 +1241,7 @@ namespace mod
 
     const char desc_phantom_peach[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of Peach!\n"
         "\n"
@@ -1106,11 +1254,15 @@ namespace mod
         "fake Bowser rules the Pit\n"
         "of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
-        "Defense is 4. <wait 150>He has spikes,\n"
-        "so you can't stomp on him...\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
         "<k>\n<p>\n"
-        "He has high Defense, so you\n"
+        "I know his Defense is 4...<wait 150> \n"
+        "He has spikes, so you can't\n"
+        "stomp on him...\n"
+        "<k>\n<p>\n"
+        "Because of his high Defense, you\n"
         "might need to use Boomer and\n"
         "Cudge...\n"
         "<k>\n<p>\n"
@@ -1124,7 +1276,7 @@ namespace mod
 
     const char desc_phantom_bowser[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of\n"
         "Bowser!\n"
@@ -1136,7 +1288,10 @@ namespace mod
         "That's Dark Luigi. <wait 150>He lurks in\n"
         "the Pit of 100 Trials...\n"
         "<k>\n<p>\n"
-        "Max HP is %d. Attack is %d.\n"
+        "These HP and Attack readings\n"
+        "are highly abnormal...<wait 150> I can't\n"
+        "tell what they are...\n"
+        "<k>\n<p>\n"
         "<wait 150>He has the same incredible\n"
         "jumping ability as Luigi.\n"
         "<k>\n<p>\n"
@@ -1155,7 +1310,7 @@ namespace mod
 
     const char desc_phantom_luigi[] =
         "Max HP: ???\n"
-        "Attack: %d\n"
+        "Attack: ???\n"
         "<k>\n<p>\n"
         "It's a dark duplicate of Luigi!\n"
         "\n"
@@ -1915,314 +2070,11 @@ namespace mod
         "here, anyway?\n"
         "<k>\n<p>\n"
         "He's definitely more powerful\n"
-        "than he looks, though...<wait 250> It won't\n"
-        "hurt to give him a chance...\n"
+        "than he looks... <wait 250>You should ask\n"
+        "what he can do for you...\n"
         "<k>";
 
-    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type)
-    {
-        spm::npcdrv::NPCTribe *tribe = spm::npcdrv::npcGetTribe(tribeId);
-        char tattleBuffer[512];
-        char cardDescBuffer[512];
-        if (npc != nullptr || npc != 0)
-        {
-            if (msl::string::strstr(npc->name, "rebear") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_merluna);
-            }
-            if (msl::string::strstr(npc->name, "dan_card") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, spm::msgdrv::msgSearch("mac_19_card"));
-            }
-            if (msl::string::strstr(npc->name, "mover") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_mover);
-            }
-            if (msl::string::strstr(npc->name, "dan_koburon") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_whacka);
-            }
-            if (msl::string::strstr(npc->name, "jimbo") != nullptr)
-            {
-                msl::stdio::sprintf(tattleBuffer, tattle_jimbo);
-            }
-        }
-        switch (tribeId)
-        {
-        case 2:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Goomba");
-            break;
-        case 5:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiked_gloomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiked_gloomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiked Gloomba");
-            break;
-        case 6:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiked_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiked_hyper_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiked Hyper Goomba");
-            break;
-        case 8:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_paragoomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_paragoomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Paragoomba");
-            break;
-        case 10:
-            msl::stdio::sprintf(tattleBuffer, tattle_kamikaze_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_kamikaze_goomba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Kamikaze Goomba");
-            break;
-        case 16:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Koopa");
-            break;
-        case 19:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_koopatrol, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_koopatrol, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Koopatrol");
-            break;
-        case 24:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_paratroopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_paratroopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Paratroopa");
-            break;
-        case 29:
-            msl::stdio::sprintf(tattleBuffer, tattle_red_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_red_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Red Spike Top");
-            break;
-        case 38:
-            msl::stdio::sprintf(tattleBuffer, tattle_sky_blue_spiny, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_sky_blue_spiny, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Sky-Blue Spiny");
-            break;
-        case 43:
-        case 44:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_bones, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_bones, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Bones");
-            break;
-        case 49:
-        case 50:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_hammer_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_hammer_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Hammer Bro");
-            break;
-        case 55:
-        case 56:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_boomerang_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_boomerang_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Boomerang Bro");
-            break;
-        case 61:
-        case 62:
-            msl::stdio::sprintf(tattleBuffer, tattle_ice_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ice_bro, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ice Bro");
-            break;
-        case 66:
-        case 67:
-        case 68:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Magikoopa");
-            break;
-        case 75:
-        case 76:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_striker, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_striker, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Striker");
-            break;
-        case 86:
-            msl::stdio::sprintf(tattleBuffer, tattle_bomb_boo, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bomb_boo, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bomb Boo");
-            break;
-        case 95:
-            msl::stdio::sprintf(tattleBuffer, tattle_white_clubba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_white_clubba, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "White Clubba");
-            break;
-        case 98:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_fuzzy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_fuzzy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Green Fuzzy");
-            break;
-        case 101:
-            msl::stdio::sprintf(tattleBuffer, tattle_hyper_cleft, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_hyper_cleft, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Hyper Cleft");
-            break;
-        case 111:
-        case 112:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_puff, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_puff, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Puff");
-            break;
-            case 124:
-            msl::stdio::sprintf(tattleBuffer, tattle_gold_chomp, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_gold_chomp, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Gold Chomp");
-            break;
-        case 167:
-            msl::stdio::sprintf(tattleBuffer, tattle_tileoid_pu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_tileoid_pu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Tileoid PU");
-            break;
-        case 171:
-            msl::stdio::sprintf(tattleBuffer, tattle_bawbus, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bawbus, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bawbus");
-            break;
-        case 220:
-        case 221:
-        case 222:
-            msl::stdio::sprintf(tattleBuffer, tattle_ninjeremiah, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ninjeremiah, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ninjeremiah");
-            break;
-        case 225:
-            msl::stdio::sprintf(tattleBuffer, tattle_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Skellobyte");
-            break;
-        case 228:
-            msl::stdio::sprintf(tattleBuffer, tattle_spiky_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spiky_skellobyte, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spiky Skellobyte");
-            break;
-        case 330:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_mario, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_mario, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Mario");
-            break;
-        case 332:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_peach, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_peach, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Peach");
-            break;
-        case 333:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_bowser, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_bowser, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Bowser");
-            break;
-        case 331:
-            msl::stdio::sprintf(tattleBuffer, tattle_phantom_luigi, shadooHealth, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_phantom_luigi, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Phantom Luigi");
-            break;
-        case 446:
-            msl::stdio::sprintf(tattleBuffer, tattle_ash_cherbil, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_ash_cherbil, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Ash Cherbil");
-            break;
-        case 465:
-            msl::stdio::sprintf(tattleBuffer, tattle_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Koopa");
-            break;
-        case 466:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_shady_koopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shady Koopa");
-            break;
-        case 470:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_buzzy_beetle, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_buzzy_beetle, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Buzzy Beetle");
-            break;
-        case 471:
-            msl::stdio::sprintf(tattleBuffer, tattle_flip_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_flip_spike_top, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spike Top");
-            break;
-        case 473:
-        case 474:
-        case 475:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Green Magikoopa");
-            break;
-        case 476:
-        case 477:
-        case 478:
-            msl::stdio::sprintf(tattleBuffer, tattle_white_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_white_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "White Magikoopa");
-            break;
-        case 479:
-        case 480:
-        case 481:
-            msl::stdio::sprintf(tattleBuffer, tattle_red_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_red_magikoopa, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Red Magikoopa");
-            break;
-        case 495:
-            msl::stdio::sprintf(tattleBuffer, tattle_spinia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spinia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spinia");
-            break;
-        case 496:
-            msl::stdio::sprintf(tattleBuffer, tattle_spunia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_spunia, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Spunia");
-            break;
-        case 504:
-        case 505:
-            msl::stdio::sprintf(tattleBuffer, tattle_bleepboxer, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_bleepboxer, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Bleepboxer");
-            break;
-        case 506:
-            msl::stdio::sprintf(tattleBuffer, tattle_kilo_muth, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_kilo_muth, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Kilo Muth");
-            break;
-        case 529:
-            msl::stdio::sprintf(tattleBuffer, tattle_yellow_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_yellow_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 530:
-            msl::stdio::sprintf(tattleBuffer, tattle_green_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_green_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 531:
-            msl::stdio::sprintf(tattleBuffer, tattle_blue_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_blue_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 532:
-            msl::stdio::sprintf(tattleBuffer, tattle_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_shy_guy, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Shy Guy");
-            break;
-        case 534:
-            msl::stdio::sprintf(tattleBuffer, tattle_dark_lakitu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardDescBuffer, desc_dark_lakitu, tribe->maxHp, tribe->attackStrength);
-            msl::stdio::sprintf(cardNameBuffer, "Dark Lakitu");
-            break;
-        }
-        if (type == TATTLE)
-        {
-            msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattleBuffer);
-            const char *tattleMsg = spm::search::search_wp->msgBuf;
-            return tattleMsg;
-        }
-        else if (type == CARD_NAME)
-        {
-            const char *nameMsg = cardNameBuffer;
-            return nameMsg;
-        }
-        else
-        {
-            msl::stdio::sprintf(spm::pausewin::pausewinCardDescBuf, cardDescBuffer);
-            const char *descMsg = spm::pausewin::pausewinCardDescBuf;
-            return descMsg;
-        }
-    }
+    void npcMessagePatches();
+    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type);
+
 }

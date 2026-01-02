@@ -37,7 +37,7 @@ Please do not enable any more than one SPM mod at one time, as they are not cros
 * JohnP55 for creating/implementing the evtpatch engine
 * Little Crap, FRN6Phantom, KoraFloof, Nevu_z, and SeekyCt for testing the mod in its alpha stage
 * Emily the Koopa, Nevu_z, Justintheosu, The Cursed Goomba, and Zaku for testing since the beta v1.2 major update, helping find tons of bugs, pointing out balance issues, and recommending all sorts of changes/features
-* [Tater-Tot Tunes](https://youtu.be/C8Va9GnpAtc), [Plazzap](https://youtu.be/WS6mewhqp18), and [Jdaster64](https://youtu.be/7xt3YQYxWrQ) for letting me use their fantastic Pit of 100 Trials covers as optional background music
+* [Tater-Tot Tunes](youtu.be/C8Va9GnpAtc), [Plazzap](youtu.be/WS6mewhqp18), and [Jdaster64](https://youtu.be/7xt3YQYxWrQ) for letting me use their fantastic Pit of 100 Trials covers as optional background music
 * Zaku for the Wedding Hall-themed Floors 81-89 background, and blvebvrrie for the skull-themed Pit Key texture
 * Various members of the SPM Speedrunning community and my friends for encouraging me to continue this project <3
 
