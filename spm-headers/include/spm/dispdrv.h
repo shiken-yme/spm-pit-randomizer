@@ -5,11 +5,8 @@
 #pragma once
 
 #include <common.h>
-#include <wii/mtx.h>
 
 CPP_WRAPPER(spm::dispdrv)
-
-USING(wii::mtx::Vec3)
 
 #define DISP_ZOFFSET 100000.0
 #define MAX_SCISSOR_NO 32
@@ -20,11 +17,10 @@ typedef struct
 {
 /* 0x0 */ s8 cameraId;
 /* 0x1 */ s8 renderMode;
-/* 0x2 */ u8 scissorId;
-/* 0x3 */ u8 unknown_0x3;
+/* 0x2 */ u8 unknown_0x2[0x4 - 0x2];
 /* 0x4 */ f32 order;
 /* 0x8 */ DispCallback * callback;
-/* 0xC */ void * callbackParam;
+/* 0xC */ f32 * callbackParam;
 } DispEntry;
 SIZE_ASSERT(DispEntry, 0x10)
 
@@ -32,14 +28,10 @@ DECOMP_STATIC(DispEntry * dispdrv_pDispWork)
 DECOMP_STATIC(DispEntry ** dispdrv_pSortWork)
 DECOMP_STATIC(s32 dispdrv_entry_n)
 DECOMP_STATIC(DispEntry * dispdrv_currentWorkPtr)
-DECOMP_STATIC(DispCallback * dispdrv_currentCallbackPtr)
 
 typedef struct
 {
-/* 0x0 */ u32 left; // offset to left side of screen
-/* 0x4 */ u32 top; // offset from top of screen
-/* 0x8 */ u32 width;
-/* 0xC */ u32 height;
+/* 0x0 */ u8 unknown_0x0[0x10 - 0x0];
 } DispScissor;
 SIZE_ASSERT(DispScissor, 0x10)
 
@@ -67,7 +59,7 @@ void dispSort();
 */
 void dispDraw(s32 cameraId);
 
-f32 dispCalcZ(Vec3 * param_1);
+f32 dispCalcZ(f32 param_1);
 
 /*
     Returns the DispEntry currently being executed

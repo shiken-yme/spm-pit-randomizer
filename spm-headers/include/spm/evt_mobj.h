@@ -207,17 +207,17 @@ EVT_DECLARE_USER_FUNC(evt_mobj_arrow, 5)
 */
 UNKNOWN_FUNCTION(mobj_blk_decideItem)
 
-s32 mobj_blk(MobjEntry *entry);
-s32 mobj_blk_multicoin(MobjEntry *entry);
-s32 mobj_blk_breakable(MobjEntry *entry);
-s32 mobj_blk_used(MobjEntry *entry);
-s32 mobj_blk_ladder(MobjEntry *entry);
-s32 mobj_blk_flip(MobjEntry *entry);
-s32 mobj_blk_switch(MobjEntry *entry);
-s32 mobj_blk_throwable(MobjEntry *entry);
-s32 mobj_blk_colour(MobjEntry *entry);
-s32 mobj_blk_gravity(MobjEntry * entry);
-s32 mobj_blk_bleck_switch(MobjEntry *entry);
+UNKNOWN_FUNCTION(mobj_blk)
+UNKNOWN_FUNCTION(mobj_blk_multicoin)
+UNKNOWN_FUNCTION(mobj_blk_breakable)
+UNKNOWN_FUNCTION(mobj_blk_used)
+UNKNOWN_FUNCTION(mobj_blk_ladder)
+UNKNOWN_FUNCTION(mobj_blk_flip)
+UNKNOWN_FUNCTION(mobj_blk_switch)
+UNKNOWN_FUNCTION(mobj_blk_throwable)
+UNKNOWN_FUNCTION(mobj_blk_colour)
+UNKNOWN_FUNCTION(mobj_blk_gravity)
+UNKNOWN_FUNCTION(mobj_blk_bleck_switch)
 
 /*
     Spawns a block mobj (question, brick & variants)

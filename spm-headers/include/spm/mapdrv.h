@@ -216,7 +216,7 @@ typedef struct
 /* 0x050 */ MapFileContext mapDatContext;
 /* 0x094 */ void * mapDat;
 /* 0x098 */ u32 mapDatSize;
-/* 0x09C */ TPLHeader * tpl;
+/* 0x09C */ void * tpl;
 /* 0x0A0 */ u32 tplSize;
 /* 0x0A4 */ Unk * textureTable;
 /* 0x0A8 */ MapFileLightTable * lightTable;

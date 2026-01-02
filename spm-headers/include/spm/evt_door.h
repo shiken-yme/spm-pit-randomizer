@@ -5,14 +5,6 @@
 
 CPP_WRAPPER(spm::evt_door)
 
-enum DokanScriptNum
-{
-/* 0x0 */ IN_DOWN,
-/* 0x1 */ IN_UP,
-/* 0x2 */ IN_LEFT,
-/* 0x3 */ IN_RIGHT
-};
-
 typedef struct
 {
 /* 0x00 */ u8 unknown_0x0[0xc - 0x0];
@@ -38,7 +30,7 @@ SIZE_ASSERT(MapDoorDesc, 0x20)
 
 typedef struct
 {
-/* 0x00 */ s32 scriptNumber; // see DokanScriptNum enum
+/* 0x00 */ s32 scriptNumber;
 /* 0x04 */ u16 flags;
 /* 0x06 */ u16 _pad_6;
 /* 0x08 */ const char * name;

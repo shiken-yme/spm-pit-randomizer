@@ -23,11 +23,11 @@ void hudReInit();
 UNKNOWN_FUNCTION(hudLoadStats)
 void hudMain();
 UNKNOWN_FUNCTION(hudGetPos)
-void hudUnhideAlt();
+UNKNOWN_FUNCTION(hudUnhideAlt)
 void hudHide();
 UNKNOWN_FUNCTION(func_80199b0c)
 UNKNOWN_FUNCTION(func_80199b5c)
-void hudUnhide();
+UNKNOWN_FUNCTION(hudUnhide)
 UNKNOWN_FUNCTION(func_80199c74)
 UNKNOWN_FUNCTION(func_80199c88)
 UNKNOWN_FUNCTION(func_80199c9c)

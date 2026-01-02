@@ -8,13 +8,11 @@
 #include <common.h>
 #include <spm/setup_data.h>
 #include <spm/evtmgr.h>
-#include <spm/hitdrv.h>
 #include <wii/mtx.h>
 
 CPP_WRAPPER(spm::npcdrv)
 
 USING(spm::evtmgr::EvtScriptCode)
-USING(spm::hitdrv::HitObj)
 USING(spm::setup_data::MiscSetupDataV6)
 USING(wii::mtx::Vec3)
 
@@ -91,7 +89,7 @@ enum NPCTribeId
     NPC_MAGIKOOPA_PROJ = 65,
     NPC_DARK_MAGIKOOPA = 66,
     NPC_DARK_BROOM_MAGIKOOPA = 67,
-    NPC_DARK_MAGIKOOPA_PROJ = 68,
+    NPC_BROOM_MAGIKOOPA_PROJ = 68,
     NPC_KOOPA_STRIKER = 69,
     NPC_KOOPA_STRIKER_PROJ = 70,
     NPC_TOOPA_STRIKER = 71,
@@ -833,7 +831,7 @@ UNKNOWN_FUNCTION(func_801beed4)
 UNKNOWN_FUNCTION(func_801bf554)
 UNKNOWN_FUNCTION(func_801bf5cc)
 UNKNOWN_FUNCTION(func_801bf60c)
-void func_801bf6a4(HitObj * hit3d, HitObj * hit2d);
+UNKNOWN_FUNCTION(func_801bf6a4)
 NPCEntry * npcEntryFromSetupEnemy(s32 setupFileIndex, Vec3 * pos, s32 nTemplateNo,
                                   MiscSetupDataV6 * miscSetupData);
 s32 npcGetNextTemplateNpcId();
