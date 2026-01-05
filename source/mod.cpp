@@ -114,6 +114,8 @@ namespace mod
 
     LunaticPitWork *Lunatic = nullptr;
 
+    bool DebugMode = false;
+
     // Patches Dimentio to have a dynamic movement zone rather than being hardcoded for one room.
     s32 dimen_determine_move_pos_new(evtmgr::EvtEntry *entry, bool isFirstCall)
     {
@@ -361,6 +363,7 @@ namespace mod
     s32 (*npcTakeDamage)(npcdrv::NPCEntry *npc, npcdrv::NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
     effdrv::EffEntry *(*effDamageStarEntry)(f32 x, f32 y, f32 z, s32 variant, s32 damage);
     void (*camShakeInit)(f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration);
+    void (*marioChgMotSub)(s32 motionId, s32 p2);
     void patchMarioDamage()
     {
         marioCalcDamageToEnemy = patch::hookFunction(mario::marioCalcDamageToEnemy,
@@ -521,27 +524,27 @@ namespace mod
                                                      damage += Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyDamageIncrease;
                                                  // Indolence
                                                  if (disorderId == DISORDER_PURPLE)
-                                                  {
-                                                    s32 odds = system::rand() % 100;
-                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance)
-                                                    {
-                                                        odds = system::rand() % 100;
-                                                        if (odds < 34) // Freeze
-                                                        {
-                                                            status |= 0x2000;
-                                                        }
-                                                        else if (odds < 66) // Damage bonus
-                                                        {
-                                                            f32 fDmg = (f32)damage * ((f32)Lunatic->Luna.DisorderWork.UserWork.Indolence->dispDmgPctBonus / 100) + 1.0;
-                                                            damage = (s32)fDmg;
-                                                        }
-                                                        else
-                                                        {
-                                                            mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
-                                                            swdrv::swSet(1670);
-                                                        }
-                                                    }
-                                                  }
+                                                 {
+                                                     s32 odds = system::rand() % 100;
+                                                     if (odds < Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance)
+                                                     {
+                                                         odds = system::rand() % 100;
+                                                         if (odds < 34) // Freeze
+                                                         {
+                                                             status |= 0x2000;
+                                                         }
+                                                         else if (odds < 66) // Damage bonus
+                                                         {
+                                                             f32 fDmg = (f32)damage * ((f32)Lunatic->Luna.DisorderWork.UserWork.Indolence->dispDmgPctBonus / 100) + 1.0;
+                                                             damage = (s32)fDmg;
+                                                         }
+                                                         else
+                                                         {
+                                                             mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
+                                                             swdrv::swSet(1670);
+                                                         }
+                                                     }
+                                                 }
                                                  if (npcEntry->tribeId == 62) // Ice Bro projectiles will freeze you
                                                  {
                                                      status |= 0x2000;
@@ -693,16 +696,16 @@ namespace mod
                                                 s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
                                                 if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33)
                                                     critActuate = false;
-                                                // wii::os::OSReport("%d damage dealt of type %d.\n", power, ret);
-                                                if (disorderId == DISORDER_CYAN) // Damage Mario AFTER damaging npc if damage type is stomp
+                                                wii::os::OSReport("%d damage dealt of type %d.\n", power, defenseType);
+                                                if (disorderId == DISORDER_CYAN && defenseType == 2) // Damage Mario AFTER damaging npc if damage type is stomp
                                                 {
                                                     odds = system::irand(100);
                                                     if (odds < Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage)
                                                     {
-                                                        s32 marioDmg = (s32)(msl::math::sqrt((f32)power)) + 1;
+                                                        s32 marioDmg = (s32)(hp - npcPart->owner->hp);
                                                         if (marioDmg > Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg)
                                                             marioDmg = Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg;
-                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 4); // Find damage flags for spiky enemies
+                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 0x10000000);
                                                     }
                                                 }
                                                 return ret;
@@ -730,6 +733,14 @@ namespace mod
                                                    return;
                                                camShakeInit(x, y, z, camId, duration);
                                            });
+        marioChgMotSub = patch::hookFunction(mario_motion::marioChgMotSub,
+                                             [](s32 mot, s32 p2)
+                                             {
+                                                 // Patch double damage glitch and Recalcitrance not allowing mot_hit
+                                                 if (mot == MOT_BOUNCE && mario::marioGetPtr()->motionId == MOT_HIT)
+                                                     return;
+                                                 marioChgMotSub(mot, p2);
+                                             });
     }
 
     // Called to remove default segments and their shadows from the map (Top 7 are the hitobjs, followed by mapobjs for visible segment and dropshadow)
@@ -904,15 +915,18 @@ namespace mod
 
     static void debugModeGayFrame()
     {
-        framedrv::FrameEntry *frame = framedrv::framedrv_wp->entries;
-        s32 cur = 0;
-        for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1)
+        if (DebugMode)
         {
-            // if (frame->type != 3) // FRAME_TYPE_EVT
-            // {
-            frame->color = {frameR, frameG, frameB, 255};
-            //  }
-            frame = frame + 1;
+            framedrv::FrameEntry *frame = framedrv::framedrv_wp->entries;
+            s32 cur = 0;
+            for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1)
+            {
+                // if (frame->type != 3) // FRAME_TYPE_EVT
+                // {
+                frame->color = {frameR, frameG, frameB, 255};
+                //  }
+                frame = frame + 1;
+            }
         }
         msl::string::strncmp(spmario::gp->mapName, "ls", 2);
     }
@@ -1190,6 +1204,14 @@ namespace mod
         return 2;
     }
     EVT_DECLARE_USER_FUNC(bump_use_selected, 0)
+
+    s32 DebugModeGetStatus(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)DebugMode);
+        return 2;
+    }
 
     s32 animPoseSetMaterialEvtColorWrapper(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -2611,16 +2633,16 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(cwselectSettingsIcons, 1)
 
-    s32 boodinShopItemPool[] = {
-        // Custom Pit Rando enemies
-        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
-        344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
-        // Vanilla enemies
-        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
-        328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
-        372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
-        401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
-        444, 446, 447, 448, 528, 529, 530, 531};
+        s32 boodinShopItemPool[] = {
+            // Custom Pit Rando enemies
+            283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
+            344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
+            // Vanilla enemies
+            283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
+            328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
+            372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
+            401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
+            444, 446, 447, 448, 528, 529, 530, 531};
 
     s32 dan_boodin_setup_cards(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -4191,6 +4213,27 @@ namespace mod
     RETURN()
     EVT_END()
 
+    EVT_BEGIN(cwselect_disorder)
+    USER_FUNC(EvtCWSelectEntry, PTR("Disorder"), CWSELECT_DEFAULT, PTR("Disorders"), PTR("!!! Debug Menu !!!\nSelect a Disorder"), 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(apathyName), PTR(apathyDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_APATHY, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(dreadName), PTR(dreadDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_DREAD, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(prejudiceName), PTR(prejudiceDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_PREJUDICE, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(indifferenceName), PTR(indifferenceDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_INDIFFERENCE, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(recalcitranceName), PTR(recalcitranceDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_RECALCITRANCE, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(depravityName), PTR(depravityDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_DEPRAVITY, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(indolenceName), PTR(indolenceDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_INDOLENCE, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(melancholyName), PTR(melancholyDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_MELANCHOLY, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(ruinName), PTR(ruinDesc), TPLPATCH_ICON_REDIRECT + ICON_DISORDER_RUIN, 0, 0, 0)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Disorder"), 0, LW(0))
+    IF_NOT_EQUAL(LW(0), -1)
+    ADD(LW(0), 1)
+    SET(GSW(1660), LW(0))
+    END_IF()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Disorder"))
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(determine_custom_music)
     // Difficulty
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(difficultyText), 0, 0)
@@ -4200,6 +4243,10 @@ namespace mod
     // Music
     RUN_CHILD_EVT(cwselect_music)
     SET(GW(5), 0) // Fixes the Dark Prognosticus breaking holographic enemies. What a funny ass bug
+    USER_FUNC(DebugModeGetStatus, LW(0))
+    IF_EQUAL(LW(0), 1)
+    RUN_CHILD_EVT(cwselect_disorder)
+    END_IF()
     RETURN_FROM_CALL()
 
     EVT_BEGIN(custom_music_sign)
@@ -4310,6 +4357,16 @@ namespace mod
         return 2;
     }
     EVT_DECLARE_USER_FUNC(ToggleGSWF, 1)
+
+    s32 clear_disorder(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        (void)evtEntry;
+        if (Lunatic->Luna.disorder != DISORDER_NULL)
+            ClearDisorderSub(0);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(clear_disorder, 0)
 
     EVT_BEGIN(cwselect_features)
     USER_FUNC(EvtCWSelectEntry, PTR("Features"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
@@ -4475,6 +4532,7 @@ namespace mod
     USER_FUNC(evt_pouch::evt_pouch_remove_item, 48)
     END_IF()
     RUN_CHILD_EVT(handle_dj_misc_behavior)
+    USER_FUNC(clear_disorder)
     USER_FUNC(evt_npc::evt_npc_entry, PTR("jimbo"), PTR("e_kazmi"), 0)
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("jimbo"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(heihoAnims))
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("jimbo"), 0, true)
@@ -4831,7 +4889,7 @@ namespace mod
         f32 distThreshold = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         if (dist < distThreshold && failsIfOne != 1)
         {
-            if (mario->invincibilityTimer == 0 && mario->motionId != MOT_DAMAGE && mario->motionId != MOT_FLIP && mario->motionId != MOT_FLIP_AIR && mario->motionId != MOT_BOTTOMLESS && mario->motionId != MOT_CHAR_CHANGE && mario->motionId != MOT_FAIRY_CHANGE)
+            if (mario->invincibilityTimer == 0 && mario->motionId != MOT_DAMAGE && mario->motionId != MOT_HIT && mario->motionId != MOT_FLIP && mario->motionId != MOT_FLIP_AIR && mario->motionId != MOT_BOTTOMLESS && mario->motionId != MOT_CHAR_CHANGE && mario->motionId != MOT_FAIRY_CHANGE && mario->motionId != MOT_LIFE_SHROOM)
             {
                 npcdrv::npcDamageMario(npc, part, &part->position, 0, part->attackPower, 4);
             }
@@ -5231,8 +5289,9 @@ namespace mod
         evtPatches();
         patchMarioDamage();
         dimenPatch();
-        // Debug tools
+        // Debug tools & Pit Rando debug mode
         yme::ymeMain();
+        DebugMode = true;
         wii::os::OSReport("SPM Rel Loader: Lunatic Pit is now active.\n");
     }
 }

@@ -248,8 +248,6 @@ namespace mod
         return;
     }
 
-    
-
     s32 IndifferenceAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
@@ -282,6 +280,80 @@ namespace mod
         return 2;
     }
 
+    EVT_BEGIN(dan_disorder_indifference_dialogue)
+    // LW(9) is the original item, LW(10) is the replacement
+    IF_NOT_EQUAL(LW(10), 0) // If the replacement is set, then continue/assert LW(9) is the original item
+    ADD(LW(11), 1)
+    IF_EQUAL(LW(11), 1)
+    USER_FUNC(evt_mario::evt_mario_key_off, 1)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(disorderIndifferenceItemNotif), 0, 0, LW(9), LW(10))
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print_add_insert, 1, PTR(disorderIndifferenceItemNotif2), LW(9), LW(10))
+    END_IF()
+    WAIT_MSEC(1000)
+    END_IF()
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(dan_disorder_indifference)
+    // Floors rem can be 0 only if preId is non-zero.
+    USER_FUNC(DisorderGetFloorsRem, LW(5))
+    IF_EQUAL(LW(5), 0)
+    IF_EQUAL(LW(6), 0)
+    RETURN()
+    END_IF()
+    END_IF()
+    USER_FUNC(IndifferenceAction, LW(1), LW(2), LW(3), LW(4), LW(5), LW(6), LW(7), LW(8))
+    // Spawn items that don't have replacements
+    IF_EQUAL(LW(2), 0)
+    IF_NOT_EQUAL(LW(1), 0)
+    USER_FUNC(evt_item::evt_item_entry, PTR("IN1"), LW(1), 0, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("IN1"), 0x8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("IN1"))
+    END_IF()
+    END_IF()
+    IF_EQUAL(LW(4), 0)
+    IF_NOT_EQUAL(LW(3), 0)
+    USER_FUNC(evt_item::evt_item_entry, PTR("IN2"), LW(3), 0, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("IN2"), 0x8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("IN2"))
+    END_IF()
+    END_IF()
+    IF_EQUAL(LW(6), 0)
+    IF_NOT_EQUAL(LW(5), 0)
+    USER_FUNC(evt_item::evt_item_entry, PTR("IN3"), LW(5), 0, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("IN3"), 0x8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("IN3"))
+    END_IF()
+    END_IF()
+    IF_EQUAL(LW(8), 0)
+    IF_NOT_EQUAL(LW(7), 0)
+    USER_FUNC(evt_item::evt_item_entry, PTR("IN4"), LW(7), 0, 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("IN4"), 0x8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("IN4"))
+    END_IF()
+    END_IF()
+    // Iterate through items to see if they were forced into the inventory
+    SET(LW(11), 0)
+    SET(LW(9), LW(1))
+    SET(LW(10), LW(2))
+    RUN_CHILD_EVT(dan_disorder_indifference_dialogue)
+    SET(LW(9), LW(3))
+    SET(LW(10), LW(4))
+    RUN_CHILD_EVT(dan_disorder_indifference_dialogue)
+    SET(LW(9), LW(5))
+    SET(LW(10), LW(6))
+    RUN_CHILD_EVT(dan_disorder_indifference_dialogue)
+    SET(LW(9), LW(7))
+    SET(LW(10), LW(8))
+    RUN_CHILD_EVT(dan_disorder_indifference_dialogue)
+    IF_LARGE(LW(11), 0)
+    USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR("\n<k>"))
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    END_IF()
+    RETURN()
+    EVT_END()
+
     void RecalcitranceSet()
     {
         RecalcitranceWork *wp = (RecalcitranceWork *)memory::__memAlloc(0, sizeof(RecalcitranceWork));
@@ -291,22 +363,22 @@ namespace mod
         switch (difficulty)
         {
         case 0:
-            wp->dispXpPct = 50;
-            wp->dispReturnPostage = 10;
+            wp->dispXpPct = 100;
+            wp->dispReturnPostage = 30;
             wp->maxRetPostDmg = 2;
             break;
         case 1:
-            wp->dispXpPct = 100;
-            wp->dispReturnPostage = 20;
+            wp->dispXpPct = 150;
+            wp->dispReturnPostage = 50;
             wp->maxRetPostDmg = 4;
             break;
         case 2:
-            wp->dispXpPct = 150;
-            wp->dispReturnPostage = 30;
+            wp->dispXpPct = 200;
+            wp->dispReturnPostage = 70;
             wp->maxRetPostDmg = 8;
             break;
         default:
-            wp->dispXpPct = 200;
+            wp->dispXpPct = 300;
             wp->dispReturnPostage = 100;
             wp->maxRetPostDmg = 10;
             break;
@@ -336,6 +408,13 @@ namespace mod
             break;
         }
         return;
+    }
+
+    bool DepravityCheckActive()
+    {
+        if ((Lunatic->Luna.disorder == DISORDER_BLUE && Lunatic->Luna.DisorderWork.floorsRem != 0) || Lunatic->Luna.DisorderWork.preId == 6)
+            return true;
+        return false;
     }
 
     void IndolenceSet()
@@ -398,6 +477,7 @@ namespace mod
 
     void ClearDisorderSub(s32 id)
     {
+        (void)id;
         if (Lunatic->Luna.Disorder->ClearFunc != nullptr)
             (Lunatic->Luna.Disorder->ClearFunc)();
         if (Lunatic->Luna.DisorderWork.UserWork.Any != nullptr)
@@ -412,8 +492,32 @@ namespace mod
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.disorder);
+    //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DisorderWork.preId);
         return 2;
     }
+
+    s32 DisorderGetFloorsRem(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.DisorderWork.floorsRem);
+        return 2;
+    }
+
+    s32 DisorderIntroIconOnOff(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        if (onOff > 0)
+        {
+            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON_REDIRECT + ICON_B;
+        }
+        else
+            msgdrv::msgdrv_msgIcon[3].iconId = 0xF;
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(DisorderIntroIconOnOff, 1)
 
     s32 LunaGetConditionInfo(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -604,10 +708,21 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_7"), 0)
     WAIT_MSEC(700)
+    IF_EQUAL(GSWF(1661), 0)
+    SET(GSWF(1661), 1)
+    USER_FUNC(DisorderIntroIconOnOff, 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(disorderIntro), 0, 0)
+    USER_FUNC(DisorderIntroIconOnOff, 0)
+    WAIT_MSEC(300)
+    END_IF()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     WAIT_MSEC(300)
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
     USER_FUNC(evt_mario::evt_mario_key_on)
+    USER_FUNC(DisorderGetId, LW(5))
+    IF_EQUAL(LW(5), 4)
+    RUN_CHILD_EVT(dan_disorder_indifference)
+    END_IF()
     RETURN()
     EVT_END()
 
@@ -639,6 +754,14 @@ namespace mod
 
     void DecideDisorder(s32 num, s32 difficulty)
     {
+        // Check for debug mode first
+        s32 debugDisorderId = swdrv::swByteGet(1660);
+        if (DebugMode && debugDisorderId > 0)
+        {
+            Lunatic->Luna.DisorderWork.preId = debugDisorderId;
+            swdrv::swByteSet(1660, 0);
+            return;
+        }
         // Roll through each difficulty to decide whether or not to set a disorder
         s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
         s32 compare;

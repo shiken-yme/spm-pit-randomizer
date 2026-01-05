@@ -179,8 +179,8 @@ typedef bool (MarioPaneChangeFunc)(s32 newPane);
 #define MOT_DEATH 0x18
 #define MOT_BOTTOMLESS 0x19 // Respawning from falling
 #define MOT_FLIP_AIR 0x1A // Flip into midair
-#define MOT_DAMAGE 0x1B // Taking damage
-#define MOT_28 0x1C
+#define MOT_HIT 0x1B // Taking damage from an NPC
+#define MOT_DAMAGE 0x1C // Taking damage not from an NPC
 #define MOT_SUCK_IN 0x1D // Bleck big portal and Brobot L-Type sucking-in effect
 #define MOT_LIFE_SHROOM 0x1E
 #define MOT_31 0x1F

@@ -213,6 +213,7 @@
 80072710:iconEntry
 80072cdc:iconDisp
 80073444:iconDispGxCol
+80073898:iconGetWidthHeight
 // sdata
 805adfd0:icondrv_wp
 // more
@@ -1500,6 +1501,7 @@
 802e270c:CXGetCompressionHeader
 
 // tpl.c
+802e3200:TPLGet
 802e30ec:TPLBind
 802e3220:TPLGetGXTexObjFromPalette
 // more

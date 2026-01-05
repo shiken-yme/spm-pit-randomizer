@@ -862,6 +862,20 @@ namespace mod
 
     // Disorders
 
+    const char disorderIntro[] =
+        "<system>\n"
+        "You've been afflicted with\n"
+        "a Disorder!\n"
+        "<k>\n<p>\n"
+        "Disorders have varying\n"
+        "negative effects that always\n"
+        "last for five rooms.\n"
+        "<k>\n<p>\n"
+        "You can learn more about an\n"
+        "active Disorder anytime in the\n"
+        "<icon PAD_1 0.67 0 0 0> Active Conditions menu.\n"
+        "<k>";
+
     const char apathyName[] =
         "Apathy";
 
@@ -967,11 +981,11 @@ namespace mod
         "A very difficult enemy will spawn\n"
         "plentifully in each room.\n"
         "<k>\n<p>\n"
-        "All enemies are guaranteed to spawn\n"
-        "at more-or-less their maximum rates.\n"
+        "All enemies are guaranteed to\n"
+        "spawn at very high rates.\n"
         "<k>\n<p>\n"
-        "All enemies will be very difficult\n"
-        "after Floor %d.";
+        "All enemies will be very\n"
+        "difficult after Floor %d.";
 
     const char indolenceDesc[] =
         "Disorder: Indolence\n"
@@ -1001,14 +1015,14 @@ namespace mod
         "<center>%s has been</center>\n"
         "<center>replaced with</center>\n"
         "<center>%s!</center>\n"
-        "<k>";
+        "<o>";
 
     const char disorderIndifferenceItemNotif2[] =
-        "\n<p>\n"
+        "\n<p><system>\n"
         "<center>%s has been</center>\n"
-        "</center><center>replaced with</center>\n"
+        "<center>replaced with</center>\n"
         "<center>%s!</center>\n"
-        "<k>";
+        "<o>";
 
     // Jimbo
     const char jimboIntro[] =

@@ -53,7 +53,8 @@ namespace mod
         /* 0xB */ ICON_DISORDER_DEPRAVITY,
         /* 0xC */ ICON_DISORDER_INDOLENCE,
         /* 0xD */ ICON_DISORDER_MELANCHOLY,
-        /* 0xE */ ICON_DISORDER_RUIN
+        /* 0xE */ ICON_DISORDER_RUIN,
+        /* 0xF */ ICON_B
     };
 
     typedef void(Callback)(void);
@@ -166,6 +167,8 @@ namespace mod
 
     extern LunaticPitWork *Lunatic;
 
+    extern bool DebugMode;
+
     EVT_DECLARE(fwd_mover_speech)
     EVT_DECLARE(custom_pit_music)
 
@@ -174,6 +177,7 @@ namespace mod
     EVT_DECLARE_USER_FUNC(get_mover_rng, 1)
     EVT_DECLARE_USER_FUNC(set_mover_rng, 0)
     EVT_DECLARE_USER_FUNC(evt_dan_init_lunatic, 0)
+    EVT_DECLARE_USER_FUNC(DebugModeGetStatus, 1)
 
     s32 danClearMapParts();
     void main();

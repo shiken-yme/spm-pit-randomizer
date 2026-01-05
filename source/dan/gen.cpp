@@ -218,8 +218,8 @@ namespace mod
     DanNPCData npcStruct189 = {189, 80, 0, 3, 6};
     DanNPCData npcStruct190 = {190, 50, 0, 2, 5};
     DanNPCData npcStruct193 = {193, 60, 0, 3, 5};
-    DanNPCData npcStruct201 = {201, 64, 0, 3, 5};
-    DanNPCData npcStruct202 = {202, 40, 0, 2, 4};
+    DanNPCData npcStruct201 = {201, 32, 0, 2, 4};
+    DanNPCData npcStruct202 = {202, 20, 0, 2, 4};
     DanNPCData npcStruct206 = {206, 30, 0, 3, 5};
     DanNPCData npcStruct208 = {208, 30, 0, 3, 5};
     DanNPCData npcStruct210 = {210, 30, 0, 3, 5};
@@ -2362,7 +2362,7 @@ namespace mod
             if (segment80000)
                 roomDecCode = roomDecCode + 0x80000;
 
-            if (currentFloor == 198) // Literally never gets ran, maybe doesn't matter? Revisit this if Room 99 generation is ever buggy.
+            if (currentFloor == 198)
             {
                 roomDecCode = 0;
                 activeDoorCount = 19;
@@ -2756,26 +2756,29 @@ namespace mod
                     // All other enemies get a relative enemy nerf, followed by a potential bonus.
                     else
                     {
-                        if (danEnemy->min <= 3)
-                        {
-                            enemyMin = 1;
-                        }
-                        else if (danEnemy->min <= 5)
-                        {
-                            enemyMin = 2;
-                        }
-                        if (danEnemy->max <= 3)
-                        {
-                            enemyMax = 1;
-                        }
-                        else if (danEnemy->max <= 5)
-                        {
-                            enemyMax = 2;
-                        }
-                        else
-                        {
-                            enemyMax = 3;
-                        }
+                        //if (!depravityActive)
+                        //{
+                            if (danEnemy->min <= 3)
+                            {
+                                enemyMin = 1;
+                            }
+                            else if (danEnemy->min <= 5)
+                            {
+                                enemyMin = 2;
+                            }
+                            if (danEnemy->max <= 3)
+                            {
+                                enemyMax = 1;
+                            }
+                            else if (danEnemy->max <= 5)
+                            {
+                                enemyMax = 2;
+                            }
+                            else
+                            {
+                                enemyMax = 3;
+                            }
+                        //}
                         enemyDifference = enemyMax - enemyMin + 1;
                         enemyBonus = system::rand() % (danLevelData->bonusMax + 1);
                         enemyBonus = enemyBonus + danLevelData->bonusMin;
@@ -2814,6 +2817,13 @@ namespace mod
                             }
                             enemyAmt = enemyAmt + enemyBonus;
                         }
+                    }
+                    // Patch Pigarithms and Hogarithms to never spawn more than 4 at a time to prevent lag & crashing
+                    if ((danEnemy->name == 201 || danEnemy->name == 202) && enemyAmt >= 4)
+                    {
+                        enemyAmt = 4;
+                        if (enemyTypes == 1)
+                            enemyTypes += 1;
                     }
                     enemyConfigArray[enemyArrayVal] = enemyAmt;
                     enemyArrayVal = enemyArrayVal + 1;

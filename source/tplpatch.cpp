@@ -64,6 +64,7 @@ namespace mod::tplpatch
   void (*iconMainReal)();
   void (*iconEntryReal)(const char *name, s32 iconId);
   void (*iconGXReal)(wii::mtx::Mtx34 mtx, icondrv::IconEntry *icon);
+  void (*iconGetWidthHeightReal)(s16 *width, s16 *height, s32 iconId);
   static void iconFuncPatch()
   {
     iconMainReal = patch::hookFunction(icondrv::iconMain,
@@ -112,6 +113,20 @@ namespace mod::tplpatch
                                        iconGXReal(mtx, icon);
                                        return;
                                      });
+
+    iconGetWidthHeightReal = patch::hookFunction(icondrv::iconGetWidthHeight,
+                                                 [](s16 *width, s16 *height, s32 iconId)
+                                                 {
+                                                   if (iconId >= TPLPATCH_ICON_REDIRECT)
+                                                   {
+                                                      wii::tpl::ImageTableEntry *img = wii::tpl::TPLGet((wii::tpl::TPLHeader *)icondrv::icondrv_wp->wiconTpl->sp->data, iconId);
+                                                     *width = img->image->width;
+                                                     *height = img->image->height;
+                                                   }
+                                                   else
+                                                    iconGetWidthHeightReal(width, height, iconId);
+                                                   return;
+                                                 });
   }
 
   // This function rewrites TPLGetGXTexObjFromPalette to override wicon.tpl if it's called and get an image from the custom tpl instead.
@@ -134,6 +149,16 @@ namespace mod::tplpatch
     return;
   }
 
+  wii::tpl::ImageTableEntry *TPLGetNew(wii::tpl::TPLHeader *palette, u32 id)
+  {
+    if (palette->imageCount > 400 && palette->imageTable[0].image->height == 40 && palette->imageTable[0].image->width == 96 && id >= TPLPATCH_ICON_REDIRECT) // If wicon.tpl & id > TPLPATCH_ICON_REDIRECT
+    {
+      palette = (wii::tpl::TPLHeader *)TPLPatchIconTPL->sp->data;
+      id = id % TPLPATCH_ICON_REDIRECT;
+    }
+    return palette->imageTable + (id - (id / palette->imageCount) * palette->imageCount);
+  }
+
   void iconPatch(char *iconFileName)
   {
     TPLPatchIconTPLName = iconFileName;
@@ -141,7 +166,8 @@ namespace mod::tplpatch
     // Mods/libraries that hook into iconMain, iconEntry, or iconGX will likely conflict with this library. Please reach out to Yme if this is an issue for you.
     iconFuncPatch();
 
-    // Mods/libraries that modify TPLGetGXTexObjFromPalette may conflict with this library. You're free to use/modify our rewritten function however you'd like for personal use, though!
+    // Mods/libraries that modify these functions may conflict with this library. You're free to use/modify our rewritten functions however you'd like for personal use, though!
     patch::hookFunction(wii::tpl::TPLGetGXTexObjFromPalette, TPLGetGXTexObjFromPaletteNew);
+    patch::hookFunction(wii::tpl::TPLGet, TPLGetNew);
   }
 }

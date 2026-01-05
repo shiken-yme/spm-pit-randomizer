@@ -67,11 +67,15 @@ namespace mod
     void DecideDisorder(s32 rng, s32 difficulty);
     void SetDisorder(s32 id);
     void ClearDisorder(s32 id);
+    void ClearDisorderSub(s32 id);
     void DisorderHandleTremors();
     EVT_DECLARE_USER_FUNC(DisorderDraw, 0)
     EVT_DECLARE_USER_FUNC(DisorderGetId, 1)
+    EVT_DECLARE_USER_FUNC(DisorderGetFloorsRem, 1)
     EVT_DECLARE_USER_FUNC(LunaGetConditionInfo, 6)
+    EVT_DECLARE(dan_disorder_indifference)
 
     void PrejudiceAction();
     EVT_DECLARE_USER_FUNC(IndifferenceAction, 8)
+    bool DepravityCheckActive();
 }
