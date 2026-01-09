@@ -21,7 +21,7 @@ USING(wii::mtx::Vec3)
 #define NPCTRIBE_MAX 535
 #define NPCTEMPLATE_MAX 435
 
-enum NPCTribeId
+enum NPCTribeId : s32
 {
     NPC_GOOMBA = 0,
     NPC_FLIP_GOOMBA = 1,

@@ -1,4 +1,5 @@
 #include "mod.h"
+#include <gen.h>
 #include <common.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
@@ -250,6 +251,7 @@ namespace mod
 
     s32 IndifferenceAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 indiffItems[] = {83, 95, 98, 160, 174, 175, 176, 178};
         s32 i, idx;
@@ -260,20 +262,20 @@ namespace mod
         for (i = 0; i < Lunatic->Luna.DisorderWork.UserWork.Indifference->repeat; i += 1)
         {
             s32 odds = system::rand() % 100;
-            if (odds < 100)
+            if (odds < 50)
             {
                 idx = system::rand() % (sizeof(indiffItems) / 4);
                 if ((mario_pouch::pouchCountUseItems() + itemsSpawned) < 10)
                 {
                     itemsSpawned += 1;
-                    evtmgr_cmd::evtSetValue(evtEntry, args[(i*2)], indiffItems[idx]);
+                    evtmgr_cmd::evtSetValue(evtEntry, args[(i * 2)], indiffItems[idx]);
                 }
                 else
                 {
                     s32 invIdx = system::rand() % 10;
-                    evtmgr_cmd::evtSetValue(evtEntry, args[(i*2)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
+                    evtmgr_cmd::evtSetValue(evtEntry, args[(i * 2)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
                     pouch->useItem[invIdx] = indiffItems[idx];
-                    evtmgr_cmd::evtSetValue(evtEntry, args[((i*2)+1)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
+                    evtmgr_cmd::evtSetValue(evtEntry, args[((i * 2) + 1)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
                 }
             }
         }
@@ -410,11 +412,45 @@ namespace mod
         return;
     }
 
+    s32 DepravityGetAllLv4Threshold(s32 difficulty)
+    {
+        s32 ret;
+        switch (difficulty)
+        {
+        case 0:
+            ret = 180;
+            break;
+        case 1:
+            ret = 160;
+            break;
+        case 2:
+            ret = 40;
+            break;
+        default:
+            ret = 20;
+            break;
+        }
+        return ret;
+    }
+
     bool DepravityCheckActive()
     {
         if ((Lunatic->Luna.disorder == DISORDER_BLUE && Lunatic->Luna.DisorderWork.floorsRem != 0) || Lunatic->Luna.DisorderWork.preId == 6)
             return true;
         return false;
+    }
+
+    s32 DepravityAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        (void)evtEntry;
+        s32 currentFloor = swdrv::swByteGet(1);
+        bool active = DepravityCheckActive();
+        if (!active)
+            return 2;
+        DanGen_Enemies(currentFloor, true);
+        DanGen_Enemies_Apply();
+        return 2;
     }
 
     void IndolenceSet()
@@ -492,7 +528,15 @@ namespace mod
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.disorder);
-    //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DisorderWork.preId);
+        //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DisorderWork.preId);
+        return 2;
+    }
+
+    s32 DisorderGetPreId(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Luna.DisorderWork.preId);
         return 2;
     }
 

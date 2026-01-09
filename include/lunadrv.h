@@ -71,11 +71,14 @@ namespace mod
     void DisorderHandleTremors();
     EVT_DECLARE_USER_FUNC(DisorderDraw, 0)
     EVT_DECLARE_USER_FUNC(DisorderGetId, 1)
+    EVT_DECLARE_USER_FUNC(DisorderGetPreId, 1)
     EVT_DECLARE_USER_FUNC(DisorderGetFloorsRem, 1)
     EVT_DECLARE_USER_FUNC(LunaGetConditionInfo, 6)
     EVT_DECLARE(dan_disorder_indifference)
 
     void PrejudiceAction();
     EVT_DECLARE_USER_FUNC(IndifferenceAction, 8)
+    EVT_DECLARE_USER_FUNC(DepravityAction, 0)
+    s32 DepravityGetAllLv4Threshold(s32 difficulty);
     bool DepravityCheckActive();
 }

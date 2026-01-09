@@ -113,9 +113,15 @@ namespace mod
 
     s32 evt_dan_try_disorder(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
-        // This function currently handles rolling for Disorders and sets relevant GSWs.
         (void)firstRun;
         (void)evtEntry;
+        // Clear disorder tremor effects on mapchange
+        Lunatic->Luna.DisorderWork.tremorIntplFrmMax = 0;
+        Lunatic->Luna.DisorderWork.tremorIntplFrmTimer = 0;
+        Lunatic->Luna.DisorderWork.tremorState = 0;
+        Lunatic->Luna.DisorderWork.intplProgress = 0;
+        Lunatic->Luna.DisorderWork.intplProgressMax = 0;
+        // Roll for Disorders, else decrement floorsRem
         s32 currentFloor = swdrv::swByteGet(1);
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 currentFloorLastDigit = currentFloor % 10;
@@ -292,6 +298,15 @@ namespace mod
     USER_FUNC(dan::evt_dan_handle_map_parts, LW(0))
     USER_FUNC(dan::evt_dan_handle_dokans, LW(0))
     USER_FUNC(evt_door::evt_door_set_dokan_descs, PTR(&dan::dan_dokanDescs), 8)
+    USER_FUNC(DisorderGetId, LW(1))
+    USER_FUNC(DisorderGetPreId, LW(2))
+    IF_EQUAL(LW(1), 6)
+    USER_FUNC(DepravityAction)
+    ELSE()
+    IF_EQUAL(LW(2), 6)
+    USER_FUNC(DepravityAction)
+    END_IF()
+    END_IF()
     SET(LW(1), 0)
     USER_FUNC(dan::evt_dan_handle_doors, LW(0), LW(1), LW(10), LW(11), LW(2), LW(3), LW(4))
     USER_FUNC(evt_door::evt_door_set_map_door_descs, PTR(&dan::dan_mapDoorDescs), 2)

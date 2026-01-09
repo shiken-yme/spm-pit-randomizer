@@ -1000,10 +1000,11 @@ namespace mod
         case 3:
             return &level3;
             break;
-        case 4:
+        default:
             return &level4;
             break;
         }
+        return nullptr;
     }
 
     /*
@@ -1011,7 +1012,6 @@ namespace mod
     */
 
     static double boobies = 0;
-    static s32 enemyArrayOffset = 0;
 
     s32 rfcCommon[] = {
         item_data::ItemType::ITEM_ID_COOK_HUNNY_KINOKO, 1,
@@ -1071,8 +1071,6 @@ namespace mod
         item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1,
         item_data::ItemType::ITEM_ID_COOK_TRIAL_PAN, 3};
 
-    s32 enemyConfigArray[2001] = {169};
-
     // Set the Pit Flimm inventory
     s32 newRotenShopItems[] = {
         0, -1, 0,
@@ -1127,7 +1125,7 @@ namespace mod
     {
         s32 itemRarity = 0; // Common by default. 1 is Uncommon, 2 is Rare
         s32 n = 0;
-        f32 scaling = 0;
+        //    f32 scaling = 0;
         s32 itemArraySize = 0;
         s32 itemSubrarity = 0;
         s32 itemId = 0;
@@ -1200,7 +1198,7 @@ namespace mod
     void DanGen_SegmentsAndDoors(s32 currentFloor)
     {
         s32 activeDoorCount = 19; // Actually 20, but let's not complicate things
-        s32 doorOn[31] = {2, 3, 6, 7, 9, 12, 13, 16, 18, 19, 22, 23, 25, 26, 27, 28, 29, 30, 31, 32};
+        // s32 doorOn[31] = {2, 3, 6, 7, 9, 12, 13, 16, 18, 19, 22, 23, 25, 26, 27, 28, 29, 30, 31, 32};
         s32 roomDecCode = 0;
         s32 segmentCount = 0;
         bool structureGenerated = true;
@@ -1610,7 +1608,7 @@ namespace mod
                     {
                         segment400 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 1;
+                        // doorOn[activeDoorCount] = 1;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1647,7 +1645,7 @@ namespace mod
                     {
                         segment1 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 17;
+                        // doorOn[activeDoorCount] = 17;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1680,9 +1678,9 @@ namespace mod
                     {
                         segment40 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 10;
+                        // doorOn[activeDoorCount] = 10;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 11;
+                        // doorOn[activeDoorCount] = 11;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1757,9 +1755,9 @@ namespace mod
                     {
                         segment1000 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 4;
+                        // doorOn[activeDoorCount] = 4;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 5;
+                        // doorOn[activeDoorCount] = 5;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1833,9 +1831,9 @@ namespace mod
                     {
                         segment4 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 20;
+                        // doorOn[activeDoorCount] = 20;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 21;
+                        // doorOn[activeDoorCount] = 21;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1869,9 +1867,9 @@ namespace mod
                     {
                         segment100 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 14;
+                        // doorOn[activeDoorCount] = 14;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 15;
+                        // doorOn[activeDoorCount] = 15;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1908,7 +1906,7 @@ namespace mod
                     {
                         segment8000 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 8;
+                        // doorOn[activeDoorCount] = 8;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -1945,7 +1943,7 @@ namespace mod
                     {
                         segment20 = true;
                         activeDoorCount = activeDoorCount + 1;
-                        doorOn[activeDoorCount] = 24;
+                        // doorOn[activeDoorCount] = 24;
                         segmentCount = segmentCount - 1;
                         wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
                     }
@@ -2518,6 +2516,289 @@ namespace mod
         return;
     }
 
+    // Returns true if the eGenTR loop needs to reroll, returns false if it can proceed
+    bool DanGen_Enemies_CatchExceptions(s32 name, s32 e1, s32 e2, s32 e3, s32 e4)
+    {
+        // Catch duplicate enemy entries
+        if (name == e1 || name == e2 || name == e3 || name == e4)
+            return true;
+        // Never allow pigarithms and hogarithms to coincide
+        s32 Pigarithm = (s32)((s32)NPC_PIGARITHM + 1);
+        s32 Hogarithm = (s32)((s32)NPC_HOGARITHM + 1);
+        if (name == Pigarithm || name == Hogarithm)
+        {
+            if (Pigarithm == e1 || Pigarithm == e2 || Pigarithm == e3 || Pigarithm == e4)
+                return true;
+            if (Hogarithm == e1 || Hogarithm == e2 || Hogarithm == e3 || Hogarithm == e4)
+                return true;
+        }
+        return false;
+    }
+
+    void DanGen_Enemies(s32 roomGens, bool depravity)
+    {
+        // Enemy generation setup
+        s32 enemyTypes = 0;
+        s32 arrayRNG = 0;
+        s32 enemyAmt = 0;
+        s32 enemyDifference = 0;
+        s32 enemyMin = 0;
+        s32 enemyMax = 0;
+        //  s32 spDoorRNG = 0;
+        s32 tribeArray = 0;
+        s32 vsOdds = 0;
+        s32 eGenTR[4] = {-1, -1, -1, -1}; // "Enemies Generated This Room"
+        s32 enemyTribe = 0;
+        s32 enemyBonus = 0;
+        s32 limiterMod = 0;
+        s32 enemyGenLim1 = 0;
+        s32 enemyGenLim2 = 0;
+        s32 enemyGenRNG = system::rand() % 100;
+        s32 difficulty = swdrv::swByteGet(1620);
+        switch (difficulty)
+        {
+        case 0:
+            enemyGenLim1 = 30;
+            enemyGenLim2 = 85;
+            break;
+        case 1:
+            enemyGenLim1 = 20;
+            enemyGenLim2 = 75;
+            break;
+        case 2:
+            enemyGenLim1 = 25;
+            enemyGenLim2 = 50;
+            break;
+        }
+        if (enemyGenRNG < enemyGenLim1)
+        {
+            enemyTypes = 1;
+        }
+        else if (enemyGenRNG < enemyGenLim2)
+        {
+            enemyTypes = 2;
+        }
+        else
+        {
+            enemyTypes = 3;
+            // Flat 25% chance to become 4 enemies instead
+            {
+                s32 raiseTheStakesBabygirlYeahhhhh = system::irand(100);
+                if (raiseTheStakesBabygirlYeahhhhh < 25)
+                    enemyTypes = 4;
+            }
+        }
+        if (depravity)
+            enemyTypes = 4;
+        Lunatic->Floor[roomGens].enemyTypes = enemyTypes;
+        mod::DanLevelData *danLevelData = nullptr;
+        // Enemy Substition Protocol v4.0: Generate enemy data for each floor on Pit entry and store that data competently.
+        // v4 makes use of the new Lunatic session pointer & new internal file structure, and maintains the rest of the v3 process as legacy code.
+        for (s32 e = 0; e < 4; e += 1)
+        {
+            // Get "level data," referencing the scaling nature of the Pit. These provide thresholds for enemy Lv & bonus enemies to spawn, independent of Difficulty Options.
+            if (roomGens < 25)
+            {
+                danLevelData = mod::danLevelDataPtr(1);
+            }
+            else if (roomGens < 150)
+            {
+                danLevelData = mod::danLevelDataPtr(2);
+            }
+            else if (roomGens < 175)
+            {
+                danLevelData = mod::danLevelDataPtr(3);
+            }
+            else
+                danLevelData = mod::danLevelDataPtr(4);
+            // Set enemy Lv threshold modifiers based on Difficulty.
+            difficulty = swdrv::swByteGet(1620);
+            limiterMod = system::rand() % 11;
+            if (difficulty == 0)
+            {
+                limiterMod -= 5; // Ranges from -5 to 5
+            }
+            else if (difficulty == 1)
+            {
+                limiterMod -= 10; // Ranges from -10 to +0
+            }
+            else
+                limiterMod -= 25; // Ranges from -15 to -25
+            // Roll through each limiter. Lower enemyGenRNG values tend toward lower Lv enemies.
+            enemyGenRNG = system::rand() % 100;
+            if (enemyGenRNG < ((danLevelData->lv1Limiter) + limiterMod))
+            {
+                arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
+                tribeArray = 1;
+                enemyTribe = mod::lv1Tribes[arrayRNG];
+                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
+            }
+            else if (enemyGenRNG < ((danLevelData->lv2Limiter) + limiterMod))
+            {
+                arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
+                tribeArray = 2;
+                enemyTribe = mod::lv2Tribes[arrayRNG];
+                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
+            }
+            else if (enemyGenRNG < ((danLevelData->lv3Limiter) + limiterMod))
+            {
+                arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
+                tribeArray = 3;
+                enemyTribe = mod::lv3Tribes[arrayRNG];
+                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
+            }
+            else
+            {
+                arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
+                tribeArray = 4;
+                enemyTribe = mod::lv4Tribes[arrayRNG];
+                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
+            }
+            if (depravity)
+            {
+                if (e == 0)
+                    tribeArray = 4;
+                s32 lv4threshold = DepravityGetAllLv4Threshold(difficulty);
+                if (roomGens >= lv4threshold)
+                    tribeArray = 4;
+            }
+            // Pulls danEnemy from the static array of DanNPCData structs.
+            mod::DanNPCData **danEnemies = mod::danNpcGetPtr();
+            mod::DanNPCData *danEnemy = danEnemies[enemyTribe];
+            vsOdds = system::rand() % 100;
+            // This loop runs through enemies of the same tribe array until it finds one that passes an odds check.
+            // It MUST NOT be an enemy that has already generated in this room.
+            bool goAgain = false;
+            do
+            {
+                if (tribeArray == 1)
+                {
+                    arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
+                    enemyTribe = mod::lv1Tribes[arrayRNG];
+                }
+                else if (tribeArray == 2)
+                {
+                    arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
+                    enemyTribe = mod::lv2Tribes[arrayRNG];
+                }
+                else if (tribeArray == 3)
+                {
+                    arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
+                    enemyTribe = mod::lv3Tribes[arrayRNG];
+                }
+                else
+                {
+                    arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
+                    enemyTribe = mod::lv4Tribes[arrayRNG];
+                }
+                vsOdds = system::rand() % 100;
+                danEnemy = danEnemies[enemyTribe];
+                goAgain = DanGen_Enemies_CatchExceptions(danEnemy->name, eGenTR[0], eGenTR[1], eGenTR[2], eGenTR[3]);
+            } while ((danEnemy->odds < vsOdds || goAgain));
+            // Once an enemy is determined, the number of times it will spawn in the Pit are determined by its min and max fields, as well as some other factors.
+            // This data is all thrown into enemyConfigArray, which is a master array of all NPC data read during the final generation step.
+            // The enemy's name is also thrown into eGenTR so that it doesn't generate in this room again.
+            eGenTR[e] = danEnemy->name;
+            Lunatic->Floor[roomGens].Enemies[e].name = danEnemy->name;
+            // First enemy type gets a relative enemy boost.
+            if (e == 0 || depravity)
+            {
+                enemyDifference = (danEnemy->max - danEnemy->min) + danLevelData->bonusMax;
+                if (enemyDifference == 0)
+                    enemyDifference = 1;
+                enemyAmt = (system::rand() % enemyDifference) + 1;
+                enemyAmt = enemyAmt + danEnemy->min;
+            }
+            // All other enemies get a relative enemy nerf, followed by a potential bonus.
+            else
+            {
+                if (danEnemy->min <= 3)
+                {
+                    enemyMin = 1;
+                }
+                else if (danEnemy->min <= 5)
+                    enemyMin = 2;
+                if (danEnemy->max <= 3)
+                {
+                    enemyMax = 1;
+                }
+                else if (danEnemy->max <= 5)
+                {
+                    enemyMax = 2;
+                }
+                else
+                    enemyMax = 3;
+                enemyDifference = enemyMax - enemyMin + 1;
+                enemyBonus = system::rand() % (danLevelData->bonusMax + 1);
+                enemyBonus += danLevelData->bonusMin;
+                enemyAmt = system::rand() % enemyDifference;
+                enemyAmt += danEnemy->min + enemyBonus;
+            }
+            // If there's only one enemy type, it gets an extra bonus.
+            if (enemyTypes == 1)
+            {
+                if (boobies <= 25)
+                {
+                    enemyAmt += 2;
+                }
+                else if (boobies <= 75)
+                {
+                    enemyAmt += 3;
+                }
+                else
+                    enemyAmt += 4;
+            }
+            // One final boost to the enemy amount on Hard Difficulty!
+            if (difficulty == 2)
+            {
+                f32 vsOdds2 = system::rand() % 100;
+                if (vsOdds2 > 50)
+                {
+                    enemyBonus = system::rand() % 3;
+                    enemyAmt += enemyBonus;
+                }
+            }
+            // Patch Pigarithms and Hogarithms to never spawn more than 4 at a time to prevent lag & crashing
+            if ((danEnemy->name == 201 || danEnemy->name == 202) && enemyAmt >= 4)
+            {
+                enemyAmt = 4;
+                if (enemyTypes == 1)
+                    enemyTypes += 1;
+            }
+            Lunatic->Floor[roomGens].Enemies[e].num = enemyAmt;
+            wii::os::OSReport("Room #%d: %s generated %d times. lv1Limiter for this floor: %d. e = %d, enemyTypes = %d. %d (vsOdds) < %d (danEnemy odds).\n", roomGens, msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcGetTribe((danEnemy->name) - 1)->catchCardItemId].nameMsg), enemyAmt, danLevelData->lv1Limiter, e, enemyTypes, vsOdds, danEnemy->odds);
+        }
+    }
+
+    void DanGen_Enemies_Apply()
+    {
+        for (s32 floor = 0; floor < 200; floor += 1)
+        {
+            dan::dan_wp->dungeons[floor].enemyCount = Lunatic->Floor[floor].enemyTypes;
+            dan::dan_wp->dungeons[floor].enemies[1].name = Lunatic->Floor[floor].Enemies[0].name;
+            dan::dan_wp->dungeons[floor].enemies[1].num = Lunatic->Floor[floor].Enemies[0].num;
+            dan::dan_wp->dungeons[floor].enemies[1].pos = Lunatic->Floor[floor].Enemies[0].pos;
+            if (Lunatic->Floor[floor].enemyTypes >= 2)
+            {
+                dan::dan_wp->dungeons[floor].enemies[2].name = Lunatic->Floor[floor].Enemies[1].name;
+                dan::dan_wp->dungeons[floor].enemies[2].num = Lunatic->Floor[floor].Enemies[1].num;
+                dan::dan_wp->dungeons[floor].enemies[2].pos = Lunatic->Floor[floor].Enemies[1].pos;
+                if (Lunatic->Floor[floor].enemyTypes >= 3)
+                {
+                    dan::dan_wp->dungeons[floor].enemies[3].name = Lunatic->Floor[floor].Enemies[2].name;
+                    dan::dan_wp->dungeons[floor].enemies[3].num = Lunatic->Floor[floor].Enemies[2].num;
+                    dan::dan_wp->dungeons[floor].enemies[3].pos = Lunatic->Floor[floor].Enemies[2].pos;
+                    if (Lunatic->Floor[floor].enemyTypes == 4)
+                    {
+                        dan::dan_wp->dungeons[floor].enemies[4].name = Lunatic->Floor[floor].Enemies[3].name;
+                        dan::dan_wp->dungeons[floor].enemies[4].num = Lunatic->Floor[floor].Enemies[3].num;
+                        dan::dan_wp->dungeons[floor].enemies[4].pos = Lunatic->Floor[floor].Enemies[3].pos;
+                    }
+                }
+            }
+        }
+    }
+
     s32 evt_dan_read_data_new(evtmgr::EvtEntry *entry, bool isFirstCall)
     {
         (void)entry;
@@ -2581,320 +2862,15 @@ namespace mod
 
         DanGen_Items(currentFloor);
 
-        // Fuck this I'm not gonna separate this into DanGen_Enemies yet lol
-        s32 e = 0;
         if (currentFloor == 0)
         {
-            // Begin DanGen_Enemies
-            s32 enemyArrayVal = 1;
-            s32 enemyName = 0;
-            for (s32 roomGens = 0; roomGens <= 199; roomGens = roomGens + 1)
-            {
-                // Enemy generation setup
-                e = 0;
-                s32 enemyTypes = 0;
-                s32 arrayRNG = 0;
-                s32 enemyAmt = 0;
-                s32 enemyDifference = 0;
-                s32 enemyMin = 0;
-                s32 enemyMax = 0;
-                //  s32 spDoorRNG = 0;
-                s32 tribeArray = 0;
-                s32 vsOdds = 0;
-                s32 eGenTR[3] = {-1, -1, -1}; // "Enemies Generated This Room"
-                s32 enemyTribe = 0;
-                s32 enemyBonus = 0;
-                s32 limiterMod = 0;
-                s32 enemyGenLim1 = 0;
-                s32 enemyGenLim2 = 0;
-                s32 enemyGenRNG = system::rand() % 100;
-                s32 difficulty = swdrv::swByteGet(1620);
-                switch (difficulty)
-                {
-                case 0:
-                    enemyGenLim1 = 30;
-                    enemyGenLim2 = 85;
-                    break;
-                case 1:
-                    enemyGenLim1 = 20;
-                    enemyGenLim2 = 75;
-                    break;
-                case 2:
-                    enemyGenLim1 = 25;
-                    enemyGenLim2 = 50;
-                    break;
-                }
-                if (enemyGenRNG < enemyGenLim1)
-                {
-                    enemyTypes = 1;
-                }
-                else if (enemyGenRNG < enemyGenLim2)
-                {
-                    enemyTypes = 2;
-                }
-                else
-                {
-                    enemyTypes = 3;
-                }
-                enemyConfigArray[enemyArrayVal] = enemyTypes;
-                enemyArrayVal = enemyArrayVal + 1;
-                mod::DanLevelData *danLevelData = nullptr;
-                // Enemy Substition Protocol v3: Generate enemy data for each floor on Pit entry.
-                // v3 makes great use of a new file called "npcdata.h", which contains Pit Rando-specific data on enemies and this generation process.
-                while (e < enemyTypes)
-                {
-                    // Get "level data," referencing the scaling nature of the Pit. These provide thresholds for enemy Lv & bonus enemies to spawn, independent of Difficulty Options.
-                    if (roomGens < 25)
-                    {
-                        danLevelData = mod::danLevelDataPtr(1);
-                    }
-                    else if (roomGens < 150)
-                    {
-                        danLevelData = mod::danLevelDataPtr(2);
-                    }
-                    else if (roomGens < 175)
-                    {
-                        danLevelData = mod::danLevelDataPtr(3);
-                    }
-                    else
-                    {
-                        danLevelData = mod::danLevelDataPtr(4);
-                    }
-                    // Set enemy Lv threshold modifiers based on Difficulty.
-                    s32 difficulty = swdrv::swByteGet(1620);
-                    limiterMod = system::rand() % 11;
-                    if (difficulty == 0)
-                    {
-                        limiterMod = limiterMod - 5; // Ranges from -5 to 5
-                    }
-                    else if (difficulty == 1)
-                    {
-                        limiterMod = limiterMod - 10; // Ranges from -10 to +0
-                    }
-                    else
-                    {
-                        limiterMod = limiterMod - 25; // Ranges from -15 to -25
-                    }
-                    // Roll through each limiter. Lower enemyGenRNG values tend toward lower Lv enemies.
-                    enemyGenRNG = system::rand() % 100;
-                    if (enemyGenRNG < ((danLevelData->lv1Limiter) + limiterMod))
-                    {
-                        arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
-                        tribeArray = 1;
-                        enemyTribe = mod::lv1Tribes[arrayRNG];
-                        wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
-                    }
-                    else if (enemyGenRNG < ((danLevelData->lv2Limiter) + limiterMod))
-                    {
-                        arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
-                        tribeArray = 2;
-                        enemyTribe = mod::lv2Tribes[arrayRNG];
-                        wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
-                    }
-                    else if (enemyGenRNG < ((danLevelData->lv3Limiter) + limiterMod))
-                    {
-                        arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
-                        tribeArray = 3;
-                        enemyTribe = mod::lv3Tribes[arrayRNG];
-                        wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
-                    }
-                    else
-                    {
-                        arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
-                        tribeArray = 4;
-                        enemyTribe = mod::lv4Tribes[arrayRNG];
-                        wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
-                    }
-                    // Pulls danEnemy from the static array of DanNPCData structs.
-                    mod::DanNPCData **danEnemies = mod::danNpcGetPtr();
-                    mod::DanNPCData *danEnemy = danEnemies[enemyTribe];
-                    vsOdds = system::rand() % 100;
-                    // This loop runs through enemies of the same tribe array until it finds one that passes an odds check.
-                    // It MUST NOT be an enemy that has already generated in this room.
-                    do
-                    {
-                        if (tribeArray == 1)
-                        {
-                            arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
-                            enemyTribe = mod::lv1Tribes[arrayRNG];
-                        }
-                        else if (tribeArray == 2)
-                        {
-                            arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
-                            enemyTribe = mod::lv2Tribes[arrayRNG];
-                        }
-                        else if (tribeArray == 3)
-                        {
-                            arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
-                            enemyTribe = mod::lv3Tribes[arrayRNG];
-                        }
-                        else
-                        {
-                            arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
-                            enemyTribe = mod::lv4Tribes[arrayRNG];
-                        }
-                        vsOdds = system::rand() % 100;
-                        danEnemy = danEnemies[enemyTribe];
-                    } while (danEnemy->odds < vsOdds || danEnemy->name == eGenTR[0] || danEnemy->name == eGenTR[1] || danEnemy->name == eGenTR[2]);
-                    // Once an enemy is determined, the number of times it will spawn in the Pit are determined by its min and max fields, as well as some other factors.
-                    // This data is all thrown into enemyConfigArray, which is a master array of all NPC data read during the final generation step.
-                    // The enemy's name is also thrown into eGenTR so that it does generate in this room again.
-                    eGenTR[e] = danEnemy->name;
-                    enemyConfigArray[enemyArrayVal] = danEnemy->name;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    // First enemy type gets a relative enemy boost.
-                    if (e == 0)
-                    {
-                        enemyDifference = (danEnemy->max - danEnemy->min) + danLevelData->bonusMax;
-                        if (enemyDifference == 0)
-                        {
-                            enemyDifference = 1;
-                        }
-                        enemyAmt = (system::rand() % enemyDifference) + 1;
-                        enemyAmt = enemyAmt + danEnemy->min;
-                    }
-                    // All other enemies get a relative enemy nerf, followed by a potential bonus.
-                    else
-                    {
-                        //if (!depravityActive)
-                        //{
-                            if (danEnemy->min <= 3)
-                            {
-                                enemyMin = 1;
-                            }
-                            else if (danEnemy->min <= 5)
-                            {
-                                enemyMin = 2;
-                            }
-                            if (danEnemy->max <= 3)
-                            {
-                                enemyMax = 1;
-                            }
-                            else if (danEnemy->max <= 5)
-                            {
-                                enemyMax = 2;
-                            }
-                            else
-                            {
-                                enemyMax = 3;
-                            }
-                        //}
-                        enemyDifference = enemyMax - enemyMin + 1;
-                        enemyBonus = system::rand() % (danLevelData->bonusMax + 1);
-                        enemyBonus = enemyBonus + danLevelData->bonusMin;
-                        enemyAmt = system::rand() % enemyDifference;
-                        enemyAmt = enemyAmt + danEnemy->min + enemyBonus;
-                    }
-                    // If there's only one enemy type, it gets an extra bonus.
-                    if (enemyTypes == 1)
-                    {
-                        if (boobies <= 25)
-                        {
-                            enemyAmt = enemyAmt + 2;
-                        }
-                        else if (boobies <= 75)
-                        {
-                            enemyAmt = enemyAmt + 3;
-                        }
-                        else
-                        {
-                            enemyAmt = enemyAmt + 4;
-                        }
-                    }
-                    // One final boost to the enemy amount on Hard Difficulty!
-                    if (difficulty == 2)
-                    {
-                        vsOdds = system::rand() % 100;
-                        if (vsOdds > 50)
-                        {
-                            if (enemyTribe != 4)
-                            {
-                                enemyBonus = system::rand() % 3;
-                            }
-                            else
-                            {
-                                enemyBonus = system::rand() % 2;
-                            }
-                            enemyAmt = enemyAmt + enemyBonus;
-                        }
-                    }
-                    // Patch Pigarithms and Hogarithms to never spawn more than 4 at a time to prevent lag & crashing
-                    if ((danEnemy->name == 201 || danEnemy->name == 202) && enemyAmt >= 4)
-                    {
-                        enemyAmt = 4;
-                        if (enemyTypes == 1)
-                            enemyTypes += 1;
-                    }
-                    enemyConfigArray[enemyArrayVal] = enemyAmt;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyName = (enemyArrayVal - 3);
-                    wii::os::OSReport("Room #%d: %s generated %d times. lv1Limiter for this floor: %d. e = %d, enemyTypes = %d. %d (vsOdds) < %d (danEnemy odds).\n", roomGens, msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcGetTribe((danEnemy->name) - 1)->catchCardItemId].nameMsg), enemyAmt, danLevelData->lv1Limiter, e, enemyTypes, vsOdds, danEnemy->odds);
-                    e = e + 1;
-                }
-                // Fill empty slots with dummy data if enemy types < 3
-                if (enemyTypes == 1)
-                {
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                }
-                else if (enemyTypes == 2)
-                {
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                    enemyConfigArray[enemyArrayVal] = 0;
-                    enemyArrayVal = enemyArrayVal + 1;
-                }
-            }
+            for (s32 roomGens = 0; roomGens < 200; roomGens += 1)
+                DanGen_Enemies(roomGens, false);
         }
 
         // Determine enemy data for current room
         if (Lunatic->Mover.moverRNG > 14)
-        {
-            for (i = 0; i < 200; ++i)
-            {
-                enemyArrayOffset = (currentFloor * 10 + 1);
-                dan::dan_wp->dungeons[i].enemyCount = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                dan::dan_wp->dungeons[i].enemies[1].name = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                dan::dan_wp->dungeons[i].enemies[1].num = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                dan::dan_wp->dungeons[i].enemies[1].pos = enemyConfigArray[enemyArrayOffset];
-                enemyArrayOffset = enemyArrayOffset + 1;
-                if (enemyConfigArray[enemyArrayOffset] != 0)
-                {
-                    dan::dan_wp->dungeons[i].enemies[2].name = enemyConfigArray[enemyArrayOffset];
-                    enemyArrayOffset = enemyArrayOffset + 1;
-                    dan::dan_wp->dungeons[i].enemies[2].num = enemyConfigArray[enemyArrayOffset];
-                    enemyArrayOffset = enemyArrayOffset + 1;
-                    dan::dan_wp->dungeons[i].enemies[2].pos = enemyConfigArray[enemyArrayOffset];
-                    enemyArrayOffset = enemyArrayOffset + 1;
-                    if (enemyConfigArray[enemyArrayOffset] != 0)
-                    {
-                        dan::dan_wp->dungeons[i].enemies[3].name = enemyConfigArray[enemyArrayOffset];
-                        enemyArrayOffset = enemyArrayOffset + 1;
-                        dan::dan_wp->dungeons[i].enemies[3].num = enemyConfigArray[enemyArrayOffset];
-                        enemyArrayOffset = enemyArrayOffset + 1;
-                        dan::dan_wp->dungeons[i].enemies[3].pos = enemyConfigArray[enemyArrayOffset];
-                        enemyArrayOffset = enemyArrayOffset + 1;
-                    }
-                }
-            }
-        }
+            DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
         /* dan::dan_wp->dungeons[0].enemies[1].name = 201;
          dan::dan_wp->dungeons[0].enemies[1].num = 10;
@@ -2983,10 +2959,6 @@ namespace mod
             paramitaTimer = paramitaTimer + 2;
             swdrv::swByteSet(1610, paramitaTimer);
         }
-
-        // Free pit text
-        parse::parsePop();
-
         return EVT_RET_CONTINUE;
     }
 

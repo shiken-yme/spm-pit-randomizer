@@ -587,9 +587,10 @@ namespace mod
                                                      f32 xp = (f32)Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispXpPct / 100.0f;
                                                      killXp *= (s32)-xp;
                                                  }
-                                                 if (npcEntry->unkShellSfx == "holo") // Holographic enemies in the Pit will give 2x score
+                                                 if (npcEntry->unkShellSfx != nullptr)
                                                  {
-                                                     killXp *= 2;
+                                                     if (msl::string::strcmp(npcEntry->unkShellSfx, "holo") != 0) // Holographic enemies in the Pit will give 2x score
+                                                         killXp *= 2;
                                                  }
                                                  return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
                                              });
@@ -796,7 +797,7 @@ namespace mod
         return 2;
     }
 
-    // Gigantic shoutouts to L and Seeky for helping me get this function to work!!!!!! Loading custom TPLs into existing binaries is no small task!
+    // Gigantic shoutouts to L and Seeky for helping me get this function to work!!!!!!
     static void loadNewDanTex()
     {
         const char *loadMap = seq_mapchange::seq_mapchange_wp->mapName;
@@ -2633,16 +2634,16 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(cwselectSettingsIcons, 1)
 
-        s32 boodinShopItemPool[] = {
-            // Custom Pit Rando enemies
-            283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
-            344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
-            // Vanilla enemies
-            283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
-            328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
-            372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
-            401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
-            444, 446, 447, 448, 528, 529, 530, 531};
+    s32 boodinShopItemPool[] = {
+        // Custom Pit Rando enemies
+        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
+        344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
+        // Vanilla enemies
+        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
+        328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
+        372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
+        401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
+        444, 446, 447, 448, 528, 529, 530, 531};
 
     s32 dan_boodin_setup_cards(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -4533,7 +4534,12 @@ namespace mod
     END_IF()
     RUN_CHILD_EVT(handle_dj_misc_behavior)
     USER_FUNC(clear_disorder)
+    USER_FUNC(DebugModeGetStatus, LW(15))
+    IF_EQUAL(LW(15), 1)
     USER_FUNC(evt_npc::evt_npc_entry, PTR("jimbo"), PTR("e_kazmi"), 0)
+    ELSE()
+    USER_FUNC(evt_npc::evt_npc_entry, PTR("jimbo"), PTR("e_antho"), 0)
+    END_IF()
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("jimbo"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(heihoAnims))
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("jimbo"), 0, true)
     USER_FUNC(evt_npc::evt_npc_set_position, PTR("jimbo"), -50, 0, -1250)
@@ -5291,7 +5297,7 @@ namespace mod
         dimenPatch();
         // Debug tools & Pit Rando debug mode
         yme::ymeMain();
-        DebugMode = true;
+        DebugMode = false;
         wii::os::OSReport("SPM Rel Loader: Lunatic Pit is now active.\n");
     }
 }

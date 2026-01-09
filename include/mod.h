@@ -4,6 +4,7 @@
 #include <evt_cmd.h>
 #include <customwin.h>
 #include <lunadrv.h>
+#include <gen.h>
 
 namespace mod
 {
@@ -157,6 +158,7 @@ namespace mod
     // todo: merge DanNPCData/similar structs and data into this
     struct LunaticPitWork
     {
+        FloorData Floor[200];
         LPSessionMiscs Misc;
         BoodinBalls Boodin;
         InvisibleFullMoon Luna;
