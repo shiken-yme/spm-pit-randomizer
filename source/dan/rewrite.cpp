@@ -153,6 +153,19 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_dan_disorder_set_or_clear, 0)
 
+    s32 LunaticForceBGMChange(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 variant = evtmgr_cmd::evtGetValue(evtEntry, args[0]); // 1-4
+        spmario_snd::BgmEntry copy = *spmario_snd::spsndBgmPlayers[0].bgmEntry;
+        copy.brsarIdx = variant + 1379;
+        msl::string::memcpy(spmario_snd::spsndBgmPlayers[0].bgmEntry, &copy, sizeof(copy));
+        spmario_snd::spsndBgmPlayers[0].flags |= 1;
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(LunaticForceBGMChange, 1)
+
     // Like so many other functions used in this mod, this was adapted heavily from decomp dan.c
     // Thank you Seeky! This mod and many others would not exist without your work.
     // You are greatly appreciated by all of us in the SPM modding and reverse engineering community.

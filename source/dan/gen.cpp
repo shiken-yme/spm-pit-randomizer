@@ -2872,13 +2872,13 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        /* dan::dan_wp->dungeons[0].enemies[1].name = 201;
-         dan::dan_wp->dungeons[0].enemies[1].num = 10;
-         dan::dan_wp->dungeons[0].enemies[2].name = 99;
-         dan::dan_wp->dungeons[0].enemies[2].num = 10;
-         dan::dan_wp->dungeons[0].enemies[3].name = 11;
-         dan::dan_wp->dungeons[0].enemies[3].num = 7;
-         dan::dan_wp->dungeons[0].enemyCount = 3; */
+         dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
+         dan::dan_wp->dungeons[0].enemies[1].num = 4;
+       //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
+       //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
+       //  dan::dan_wp->dungeons[0].enemies[3].name = 11;
+       //  dan::dan_wp->dungeons[0].enemies[3].num = 7;
+       dan::dan_wp->dungeons[0].enemyCount = 2; 
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;

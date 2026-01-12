@@ -314,13 +314,14 @@
 800d21f8:evt_snd_bgmoff
 800d2224:evt_snd_bgmoff_f_d
 800d2268:evt_snd_idfk
-800d22d8:evt_snd_bgm_fadein
+800d22d8:evt_snd_player_fadein
 800d23cc:evt_snd_bgm_set_vol
 800d24b8:evt_snd_get_bgm_wait_time
+800d2794:evt_snd_get_bgm_name
 800d2800:evt_snd_sfxon
 800d28fc:evt_snd_sfxon_character
 800d29cc:evt_snd_sfxon_3d
-800d2294:evt_snd_channel_fadeout
+800d2294:evt_snd_player_fadeout
 800d2af4:evt_snd_sfxon_npc
 800d2b64:evt_snd_sfxon_npc_delay
 800d2cd8:evt_snd_sfxon_3d_player_character

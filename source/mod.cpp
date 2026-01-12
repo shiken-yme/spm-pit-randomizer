@@ -629,6 +629,13 @@ namespace mod
                                                         }
                                                         return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
                                                     }
+                                                    else if ((u32)npcPart->owner == (u32)mario::marioGetPtr()->caught.npc && (npc->tribeId == 70 || npc->tribeId == 72 || npc->tribeId == 74 || npc->tribeId == 76))
+                                                    {
+                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
+                                                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
+                                                        defenseType = 6;
+                                                        return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                                                    }
                                                     else
                                                     {
                                                         power = 0;
@@ -695,7 +702,7 @@ namespace mod
                                                 // Check if crit should actually occur
                                                 u32 hp = npcPart->owner->hp;
                                                 s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
-                                                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33)
+                                                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33 || defenseType == 37)
                                                     critActuate = false;
                                                 wii::os::OSReport("%d damage dealt of type %d.\n", power, defenseType);
                                                 if (disorderId == DISORDER_CYAN && defenseType == 2) // Damage Mario AFTER damaging npc if damage type is stomp
@@ -1093,9 +1100,7 @@ namespace mod
                                                     if (hpSoundsPatched == 1)
                                                     {
                                                         if (msl::string::strcmp(name, "SFX_SYS_PINCH1") == 0 || msl::string::strcmp(name, "SFX_SYS_DANGER1") == 0)
-                                                        {
                                                             return;
-                                                        }
                                                     }
                                                     spmario_snd::__spsndSFXOn(name, volume, 255, 0, 0, 0);
                                                     return;
@@ -2322,6 +2327,7 @@ namespace mod
         char *mapName = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         char *comparison = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         s32 compstrReturn = 1;
+        wii::os::OSReport("p1: %s; p2: %s\n", mapName, comparison);
         char *result = msl::string::strstr(mapName, comparison);
         if (result != 0)
         {
@@ -3084,18 +3090,100 @@ namespace mod
     RETURN()
     EVT_END()
 
+    EVT_BEGIN(LunaticMusicHandler)
+    IF_SMALL(GSW(1), 25)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
+    RETURN()
+    END_IF()
+    IF_SMALL(GSW(1), 150)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_B"), 500)
+    RETURN()
+    END_IF()
+    IF_SMALL(GSW(1), 175)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
+    RETURN()
+    END_IF()
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_D"), 500)
+    /*USER_FUNC(evt_snd::evt_snd_get_bgm_name, 0, LW(15))
+    IF_EQUAL(LW(15), 0)
+    GOTO(98)
+    END_IF()
+    USER_FUNC(evtCompareStrings, LW(15), PTR("LUNATIC"), LW(15))
+    IF_EQUAL(LW(15), 1)
+    GOTO(99)
+    END_IF()
+    USER_FUNC(evt_snd::evt_snd_get_bgm_name, 1, LW(15))
+    IF_EQUAL(LW(15), 0)
+    GOTO(98)
+    END_IF()
+    USER_FUNC(evtCompareStrings, LW(15), PTR("LUNATIC"), LW(15))
+    IF_EQUAL(LW(15), 1)
+    GOTO(99)
+    END_IF()
+    // Lunatic music init when NOT already playing a lunatic track
+    LBL(98)
+    IF_SMALL(GSW(1), 25)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
+    RETURN()
+    END_IF()
+    IF_SMALL(GSW(1), 150)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 0)
+    RETURN()
+    END_IF()
+    IF_SMALL(GSW(1), 175)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
+    RETURN()
+    END_IF()
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 0)
+    RETURN()
+    // Lunatic music init when already playing a lunatic track
+    LBL(99)
+    IF_EQUAL(GSW(1), 0) // 25
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
+    RETURN()
+    END_IF()
+    IF_EQUAL(GSW(1), 4) // 150
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 1000)
+    USER_FUNC(evt_snd::evt_snd_player_fadein, 1, 1000)
+    RETURN()
+    END_IF()
+    IF_EQUAL(GSW(1), 6) // 175
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
+    RETURN()
+    END_IF()
+    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 1000)
+    USER_FUNC(evt_snd::evt_snd_player_fadein, 1, 1000)*/
+    RETURN()
+    EVT_END()
+
     // Overwrite Pit music
     EVT_BEGIN(custom_pit_music)
     SWITCH(GSW(1621))
     CASE_EQUAL(0)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100F"), 500)
     CASE_EQUAL(1)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_EVT_RELAXATION1"), 500)
+    RUN_CHILD_EVT(LunaticMusicHandler)
     CASE_EQUAL(2)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FSYNTH"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_EVT_RELAXATION1"), 500)
     CASE_EQUAL(3)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FPIANO"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FSYNTH"), 500)
     CASE_EQUAL(4)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FPIANO"), 500)
+    CASE_EQUAL(5)
+   // USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FBEATS"), 500)
+  //  CASE_EQUAL(6)
     USER_FUNC(evt_snd::evt_snd_bgmoff, 0)
     END_SWITCH()
     USER_FUNC(evt_snd::evt_snd_set_sfx_reverb_mode, 0)
@@ -4199,10 +4287,12 @@ namespace mod
 
     EVT_BEGIN(cwselect_music)
     USER_FUNC(EvtCWSelectEntry, PTR("Music"), CWSELECT_DEFAULT, PTR(selectMusicBlueText), PTR(selectMusicBox), 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), 0x85, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), 0x164, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(nyMusicName), PTR(nyMusicDesc), 0x85, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), 0x84, 0, 0, 0)
+  //  USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), 0x87, 0, 0, 0)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))

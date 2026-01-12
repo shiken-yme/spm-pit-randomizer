@@ -47,6 +47,16 @@ namespace mod
         "this sign!\n"
         "<k>";
 
+    const char nyMusicName[] =
+        "Modern Mix";
+
+    const char nyMusicDesc[] =
+        "Lively and insert descriptor!\n"
+        "Composed by Nilyoshi.\n"
+        "<k>\n<p>\n"
+        "This theme gets more intense\n"
+        "as you traverse the Pit.";
+
     const char vMusicName[] =
         "Pit of 100 Trials";
 
@@ -81,6 +91,13 @@ namespace mod
     const char jdMusicDesc[] =
         "Jazzy and emotional! Performed\n"
         "live by Jdaster64.";
+
+    const char zkMusicName[] =
+        "Pit of 100 Beats";
+
+    const char zkMusicDesc[] =
+        "Insert descriptors here!\n"
+        "Composed by Zaku.";
 
     const char moverFeaturesName[] =
         "Movers";
