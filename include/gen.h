@@ -50,6 +50,4 @@ namespace mod
 
     void DanGen_Enemies(s32 roomGens, bool depravity);
     void DanGen_Enemies_Apply();
-
-    extern s32 rfcItems[4];
 }

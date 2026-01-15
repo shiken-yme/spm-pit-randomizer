@@ -296,7 +296,7 @@ namespace mod
             icondrv::iconDispGxAlpha(0.64f, &position, 0x18, mainIconId, 200);
             icondrv::iconDispGxAlpha(0.64f, &position, 0x18, ICON_BORDER_DISORDER + TPLPATCH_ICON_REDIRECT, 225);
         }
-        s32 disorderRooms = Lunatic->Luna.DisorderWork.floorsRem;
+        s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
         if (disorderRooms > 0)
         {
             wii::gx::GXColor funnyColor = {Lunatic->Luna.Disorder->mainCol.r, Lunatic->Luna.Disorder->mainCol.g, Lunatic->Luna.Disorder->mainCol.b, 255};

@@ -1013,63 +1013,72 @@ namespace mod
 
     static double boobies = 0;
 
-    s32 rfcCommon[] = {
-        item_data::ItemType::ITEM_ID_COOK_HUNNY_KINOKO, 1,
-        item_data::ItemType::ITEM_ID_USE_HONOO_SAKURETU, 1,
-        item_data::ItemType::ITEM_ID_USE_STAR_MEDAL, 2,
-        item_data::ItemType::ITEM_ID_USE_BIG_EGG, 1,
-        item_data::ItemType::ITEM_ID_USE_KOURA_DE_PON, 2,
-        item_data::ItemType::ITEM_ID_USE_KOORI_NO_IBUKI, 2,
-        item_data::ItemType::ITEM_ID_USE_BARIA_FRAME, 2,
-        item_data::ItemType::ITEM_ID_COOK_BOMB_EGG, 3,
-        item_data::ItemType::ITEM_ID_USE_POW_BLOCK, 2,
-        item_data::ItemType::ITEM_ID_USE_TOROPICO_MANGO, 1,
-        item_data::ItemType::ITEM_ID_USE_MILD_CACAO, 1,
-        item_data::ItemType::ITEM_ID_USE_ROW_PASTA, 1,
-        item_data::ItemType::ITEM_ID_USE_INGREDIENTS_OF_SWEET, 1,
-        item_data::ItemType::ITEM_ID_USE_TUKUSHINBO, 1,
-        item_data::ItemType::ITEM_ID_USE_PRIMITIVENUT, 1,
-        item_data::ItemType::ITEM_ID_USE_HERB, 1,
-        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1,
-        item_data::ItemType::ITEM_ID_COOK_FAIL_COOKING1, 1,
-        item_data::ItemType::ITEM_ID_COOK_FAIL_COOKING2, 1,
-        item_data::ItemType::ITEM_ID_COOK_HOT_COCOA, 2,
-        item_data::ItemType::ITEM_ID_COOK_KAME_TEA, 3,
-        item_data::ItemType::ITEM_ID_COOK_HERB_TEA, 3};
+    RFCItem RFCItems_Common[] = {
+        /*
+        // Example
+        {{iconId, itemId, 0, 0, {r, g, b, a}, itemName, itemDesc}, useFunc, useMsg, subrarity},
+        */
+        // Example
+        {{-1, item_data::ITEM_ID_USE_HONOO_SAKURETU, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_STAR_MEDAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_KOURA_DE_PON, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_KOORI_NO_IBUKI, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_BARIA_FRAME, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_BOMB_EGG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_POW_BLOCK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_TOROPICO_MANGO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_MILD_CACAO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_ROW_PASTA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_INGREDIENTS_OF_SWEET, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_TUKUSHINBO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_HERB, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_FAIL_COOKING1, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_FAIL_COOKING2, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_KAME_TEA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_HERB_TEA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
 
-    s32 rfcUncommon[] = {
-        item_data::ItemType::ITEM_ID_COOK_KINOKO_FRY, 1,
-        item_data::ItemType::ITEM_ID_COOK_HUNNY_KINOKO_S, 2,
-        item_data::ItemType::ITEM_ID_USE_NANIGA_OKORUKANA, 2,
-        item_data::ItemType::ITEM_ID_USE_KAMINARI_DOKKAN, 1,
-        item_data::ItemType::ITEM_ID_USE_TUYOTUYO_DRINK, 1,
-        item_data::ItemType::ITEM_ID_COOK_HOTDOG, 2,
-        item_data::ItemType::ITEM_ID_COOK_HANAJIRU_SYRUP, 2,
-        item_data::ItemType::ITEM_ID_COOK_MOUSSE_CAKE, 2,
-        item_data::ItemType::ITEM_ID_COOK_CHOCOLA_CAKE, 2,
-        item_data::ItemType::ITEM_ID_USE_KINKYU_KINOKO, 2,
-        item_data::ItemType::ITEM_ID_COOK_PEACH_TART, 1,
-        item_data::ItemType::ITEM_ID_COOK_MIX_SHAKE, 2,
-        item_data::ItemType::ITEM_ID_USE_POWERFUL_MEET, 2,
-        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1};
+    RFCItem RFCItems_Uncommon[] = {
+        {{-1, item_data::ITEM_ID_COOK_HUNNY_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_HOT_COCOA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_KINOKO_FRY, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_BIG_EGG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_NANIGA_OKORUKANA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_KAMINARI_DOKKAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_TUYOTUYO_DRINK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_HOTDOG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3},
+        {{-1, item_data::ITEM_ID_COOK_HANAJIRU_SYRUP, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_KINKYU_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_POWERFUL_MEET, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_PRIMITIVENUT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
 
-    s32 rfcRare[] = {
-        item_data::ItemType::ITEM_ID_COOK_KINOKO_HOILE_FRY, 1,
-        item_data::ItemType::ITEM_ID_USE_KIRAKIRA_OTOSHI, 1,
-        item_data::ItemType::ITEM_ID_COOK_DINNER, 2,
-        item_data::ItemType::ITEM_ID_COOK_HANA_DANGO, 1,
-        item_data::ItemType::ITEM_ID_COOK_MANGO_PUDDING, 1,
-        item_data::ItemType::ITEM_ID_COOK_GOLD_CHOKO, 2,
-        item_data::ItemType::ITEM_ID_USE_GOLD_MEDAL, 1,
-        item_data::ItemType::ITEM_ID_COOK_ICHIGO_RABBIT, 1,
-        item_data::ItemType::ITEM_ID_COOK_SNOW_RABBIT, 1,
-        item_data::ItemType::ITEM_ID_COOK_LOVE_NOODLE, 2,
-        item_data::ItemType::ITEM_ID_USE_ULTRA_DRINK, 2,
-        item_data::ItemType::ITEM_ID_COOK_EMERGENCY_MEAL, 2,
-        item_data::ItemType::ITEM_ID_COOK_FRUITS_HUMBURG, 1,
-        item_data::ItemType::ITEM_ID_USE_KINKYU_KINOKO, 2,
-        item_data::ItemType::ITEM_ID_USE_SHINABITA_KINOKO, 1,
-        item_data::ItemType::ITEM_ID_COOK_TRIAL_PAN, 3};
+    RFCItem RFCItems_Rare[] = {
+        {{-1, item_data::ITEM_ID_COOK_KINOKO_HOILE_FRY, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_KIRAKIRA_OTOSHI, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_DINNER, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_HANA_DANGO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_MANGO_PUDDING, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_GOLD_CHOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_GOLD_MEDAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_LOVE_NOODLE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_EMERGENCY_MEAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_FRUITS_HUMBURG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_USE_KINKYU_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_PEACH_TART, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_MIX_SHAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_MOUSSE_CAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_CHOCOLA_CAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
+
+    RFCItem RFCItems_Legendary[] = {
+        {{-1, item_data::ITEM_ID_USE_ULTRA_DRINK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
+        {{-1, item_data::ITEM_ID_COOK_ICHIGO_RABBIT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_SNOW_RABBIT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
+        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
 
     // Set the Pit Flimm inventory
     s32 newRotenShopItems[] = {
@@ -1106,26 +1115,87 @@ namespace mod
 
     s32 rotenShopLowerClassItemPool[] = {65, 66, 67, 68, 69, 70, 73, 74, 75, 76, 77, 78, 79, 83, 86, 98, 104, 109, 113};
 
-    s32 rfcItems[4] = {0, 0, 0, -1};
+    void DanGen_Items(bool onRoomLoad)
+    {
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, threshold = 30, selectionIdx = 0, arraySize = 0;
+        RFCItem *Item = nullptr;
+        if (onRoomLoad)
+        {
+            Lunatic->RFC.rerolls = 0;
+        }
+        else
+            Lunatic->RFC.rerolls += 1;
+        // Decide chest rarity
+        for (i = 0; i < 3; i += 1)
+        {
+            odds = system::rand() % 100;
+            if (odds < 30)
+                rarity += 1;
+        }
+        Lunatic->RFC.chestRarity = rarity;
+        Lunatic->RFC.chestKeys = (1 + rarity + Lunatic->RFC.rerolls);
+        // Decide threshold for selecting higher-tier items
+        threshold -= rarity * 10;
+        // Select 3 items
+        itemRarity = rarity;
+        for (i = 0; i < 3; i += 1)
+        {
+            // Determine rarity of item to select
+            for (j = 0; j < __builtin_abs(rarity - 3); j += 1)
+            {
+                odds = system::rand() % 100;
+                if (odds < threshold)
+                {
+                    itemRarity += 1;
+                }
+                else
+                    break;
+            }
+            // Pull item from array
+            switch (itemRarity)
+            {
+            case 0:
+                arraySize = (sizeof(RFCItems_Common) / sizeof(RFCItem));
+                selectionIdx = system::rand() % arraySize;
+                Item = &RFCItems_Common[selectionIdx];
+                break;
+            case 1:
+                arraySize = (sizeof(RFCItems_Uncommon) / sizeof(RFCItem));
+                selectionIdx = system::rand() % arraySize;
+                Item = &RFCItems_Uncommon[selectionIdx];
+                break;
+            case 2:
+                arraySize = (sizeof(RFCItems_Rare) / sizeof(RFCItem));
+                selectionIdx = system::rand() % arraySize;
+                Item = &RFCItems_Rare[selectionIdx];
+                break;
+            default:
+                arraySize = (sizeof(RFCItems_Legendary) / sizeof(RFCItem));
+                selectionIdx = system::rand() % arraySize;
+                Item = &RFCItems_Legendary[selectionIdx];
+                break;
+            }
+            s32 id = Item->Desc.itemId;
+            if (id == Lunatic->RFC.rfcItems[0].itemId || id == Lunatic->RFC.rfcItems[1].itemId || id == Lunatic->RFC.rfcItems[2].itemId)
+            {
+                i -= 1;
+            }
+            else
+            {
+                Lunatic->RFC.Items[i] = Item;
+                msl::string::memcpy(&Lunatic->RFC.rfcItems[i], &Lunatic->RFC.Items[i]->Desc, sizeof(customwin::CWSelectItemDesc));
+            }
+        }
+        wii::os::OSReport("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, Lunatic->RFC.rfcItems[0].itemId, Lunatic->RFC.rfcItems[1].itemId, Lunatic->RFC.rfcItems[2].itemId);
+        return;
+    }
 
-    /*
-        HIGH PRIORITY TODO (I BROKE HELLA SHIT):
-        add types/enums like DisorderId to a special file
-        extern rfcItems or add all relevant evtpatches/functions to gen.cpp if they are generation-related (I'm not checking)
-        add room generation-related evtpatches here
-        update mod.cpp to exclude these functions' and global variables' instantiations. I'm preserving them for now in case I actually broke hella double triple quadruple shit
+    // s32 rfcItems[4] = {0, 0, 0, -1};
 
-        LOW PRIORITY TODO:
-        clean up the first half of evt_dan_read_data_new to run some things only on pit entry or otherwise conditionally
-        clean up actual code in many different sections
-        set template field unknown_0x8 for unused enemies on mod start rather than on every pit npc entry, that shoooould work?
-    */
-
-    void DanGen_Items(s32 currentFloor)
+    /*void DanGen_Items(s32 currentFloor)
     {
         s32 itemRarity = 0; // Common by default. 1 is Uncommon, 2 is Rare
         s32 n = 0;
-        //    f32 scaling = 0;
         s32 itemArraySize = 0;
         s32 itemSubrarity = 0;
         s32 itemId = 0;
@@ -1193,7 +1263,7 @@ namespace mod
             } while (!itemAssigned); // Loops until the rand is below the subrarity value AND item isn't identical to previously assigned items
         }
         return;
-    }
+    }*/
 
     void DanGen_SegmentsAndDoors(s32 currentFloor)
     {
@@ -2583,7 +2653,7 @@ namespace mod
             enemyTypes = 3;
             // Flat 25% chance to become 4 enemies instead
             {
-                s32 raiseTheStakesBabygirlYeahhhhh = system::irand(100);
+                s32 raiseTheStakesBabygirlYeahhhhh = system::rand() % 100;
                 if (raiseTheStakesBabygirlYeahhhhh < 25)
                     enemyTypes = 4;
             }
@@ -2860,7 +2930,7 @@ namespace mod
 
         DanGen_SegmentsAndDoors(currentFloor);
 
-        DanGen_Items(currentFloor);
+        DanGen_Items(true);
 
         if (currentFloor == 0)
         {
@@ -2872,13 +2942,13 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-         dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
-         dan::dan_wp->dungeons[0].enemies[1].num = 4;
-       //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
-       //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
-       //  dan::dan_wp->dungeons[0].enemies[3].name = 11;
-       //  dan::dan_wp->dungeons[0].enemies[3].num = 7;
-       dan::dan_wp->dungeons[0].enemyCount = 2; 
+        dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
+        dan::dan_wp->dungeons[0].enemies[1].num = 4;
+        //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
+        //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
+        //  dan::dan_wp->dungeons[0].enemies[3].name = 11;
+        //  dan::dan_wp->dungeons[0].enemies[3].num = 7;
+        dan::dan_wp->dungeons[0].enemyCount = 2;
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;

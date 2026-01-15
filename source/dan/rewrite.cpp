@@ -116,22 +116,22 @@ namespace mod
         (void)firstRun;
         (void)evtEntry;
         // Clear disorder tremor effects on mapchange
-        Lunatic->Luna.DisorderWork.tremorIntplFrmMax = 0;
-        Lunatic->Luna.DisorderWork.tremorIntplFrmTimer = 0;
-        Lunatic->Luna.DisorderWork.tremorState = 0;
-        Lunatic->Luna.DisorderWork.intplProgress = 0;
-        Lunatic->Luna.DisorderWork.intplProgressMax = 0;
+        Lunatic->Luna.DW.tremorIntplFrmMax = 0;
+        Lunatic->Luna.DW.tremorIntplFrmTimer = 0;
+        Lunatic->Luna.DW.tremorState = 0;
+        Lunatic->Luna.DW.intplProgress = 0;
+        Lunatic->Luna.DW.intplProgressMax = 0;
         // Roll for Disorders, else decrement floorsRem
         s32 currentFloor = swdrv::swByteGet(1);
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 currentFloorLastDigit = currentFloor % 10;
-        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DisorderWork.floorsRem == 0 && currentFloorLastDigit < 4 && Lunatic->Mover.moverRNG >= 15)
+        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4 && Lunatic->Mover.moverRNG >= 15)
         {
             s32 difficulty = swdrv::swByteGet(1620);
             DecideDisorder(Lunatic->Mover.moverRNG, difficulty);
         }
-        else if (Lunatic->Luna.DisorderWork.floorsRem > 0)
-            Lunatic->Luna.DisorderWork.floorsRem -= 1;
+        else if (Lunatic->Luna.DW.floorsRem > 0)
+            Lunatic->Luna.DW.floorsRem -= 1;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_dan_try_disorder, 0)
@@ -140,14 +140,14 @@ namespace mod
     {
         (void)firstRun;
         (void)evtEntry;
-        if (Lunatic->Luna.DisorderWork.floorsRem == 0)
+        if (Lunatic->Luna.DW.floorsRem == 0)
         {
             if (Lunatic->Luna.disorder > DISORDER_NULL)
             {
                 ClearDisorder((s32)Lunatic->Luna.disorder);
             }
-            else if (Lunatic->Luna.DisorderWork.preId > 0)
-                SetDisorder(Lunatic->Luna.DisorderWork.preId);
+            else if (Lunatic->Luna.DW.preId > 0)
+                SetDisorder(Lunatic->Luna.DW.preId);
         }
         return 2;
     }
@@ -224,7 +224,7 @@ namespace mod
         switch (disorderId)
         {
         case DisorderId::DISORDER_RED: // APATHY
-            npc->maxHp = (u32)msl::math::floor(npc->maxHp * Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyMaxHPMult);
+            npc->maxHp = (u32)msl::math::floor(npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
             npc->hp = npc->maxHp;
             break;
         }

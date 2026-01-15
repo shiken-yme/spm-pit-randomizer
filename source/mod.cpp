@@ -171,7 +171,9 @@ namespace mod
         return 2;
     }
 
-    wii::gx::GXColor MusicHeaderCol = {213, 168, 255, 255};
+    wii::gx::GXColor MusicHeaderCol = {185, 135, 240, 255};
+
+    wii::gx::GXColor RFCHeaderCol = {210, 100, 95, 255};
 
     s32 whackaItems[] = {106, -1};
 
@@ -390,7 +392,7 @@ namespace mod
                                                          }
                                                          s32 disorderId = Lunatic->Luna.disorder;
                                                          if (disorderId == DISORDER_RED)
-                                                             dmg -= Lunatic->Luna.DisorderWork.UserWork.Apathy->marioDamageDecrease;
+                                                             dmg -= Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease;
                                                          // Kilo Muth, DEF 3 -> 1
                                                          // Ice Bro, DEF 3 --> 1
                                                          // Red Spike Top, DEF 6 --> 4
@@ -434,7 +436,7 @@ namespace mod
                                                          }
                                                          if (disorderId == DISORDER_YELLOW)
                                                          {
-                                                             if (mario_pouch::pouchGetPtr()->coins < Lunatic->Luna.DisorderWork.UserWork.Prejudice->coinThreshold)
+                                                             if (mario_pouch::pouchGetPtr()->coins < Lunatic->Luna.DW.UW.Prejudice->coinThreshold)
                                                                  dmg = (s32)(dmg / 2);
                                                          }
                                                          if (dmg < 0)
@@ -521,12 +523,12 @@ namespace mod
                                                  // Disorder: Red/Apathy
                                                  s32 disorderId = Lunatic->Luna.disorder;
                                                  if (disorderId == DISORDER_RED)
-                                                     damage += Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyDamageIncrease;
+                                                     damage += Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease;
                                                  // Indolence
                                                  if (disorderId == DISORDER_PURPLE)
                                                  {
                                                      s32 odds = system::rand() % 100;
-                                                     if (odds < Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance)
+                                                     if (odds < Lunatic->Luna.DW.UW.Indolence->attackEffectChance)
                                                      {
                                                          odds = system::rand() % 100;
                                                          if (odds < 34) // Freeze
@@ -535,7 +537,7 @@ namespace mod
                                                          }
                                                          else if (odds < 66) // Damage bonus
                                                          {
-                                                             f32 fDmg = (f32)damage * ((f32)Lunatic->Luna.DisorderWork.UserWork.Indolence->dispDmgPctBonus / 100) + 1.0;
+                                                             f32 fDmg = (f32)damage * ((f32)Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus / 100) + 1.0;
                                                              damage = (s32)fDmg;
                                                          }
                                                          else
@@ -584,7 +586,7 @@ namespace mod
                                                      killXp = 0;
                                                  if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, *invert* XP
                                                  {
-                                                     f32 xp = (f32)Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispXpPct / 100.0f;
+                                                     f32 xp = (f32)Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct / 100.0f;
                                                      killXp *= (s32)-xp;
                                                  }
                                                  if (npcEntry->unkShellSfx != nullptr)
@@ -677,7 +679,7 @@ namespace mod
                                                 if (disorderId == DISORDER_ORANGE && power > 0)
                                                 {
                                                     odds = system::irand(100);
-                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Dread->dispBlockChance)
+                                                    if (odds < Lunatic->Luna.DW.UW.Dread->dispBlockChance)
                                                     {
                                                         npcPart->owner->hp += (s32)(msl::math::sqrt(power));
                                                         if (npcPart->owner->hp > npcPart->owner->maxHp)
@@ -708,11 +710,11 @@ namespace mod
                                                 if (disorderId == DISORDER_CYAN && defenseType == 2) // Damage Mario AFTER damaging npc if damage type is stomp
                                                 {
                                                     odds = system::irand(100);
-                                                    if (odds < Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage)
+                                                    if (odds < Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage)
                                                     {
                                                         s32 marioDmg = (s32)(hp - npcPart->owner->hp);
-                                                        if (marioDmg > Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg)
-                                                            marioDmg = Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg;
+                                                        if (marioDmg > Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg)
+                                                            marioDmg = Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg;
                                                         npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 0x10000000);
                                                     }
                                                 }
@@ -737,7 +739,7 @@ namespace mod
         camShakeInit = patch::hookFunction(camdrv::camShakeInit,
                                            [](f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration)
                                            {
-                                               if (Lunatic->Luna.DisorderWork.tremorState > 0)
+                                               if (Lunatic->Luna.DW.tremorState > 0)
                                                    return;
                                                camShakeInit(x, y, z, camId, duration);
                                            });
@@ -2239,7 +2241,7 @@ namespace mod
         if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         // vv DEBUG vv
-        // Lunatic->Mover.moverRNG = 2;
+         Lunatic->Mover.moverRNG = 2;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
         return 2;
@@ -2327,7 +2329,7 @@ namespace mod
         char *mapName = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         char *comparison = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         s32 compstrReturn = 1;
-        wii::os::OSReport("p1: %s; p2: %s\n", mapName, comparison);
+        // wii::os::OSReport("p1: %s; p2: %s\n", mapName, comparison);
         char *result = msl::string::strstr(mapName, comparison);
         if (result != 0)
         {
@@ -2350,7 +2352,7 @@ namespace mod
         {
             if (Lunatic->Luna.disorder == DISORDER_PURPLE && yes->type == STATUS_SLOW)
             {
-                yes->timer = (Lunatic->Luna.DisorderWork.UserWork.Indolence->slowDuration * 60) - 30;
+                yes->timer = (Lunatic->Luna.DW.UW.Indolence->slowDuration * 60) - 30;
             }
             else if (yes->type == STATUS_FLIPPED_CONTROLS || yes->type == STATUS_NO_SKILLS || yes->type == STATUS_NO_JUMP || yes->type == STATUS_SLOW)
             {
@@ -2693,46 +2695,6 @@ namespace mod
         return 2;
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_backup_descs, 0)
-
-    s32 chestBakudaaaan(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], 0);
-        s32 difficulty = swdrv::swByteGet(1620);
-        s32 explosionChance = system::rand() % 100;
-        s32 explodeDmg = 0;
-        switch (difficulty)
-        {
-        case 0:
-            if (explosionChance < 10)
-            {
-                explodeDmg = (system::rand() % 3) + 4; // 4-6
-            }
-            break;
-        case 1:
-            if (explosionChance < 20)
-            {
-                explodeDmg = (system::rand() % 3) + 6; // 6-8
-            }
-            break;
-        case 2:
-            if (explosionChance < 33)
-            {
-                explodeDmg = (system::rand() % 3) + 8; // 8-10
-            }
-            break;
-        }
-        if (explodeDmg != 0)
-        {
-            evtmgr_cmd::evtSetValue(evtEntry, args[0], 1);
-            mobjdrv::MobjEntry *chest = mobjdrv::mobjNameToPtr("box");
-            mario::marioKeyOn();
-            npcdrv::npcDamageMario(0, 0, &chest->pos, 0, explodeDmg, 4);
-        }
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(chestBakudaaaan, 1)
 
     s32 merlunaCutsceneSetMaterialFlags(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
@@ -3182,8 +3144,8 @@ namespace mod
     CASE_EQUAL(4)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FPIANO"), 500)
     CASE_EQUAL(5)
-   // USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FBEATS"), 500)
-  //  CASE_EQUAL(6)
+    // USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FBEATS"), 500)
+    //  CASE_EQUAL(6)
     USER_FUNC(evt_snd::evt_snd_bgmoff, 0)
     END_SWITCH()
     USER_FUNC(evt_snd::evt_snd_set_sfx_reverb_mode, 0)
@@ -3910,53 +3872,92 @@ namespace mod
 
     s32 evt_dan_patch_dokan(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
+        (void)evtEntry;
+        (void)firstRun;
         dan::dan_chestRoomDokanDesc.destMapName = "mac_05";
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_dan_patch_dokan, 0)
 
+    const char *RFCRarityNames[4] = {"Common", "Uncommon", "Rare", "Legendary"};
+
+    s32 RFCGetPtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)&Lunatic->RFC.rfcItems);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)
+
+    s32 RFCGetRarity(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestRarity);
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFCRarityNames[Lunatic->RFC.chestRarity]);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(RFCGetRarity, 2)
+
+    s32 RFCGetChestKeyParams(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys); // chest keys required
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], 0); // chest keys owned
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 2)
+
+    EVT_BEGIN(dan_chest_close_evt)
+    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("box"), LW(0), LW(1), LW(2))
+    ADDF(LW(1), 10)
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_APPEAR1"), LW(0), LW(1), LW(2))
+    USER_FUNC(evt_eff::evt_eff, 0, PTR("kemuri_test"), 0, LW(0), LW(1), LW(2), FLOAT(5.0), 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
+    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
+  //  USER_FUNC(evt_mario::evt_mario_key_on)
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(new_dan_chest_interact_evt)
-    SWITCH(GSW(1620))
-    CASE_EQUAL(0)
-    SET(LW(2), 10)
-    CASE_EQUAL(1)
-    SET(LW(2), 20)
-    CASE_EQUAL(2)
-    SET(LW(2), 33)
-    END_SWITCH()
-    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(chestText), 0, 0, LW(2))
+    USER_FUNC(RFCGetRarity, 0, LW(0))
+    USER_FUNC(RFCGetChestKeyParams, LW(1), LW(2))
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(chestText), 0, 0, LW(0), LW(1), LW(2))
     USER_FUNC(evt_msg::evt_msg_select, 1, PTR(yesNoSelect_YesByDefault))
     USER_FUNC(evt_msg::evt_msg_continue)
     IF_EQUAL(LW(0), 1)
-    SET(GSWF(1605), 1)
+    RUN_EVT(dan_chest_close_evt)
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    END_IF()
+    IF_EQUAL(LW(0), 2)
+    RUN_EVT(new_dan_chest_interact_evt)
+    RETURN()
     END_IF()
     RETURN()
     EVT_END()
 
     EVT_BEGIN(new_dan_chest_open_evt)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("box"), 0)
-    USER_FUNC(chestBakudaaaan, LW(1))
-    IF_EQUAL(LW(1), 1)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("box"), LW(0), LW(1), LW(2))
-    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_NINJA_BOMB_FIRE1"), LW(0), LW(1), LW(2))
-    USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 0, LW(0), LW(1), LW(2), FLOAT(1.5), 0, 0, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
-    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    RETURN()
-    END_IF()
-    USER_FUNC(evt_sub::evt_sub_item_select_menu, 0, PTR(&rfcItems), LW(0), 0)
-    IF_SMALL_EQUAL(LW(0), 0) // Select menu cancelled
-    USER_FUNC(evt_mobj::evt_mobj_set_anim, PTR("box"), PTR("A_3"))
-    USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("box"), 0)
-    USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("box"), 75, 25, FLOAT(-87.5), PTR(new_dan_chest_interact_evt), PTR(new_dan_chest_open_evt), 0, 0)
-    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    USER_FUNC(evt_mario::evt_mario_key_on)
+    USER_FUNC(RFCGetPtr, LW(1))
+    USER_FUNC(EvtCWSelectEntry, PTR("RFC"), CWSELECT_DEFAULT, PTR("Loot"), PTR("Take an item,\nany item!"), LW(1), 3)
+    USER_FUNC(EvtCWSelectSetHeaderColor, PTR("RFC"), PTR(&RFCHeaderCol))
+    USER_FUNC(EvtCWSelectMenuStart, PTR("RFC"), 0, LW(0))
+    IF_EQUAL(LW(0), -1) // Select menu cancelled
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("RFC"))
+    RUN_EVT(dan_chest_close_evt)
     ELSE()
+    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(0), LW(4))
+    IF_LARGE(LW(4), 0)
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("RFC"))
     USER_FUNC(evt_mario::evt_mario_get_pos, LW(1), LW(2), LW(3))
-    USER_FUNC(evt_item::evt_item_entry, PTR("item"), LW(0), 0, LW(1), LW(2), LW(3), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("item"), 8)
+    USER_FUNC(evt_item::evt_item_entry, PTR("item"), LW(4), 0, LW(1), LW(2), LW(3), 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("item"), 0x8)
     USER_FUNC(evt_item::evt_item_wait_collected, PTR("item"))
+    END_IF()
     END_IF()
     RETURN()
     EVT_END()
@@ -4292,7 +4293,7 @@ namespace mod
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), 0x84, 0, 0, 0)
-  //  USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
+    //  USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), 0x87, 0, 0, 0)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
@@ -4657,13 +4658,6 @@ namespace mod
     RETURN()
     ELSE()
     DO(0)                   // Start global operations loop
-    IF_EQUAL(GSWF(1605), 1) // Used for RFC removal after saying "No" to open the chest
-    SET(GSWF(1605), 0)
-    USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("box"), 75, 25, FLOAT(-87.5), PTR(new_dan_chest_interact_evt), PTR(new_dan_chest_open_evt), 0, 0)
-    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    USER_FUNC(evt_mario::evt_mario_key_on)
-    END_IF()
     IF_EQUAL(GSWF(1670), 1) // If Migraine or Indolence (Slow) has just been activated
     SET(GSWF(1670), 0)
     INLINE_EVT()

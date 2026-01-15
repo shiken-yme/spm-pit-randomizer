@@ -157,9 +157,16 @@ namespace mod
 
     const char chestText[] =
         "<system>"
-        "Open the chest?\n"
-        "(%d percent chance to explode)"
-        "<o>";
+        "Open the %s Chest?\n"
+        "<wait 300>It'll take %d Chest Keys.\n"
+        "<wait 300>(You have %d!)\n"
+        "<dkey><wait 300></dkey><o>";
+
+    const char chestOptions[] =
+        "<select 1 -1 240 45>\n"
+        "Open it!\n"
+        "Close it.\n"
+        "Tell me more...";
 
     // Shadoo
     const char shadooIntro[] =
@@ -259,6 +266,26 @@ namespace mod
         "Maybe it's the way they talk...\n"
         "<wait 250>Ugh,<wait 100> I just can't remember...\n"
         "<k>";
+
+    // Blessings and Disorders
+
+    const char spectreName[] =
+        "Spectre";
+
+    const char houraiName[] =
+        "Hourai Doll";
+
+    const char paramitaName[] =
+        "Paramita";
+
+    const char shionName[] =
+        "Tatarian Aster";
+
+    const char hexName[] =
+        "Vulnerability Hex";
+
+    const char migraineName[] =
+        "Migraine";
 
     // Merluna & blessing/curse text
     const char houraiFirstUse[] =

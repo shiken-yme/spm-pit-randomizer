@@ -8,7 +8,7 @@
 
 namespace mod
 {
-    enum BlessId
+    enum BlessId : s32
     {
         /* 0x0 */ MERLUNA_NULL_BLESS,
         /* 0x1 */ MERLUNA_SPECTRE,
@@ -16,7 +16,7 @@ namespace mod
         /* 0x3 */ MERLUNA_PARAMITA
     };
 
-    enum CurseId
+    enum CurseId : s32
     {
         /* 0x0 */ MERLUNA_NULL_CURSE,
         /* 0x1 */ MERLUNA_SHION,
@@ -24,7 +24,7 @@ namespace mod
         /* 0x3 */ MERLUNA_MIGRAINE
     };
 
-    enum DisorderId
+    enum DisorderId : s32
     {
         /* 0x0 */ DISORDER_NULL,
         /* 0x1 */ DISORDER_RED,
@@ -38,7 +38,7 @@ namespace mod
         /* 0x9 */ DISORDER_BLACK
     };
 
-    enum LPIcon
+    enum LPIcon : s32
     {
         /* 0x0 */ ICON_SKULL_KEY,
         /* 0x1 */ ICON_BUMP_GRAY,
@@ -84,13 +84,20 @@ namespace mod
         f32 Mult; // base value of 50.0 when initialized
     };
 
-    struct JudgementWork
+    struct DivineJudgement
     {
         const char *name;
         CooldownTimer CD;
         s32 activateThreshold;
         Callback *SetFunc;
         Callback *ClearFunc;
+    };
+
+    struct JudgementMiscs
+    {
+        bool judgementRendered;
+        BlessId preBlessId;
+        CurseId preCurseId;
     };
 
     struct LeyLineDisorder
@@ -111,12 +118,12 @@ namespace mod
     {
         s32 floorsRem;
         s32 preId;
+        s32 intplProgress; // for fading color between 0 and mainCol
         s32 intplProgressMax;
-        s32 intplProgress;
         s32 tremorState;
         s32 finalShakeTime;
+        s32 tremorIntplFrmTimer; // for fading color between mainCol and severeCol
         s32 tremorIntplFrmMax;
-        s32 tremorIntplFrmTimer;
         char descBuf[300];
         union
         {
@@ -130,7 +137,7 @@ namespace mod
             MelancholyWork *Melancholy;
             RuinWork *Ruin;
             void *Any;
-        } UserWork;
+        } UW;
     };
 
     struct InvisibleFullMoon
@@ -138,16 +145,29 @@ namespace mod
         BlessId blessing;
         CurseId curse;
         DisorderId disorder;
-        JudgementWork *Blessing;
-        JudgementWork *Curse;
+        DivineJudgement *Blessing;
+        DivineJudgement *Curse;
         LeyLineDisorder *Disorder;
-        DisorderMiscs DisorderWork;
+        JudgementMiscs JW;
+        DisorderMiscs DW;
+    };
+
+    struct RFCItem
+    {
+        customwin::CWSelectItemDesc Desc;
+        Callback *useFunc;
+        const char *useMsg;
+        u8 subrarity;
     };
 
     struct RestFloorChest
     {
         bool closeChest;
-        s32 rfcItems[4];
+        u32 rerolls;
+        s32 chestKeys;
+        s32 chestRarity;
+        RFCItem *Items[3];
+        customwin::CWSelectItemDesc rfcItems[3];
     };
 
     struct MoverWork

@@ -93,7 +93,7 @@ namespace mod
         msl::string::memset(wp, 0, sizeof(ApathyWork));
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 difficulty = swdrv::swByteGet(1620);
-        Lunatic->Luna.DisorderWork.UserWork.Apathy = wp;
+        Lunatic->Luna.DW.UW.Apathy = wp;
         switch (difficulty)
         {
         case 0:
@@ -141,7 +141,7 @@ namespace mod
 
     void ApathyClear()
     {
-        ApathyWork *wp = Lunatic->Luna.DisorderWork.UserWork.Apathy;
+        ApathyWork *wp = Lunatic->Luna.DW.UW.Apathy;
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         pouch->maxHp += wp->storedHP;
         pouch->hp += (s32)(wp->storedHP * wp->marioHpMult);
@@ -154,7 +154,7 @@ namespace mod
     {
         DreadWork *wp = (DreadWork *)memory::__memAlloc(0, sizeof(DreadWork));
         msl::string::memset(wp, 0, sizeof(DreadWork));
-        Lunatic->Luna.DisorderWork.UserWork.Dread = wp;
+        Lunatic->Luna.DW.UW.Dread = wp;
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
@@ -178,7 +178,7 @@ namespace mod
     {
         PrejudiceWork *wp = (PrejudiceWork *)memory::__memAlloc(0, sizeof(PrejudiceWork));
         msl::string::memset(wp, 0, sizeof(PrejudiceWork));
-        Lunatic->Luna.DisorderWork.UserWork.Prejudice = wp;
+        Lunatic->Luna.DW.UW.Prejudice = wp;
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
@@ -208,7 +208,7 @@ namespace mod
     {
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 coinsLost;
-        f32 mod = (f32)(system::rand() % 11 + (Lunatic->Luna.DisorderWork.UserWork.Prejudice->dispInstantCoinLoss - 5));
+        f32 mod = (f32)(system::rand() % 11 + (Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss - 5));
         mod /= 100;
         coinsLost = (s32)msl::math::floor(pouch->coins * mod);
         if (hud::hud_wp->countdownTimer == 299)
@@ -219,7 +219,7 @@ namespace mod
         else if (hud::hud_wp->countdownTimer < 295)
         {
             s32 odds = system::rand() % 100;
-            if (pouch->coins > 0 && odds < Lunatic->Luna.DisorderWork.UserWork.Prejudice->coinLossChance)
+            if (pouch->coins > 0 && odds < Lunatic->Luna.DW.UW.Prejudice->coinLossChance)
                 pouch->coins -= 1;
         }
         return;
@@ -229,7 +229,7 @@ namespace mod
     {
         IndifferenceWork *wp = (IndifferenceWork *)memory::__memAlloc(0, sizeof(IndifferenceWork));
         msl::string::memset(wp, 0, sizeof(IndifferenceWork));
-        Lunatic->Luna.DisorderWork.UserWork.Indifference = wp;
+        Lunatic->Luna.DW.UW.Indifference = wp;
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
@@ -259,7 +259,7 @@ namespace mod
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         for (i = 0; i < 8; i += 1)
             evtmgr_cmd::evtSetValue(evtEntry, args[i], 0);
-        for (i = 0; i < Lunatic->Luna.DisorderWork.UserWork.Indifference->repeat; i += 1)
+        for (i = 0; i < Lunatic->Luna.DW.UW.Indifference->repeat; i += 1)
         {
             s32 odds = system::rand() % 100;
             if (odds < 50)
@@ -360,7 +360,7 @@ namespace mod
     {
         RecalcitranceWork *wp = (RecalcitranceWork *)memory::__memAlloc(0, sizeof(RecalcitranceWork));
         msl::string::memset(wp, 0, sizeof(RecalcitranceWork));
-        Lunatic->Luna.DisorderWork.UserWork.Recalcitrance = wp;
+        Lunatic->Luna.DW.UW.Recalcitrance = wp;
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
@@ -392,7 +392,7 @@ namespace mod
     {
         DepravityWork *wp = (DepravityWork *)memory::__memAlloc(0, sizeof(DepravityWork));
         msl::string::memset(wp, 0, sizeof(DepravityWork));
-        Lunatic->Luna.DisorderWork.UserWork.Depravity = wp;
+        Lunatic->Luna.DW.UW.Depravity = wp;
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
@@ -414,6 +414,9 @@ namespace mod
 
     s32 DepravityGetAllLv4Threshold(s32 difficulty)
     {
+        // This can't be part of the DepravityWork struct because work is only initialized after the color takes effect
+        // This variable is needed before the first room displays at all
+        // Consider reworking disorder init to use preId when setting, then alloc work before display?
         s32 ret;
         switch (difficulty)
         {
@@ -435,7 +438,7 @@ namespace mod
 
     bool DepravityCheckActive()
     {
-        if ((Lunatic->Luna.disorder == DISORDER_BLUE && Lunatic->Luna.DisorderWork.floorsRem != 0) || Lunatic->Luna.DisorderWork.preId == 6)
+        if ((Lunatic->Luna.disorder == DISORDER_BLUE && Lunatic->Luna.DW.floorsRem != 0) || Lunatic->Luna.DW.preId == 6)
             return true;
         return false;
     }
@@ -457,7 +460,7 @@ namespace mod
     {
         IndolenceWork *wp = (IndolenceWork *)memory::__memAlloc(0, sizeof(IndolenceWork));
         msl::string::memset(wp, 0, sizeof(IndolenceWork));
-        Lunatic->Luna.DisorderWork.UserWork.Indolence = wp;
+        Lunatic->Luna.DW.UW.Indolence = wp;
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
@@ -487,6 +490,20 @@ namespace mod
 
     // Establish global data tables for Blessings, Curses, and Disorders
 
+    DivineJudgement Blessings[MERLUNA_PARAMITA] =
+        {
+            {spectreName, {120, 0}, 0, nullptr, nullptr},
+            {houraiName, {0, 0}, 0, nullptr, nullptr},
+            {paramitaName, {0, 0}, 0, nullptr, nullptr}
+        };
+
+    DivineJudgement Curses[MERLUNA_MIGRAINE] =
+        {
+            {shionName, {0, 0}, 0, nullptr, nullptr},
+            {hexName, {0, 0}, 0, nullptr, nullptr},
+            {migraineName, {0, 0}, 0, nullptr, nullptr}
+        };
+
     LeyLineDisorder Disorders[DISORDER_BLACK] =
         {
             {apathyName, apathyDesc, {255, 0, 0, 30}, {255, 0, 0, 50}, {60, 0, 0, 255}, 20, 0.7, 3000, ApathySet, ApathyClear},                       // APATHY
@@ -497,14 +514,14 @@ namespace mod
             {depravityName, depravityDesc, {0, 0, 255, 30}, {0, 0, 255, 50}, {0, 0, 60, 255}, 50, 1.3, 6900, DepravitySet, nullptr},                  // DEPRAVITY
             {indolenceName, indolenceDesc, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, nullptr},             // INDOLENCE
             {melancholyName, melancholyDesc, {255, 255, 255, 30}, {255, 255, 255, 50}, {60, 60, 60, 255}, 20, 0.8, 3200, nullptr, nullptr},           // MELANCHOLY
-            {ruinName, ruinDesc, {0, 0, 0, 30}, {0, 0, 0, 50}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                    // RUIN
+            {ruinName, ruinDesc, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                    // RUIN
     };
 
     void SetDisorderSub(DisorderId id)
     {
         Lunatic->Luna.disorder = id;
-        Lunatic->Luna.DisorderWork.preId = 0;
-        Lunatic->Luna.DisorderWork.floorsRem = 5;
+        Lunatic->Luna.DW.preId = 0;
+        Lunatic->Luna.DW.floorsRem = 5;
         Lunatic->Luna.Disorder = &Disorders[(s32)id - 1];
         if (Lunatic->Luna.Disorder->SetFunc != nullptr)
             (Lunatic->Luna.Disorder->SetFunc)();
@@ -516,8 +533,8 @@ namespace mod
         (void)id;
         if (Lunatic->Luna.Disorder->ClearFunc != nullptr)
             (Lunatic->Luna.Disorder->ClearFunc)();
-        if (Lunatic->Luna.DisorderWork.UserWork.Any != nullptr)
-            memory::__memFree(0, Lunatic->Luna.DisorderWork.UserWork.Any);
+        if (Lunatic->Luna.DW.UW.Any != nullptr)
+            memory::__memFree(0, Lunatic->Luna.DW.UW.Any);
         Lunatic->Luna.disorder = DISORDER_NULL;
         Lunatic->Luna.Disorder = nullptr;
         return;
@@ -528,7 +545,7 @@ namespace mod
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.disorder);
-        //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DisorderWork.preId);
+        //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DW.preId);
         return 2;
     }
 
@@ -536,7 +553,7 @@ namespace mod
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Luna.DisorderWork.preId);
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Luna.DW.preId);
         return 2;
     }
 
@@ -544,7 +561,7 @@ namespace mod
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.DisorderWork.floorsRem);
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.DW.floorsRem);
         return 2;
     }
 
@@ -579,34 +596,34 @@ namespace mod
             {
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
-                msl::string::memset(Lunatic->Luna.DisorderWork.descBuf, 0, sizeof(Lunatic->Luna.DisorderWork.descBuf));
+                msl::string::memset(Lunatic->Luna.DW.descBuf, 0, sizeof(Lunatic->Luna.DW.descBuf));
                 switch (Lunatic->Luna.disorder)
                 {
                 case DISORDER_RED:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[0].desc, Lunatic->Luna.DisorderWork.UserWork.Apathy->dispMaxHPDecrease, Lunatic->Luna.DisorderWork.UserWork.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DisorderWork.UserWork.Apathy->enemyDamageIncrease, Lunatic->Luna.DisorderWork.UserWork.Apathy->marioDamageDecrease);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
                     break;
                 case DISORDER_ORANGE:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[1].desc, Lunatic->Luna.DisorderWork.UserWork.Dread->dispBlockChance);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
                     break;
                 case DISORDER_YELLOW:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[2].desc, Lunatic->Luna.DisorderWork.UserWork.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DisorderWork.UserWork.Prejudice->coinLossChance, Lunatic->Luna.DisorderWork.UserWork.Prejudice->coinThreshold);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
                     break;
                 case DISORDER_GREEN:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[3].desc, Lunatic->Luna.DisorderWork.UserWork.Indifference->repeat);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
                     break;
                 case DISORDER_CYAN:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[4].desc, Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispXpPct, Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->dispReturnPostage, Lunatic->Luna.DisorderWork.UserWork.Recalcitrance->maxRetPostDmg);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
                     break;
                 case DISORDER_BLUE:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[5].desc, Lunatic->Luna.DisorderWork.UserWork.Depravity->allLv4FloorThreshold);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
                     break;
                 case DISORDER_PURPLE:
-                    msl::stdio::sprintf(Lunatic->Luna.DisorderWork.descBuf, Disorders[6].desc, Lunatic->Luna.DisorderWork.UserWork.Indolence->attackEffectChance, Lunatic->Luna.DisorderWork.UserWork.Indolence->dispDmgPctBonus, Lunatic->Luna.DisorderWork.UserWork.Indolence->slowDuration);
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
                     break;
                 default:
                     break;
                 }
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Luna.DisorderWork.descBuf);
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Luna.DW.descBuf);
                 evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&Lunatic->Luna.Disorder->textDrawCol);
             }
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.disorder);
@@ -626,55 +643,55 @@ namespace mod
         u8 green = Disorders[Lunatic->Luna.disorder - 1].mainCol.g;
         u8 blue = Disorders[Lunatic->Luna.disorder - 1].mainCol.b;
         u8 alpha = Disorders[Lunatic->Luna.disorder - 1].mainCol.a;
-        switch (Lunatic->Luna.DisorderWork.tremorState)
+        switch (Lunatic->Luna.DW.tremorState)
         {
         case 1:                                                    // Tremor fadein
-            if (Lunatic->Luna.DisorderWork.tremorIntplFrmMax == 0) // Init variables
+            if (Lunatic->Luna.DW.tremorIntplFrmMax == 0) // Init variables
             {
-                Lunatic->Luna.DisorderWork.tremorIntplFrmMax = (s32)msl::math::floor((f32)(Lunatic->Luna.DisorderWork.finalShakeTime / 1000 * 60));
-                Lunatic->Luna.DisorderWork.tremorIntplFrmTimer = 0;
-                Lunatic->Luna.DisorderWork.intplProgressMax = 60;
-                Lunatic->Luna.DisorderWork.intplProgress = 0;
+                Lunatic->Luna.DW.tremorIntplFrmMax = (s32)msl::math::floor((f32)(Lunatic->Luna.DW.finalShakeTime / 1000 * 60));
+                Lunatic->Luna.DW.tremorIntplFrmTimer = 0;
+                Lunatic->Luna.DW.intplProgressMax = 60;
+                Lunatic->Luna.DW.intplProgress = 0;
             }
-            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            Lunatic->Luna.DisorderWork.tremorIntplFrmTimer += 1;
-            Lunatic->Luna.DisorderWork.intplProgress += 1;
-            if (Lunatic->Luna.DisorderWork.tremorIntplFrmTimer >= 60)
+            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            Lunatic->Luna.DW.tremorIntplFrmTimer += 1;
+            Lunatic->Luna.DW.intplProgress += 1;
+            if (Lunatic->Luna.DW.tremorIntplFrmTimer >= 60)
             {
-                Lunatic->Luna.DisorderWork.intplProgress = 0;
-                Lunatic->Luna.DisorderWork.tremorState = 2;
+                Lunatic->Luna.DW.intplProgress = 0;
+                Lunatic->Luna.DW.tremorState = 2;
             }
             break;
         case 2: // Stay at severecol
-            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DisorderWork.intplProgressMax, Lunatic->Luna.DisorderWork.intplProgressMax);
-            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DisorderWork.intplProgressMax, Lunatic->Luna.DisorderWork.intplProgressMax);
-            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DisorderWork.intplProgressMax, Lunatic->Luna.DisorderWork.intplProgressMax);
-            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DisorderWork.intplProgressMax, Lunatic->Luna.DisorderWork.intplProgressMax);
-            Lunatic->Luna.DisorderWork.tremorIntplFrmTimer += 1;
-            if ((Lunatic->Luna.DisorderWork.tremorIntplFrmMax - Lunatic->Luna.DisorderWork.tremorIntplFrmTimer) <= 60) // Check if should fade back to normal
-                Lunatic->Luna.DisorderWork.tremorState = 3;
+            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DW.intplProgressMax, Lunatic->Luna.DW.intplProgressMax);
+            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DW.intplProgressMax, Lunatic->Luna.DW.intplProgressMax);
+            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DW.intplProgressMax, Lunatic->Luna.DW.intplProgressMax);
+            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DW.intplProgressMax, Lunatic->Luna.DW.intplProgressMax);
+            Lunatic->Luna.DW.tremorIntplFrmTimer += 1;
+            if ((Lunatic->Luna.DW.tremorIntplFrmMax - Lunatic->Luna.DW.tremorIntplFrmTimer) <= 60) // Check if should fade back to normal
+                Lunatic->Luna.DW.tremorState = 3;
             break;
         case 3: // Tremor fadeout
-            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
+            red = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.r, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            green = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.g, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.b, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             red = Disorders[Lunatic->Luna.disorder - 1].severeCol.r - red + (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.r;
             green = Disorders[Lunatic->Luna.disorder - 1].severeCol.g - green + (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.g;
             blue = Disorders[Lunatic->Luna.disorder - 1].severeCol.b - blue + (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.b;
             alpha = Disorders[Lunatic->Luna.disorder - 1].severeCol.a - alpha + (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a;
-            Lunatic->Luna.DisorderWork.intplProgress += 1;
-            Lunatic->Luna.DisorderWork.tremorIntplFrmTimer += 1;
-            if (Lunatic->Luna.DisorderWork.tremorIntplFrmTimer == Lunatic->Luna.DisorderWork.tremorIntplFrmMax)
+            Lunatic->Luna.DW.intplProgress += 1;
+            Lunatic->Luna.DW.tremorIntplFrmTimer += 1;
+            if (Lunatic->Luna.DW.tremorIntplFrmTimer == Lunatic->Luna.DW.tremorIntplFrmMax)
             {
-                Lunatic->Luna.DisorderWork.tremorIntplFrmMax = 0;
-                Lunatic->Luna.DisorderWork.tremorIntplFrmTimer = 0;
-                Lunatic->Luna.DisorderWork.tremorState = 0;
-                Lunatic->Luna.DisorderWork.intplProgress = 0;
-                Lunatic->Luna.DisorderWork.intplProgressMax = 0;
+                Lunatic->Luna.DW.tremorIntplFrmMax = 0;
+                Lunatic->Luna.DW.tremorIntplFrmTimer = 0;
+                Lunatic->Luna.DW.tremorState = 0;
+                Lunatic->Luna.DW.intplProgress = 0;
+                Lunatic->Luna.DW.intplProgressMax = 0;
             }
         }
         color = {red, green, blue, alpha};
@@ -689,16 +706,16 @@ namespace mod
         s32 id = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 clear = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 red, green, blue, alpha;
-        if (Lunatic->Luna.DisorderWork.intplProgressMax == 0)
+        if (Lunatic->Luna.DW.intplProgressMax == 0)
         {
-            Lunatic->Luna.DisorderWork.intplProgressMax = 100;
+            Lunatic->Luna.DW.intplProgressMax = 100;
         }
-        if (Lunatic->Luna.DisorderWork.intplProgress < Lunatic->Luna.DisorderWork.intplProgressMax)
+        if (Lunatic->Luna.DW.intplProgress < Lunatic->Luna.DW.intplProgressMax)
         {
-            red = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.r, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            green = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.g, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.b, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
-            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.a, Lunatic->Luna.DisorderWork.intplProgress, Lunatic->Luna.DisorderWork.intplProgressMax);
+            red = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.r, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            green = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.g, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            blue = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.b, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
+            alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.a, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             if (clear == 1)
             {
                 red = -(red - Disorders[id - 1].mainCol.r);
@@ -708,16 +725,16 @@ namespace mod
             }
             wii::gx::GXColor color = {(u8)red, (u8)green, (u8)blue, (u8)alpha};
             mapdrv::mapSetColor(&color);
-            Lunatic->Luna.DisorderWork.intplProgress += 1;
+            Lunatic->Luna.DW.intplProgress += 1;
             // DisorderDraw will attempt to draw after this interpolation ends & before ClearDisorderSub, so we set disorder to null directly beforehand
-            if (Lunatic->Luna.DisorderWork.intplProgress == 99)
+            if (Lunatic->Luna.DW.intplProgress == 99)
                 Lunatic->Luna.disorder = DISORDER_NULL;
             return 0;
         }
         else
         {
-            Lunatic->Luna.DisorderWork.intplProgressMax = 0;
-            Lunatic->Luna.DisorderWork.intplProgress = 0;
+            Lunatic->Luna.DW.intplProgressMax = 0;
+            Lunatic->Luna.DW.intplProgress = 0;
             if (clear == 0)
             {
                 SetDisorderSub((DisorderId)id);
@@ -802,12 +819,11 @@ namespace mod
         s32 debugDisorderId = swdrv::swByteGet(1660);
         if (DebugMode && debugDisorderId > 0)
         {
-            Lunatic->Luna.DisorderWork.preId = debugDisorderId;
+            Lunatic->Luna.DW.preId = debugDisorderId;
             swdrv::swByteSet(1660, 0);
             return;
         }
         // Roll through each difficulty to decide whether or not to set a disorder
-        s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
         s32 compare;
         switch (difficulty)
         {
@@ -818,27 +834,30 @@ namespace mod
             compare = 50;
             break;
         case 2:
-            compare = 990;
+            compare = 100;
             break;
         default:
             compare = 333;
             break;
         }
         if (num < compare)
-            Lunatic->Luna.DisorderWork.preId = disorderRNG;
+        {
+            s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
+            Lunatic->Luna.DW.preId = disorderRNG;
+        }
         return;
     }
 
     void DisorderHandleTremors()
     {
         s32 odds = system::rand() % 1000;
-        if (odds < Lunatic->Luna.Disorder->shakeOdds && Lunatic->Luna.DisorderWork.tremorState == 0)
+        if (odds < Lunatic->Luna.Disorder->shakeOdds && Lunatic->Luna.DW.tremorState == 0)
         {
-            Lunatic->Luna.DisorderWork.tremorState = 1;
+            Lunatic->Luna.DW.tremorState = 1;
             s32 time = (Lunatic->Luna.Disorder->shakeTime - ((s32)msl::math::floor(system::rand() % (Lunatic->Luna.Disorder->shakeTime / 2))));
             if (time < 2000)
                 time = 2000;
-            Lunatic->Luna.DisorderWork.finalShakeTime = time;
+            Lunatic->Luna.DW.finalShakeTime = time;
             evtmgr::EvtEntry *evt = evtmgr::evtEntryType(EvtDisorderTremor, 0, 0, 0);
             evt->lw[10] = time;
             evt->lw[12] = FLOAT(Lunatic->Luna.Disorder->shakeStrength);
