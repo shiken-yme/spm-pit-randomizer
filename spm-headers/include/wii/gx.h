@@ -181,9 +181,9 @@ UNKNOWN_FUNCTION(__GXUpdateBPMask)
 UNKNOWN_FUNCTION(__GXSetIndirectMask)
 UNKNOWN_FUNCTION(__GXFlushTextureState)
 void GXSetTevOp(u8 tevstage, u8 mode);
-UNKNOWN_FUNCTION(GXSetTevColorIn)
+void GXSetTevColorIn(u8 tevstage, u8 a, u8 b, u8 c, u8 d);
 UNKNOWN_FUNCTION(GXSetTevAlphaIn)
-UNKNOWN_FUNCTION(GXSetTevColorOp)
+void GXSetTevColorOp(u8 tevstage, u8 tevop, u8 bias, u8 scale, bool clamp, u8 out_reg);
 UNKNOWN_FUNCTION(GXSetTevAlphaOp)
 void GXSetTevColor(s32 id, GXColor * color);
 UNKNOWN_FUNCTION(GXSetTevColorS10)

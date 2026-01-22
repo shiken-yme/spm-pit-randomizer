@@ -16,6 +16,7 @@
 #include <rewrite.h>
 #include <lunadrv.h>
 #include <interface.h>
+#include <rfcdrv.h>
 
 #include <cutscene_helpers.h>
 #include <spm/rel/aa1_01.h>
@@ -39,6 +40,7 @@
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
 #include <spm/evt_eff.h>
+#include <spm/evt_env.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
 #include <spm/evt_frame.h>
@@ -2241,7 +2243,7 @@ namespace mod
         if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         // vv DEBUG vv
-         Lunatic->Mover.moverRNG = 2;
+        Lunatic->Mover.moverRNG = 2;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
         return 2;
@@ -2292,7 +2294,7 @@ namespace mod
         s32 printInt = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         if (introStr == nullptr)
         {
-            wii::os::OSReport("%f\n", printInt);
+            wii::os::OSReport("%d\n", printInt);
         }
         else
         {
@@ -2481,7 +2483,8 @@ namespace mod
     s32 mover_down_5(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         s32 floor = swdrv::swByteGet(1);
-        floor = floor + 4;
+        // floor = floor + 4;
+        floor = floor + 8; // DEBUG
         // floor = floor + 198; // DEBUG
         swdrv::swByteSet(1, floor);
         const char *destMap = getNextDanMapnameNew(floor);
@@ -3879,37 +3882,6 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_dan_patch_dokan, 0)
 
-    const char *RFCRarityNames[4] = {"Common", "Uncommon", "Rare", "Legendary"};
-
-    s32 RFCGetPtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)&Lunatic->RFC.rfcItems);
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)
-
-    s32 RFCGetRarity(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestRarity);
-        evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFCRarityNames[Lunatic->RFC.chestRarity]);
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(RFCGetRarity, 2)
-
-    s32 RFCGetChestKeyParams(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys); // chest keys required
-        evtmgr_cmd::evtSetValue(evtEntry, args[1], 0); // chest keys owned
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 2)
-
     EVT_BEGIN(dan_chest_close_evt)
     USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("box"), LW(0), LW(1), LW(2))
     ADDF(LW(1), 10)
@@ -3917,7 +3889,7 @@ namespace mod
     USER_FUNC(evt_eff::evt_eff, 0, PTR("kemuri_test"), 0, LW(0), LW(1), LW(2), FLOAT(5.0), 0, 0, 0, 0, 0, 0, 0)
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-  //  USER_FUNC(evt_mario::evt_mario_key_on)
+    //  USER_FUNC(evt_mario::evt_mario_key_on)
     RETURN()
     EVT_END()
 
@@ -3941,14 +3913,15 @@ namespace mod
     EVT_BEGIN(new_dan_chest_open_evt)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("box"), 0)
     USER_FUNC(RFCGetPtr, LW(1))
-    USER_FUNC(EvtCWSelectEntry, PTR("RFC"), CWSELECT_DEFAULT, PTR("Loot"), PTR("Take an item,\nany item!"), LW(1), 3)
+    USER_FUNC(EvtCWSelectEntry, PTR("RFC"), CWSELECT_DEFAULT, PTR("Loot"), PTR("Pick an item,\nany item!"), LW(1), 3)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("RFC"), PTR(&RFCHeaderCol))
     USER_FUNC(EvtCWSelectMenuStart, PTR("RFC"), 0, LW(0))
     IF_EQUAL(LW(0), -1) // Select menu cancelled
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("RFC"))
     RUN_EVT(dan_chest_close_evt)
-    ELSE()
+    RETURN()
+    END_IF()
     USER_FUNC(EvtCWSelectGetSelectionItemId, LW(0), LW(4))
     IF_LARGE(LW(4), 0)
     USER_FUNC(EvtCWSelectReset)
@@ -3957,7 +3930,13 @@ namespace mod
     USER_FUNC(evt_item::evt_item_entry, PTR("item"), LW(4), 0, LW(1), LW(2), LW(3), 0, 0, 0, 0)
     USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("item"), 0x8)
     USER_FUNC(evt_item::evt_item_wait_collected, PTR("item"))
+    ELSE() // Is special item
+    USER_FUNC(RFCAnalyzeSpecial, LW(0), LW(1))
+    IF_NOT_EQUAL(LW(1), -1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, LW(1), 0, 0)
     END_IF()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("RFC"))
     END_IF()
     RETURN()
     EVT_END()
@@ -4182,10 +4161,13 @@ namespace mod
     // Overwrite vanilla chests
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
     USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("box"), 75, 25, FLOAT(-87.5), PTR(new_dan_chest_interact_evt), PTR(new_dan_chest_open_evt), 0, 0)
-    // Handle Whacka replacing the chest
+    // USER_FUNC(RFCGetRarity, LW(0), 0)
+    // USER_FUNC(RFCSetChestCol, LW(0)) // Please fucking figure this out one day.
+    // Handle Whacka replacing the chest OR set chest color
+    // SET(LW(0), 100)
     IF_NOT_EQUAL(GSW(22), 8) // If Whacka has not been brutally murdered
     USER_FUNC(evt_sub::evt_sub_random, 100, LW(0))
-    IF_SMALL_EQUAL(LW(0), 10)
+    IF_SMALL_EQUAL(LW(0), 2)
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR("box"))
     RUN_EVT(spawn_whacka)
     END_IF()

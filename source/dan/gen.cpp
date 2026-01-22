@@ -1,6 +1,7 @@
 #include <common.h>
 #include <evt_cmd.h>
 #include <gen.h>
+#include <rfcdrv.h>
 #include <util.h>
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
@@ -98,12 +99,12 @@
 namespace mod
 {
     using namespace spm;
+    using namespace spm::npcdrv;
+    using namespace spm::item_data;
 
     /*
         NPCDATA
     */
-
-    using namespace spm::npcdrv;
 
     // All npcStructs are named after their "name" field, 1 plus their tribe ID
     DanNPCData npcStruct1 = {1, 70, 0, 4, 7};
@@ -1013,73 +1014,6 @@ namespace mod
 
     static double boobies = 0;
 
-    RFCItem RFCItems_Common[] = {
-        /*
-        // Example
-        {{iconId, itemId, 0, 0, {r, g, b, a}, itemName, itemDesc}, useFunc, useMsg, subrarity},
-        */
-        // Example
-        {{-1, item_data::ITEM_ID_USE_HONOO_SAKURETU, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_STAR_MEDAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_KOURA_DE_PON, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_KOORI_NO_IBUKI, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_BARIA_FRAME, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_BOMB_EGG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_POW_BLOCK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_TOROPICO_MANGO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_MILD_CACAO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_ROW_PASTA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_INGREDIENTS_OF_SWEET, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_TUKUSHINBO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_HERB, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_FAIL_COOKING1, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_FAIL_COOKING2, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_KAME_TEA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_HERB_TEA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
-
-    RFCItem RFCItems_Uncommon[] = {
-        {{-1, item_data::ITEM_ID_COOK_HUNNY_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_HOT_COCOA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_KINOKO_FRY, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_BIG_EGG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_NANIGA_OKORUKANA, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_KAMINARI_DOKKAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_TUYOTUYO_DRINK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_HOTDOG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3},
-        {{-1, item_data::ITEM_ID_COOK_HANAJIRU_SYRUP, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_KINKYU_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_POWERFUL_MEET, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_PRIMITIVENUT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
-
-    RFCItem RFCItems_Rare[] = {
-        {{-1, item_data::ITEM_ID_COOK_KINOKO_HOILE_FRY, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_KIRAKIRA_OTOSHI, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_DINNER, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_HANA_DANGO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_MANGO_PUDDING, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_GOLD_CHOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_GOLD_MEDAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_LOVE_NOODLE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_EMERGENCY_MEAL, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_FRUITS_HUMBURG, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_USE_KINKYU_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_PEACH_TART, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_MIX_SHAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_MOUSSE_CAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_CHOCOLA_CAKE, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_USE_SHINABITA_KINOKO, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
-
-    RFCItem RFCItems_Legendary[] = {
-        {{-1, item_data::ITEM_ID_USE_ULTRA_DRINK, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 1},
-        {{-1, item_data::ITEM_ID_COOK_ICHIGO_RABBIT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_SNOW_RABBIT, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 2},
-        {{-1, item_data::ITEM_ID_COOK_TRIAL_PAN, 0, 0, {0, 0, 0, 0}, 0, 0}, nullptr, nullptr, 3}};
-
     // Set the Pit Flimm inventory
     s32 newRotenShopItems[] = {
         0, -1, 0,
@@ -1117,14 +1051,15 @@ namespace mod
 
     void DanGen_Items(bool onRoomLoad)
     {
-        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, threshold = 30, selectionIdx = 0, arraySize = 0;
-        RFCItem *Item = nullptr;
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, threshold = 30, selectionIdx = 0, itemId = 0;
         if (onRoomLoad)
         {
             Lunatic->RFC.rerolls = 0;
         }
         else
             Lunatic->RFC.rerolls += 1;
+        // Reset existing items
+        s32 itemsGenerated[3] = {0, 0, 0};
         // Decide chest rarity
         for (i = 0; i < 3; i += 1)
         {
@@ -1135,7 +1070,7 @@ namespace mod
         Lunatic->RFC.chestRarity = rarity;
         Lunatic->RFC.chestKeys = (1 + rarity + Lunatic->RFC.rerolls);
         // Decide threshold for selecting higher-tier items
-        threshold -= rarity * 10;
+        threshold -= (rarity * 10);
         // Select 3 items
         itemRarity = rarity;
         for (i = 0; i < 3; i += 1)
@@ -1145,48 +1080,54 @@ namespace mod
             {
                 odds = system::rand() % 100;
                 if (odds < threshold)
-                {
                     itemRarity += 1;
-                }
                 else
                     break;
             }
-            // Pull item from array
+        // Pull item from array
+        tryAgain:
             switch (itemRarity)
             {
             case 0:
-                arraySize = (sizeof(RFCItems_Common) / sizeof(RFCItem));
-                selectionIdx = system::rand() % arraySize;
-                Item = &RFCItems_Common[selectionIdx];
+                selectionIdx = system::rand() % RFCItems_Common_Size;
+                itemId = RFCItems_Common[selectionIdx];
                 break;
             case 1:
-                arraySize = (sizeof(RFCItems_Uncommon) / sizeof(RFCItem));
-                selectionIdx = system::rand() % arraySize;
-                Item = &RFCItems_Uncommon[selectionIdx];
+                selectionIdx = system::rand() % RFCItems_Uncommon_Size;
+                itemId = RFCItems_Uncommon[selectionIdx];
                 break;
             case 2:
-                arraySize = (sizeof(RFCItems_Rare) / sizeof(RFCItem));
-                selectionIdx = system::rand() % arraySize;
-                Item = &RFCItems_Rare[selectionIdx];
+                selectionIdx = system::rand() % RFCItems_Rare_Size;
+                itemId = RFCItems_Rare[selectionIdx];
                 break;
             default:
-                arraySize = (sizeof(RFCItems_Legendary) / sizeof(RFCItem));
-                selectionIdx = system::rand() % arraySize;
-                Item = &RFCItems_Legendary[selectionIdx];
+                selectionIdx = system::rand() % RFCItems_Legendary_Size;
+                itemId = RFCItems_Legendary[selectionIdx];
                 break;
             }
-            s32 id = Item->Desc.itemId;
-            if (id == Lunatic->RFC.rfcItems[0].itemId || id == Lunatic->RFC.rfcItems[1].itemId || id == Lunatic->RFC.rfcItems[2].itemId)
+            if (itemId == itemsGenerated[0] || itemId == itemsGenerated[1] || itemId == itemsGenerated[2])
+                goto tryAgain;
+            itemsGenerated[i] = itemId;
+            customwin::CWSelectItemDesc Desc;
+            msl::string::memset(&Desc, 0, sizeof(Desc));
+            if (itemId >= RFC_SPECIAL_START)
             {
-                i -= 1;
+                Desc.iconId = (s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId + TPLPATCH_ICON_REDIRECT;
+                // Desc.itemId = -1;
+                msl::string::memcpy(&Desc.nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
+                msl::string::memcpy(&Desc.descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
+                wii::os::OSReport("RFC: Special item %d generated. Icon id set to %d. Name: %s\n", itemId, Desc.iconId, Desc.nameTxt);
             }
             else
             {
-                Lunatic->RFC.Items[i] = Item;
-                msl::string::memcpy(&Lunatic->RFC.rfcItems[i], &Lunatic->RFC.Items[i]->Desc, sizeof(customwin::CWSelectItemDesc));
+                Desc.itemId = itemId;
+                Desc.iconId = -1;
             }
+            Desc.nameColor = RFC_Colors[itemRarity].textCol;
+            msl::string::memcpy(&Lunatic->RFC.rfcItems[i], &Desc, sizeof(customwin::CWSelectItemDesc));
+            Lunatic->RFC.rfcItemData[i] = &RFC_SpecialItems[itemId - RFC_SPECIAL_START];
         }
-        wii::os::OSReport("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, Lunatic->RFC.rfcItems[0].itemId, Lunatic->RFC.rfcItems[1].itemId, Lunatic->RFC.rfcItems[2].itemId);
+        wii::os::OSReport("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, itemsGenerated[0], itemsGenerated[1], itemsGenerated[2]);
         return;
     }
 
@@ -3109,4 +3050,4 @@ namespace mod
             return EVT_RET_CONTINUE;
         }
     }
-}
+} // turtle

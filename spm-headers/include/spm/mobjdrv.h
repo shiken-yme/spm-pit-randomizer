@@ -62,7 +62,11 @@ typedef struct _MobjEntry
 /* 0x030 */ Vec3 rotation;
 /* 0x03C */ u8 unknown_0x3c[0x48 - 0x3c];
 /* 0x048 */ s32 animPoseId;
-/* 0x04C */ u8 unknown_0x4c[0x5c - 0x4c];
+/* 0x04C */ u8 objAlpha;
+/* 0x04D */ u8 cullObjAlpha;
+/* 0x04E */ u8 cullColMaskAlpha;
+/* 0x04F */ u8 cullOutlineAlpha;
+/* 0x050 */ u8 unknown_0x50[0x5c - 0x50];
     /*
         0 is 3D joint
         1 is 2D joint
@@ -71,7 +75,7 @@ typedef struct _MobjEntry
 /* 0x05C */ MobjJoint joints[3];
 /* 0x1F4 */ Vec3 objSize;
 /* 0x200 */ Vec3 translation;
-/* 0x20C */ u8 unknown_0x20c[0x210 - 0x20c];
+/* 0x20C */ s32 offscreenId;
 /* 0x210 */ union
             {
                 MobjDropItem * items;
@@ -115,7 +119,7 @@ DECOMP_STATIC(MobjWork * mobjdrv_wp)
 
 UNKNOWN_FUNCTION(func_800297c0)
 UNKNOWN_FUNCTION(func_80029c34)
-UNKNOWN_FUNCTION(func_80029e50)
+void func_80029e50(s32 camId, MobjEntry * entry);
 UNKNOWN_FUNCTION(func_8002a03c)
 UNKNOWN_FUNCTION(func_8002a0bc)
 UNKNOWN_FUNCTION(func_8002a150)

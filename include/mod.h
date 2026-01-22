@@ -40,22 +40,76 @@ namespace mod
 
     enum LPIcon : s32
     {
-        /* 0x0 */ ICON_SKULL_KEY,
-        /* 0x1 */ ICON_BUMP_GRAY,
-        /* 0x2 */ ICON_BUMP_BLUE,
-        /* 0x3 */ ICON_BORDER_BLESSING,
-        /* 0x4 */ ICON_BORDER_CURSE,
-        /* 0x5 */ ICON_BORDER_DISORDER,
-        /* 0x6 */ ICON_DISORDER_APATHY,
-        /* 0x7 */ ICON_DISORDER_DREAD,
-        /* 0x8 */ ICON_DISORDER_PREJUDICE,
-        /* 0x9 */ ICON_DISORDER_INDIFFERENCE,
-        /* 0xA */ ICON_DISORDER_RECALCITRANCE,
-        /* 0xB */ ICON_DISORDER_DEPRAVITY,
-        /* 0xC */ ICON_DISORDER_INDOLENCE,
-        /* 0xD */ ICON_DISORDER_MELANCHOLY,
-        /* 0xE */ ICON_DISORDER_RUIN,
-        /* 0xF */ ICON_B
+        ICON_SKULL_KEY,
+        ICON_BUMP_GRAY,
+        ICON_BUMP_BLUE,
+        ICON_BORDER_BLESSING,
+        ICON_BORDER_CURSE,
+        ICON_BORDER_DISORDER,
+        ICON_DISORDER_APATHY,
+        ICON_DISORDER_DREAD,
+        ICON_DISORDER_PREJUDICE,
+        ICON_DISORDER_INDIFFERENCE,
+        ICON_DISORDER_RECALCITRANCE,
+        ICON_DISORDER_DEPRAVITY,
+        ICON_DISORDER_INDOLENCE,
+        ICON_DISORDER_MELANCHOLY,
+        ICON_DISORDER_RUIN,
+        ICON_B,
+        ICON_VOUCHER_CAKE,
+        ICON_VOUCHER_THUNDER,
+        ICON_VOUCHER_STELLAR,
+        ICON_VOUCHER_JUDGEMENT,
+        ICON_VOUCHER_RED,
+        ICON_VOUCHER_ORANGE,
+        ICON_VOUCHER_YELLOW,
+        ICON_VOUCHER_GREEN,
+        ICON_VOUCHER_CYAN,
+        ICON_VOUCHER_BLUE,
+        ICON_VOUCHER_PURPLE,
+        ICON_VOUCHER_WHITE,
+        ICON_VOUCHER_BLACK, // kek
+        ICON_SOUL_1,
+        ICON_SOUL_2,
+        ICON_SOUL_3,
+        ICON_SOUL_4,
+        ICON_SPIRIT_1,
+        ICON_SPIRIT_2,
+        ICON_SPIRIT_3,
+        ICON_SPIRIT_4,
+        ICON_AEGIS_1,
+        ICON_AEGIS_2,
+        ICON_AUSPICE_1,
+        ICON_AUSPICE_2
+    };
+
+    enum LPCustomItem : s32
+    {
+        VOUCHER_CAKE,
+        VOUCHER_THUNDER,
+        VOUCHER_STELLAR,
+        VOUCHER_JUDGEMENT,
+        VOUCHER_RED,
+        VOUCHER_ORANGE,
+        VOUCHER_YELLOW,
+        VOUCHER_GREEN,
+        VOUCHER_CYAN,
+        VOUCHER_BLUE,
+        VOUCHER_PURPLE,
+        VOUCHER_WHITE,
+        VOUCHER_BLACK, // kek
+        SOUL_1,
+        SOUL_2,
+        SOUL_3,
+        SOUL_4,
+        SPIRIT_1,
+        SPIRIT_2,
+        SPIRIT_3,
+        SPIRIT_4,
+        AEGIS_1,
+        AEGIS_2,
+        AUSPICE_1,
+        AUSPICE_2
     };
 
     typedef void(Callback)(void);
@@ -152,21 +206,27 @@ namespace mod
         DisorderMiscs DW;
     };
 
-    struct RFCItem
+    struct RFCItemData
     {
-        customwin::CWSelectItemDesc Desc;
-        Callback *useFunc;
+        LPIcon iconId;
+        const char *name;
+        const char *description;
         const char *useMsg;
-        u8 subrarity;
+        Callback *useFunc;
+    };
+
+    struct RFCColorDef
+    {
+        wii::gx::GXColor textCol;
+        wii::gx::GXColor chestCol;
     };
 
     struct RestFloorChest
     {
-        bool closeChest;
         u32 rerolls;
         s32 chestKeys;
         s32 chestRarity;
-        RFCItem *Items[3];
+        RFCItemData *rfcItemData[3];
         customwin::CWSelectItemDesc rfcItems[3];
     };
 
@@ -175,7 +235,6 @@ namespace mod
         s32 moverRNG;
     };
 
-    // todo: merge DanNPCData/similar structs and data into this
     struct LunaticPitWork
     {
         FloorData Floor[200];

@@ -34,10 +34,12 @@
 8002ca04:mobjCalcMtx
 8002cdf4:mobjCalcMtx2
 8002eb38:mobjGetModelName
+8002a4b8:mobjHitEntry
 8002d640:mobjHitOff
 8002b72c:mobjSetPosition
 8002ed80:func_8002ed80
 8002ed90:func_8002ed90
+80029e50:func_80029e50
 // data
 805adf10:mobjdrv_wp
 // more
@@ -107,6 +109,7 @@
 80044734:animPoseSetMaterialFlagOn
 80044818:animPoseSetMaterialFlagOff
 80044c8c:animPoseSetMaterialEvtColor
+80044d84:animPoseSetMaterialAnmColor
 80044e68:animPoseGetMaterialFlag
 80045008:animPoseGetMaterialEvtColor
 800450d8:animPoseSetDispCallback2
@@ -146,6 +149,7 @@
 8005af04:dispEntry
 8005b1a0:dispDraw
 8005b46c:dispCalcZ
+8005b524:dispGetCurWork
 // data
 8050b620:dispdrv_dispScissors
 805ae7c8:dispdrv_pDispWork
@@ -435,6 +439,7 @@
 // evt_env.c
 800e658c:evt_env_blur_on
 800e6624:evt_env_static_blur_on
+800e6a94:evt_env_refract_on
 
 // evt_fade.c
 800e7050:evt_fade_entry
@@ -1414,7 +1419,10 @@
 802915a0:GXInitTexObj
 802917f4:GXInitTexObjLOD
 802929d4:GXSetTevOp
+80292ae8:GXSetTevColorOp
 80292b98:GXSetTevColor
+80292d58:GXSetTevSwapMode
+80292a68:GXSetTevColorIn
 80292e10:GXSetAlphaCompare
 80292ed4:GXSetTevOrder
 80293030:GXSetNumTevStages

@@ -53,18 +53,6 @@ typedef struct
 } AnimGroup;
 SIZE_ASSERT(AnimGroup, 0x10)
 
-typedef struct
-{
-/* 0x000 */ AnimGroup * animGroups;
-/* 0x004 */ s32 animGroupNum;
-/* 0x008 */ TextureGroup * textureGroups;
-/* 0x00C */ s32 textureGroupNum;
-/* 0x008 */ u8 unknown_0x8[0x110 - 0x010];
-} AnimWork; // Uncertain size
-SIZE_ASSERT(AnimWork, 0x110)
-
-DECOMP_STATIC(AnimWork * animdrv_wp)
-
 typedef struct 
 {
 /* 0x000 */ u32 flag;
@@ -75,9 +63,30 @@ typedef struct
 /* 0x014 */ Unk curAnimIndex;
 /* 0x018 */ u8 unknown_0x18[0x020 - 0x018];
 /* 0x020 */ f32 frmCounter; // unconfirmed
-/* 0x024 */ u8 unknown_0x24[0x188 - 0x024];
+/* 0x024 */ u8 unknown_0x24[0xf0 - 0x024];
+/* 0x0F0 */ u32 materialFlag;
+/* 0x0F4 */ u8 unknown_0xf4[0xf8 - 0x0f4];
+/* 0x0F8 */ u32 materialLightFlag;
+/* 0x0FC */ GXColor materialEvtColor;
+/* 0x100 */ GXColor materialEvtColor2;
+/* 0x104 */ GXColor materialAnmColor;
+/* 0x108 */ u8 unknown_0xfc[0x188 - 0x108];
 } AnimPose;
 SIZE_ASSERT(AnimPose, 0x188)
+
+typedef struct
+{
+/* 0x000 */ AnimGroup * animGroups;
+/* 0x004 */ s32 animGroupNum;
+/* 0x008 */ TextureGroup * textureGroups;
+/* 0x00C */ s32 textureGroupNum;
+/* 0x010 */ AnimPose * animPose;
+/* 0x014 */ s32 animPoseNum;
+/* 0x018 */ u8 unknown_0x1c[0x110 - 0x018];
+} AnimWork; // Uncertain size
+SIZE_ASSERT(AnimWork, 0x110)
+
+DECOMP_STATIC(AnimWork * animdrv_wp)
 
 AnimWork * animGetPtr();
 OSTime animTimeGetTime();
@@ -115,7 +124,7 @@ void animPoseSetMaterialFlagOn(s32 animPoseId, u32 flag);
 
 void animPoseSetMaterialFlagOff(s32 animPoseId, u32 flag);
 
-UNKNOWN_FUNCTION(animPoseSetMaterialAnmColor);
+void animPoseSetMaterialAnmColor(s32 animPoseId, u8 p2, u8 p3, u8 p4, u8 p5);
 
 GXColor animPoseGetMaterialEvtColor(s32 animPoseId);
 
@@ -139,7 +148,7 @@ UNKNOWN_FUNCTION(renderProc);
 UNKNOWN_FUNCTION(dispProc);
 UNKNOWN_FUNCTION(animPoseDraw);
 UNKNOWN_FUNCTION(_animPoseDrawMtx);
-void animPoseDrawMtx(s32 id, Mtx34 * mtx, s32 xluStage, f32 rotY, f32 scale);
+void animPoseDrawMtx(s32 id, Mtx34 mtx, s32 xluStage, f32 rotY, f32 scale);
 UNKNOWN_FUNCTION(animSetPaperTexObj);
 s32 animPoseRelease(s32 id);
 UNKNOWN_FUNCTION(animPaperPoseRelease);

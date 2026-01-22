@@ -97,7 +97,7 @@ namespace mod
 
     const char zkMusicDesc[] =
         "Insert descriptors here!\n"
-        "Composed by Zaku.";
+        "Arranged by Zaku.";
 
     const char moverFeaturesName[] =
         "Movers";
@@ -163,10 +163,161 @@ namespace mod
         "<dkey><wait 300></dkey><o>";
 
     const char chestOptions[] =
-        "<select 1 -1 240 45>\n"
+        "<select 0 -1 240 45>\n"
         "Open it!\n"
         "Close it.\n"
+        "Reroll it...\n"
         "Tell me more...";
+
+    const char cakeVName[] =
+        "Cake Voucher";
+
+    const char thunderVName[] =
+        "Thunder Voucher";
+
+    const char judgementVName[] =
+        "Judgement Voucher";
+
+    const char stellarVName[] =
+        "Stellar Voucher";
+
+    const char redVName[] =
+        "Determination Voucher";
+
+    const char orangeVName[] =
+        "Bravery Voucher";
+
+    const char yellowVName[] =
+        "Justice Voucher";
+
+    const char greenVName[] =
+        "Kindness Voucher";
+
+    const char cyanVName[] =
+        "Patience Voucher";
+
+    const char blueVName[] =
+        "Integrity Voucher";
+
+    const char purpleVName[] =
+        "Perseverance Voucher";
+
+    const char whiteVName[] =
+        "Limerence Voucher";
+
+    const char blackVName[] =
+        "Contrivance Voucher";
+
+    const char soul1Name[] =
+        "Soul Drop";
+
+    const char soul2Name[] =
+        "Soul Boon";
+
+    const char soul3Name[] =
+        "Soul Epiphany";
+
+    const char soul4Name[] =
+        "Soul Legacy";
+
+    const char spirit1Name[] =
+        "Spirit Drop";
+
+    const char spirit2Name[] =
+        "Spirit Boon";
+
+    const char spirit3Name[] =
+        "Spirit Epiphany";
+
+    const char spirit4Name[] =
+        "Spirit Legacy";
+
+    const char aegis1Name[] =
+        "Aegis Endowment";
+
+    const char aegis2Name[] =
+        "Aegis Invocation";
+
+    const char auspice1Name[] =
+        "Auspice Endowment";
+
+    const char auspice2Name[] =
+        "Auspice Invocation";
+
+    const char cakeVDesc[] =
+        "Cake Voucher";
+
+    const char thunderVDesc[] =
+        "Thunder Voucher";
+
+    const char judgementVDesc[] =
+        "Judgement Voucher";
+
+    const char stellarVDesc[] =
+        "Stellar Voucher";
+
+    const char redVDesc[] =
+        "Determination Voucher";
+
+    const char orangeVDesc[] =
+        "Bravery Voucher";
+
+    const char yellowVDesc[] =
+        "Justice Voucher";
+
+    const char greenVDesc[] =
+        "Kindness Voucher";
+
+    const char cyanVDesc[] =
+        "Patience Voucher";
+
+    const char blueVDesc[] =
+        "Integrity Voucher";
+
+    const char purpleVDesc[] =
+        "Perseverance Voucher";
+
+    const char whiteVDesc[] =
+        "Limerence Voucher";
+
+    const char blackVDesc[] =
+        "Contrivance Voucher";
+
+    const char soul1Desc[] =
+        "Soul Drop";
+
+    const char soul2Desc[] =
+        "Soul Boon";
+
+    const char soul3Desc[] =
+        "Soul Epiphany";
+
+    const char soul4Desc[] =
+        "Soul Legacy";
+
+    const char spirit1Desc[] =
+        "Spirit Drop";
+
+    const char spirit2Desc[] =
+        "Spirit Boon";
+
+    const char spirit3Desc[] =
+        "Spirit Epiphany";
+
+    const char spirit4Desc[] =
+        "Spirit Legacy";
+
+    const char aegis1Desc[] =
+        "Aegis Endowment";
+
+    const char aegis2Desc[] =
+        "Aegis Invocation";
+
+    const char auspice1Desc[] =
+        "Auspice Endowment";
+
+    const char auspice2Desc[] =
+        "Auspice Invocation";
 
     // Shadoo
     const char shadooIntro[] =
@@ -267,7 +418,7 @@ namespace mod
         "<wait 250>Ugh,<wait 100> I just can't remember...\n"
         "<k>";
 
-    // Blessings and Disorders
+    // Blessings and Curses
 
     const char spectreName[] =
         "Spectre";

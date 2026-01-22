@@ -12,9 +12,9 @@ namespace mod::evtpatch {
 #define RETURN_FROM_CALL() \
     EVT_HELPER_CMD(0, EvtOpcode::ReturnFromCall) };
 
-// #define PATCH_EVT(script, line, replacement) \
-//     spm::evtmgr::EvtScriptCode _##script_##line[] = { replacement }; \
-//     evtpatch::patchEvt(script, line, _##script_##line)
+/* #define PATCH_EVT(script, line, replacement) \
+     spm::evtmgr::EvtScriptCode _##script_##line[] = { replacement }; \
+     evtpatch::patchEvt(script, line, _##script_##line) */
 
 // TODO: think of a better name
  #define EVT_CAST(instruction) (spm::evtmgr::EvtScriptCode[]){ instruction }
