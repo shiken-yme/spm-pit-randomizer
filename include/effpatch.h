@@ -9,6 +9,8 @@ namespace mod::effpatch
 {
     using namespace spm;
 
+    #define EFFPATCH_COLOR_MASK_ENTRY_MAX 100
+
     struct _EffPatchColorMask;
     typedef void (EffpatchColorMaskUpdateFunc)(struct _EffPatchColorMask *entry);
 
@@ -21,7 +23,7 @@ namespace mod::effpatch
         s32 frmCtr; // can be used by the update func to tell time relative to when it started
     } EffPatchColorMask;
 
-    extern EffPatchColorMask effpatchColorMaskEntries[32];
+    extern EffPatchColorMask effpatchColorMaskEntries[EFFPATCH_COLOR_MASK_ENTRY_MAX];
     extern s32 effpatchColorMaskEntryCount;
 
     void effpatchColorMaskEntry(effdrv::EffEntry *eff, wii::gx::GXColor col1, wii::gx::GXColor col2, EffpatchColorMaskUpdateFunc *updateFunc);

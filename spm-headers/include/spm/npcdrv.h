@@ -668,7 +668,7 @@ typedef struct _NPCEntry
 /* 0x588 */ u8 unknown_0x588[0x624 - 0x588];
 /* 0x624 */ f32 stunTime;
 /* 0x628 */ u8 unknown_0x628[0x6e0 - 0x628];
-/* 0x6E0 */ char * unkShellSfx;
+/* 0x6E0 */ const char * unkShellSfx;
 /* 0x6E4 */ u8 unknown_0x6e4[0x714 - 0x6e4];
 /* 0x714 */ NPCPart * parts; // made from tribe's NPCPartDef list, linked list
 /* 0x718 */ EvtScriptCode * templateField0x58; // field 0x58 from spawning SetupEnemyTemplate (unknown for non-templated NPCs)

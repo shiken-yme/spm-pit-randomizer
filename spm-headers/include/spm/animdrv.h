@@ -10,6 +10,7 @@ CPP_WRAPPER(spm::animdrv)
 
 USING(wii::os::OSTime)
 USING(wii::mtx::Mtx34)
+USING(wii::mtx::Vec3)
 USING(wii::gx::GXColor)
 USING(spm::filemgr::FileEntry)
 
@@ -29,7 +30,11 @@ typedef struct
 /* 0x044 */ char textureName[64];
 /* 0x084 */ char buildTime[64];
 /* 0x0C4 */ u32 flags;
-/* 0x0C8 */ u8 unknown_0x0c8[0x148 - 0x0c8];
+/* 0x0C8 */ u32 radius;
+/* 0x0CC */ u32 height;
+/* 0x0D0 */ Vec3 bboxMin;
+/* 0x0DC */ Vec3 bboxMax;
+/* 0x0E8 */ u8 unknown_0x0e8[0x148 - 0x0e8];
 /* 0x148 */ u32 animCount;
 /* 0x14C */ u8 unknown_0x14c[0x1ac - 0x14c];
 /* 0x1AC */ AnimationModelFileAnimTableEntry * anims;
@@ -94,7 +99,7 @@ DECOMP_STATIC(void * animdrv_testAlloc(u32 size))
 void animInit();
 void animMain();
 UNKNOWN_FUNCTION(textureGroupEntry);
-UNKNOWN_FUNCTION(animGroupEntry);
+s32 animGroupEntry(const char * filename);
 UNKNOWN_FUNCTION(animPoseRefresh);
 s32 animPoseEntry(const char * filename, s32 releaseType);
 UNKNOWN_FUNCTION(animPaperPoseEntry);

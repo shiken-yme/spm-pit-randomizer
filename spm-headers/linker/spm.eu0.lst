@@ -103,6 +103,7 @@
 80406ed8:acdrv_acDefs
 
 // animdrv.c
+80041a58:animGroupEntry
 8004249c:animPoseEntry
 80043410:animPoseSetAnim
 80044664:animPoseGetLoopTimes
@@ -225,6 +226,7 @@
 // itemdrv.c
 80077660:itemGetWork
 80078b3c:itemEntry
+8007a758:itemCollectPouchItem
 8007bccc:itemTypeNameToId
 8007d8b4:itemCheckForId
 // more
@@ -279,6 +281,9 @@
 // eff_kemuri_test.c
 800c7944:effKemuriTestEntry
 
+// eff_spm_confetti.c
+800b426c:effSpmConfettiEntry
+
 // eff_spm_hit.c
 80094020:effSpmHitEntry
 
@@ -287,6 +292,9 @@
 
 // eff_damage_star.c
 800bc828:effDamageStarEntry
+
+// eff_pansy_kirakira.c
+800c015c:effPansyKirakiraEntry
 
 // eff_small_star.c
 800c1d60:effSmallStarEntry
@@ -841,6 +849,7 @@
 8014df4c:pouchRemoveItem
 8014eb68:pouchRemoveShopItem
 8014f31c:pouchGetCurPixl
+8014f408:pouchSetPixlSelected
 8014f7c8:pouchGetCardCount
 8014fa20:pouchCountUseItems
 8014fad0:pouchCountKeyItems

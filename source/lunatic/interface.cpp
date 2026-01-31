@@ -332,7 +332,7 @@ namespace mod
     {
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = "SPM Pit Randomizer beta v3.0";
+        const char *msg = MOD_VERSION;
         fontmgr::FontDrawStart();
         fontmgr::FontDrawEdge();
         fontmgr::FontDrawColor(&notgreen);

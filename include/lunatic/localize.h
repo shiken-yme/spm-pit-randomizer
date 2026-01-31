@@ -28,6 +28,9 @@ namespace mod
         const char *tattleMsg;
     };
 
+    const char npcGetNameFromTribeIdError[] =
+        "Null";
+
     // Custom Selects, Difficulty Options, and RFC
     const char difficultyOptions[] =
         "<select 1 -1 160 45>\n"
@@ -135,11 +138,11 @@ namespace mod
         "Wii crashing on a loading zone.";
 
     const char explosionShakeAccessName[] =
-        "Explosions Shake Camera";
+        "Lighter Tremors";
 
     const char explosionShakeAccessDesc[] =
-        "Toggles camera vibrations when\n"
-        "certain enemies explode.";
+        "When the screen shakes, it will\n"
+        "be significantly more gentle.";
 
     const char selectMusicBox[] =
         "Select a Tune";
@@ -163,11 +166,70 @@ namespace mod
         "<dkey><wait 300></dkey><o>";
 
     const char chestOptions[] =
-        "<select 0 -1 240 45>\n"
+        "<select 0 -1 270 45>\n"
         "Open it!\n"
-        "Close it.\n"
+        "Leave it.\n"
         "Reroll it...\n"
-        "Tell me more...";
+        "Huh? Whuh?";
+
+    const char rfcChestName[] =
+        "box";
+
+    const char chestKeyDescPtr[] =
+        "msg_chest_key_desc";
+
+    const char chestKeyNamePtr[] =
+        "msg_chest_key_name";
+
+    const char chestKeyDesc[] =
+        "A key that can open chests\n"
+        "in the Pit of 100 Trials.";
+
+    const char rfcHelp[] =
+        "<p><system>\n"
+        "Rest floor chests can be any\n"
+        "of 4 rarity types,<wait 200> all with\n"
+        "loot of increasing quality.\n"
+        "<k>\n<p>\n"
+        "Chest rarities spawn like so:\n"
+        "40% Common  30% Uncommon\n"
+        "20% Rare       10% Legendary\n"
+        "<k>\n<p>\n"
+        "In each chest,<wait 200> you <wave>may</wave> find\n"
+        "special items that upgrade\n"
+        "stats like Crit and Defense.\n"
+        "<k>\n<p>\n"
+        "However, to open these chests,\n"
+        "<wait 200>you will need a certain number\n"
+        "of Chest Keys...\n"
+        "<k>\n<p>\n"
+        "Chest keys have a chance to\n"
+        "drop from any enemy in any\n"
+        "floor, <wait 200><wave>but they're rare!\n"
+        "</wave><k>\n<p>\n"
+        "Up to 1 chest key can spawn\n"
+        "per floor, at a maximum of\n"
+        "3 keys per 10-floor phase.\n"
+        "<k>\n<p>\n"
+        "Consider saving your chest\n"
+        "keys for when you encounter\n"
+        "a Rare or Legendary chest!\n"
+        "<k>\n<p>\n"
+        "You can reroll chests if you'd\n"
+        "like to, but you can't reroll\n"
+        "once the chest is open.\n"
+        "<k>\n<p>\n"
+        "Rerolls themselves are free, but\n"
+        "each reroll will make the chest\n"
+        "more expensive to open!\n"
+        "<k>\n<p>\n"
+        "Oh, and just a warning...\n"
+        "<wait 500><dynamic 3>Please</dynamic> don't open chests if\n"
+        "you don't have the keys.\n"
+        "<k>";
+
+    const char chestKeyName[] =
+        "Chest Key";
 
     const char cakeVName[] =
         "Cake Voucher";
@@ -284,40 +346,42 @@ namespace mod
         "Contrivance Voucher";
 
     const char soul1Desc[] =
-        "Soul Drop";
+        "Increases Crit Rate by 4%.";
 
     const char soul2Desc[] =
-        "Soul Boon";
+        "Increases Crit Rate by 8%.";
 
     const char soul3Desc[] =
-        "Soul Epiphany";
+        "Increases Crit Rate by 12%.";
 
     const char soul4Desc[] =
-        "Soul Legacy";
+        "Increases Crit Rate by 16%.";
 
     const char spirit1Desc[] =
-        "Spirit Drop";
+        "Increases Crit Mult by 25%.";
 
     const char spirit2Desc[] =
-        "Spirit Boon";
+        "Increases Crit Mult by 50%.";
 
     const char spirit3Desc[] =
-        "Spirit Epiphany";
+        "Increases Crit Mult by 75%.";
 
     const char spirit4Desc[] =
-        "Spirit Legacy";
+        "Increases Crit Mult by 100%.";
 
     const char aegis1Desc[] =
-        "Aegis Endowment";
+        "Increases Damage Reduction\n"
+        "by 15%.";
 
     const char aegis2Desc[] =
-        "Aegis Invocation";
+        "Increases Damage Reduction\n"
+        "by 30%.";
 
     const char auspice1Desc[] =
-        "Auspice Endowment";
+        "Increases Defense by 1.";
 
     const char auspice2Desc[] =
-        "Auspice Invocation";
+        "Increases Defense by 2.";
 
     // Shadoo
     const char shadooIntro[] =
@@ -1394,6 +1458,9 @@ namespace mod
 
     // Tattles and Catch Cards :(
 
+    const char holo[] =
+        "holo";
+
     const char tattle_phantom_mario[] =
         "That's Phantom Mario.<wait 150> This\n"
         "fake Mario lives in the Pit\n"
@@ -2289,5 +2356,6 @@ namespace mod
 
     void npcMessagePatches();
     const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type);
+    const char *npcGetNameFromTribeId(s32 tribeId);
 
 }

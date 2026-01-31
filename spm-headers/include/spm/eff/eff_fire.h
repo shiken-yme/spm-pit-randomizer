@@ -1,3 +1,5 @@
+#pragma once
+
 #include <common.h>
 #include <spm/effdrv.h>
 #include <wii/mtx.h>

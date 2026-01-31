@@ -174,7 +174,7 @@ UNKNOWN_FUNCTION(func_800f5a48)
 // The interactScript normally handles window selection logic (although this is NOT hardcoded), openScript handles what happens after the lock is opened.
 EVT_DECLARE_USER_FUNC(evt_mobj_zyo, 9)
 
-UNKNOWN_FUNCTION(mobj_thako)
+s32 mobj_thako(MobjEntry *entry);
 
 // evt_mobj_thako(s32 type, const char * name, f32 x, f32 y, f32 z, EvtScriptCode * interactScript,
 //              EvtScriptCode * openScript, s32 item, EvtVar/bool opened)

@@ -1051,35 +1051,34 @@ namespace mod
 
     void DanGen_Items(bool onRoomLoad)
     {
-        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, threshold = 30, selectionIdx = 0, itemId = 0;
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, selectionIdx = 0, itemId = 0;
         if (onRoomLoad)
-        {
             Lunatic->RFC.rerolls = 0;
-        }
         else
             Lunatic->RFC.rerolls += 1;
         // Reset existing items
         s32 itemsGenerated[3] = {0, 0, 0};
         // Decide chest rarity
+    rerollRarity:
         for (i = 0; i < 3; i += 1)
         {
             odds = system::rand() % 100;
             if (odds < 30)
                 rarity += 1;
         }
+        if (!onRoomLoad && rarity == Lunatic->RFC.chestRarity)
+            goto rerollRarity;
         Lunatic->RFC.chestRarity = rarity;
-        Lunatic->RFC.chestKeys = (1 + rarity + Lunatic->RFC.rerolls);
-        // Decide threshold for selecting higher-tier items
-        threshold -= (rarity * 10);
+        Lunatic->RFC.chestKeys = 2 + rarity + Lunatic->RFC.rerolls;
         // Select 3 items
-        itemRarity = rarity;
         for (i = 0; i < 3; i += 1)
         {
+            itemRarity = rarity;
             // Determine rarity of item to select
             for (j = 0; j < __builtin_abs(rarity - 3); j += 1)
             {
                 odds = system::rand() % 100;
-                if (odds < threshold)
+                if (odds < (5 + (rarity * 10))) // 5/15/25/35% chance to select a higher-tier item, repeated 3/2/1/0 times
                     itemRarity += 1;
                 else
                     break;
@@ -1107,13 +1106,22 @@ namespace mod
             }
             if (itemId == itemsGenerated[0] || itemId == itemsGenerated[1] || itemId == itemsGenerated[2])
                 goto tryAgain;
+            if (itemId >= RFC_SPECIAL_START)
+            {
+                if ((itemId - RFC_SPECIAL_START) >= (s32)VOUCHER_RED && (itemId - RFC_SPECIAL_START) <= (s32)VOUCHER_BLACK) // instantly reroll, rework to check for that disorder completed later
+                    goto tryAgain;
+                if (Lunatic->RFC.rfcSpecialObtained[itemId - RFC_SPECIAL_START] == true)
+                    goto tryAgain;
+                if ((system::rand() % 100) < 30) // 30% chance to fail at rolling the special item
+                    goto tryAgain;
+                Lunatic->RFC.rfcSpecialObtained[itemId - RFC_SPECIAL_START] = true;
+            }
             itemsGenerated[i] = itemId;
             customwin::CWSelectItemDesc Desc;
             msl::string::memset(&Desc, 0, sizeof(Desc));
             if (itemId >= RFC_SPECIAL_START)
             {
                 Desc.iconId = (s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId + TPLPATCH_ICON_REDIRECT;
-                // Desc.itemId = -1;
                 msl::string::memcpy(&Desc.nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
                 msl::string::memcpy(&Desc.descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
                 wii::os::OSReport("RFC: Special item %d generated. Icon id set to %d. Name: %s\n", itemId, Desc.iconId, Desc.nameTxt);
@@ -1130,81 +1138,6 @@ namespace mod
         wii::os::OSReport("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, itemsGenerated[0], itemsGenerated[1], itemsGenerated[2]);
         return;
     }
-
-    // s32 rfcItems[4] = {0, 0, 0, -1};
-
-    /*void DanGen_Items(s32 currentFloor)
-    {
-        s32 itemRarity = 0; // Common by default. 1 is Uncommon, 2 is Rare
-        s32 n = 0;
-        s32 itemArraySize = 0;
-        s32 itemSubrarity = 0;
-        s32 itemId = 0;
-        s32 rand100Num;
-        rfcItems[0] = 0;
-        rfcItems[1] = 0;
-        rfcItems[2] = 0;
-        s32 floorFloor = currentFloor;
-        bool itemAssigned = false;
-        if (floorFloor > 100)
-        {
-            floorFloor = floorFloor - 100;
-        }
-        // Get 3 items.
-        for (s32 i = 0; i < 3; ++i)
-        {
-            itemRarity = 0;
-            n = 0;
-            // Determine item rarity. One success makes it Uncommon, two successes makes it Rare, none makes it Common.
-            do
-            {
-                n = n + 1;
-                rand100Num = system::rand() % 100;
-                if (rand100Num < (s32)msl::math::floor(floorFloor / 1.2))
-                {
-                    itemRarity = itemRarity + 1;
-                }
-            } while (n < 2);
-
-            // Determine the item via subrarity. If subrarity check fails, loop again until it doesn't.
-            do
-            {
-                itemAssigned = false;
-                switch (itemRarity)
-                {
-                case 0:
-                    itemArraySize = (sizeof(rfcCommon) / 8);         // Divide by 4 to get array item length, further divide by 2 to get item ID count
-                    itemId = ((system::rand() % itemArraySize) * 2); // Even numbered rand will always be an item ID
-                    itemSubrarity = rfcCommon[itemId + 1];           // Subrarity for an item is indexed 1 position after its resp. item ID every time
-                    itemId = rfcCommon[itemId];                      // Reassign itemId to true item ID
-                                                                     //            wii::os::OSReport("Item %d is Common. itemId is %d.\n", i, itemId);
-                    break;
-                case 1:
-                    itemArraySize = (sizeof(rfcUncommon) / 8);
-                    itemId = ((system::rand() % itemArraySize) * 2);
-                    itemSubrarity = rfcUncommon[itemId + 1];
-                    itemId = rfcUncommon[itemId];
-                    //            wii::os::OSReport("Item %d is Uncommon. itemId is %d.\n", i, itemId);
-                    break;
-                default:
-                    itemArraySize = (sizeof(rfcRare) / 8);
-                    itemId = ((system::rand() % itemArraySize) * 2);
-                    itemSubrarity = rfcRare[itemId + 1];
-                    itemId = rfcRare[itemId];
-                    //            wii::os::OSReport("Item %d is Rare. itemId is %d.\n", i, itemId);
-                    break;
-                }
-                rand100Num = system::rand() % 4;
-                if (itemId != rfcItems[0] && itemId != rfcItems[1] && itemId != rfcItems[2] && itemSubrarity > rand100Num)
-                {
-                    rfcItems[i] = itemId; // Assigns the item to the rfcItems array
-                    wii::os::OSReport("Item %d was assigned to rfcItems. itemId is %d.\n", i, itemId);
-                    itemAssigned = true;
-                }
-            } while (!itemAssigned); // Loops until the rand is below the subrarity value AND item isn't identical to previously assigned items
-        }
-        return;
-    }*/
 
     void DanGen_SegmentsAndDoors(s32 currentFloor)
     {
@@ -2883,8 +2816,8 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
-        dan::dan_wp->dungeons[0].enemies[1].num = 4;
+        // dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
+        // dan::dan_wp->dungeons[0].enemies[1].num = 4;
         //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
         //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
         //  dan::dan_wp->dungeons[0].enemies[3].name = 11;

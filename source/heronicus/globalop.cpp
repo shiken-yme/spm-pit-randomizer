@@ -29,9 +29,7 @@ namespace mod::globalop
         for (s32 i = 0; i < GlobalOp->entryCount; i += 1)
         {
             if (GlobalOp->Operations[i].param == nullptr)
-            {
                 (GlobalOp->Operations[i].func)(nullptr);
-            }
             else
                 (GlobalOp->Operations[i].func)(GlobalOp->Operations[i].param);
         }

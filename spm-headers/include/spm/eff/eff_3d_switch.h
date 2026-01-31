@@ -5,10 +5,8 @@
 
 CPP_WRAPPER(spm::eff_3d_switch)
 
-// ...
+USING(spm::effdrv::EffEntry)
 
-spm::effdrv::EffEntry * eff3dSwitchEntry(f32 x, f32 y, f32 z, u32 variant);
-
-// ...
+EffEntry * eff3dSwitchEntry(f32 x, f32 y, f32 z, u32 variant);
 
 CPP_WRAPPER_END()

@@ -102,6 +102,8 @@ namespace mod
 {
     using namespace spm;
 
+    const char *restFloorNpcNames[] = {"Null", "Flimm", "Merluna", "Boodin", "undetermined"};
+
     npcdrv::NPCTribeAnimDef _moverAnims[] = {
         {0, "stg2_syuuzin_b_S_1"}, // Idle
         {1, "stg2_syuuzin_b_W_1"}, // Walking
@@ -123,7 +125,6 @@ namespace mod
         Lunatic->Luna.DW.intplProgressMax = 0;
         // Roll for Disorders, else decrement floorsRem
         s32 currentFloor = swdrv::swByteGet(1);
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 currentFloorLastDigit = currentFloor % 10;
         if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4 && Lunatic->Mover.moverRNG >= 15)
         {
@@ -187,49 +188,42 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_dan_handle_key_failsafe_new, 0)
 
-    s32 create_holographic_enemy(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 evt_dan_modify_enemy(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
-        npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert(evtmgr_cmd::evtGetValue(evtEntry, args[0]));
+        npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
         s32 sup = system::rand() % 100;
         s32 currentFloor = swdrv::swByteGet(1);
         s32 tribe = npc->tribeId;
         npcdrv::NPCDropItem *dropItems = npcdrv::npcTribes[tribe].dropItemList;
-        // While we're here, let's nerf all item drops!
+        // Nerf all random item drops
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
+        if (npc->dropItemId != 48)
         {
-        case 0:
-            if (sup > 80 && npc->dropItemId != 48)
+            switch (difficulty)
             {
-                npc->dropItemId = 0;
+            case 0:
+                if (sup > 80)
+                    npc->dropItemId = 0;
+                break;
+            case 1:
+                if (sup > 60)
+                    npc->dropItemId = 0;
+                break;
+            case 2:
+                if (sup > 10)
+                    npc->dropItemId = 0;
+                break;
             }
-            break;
-        case 1:
-            if (sup > 60 && npc->dropItemId != 48)
-            {
-                npc->dropItemId = 0;
-            }
-            break;
-        case 2:
-            if (sup > 10 && npc->dropItemId != 48)
-            {
-                npc->dropItemId = 0;
-            }
-            break;
         }
-        // Why not, let's also handle some Disorder stuff here!
-        s32 disorderId = swdrv::swByteGet(1630);
-        switch (disorderId)
+        if (Lunatic->Luna.disorder == DISORDER_RED) // APATHY
         {
-        case DisorderId::DISORDER_RED: // APATHY
-            npc->maxHp = (u32)msl::math::floor(npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
+            npc->maxHp = (u32)msl::math::floor((f32)npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
             npc->hp = npc->maxHp;
-            break;
         }
         sup = system::rand() % 100;
-        // OK, now for holo logic
+        // Create holographic enemy
         // DEBUG: sup > -1 && currentFloor > -1 && (npc->maxHp >= 1 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 0)
         // NORMAL: sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3)
         if (sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3))
@@ -238,7 +232,7 @@ namespace mod
             {
                 npc->maxHp = (npc->maxHp * 2);
                 npc->hp = (npc->hp * 2);
-                npc->unkShellSfx = "holo"; // Used as an identifier for holographic enemies in the npcDamageMario and npcHandleHitXp patches
+                npc->unkShellSfx = holo;
                 sup = system::rand() % 100;
                 if (sup > 25)
                 {
@@ -247,9 +241,7 @@ namespace mod
                         sup = 1;
                         s32 i = 0;
                         for (i = 0; sup != 0; ++i)
-                        {
                             sup = dropItems[i].itemId;
-                        }
                         do
                         {
                             sup = system::rand() % i;
@@ -258,9 +250,7 @@ namespace mod
                             {
                                 s32 sup2 = system::rand() % 100;
                                 if (sup2 > 25)
-                                {
                                     npc->dropItemId = 0x53; // 75% chance to replace Catch Card drops with Dried Shrooms
-                                }
                             }
                         } while (dropItems[sup].itemId == 0);
                     }
@@ -270,7 +260,101 @@ namespace mod
         }
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(create_holographic_enemy, 2)
+    EVT_DECLARE_USER_FUNC(evt_dan_modify_enemy, 2)
+
+    // heavily adapted from dan.c decomp, thanks again Seeky!
+    s32 evt_dan_distribute_keys(evtmgr::EvtEntry *entry, bool isFirstCall)
+    {
+        (void)isFirstCall;
+        (void)entry;
+        s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0;
+        bool assign = false, randomKeyAssigned = false;
+        npcdrv::NPCWork *npcWp = npcdrv::npcGetWorkPtr();
+        NPCEntry *curNpc = npcWp->entries;
+        s32 enemyCount = 0;
+        NPCEntry *enemies[80];
+        if ((currentFloor % 10) == 0)
+        {
+            msl::string::memset(&Lunatic->RFC.chestKeysToSpawn[0], 0xff, 8);
+            s32 difficulty = swdrv::swByteGet(1620);
+            s32 guaranteedFloors = __builtin_abs(difficulty - 4);
+            for (i = 0; i < guaranteedFloors; i += 1)
+            {
+            rerollFloor:
+                u8 rand = (u8)(system::rand() % 9);
+                assign = true;
+                for (j = 0; j < 8; j += 1)
+                {
+                    if (rand == Lunatic->RFC.chestKeysToSpawn[j])
+                        assign = false;
+                }
+                if (assign)
+                    Lunatic->RFC.chestKeysToSpawn[i] = rand;
+                else
+                    goto rerollFloor;
+            }
+            wii::os::OSReport("%d guaranteed chest keys for this cycle @ rooms ending in %d, %d, %d, %d\n", guaranteedFloors, Lunatic->RFC.chestKeysToSpawn[0]+1, Lunatic->RFC.chestKeysToSpawn[1]+1, Lunatic->RFC.chestKeysToSpawn[2]+1, Lunatic->RFC.chestKeysToSpawn[3]+1);
+        }
+        // Create list of enemies to give keys in the current room
+        for (i = 0; i < npcWp->num; curNpc++, i++)
+        {
+            if (CHECK_ANY_MASK(curNpc->flag8, 0x1) && !CHECK_ANY_MASK(curNpc->flag8, 0x40000))
+                enemies[enemyCount++] = curNpc;
+        }
+        // Give floor key on 1st run, maybe chest key on 2nd
+        for (i = 0; i < 2; ++i)
+        {
+            n = 0;
+        buh:
+            n += 1;
+            if (n > 50) // Failsafe
+                return 2;
+            s32 random = system::rand() % enemyCount;
+            if (enemies[random]->unkShellSfx != nullptr)
+            {
+                if (msl::string::strcmp(enemies[random]->unkShellSfx, "holo") == 0) // Is holo enemy
+                    goto buh;
+            }
+            if (i == 0) // Distribute main floor key
+                enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
+            else // Distribute chest key
+            {
+                if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY)
+                    goto buh;
+                assign = false;
+                for (j = 0; j < 8; j += 1)
+                {
+                    if ((u8)(currentFloor % 10) == Lunatic->RFC.chestKeysToSpawn[j])
+                        assign = true;
+                }
+                if (assign) // Assign guaranteed chest key if this floor is queued to have one
+                    enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
+                if (assign || Lunatic->Luna.disorder == DISORDER_BLUE)
+                    return 2;
+                // Calculate enemiesInCycle
+                for (j = 0; j < 10; j += 1)
+                {
+                    phase = (currentFloor / 10) % 10;
+                    currentFloor = (phase * 10) + j;
+                    for (k = 0; k < Lunatic->Floor[currentFloor].enemyTypes; k += 1)
+                        enemiesInCycle += Lunatic->Floor[currentFloor].Enemies[k].num;
+                }
+                // wii::os::OSReport("Enemies in current cycle: %d\n", enemiesInCycle);
+                // If a floor does not have a guaranteed chest key, small chance for any enemy to be assigned one
+                for (j = 0; j < enemyCount; j += 1)
+                {
+                    s32 odds = system::rand() % enemiesInCycle;
+                    if (odds == 0 && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
+                    {
+                        enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
+                        randomKeyAssigned = true;
+                    }
+                }
+            }
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_dan_distribute_keys, 0)
 
     EVT_BEGIN(homogenize_lock_interact)
     USER_FUNC(evt_mario::evt_mario_key_off, 0)
@@ -288,6 +372,7 @@ namespace mod
     EVT_END()
 
     EVT_BEGIN(dan_enemy_room_init_evt_new)
+    SET(GSW(1623), 4) // Set rest floor NPC to "undetermined" for crash report purposes
     SET(LW(0), GSW(1))
     IF_EQUAL(LW(0), 0)
     USER_FUNC(evt_dan_init_lunatic)
@@ -336,7 +421,7 @@ namespace mod
     USER_FUNC(dan::evt_dan_get_enemy_spawn_pos, LW(9), LW(0), LW(10), LW(13), LW(14), LW(15))
     ADD(LW(9), 1)
     USER_FUNC(evt_npc::evt_npc_entry_from_template, 0, LW(11), LW(13), LW(14), LW(15), LW(5), EVT_NULLPTR)
-    USER_FUNC(create_holographic_enemy, LW(5), LW(6))
+    USER_FUNC(evt_dan_modify_enemy, LW(5), LW(6))
     IF_EQUAL(LW(6), 1)
     USER_FUNC(evt_npc::evt_npc_set_animpose_disp_callback, LW(5), PTR(mi4::mi4MimiHolographicEffect), 0)
     END_IF()
@@ -344,14 +429,15 @@ namespace mod
     END_IF()
     ADD(LW(10), 1)
     WHILE()
-    IF_EQUAL(GSW(1601), 1) // Tatarian Aster
+    USER_FUNC(evt_dan_distribute_keys)
+    /*IF_EQUAL(GSW(1601), 1) // Tatarian Aster
     USER_FUNC(rand100, LW(8))
     IF_SMALL(LW(8), 70)
     USER_FUNC(dan::evt_dan_decide_key_enemy, 48)
     END_IF()
     ELSE()
     USER_FUNC(dan::evt_dan_decide_key_enemy, 48)
-    END_IF()
+    END_IF()*/
     USER_FUNC(evt_npc::evt_npc_freeze_all)
     USER_FUNC(evt_hit::evt_hitobj_attr_onoff, 1, 1, PTR("A2"), 1073741824)
     USER_FUNC(evt_hit::evt_hitobj_attr_onoff, 1, 1, PTR("A3"), 536870912)
@@ -404,10 +490,66 @@ namespace mod
     RETURN()
     EVT_END()
 
+    // Patches Dimentio to have a dynamic movement zone rather than being hardcoded for one room.
+    s32 dimen_determine_move_pos_new(evtmgr::EvtEntry *entry, bool isFirstCall)
+    {
+        mario::MarioWork *marioWork = mario::marioGetPtr();
+        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)entry->ownerNPC;
+        double destYPos = 0;
+        f32 marioZ = ((marioWork->position).z);
+        f32 destXPos = 0;
+        u32 dimenMoveRand = 0;
+        wii::mtx::Vec3 min;
+        wii::mtx::Vec3 max;
+        hitdrv::hitGetMapEntryBbox(0, &min, &max);
+        s32 i = 0;
+        do
+        {
+            while (true)
+            {
+                do
+                {
+                    i = i + 1;
+                    dimenMoveRand = system::irand(400);
+                    destXPos = ((marioWork->position).x + (f32)dimenMoveRand - 200);
+                    if (i > 50)
+                    {
+                        destXPos = npc->position.x;
+                        goto outOfBounds;
+                    }
+                } while ((destXPos <= (min.x + 25)) || ((max.x - 25) <= destXPos));
+            outOfBounds:
+                u32 yMoveBehavior = system::irand(100);
+                if (yMoveBehavior < 67)
+                {
+                    dimenMoveRand = system::irand(4);
+                    destYPos = (10.0 * (f32)dimenMoveRand + 20.0);
+                }
+                else
+                {
+                    dimenMoveRand = system::irand(3);
+                    destYPos = (32.0 * (f32)dimenMoveRand + 40.0);
+                }
+                if (npc->flippedTo3d != 0)
+                    break;
+                if ((100.0 < __builtin_abs((destXPos - (marioWork->position).x))) || (80.0 < destYPos))
+                    goto setFloats;
+            }
+            destYPos = system::distABf(destXPos, marioZ, ((marioWork->position).x), marioZ);
+        } while ((destYPos <= 120.0) && (destYPos <= 80.0));
+    setFloats:
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)entry->pCurData;
+        evtmgr_cmd::evtSetFloat(entry, args[0], destXPos);
+        evtmgr_cmd::evtSetFloat(entry, args[1], destYPos);
+        evtmgr_cmd::evtSetFloat(entry, args[2], marioZ);
+        return 2;
+    }
+
     void rewrite_main()
     {
         // Enemy room init evt complete rewrite
         evtpatch::hookEvtReplace(dan::dan_enemy_room_init_evt, 1, dan_enemy_room_init_evt_new);
+        patch::hookFunction(npc_dimeen_l::npc_dimen_determine_move_pos, dimen_determine_move_pos_new);
     }
 
 }

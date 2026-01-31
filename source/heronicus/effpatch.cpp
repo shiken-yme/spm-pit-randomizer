@@ -12,13 +12,13 @@ namespace mod::effpatch
 {
     using namespace spm;
 
-    EffPatchColorMask effpatchColorMaskEntries[32];
+    EffPatchColorMask effpatchColorMaskEntries[EFFPATCH_COLOR_MASK_ENTRY_MAX];
 
     void effpatchColorMaskEntry(effdrv::EffEntry *eff, wii::gx::GXColor col1, wii::gx::GXColor col2, EffpatchColorMaskUpdateFunc *updateFunc)
     {
         //    wii::os::OSReport("EffPatch: Entries are located at %p.\n", &effpatchColorMaskEntries);
         s32 i;
-        for (i = 0; i < 16; i += 1)
+        for (i = 0; i < EFFPATCH_COLOR_MASK_ENTRY_MAX; i += 1)
         {
             if (effpatchColorMaskEntries[i].eff == nullptr)
             {
@@ -76,7 +76,7 @@ namespace mod::effpatch
             {
                 // Check if the callback param is an eff entry with an effpatch colormask entry
                 s32 j = 0;
-                for (j = 0; j < 16; j += 1)
+                for (j = 0; j < EFFPATCH_COLOR_MASK_ENTRY_MAX; j += 1)
                 {
                     if (effpatchColorMaskEntries[j].eff != nullptr)
                     {
@@ -169,7 +169,7 @@ namespace mod::effpatch
                                         [](effdrv::EffEntry *eff)
                                         {
                                             s32 i;
-                                            for (i = 0; i < 16; i += 1)
+                                            for (i = 0; i < EFFPATCH_COLOR_MASK_ENTRY_MAX; i += 1)
                                             {
                                                 if (effpatchColorMaskEntries[i].eff != nullptr)
                                                 {
@@ -192,7 +192,7 @@ namespace mod::effpatch
                                             [](effdrv::EffEntry *eff)
                                             {
                                                 s32 i;
-                                                for (i = 0; i < 16; i += 1)
+                                                for (i = 0; i < EFFPATCH_COLOR_MASK_ENTRY_MAX; i += 1)
                                                 {
                                                     if (effpatchColorMaskEntries[i].eff != nullptr)
                                                     {

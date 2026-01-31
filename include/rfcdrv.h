@@ -27,9 +27,14 @@ namespace mod
     extern RFCColorDef RFC_Colors[];
     extern const char *RFCRarityNames[];
 
+    void RFCDRVPatches();
+
     EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)
     EVT_DECLARE_USER_FUNC(RFCGetRarity, 2)
-    EVT_DECLARE_USER_FUNC(RFCSetChestCol, 1)
     EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 2)
+    EVT_DECLARE_USER_FUNC(RFCSetChestKeys, 1)
+    EVT_DECLARE_USER_FUNC(RFCBakudan, 0)
     EVT_DECLARE_USER_FUNC(RFCAnalyzeSpecial, 2)
+    EVT_DECLARE_USER_FUNC(RFCGenerate, 2)
+    EVT_DECLARE_USER_FUNC(RFCReroll, 0)
 }

@@ -8,6 +8,8 @@
 
 namespace mod
 {
+    #define MOD_VERSION "SPM Lunatic Pit beta v3.0"
+
     enum BlessId : s32
     {
         /* 0x0 */ MERLUNA_NULL_BLESS,
@@ -40,6 +42,8 @@ namespace mod
 
     enum LPIcon : s32
     {
+        ICON_LP_LOGO,
+        ICON_LP_LOGO_SHADOW,
         ICON_SKULL_KEY,
         ICON_BUMP_GRAY,
         ICON_BUMP_BLUE,
@@ -55,6 +59,7 @@ namespace mod
         ICON_DISORDER_INDOLENCE,
         ICON_DISORDER_MELANCHOLY,
         ICON_DISORDER_RUIN,
+        ICON_CHEST_KEY,
         ICON_B,
         ICON_VOUCHER_CAKE,
         ICON_VOUCHER_THUNDER,
@@ -109,7 +114,8 @@ namespace mod
         AEGIS_1,
         AEGIS_2,
         AUSPICE_1,
-        AUSPICE_2
+        AUSPICE_2,
+        LPCUSTOMITEM_MAX
     };
 
     typedef void(Callback)(void);
@@ -132,10 +138,12 @@ namespace mod
         s32 floors;
     };
 
-    struct CriticalStrike
+    struct Reaver
     {
-        s32 Rate; // base value of 4 when initialized
-        f32 Mult; // base value of 50.0 when initialized
+        s32 CritRate; // base value of 4 when initialized
+        f32 CritMult; // base value of 50.0 when initialized
+        s32 AuspiceDefense; // Damage taken is subtracted by this #
+        f32 AegisDR; // Damage taken is multiplied by (1 - (this number / 100))
     };
 
     struct DivineJudgement
@@ -213,6 +221,8 @@ namespace mod
         const char *description;
         const char *useMsg;
         Callback *useFunc;
+        wii::gx::GXColor effCol1;
+        wii::gx::GXColor effCol2;
     };
 
     struct RFCColorDef
@@ -226,8 +236,12 @@ namespace mod
         u32 rerolls;
         s32 chestKeys;
         s32 chestRarity;
+        bool rfcSpecialObtained[LPCUSTOMITEM_MAX];
         RFCItemData *rfcItemData[3];
         customwin::CWSelectItemDesc rfcItems[3];
+        u8 chestKeysToSpawn[8];
+        u8 chestKeysOwned;
+        bool chestKeySpawned;
     };
 
     struct MoverWork
@@ -243,7 +257,7 @@ namespace mod
         InvisibleFullMoon Luna;
         RestFloorChest RFC;
         MoverWork Mover;
-        CriticalStrike Crit;
+        Reaver Stats;
     };
 
     extern LunaticPitWork *Lunatic;

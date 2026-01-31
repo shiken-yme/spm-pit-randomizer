@@ -77,7 +77,7 @@ void itemMain();
 
 /*
     Spawns an item
-    Switch number is the script variable (usually GSWF) indicating if it's already bene collected
+    Switch number is the script variable (usually GSWF) indicating if it's already been collected
 */
 ItemEntry * itemEntry(const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z,
                       EvtScriptCode * pickupScript, EvtVar switchNumber);
@@ -98,11 +98,16 @@ UNKNOWN_FUNCTION(func_80079814)
 UNKNOWN_FUNCTION(func_80079df4)
 UNKNOWN_FUNCTION(func_8007a2e0)
 UNKNOWN_FUNCTION(func_8007a598)
-UNKNOWN_FUNCTION(func_8007a758)
 
 /*
-    Handles most of the pickup behaviour for items (deletion, xp, switchNumber etc),
-    and calls itemHandlePickup for the rest
+    Handles pickup behavior for inventory items (anything added to pouch)
+    Runs every frame the player is in an item pickup state
+*/
+s32 itemCollectPouchItem(ItemEntry * entry);
+
+/*
+    Handles most of the pickup behaviour for non-inventory items (deletion, xp, switchNumber etc)
+    Calls itemHandlePickupEffect for the rest
 */
 s32 itemCollect(s32 entryId, ItemEntry * entry);
 
@@ -116,7 +121,7 @@ UNKNOWN_FUNCTION(func_8007bc2c)
         - ITEM_ID_CARD_ for items with ids in the range 282-537 (inclusive)
     (Items that don't fall within any of these ranges can not be used)
 */
-s32 itemTypeNameToId(const char * typeNmae);
+s32 itemTypeNameToId(const char * typeName);
 
 UNKNOWN_FUNCTION(func_8007be24)
 UNKNOWN_FUNCTION(func_8007bee4)

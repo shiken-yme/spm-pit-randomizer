@@ -7,6 +7,8 @@
 #include <evtpatch.h>
 #include <tplpatch.h>
 
+#include "effpatch.h"
+
 #include <spm/rel/aa1_01.h>
 #include <spm/rel/mi4.h>
 #include <spm/rel/relocatable_module.h>
@@ -20,7 +22,7 @@
 #include <spm/eff/eff_fire.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_zunbaba.h>
+#include <spm/eff/eff_pansy_kirakira.h>
 #include <spm/eff/eff_spm_recovery.h>
 #include <spm/eff/eff_spm_spindash.h>
 #include <spm/eff/eff_spm_hit.h>
@@ -115,15 +117,15 @@ namespace mod
         ITEM_ID_USE_INGREDIENTS_OF_SWEET,
         ITEM_ID_USE_TUKUSHINBO,
         ITEM_ID_USE_HERB,
-        ITEM_ID_USE_SHINABITA_KINOKO,
-        ITEM_ID_COOK_FAIL_COOKING1,
-        ITEM_ID_COOK_FAIL_COOKING2,
         ITEM_ID_COOK_KAME_TEA,
         ITEM_ID_COOK_HERB_TEA,
-        ITEM_ID_COOK_TRIAL_PAN/*,
+        ITEM_ID_COOK_TRIAL_PAN,
+        (SPIRIT_1 + RFC_SPECIAL_START),
+        (SPIRIT_1 + RFC_SPECIAL_START),
         (SPIRIT_1 + RFC_SPECIAL_START),
         (SOUL_1 + RFC_SPECIAL_START),
-        (AUSPICE_1 + RFC_SPECIAL_START)*/};
+        (SOUL_1 + RFC_SPECIAL_START),
+        (SOUL_1 + RFC_SPECIAL_START)};
 
     s32 RFCItems_Uncommon[] = {
         ITEM_ID_COOK_HUNNY_KINOKO,
@@ -131,20 +133,19 @@ namespace mod
         ITEM_ID_COOK_KINOKO_FRY,
         ITEM_ID_USE_BIG_EGG,
         ITEM_ID_USE_NANIGA_OKORUKANA,
-        ITEM_ID_USE_KAMINARI_DOKKAN,
         ITEM_ID_USE_TUYOTUYO_DRINK,
         ITEM_ID_COOK_HOTDOG,
         ITEM_ID_COOK_HANAJIRU_SYRUP,
         ITEM_ID_USE_KINKYU_KINOKO,
         ITEM_ID_USE_POWERFUL_MEET,
         ITEM_ID_USE_PRIMITIVENUT,
-        ITEM_ID_USE_SHINABITA_KINOKO,
         ITEM_ID_COOK_TRIAL_PAN,
         (VOUCHER_CAKE + RFC_SPECIAL_START),
-        (VOUCHER_THUNDER + RFC_SPECIAL_START)/*,
+        (VOUCHER_THUNDER + RFC_SPECIAL_START),
         (SPIRIT_2 + RFC_SPECIAL_START),
         (SOUL_2 + RFC_SPECIAL_START),
-        (AEGIS_1 + RFC_SPECIAL_START)*/};
+        (AEGIS_1 + RFC_SPECIAL_START),
+        (AUSPICE_1 + RFC_SPECIAL_START)};
 
     s32 RFCItems_Rare[] = {
         ITEM_ID_COOK_KINOKO_HOILE_FRY,
@@ -155,7 +156,6 @@ namespace mod
         ITEM_ID_COOK_GOLD_CHOKO,
         ITEM_ID_USE_GOLD_MEDAL,
         ITEM_ID_COOK_LOVE_NOODLE,
-        ITEM_ID_COOK_EMERGENCY_MEAL,
         ITEM_ID_COOK_FRUITS_HUMBURG,
         ITEM_ID_USE_KINKYU_KINOKO,
         ITEM_ID_COOK_PEACH_TART,
@@ -165,16 +165,16 @@ namespace mod
         ITEM_ID_USE_SHINABITA_KINOKO,
         ITEM_ID_COOK_TRIAL_PAN,
         (VOUCHER_STELLAR + RFC_SPECIAL_START),
-        (VOUCHER_JUDGEMENT + RFC_SPECIAL_START)/*,
+        (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
         (SPIRIT_3 + RFC_SPECIAL_START),
         (SOUL_3 + RFC_SPECIAL_START),
-        (AUSPICE_2 + RFC_SPECIAL_START)*/};
+        (AUSPICE_2 + RFC_SPECIAL_START)};
 
     s32 RFCItems_Legendary[] = {
         ITEM_ID_USE_ULTRA_DRINK,
-        ITEM_ID_COOK_ICHIGO_RABBIT,
+        ITEM_ID_COOK_DOROCY_SPECIAL,
         ITEM_ID_COOK_SNOW_RABBIT,
-        ITEM_ID_COOK_TRIAL_PAN/*,
+        ITEM_ID_COOK_TRIAL_PAN,
         (VOUCHER_RED + RFC_SPECIAL_START),
         (VOUCHER_ORANGE + RFC_SPECIAL_START),
         (VOUCHER_YELLOW + RFC_SPECIAL_START),
@@ -184,34 +184,107 @@ namespace mod
         (VOUCHER_PURPLE + RFC_SPECIAL_START),
         (SPIRIT_4 + RFC_SPECIAL_START),
         (SOUL_4 + RFC_SPECIAL_START),
-        (AEGIS_2 + RFC_SPECIAL_START)*/};
+        (AEGIS_2 + RFC_SPECIAL_START)};
+
+    void AuspiceEndowmentUse()
+    {
+        Lunatic->Stats.AuspiceDefense += 1;
+        return;
+    }
+
+    void AuspiceInvocationUse()
+    {
+        Lunatic->Stats.AuspiceDefense += 2;
+        return;
+    }
+
+    void AegisEndowmentUse()
+    {
+        Lunatic->Stats.AegisDR += 15.0;
+        return;
+    }
+
+    void AegisInvocationUse()
+    {
+        Lunatic->Stats.AegisDR += 30.0;
+        return;
+    }
+
+    void SoulDropUse()
+    {
+        Lunatic->Stats.CritRate += 4;
+        return;
+    }
+
+    void SoulBoonUse()
+    {
+        Lunatic->Stats.CritRate += 8;
+        return;
+    }
+
+    void SoulEpiphanyUse()
+    {
+        Lunatic->Stats.CritRate += 12;
+        return;
+    }
+
+    void SoulLegacyUse()
+    {
+        Lunatic->Stats.CritRate += 16;
+        return;
+    }
+
+    void SpiritDropUse()
+    {
+        Lunatic->Stats.CritMult += 25.0;
+        return;
+    }
+
+    void SpiritBoonUse()
+    {
+        Lunatic->Stats.CritMult += 50.0;
+        return;
+    }
+
+    void SpiritEpiphanyUse()
+    {
+        Lunatic->Stats.CritMult += 75.0;
+        return;
+    }
+
+    void SpiritLegacyUse()
+    {
+        Lunatic->Stats.CritMult += 100.0;
+        return;
+    }
 
     RFCItemData RFC_SpecialItems[] = {
-        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_RED, redVName, redVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, nullptr, nullptr},
-        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, nullptr, nullptr}, // kek
-        {ICON_SOUL_1, soul1Name, soul1Desc, nullptr, nullptr},
-        {ICON_SOUL_2, soul2Name, soul2Desc, nullptr, nullptr},
-        {ICON_SOUL_3, soul3Name, soul3Desc, nullptr, nullptr},
-        {ICON_SOUL_4, soul4Name, soul4Desc, nullptr, nullptr},
-        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, nullptr, nullptr},
-        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, nullptr, nullptr},
-        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, nullptr, nullptr},
-        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, nullptr, nullptr},
-        {ICON_AEGIS_1, aegis1Name, aegis1Desc, nullptr, nullptr},
-        {ICON_AEGIS_2, aegis2Name, aegis2Desc, nullptr, nullptr},
-        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, nullptr, nullptr},
-        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, nullptr, nullptr}};
+        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, nullptr, nullptr, {255, 142, 43, 255}, {191, 119, 55, 255}},
+        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, nullptr, nullptr, {248, 255, 43, 255}, {168, 171, 77, 255}},
+        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, nullptr, nullptr, {81, 140, 189, 255}, {46, 81, 97, 255}},
+        {ICON_VOUCHER_RED, redVName, redVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},           // kek
+        {ICON_SOUL_1, soul1Name, soul1Desc, nullptr, SoulDropUse, {248, 255, 156, 255}, {146, 153, 50, 255}},               // Soul Drop, +4% Crit Rate
+        {ICON_SOUL_2, soul2Name, soul2Desc, nullptr, SoulBoonUse, {248, 255, 156, 255}, {146, 153, 50, 255}},               // Soul Boon, +8% Crit Rate
+        {ICON_SOUL_3, soul3Name, soul3Desc, nullptr, SoulEpiphanyUse, {248, 255, 156, 255}, {146, 153, 50, 255}},           // Soul Epiphany, +12% Crit Rate
+        {ICON_SOUL_4, soul4Name, soul4Desc, nullptr, SoulLegacyUse, {248, 255, 156, 255}, {146, 153, 50, 255}},             // Soul Legacy, +16% Crit Rate
+        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, nullptr, SpiritDropUse, {41, 194, 255, 255}, {42, 116, 145, 255}},        // Spirit Drop, +25% Crit Mult
+        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, nullptr, SpiritBoonUse, {41, 194, 255, 255}, {42, 116, 145, 255}},        // Spirit Boon, +50% Crit Mult
+        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, nullptr, SpiritEpiphanyUse, {41, 194, 255, 255}, {42, 116, 145, 255}},    // Spirit Epiphany, +75% Crit Mult
+        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, nullptr, SpiritLegacyUse, {41, 194, 255, 255}, {42, 116, 145, 255}},      // Spirit Legacy, +100% Crit Mult
+        {ICON_AEGIS_1, aegis1Name, aegis1Desc, nullptr, AegisEndowmentUse, {33, 96, 255, 255}, {34, 64, 140, 255}},         // Aegis Endowment, +15% DR
+        {ICON_AEGIS_2, aegis2Name, aegis2Desc, nullptr, AegisInvocationUse, {33, 96, 255, 255}, {34, 64, 140, 255}},        // Aegis Invocation, +30% DR
+        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, nullptr, AuspiceEndowmentUse, {212, 53, 61, 255}, {135, 23, 29, 255}}, // Auspice Endowment, +1 DEF
+        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, nullptr, AuspiceInvocationUse, {212, 53, 61, 255}, {135, 23, 29, 255}} // Auspice Invocation, +2 DEF
+    };
 
     RFCColorDef RFC_Colors[] = {
         {{10, 10, 10, 255}, {0, 0, 0, 255}},          // Common
@@ -220,7 +293,7 @@ namespace mod
         {{63, 202, 179, 255}, {74, 237, 210, 255}}    // Legendary -- Diamond
     };
 
-    const char *RFC_ChestNames[3] = {"MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big"};
+    const char *RFC_ChestNames[4] = {"MOBJ_gw_ta_big", "MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big"};
 
     const char *RFCRarityNames[4] = {"Common", "Uncommon", "Rare", "Legendary"};
 
@@ -247,7 +320,7 @@ namespace mod
         return 2;
     }
 
-    s32 RFCSetChestCol(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    /*s32 RFCSetChestCol(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
@@ -262,14 +335,32 @@ namespace mod
         mobjdrv::mobjHitEntry(mobj, 6);
         mobjdrv::mobjCalcMtx(mobj);
         return 2;
-    }
+    }*/
 
     s32 RFCGetChestKeyParams(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys); // chest keys required
-        evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);                      // chest keys owned
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys);      // chest keys required
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->RFC.chestKeysOwned); // chest keys owned
+        return 2;
+    }
+
+    s32 RFCBakudan(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        (void)evtEntry;
+        mobjdrv::MobjEntry *chest = mobjdrv::mobjNameToPtr("box");
+        mario::marioKeyOn();
+        npcdrv::npcDamageMario(0, 0, &chest->pos, 0, Lunatic->RFC.chestKeys, 4);
+        return 2;
+    }
+
+    s32 RFCSetChestKeys(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        Lunatic->RFC.chestKeysOwned = (u8)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         return 2;
     }
 
@@ -281,6 +372,8 @@ namespace mod
         if (idx < 0)
             return 2;
         s32 trueIdx = customwin::GlobalCW->Select[customwin::GlobalCW->activeSelect]->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
+        effdrv::EffEntry *eff = eff_pansy_kirakira::effPansyKirakiraEntry(0);
+        effpatch::effpatchColorMaskEntry(eff, RFC_SpecialItems[trueIdx].effCol1, RFC_SpecialItems[trueIdx].effCol2, nullptr);
         if (RFC_SpecialItems[trueIdx].useFunc != nullptr)
             (RFC_SpecialItems[trueIdx].useFunc)();
         if (RFC_SpecialItems[trueIdx].useMsg != nullptr)
@@ -288,5 +381,52 @@ namespace mod
         else
             evtmgr_cmd::evtSetValue(evtEntry, args[1], -1);
         return 2;
+    }
+
+    s32 RFCGenerate(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr::EvtScriptCode *interactScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        spm::evtmgr::EvtScriptCode *openScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        u32 loaded = animdrv::animGroupBaseAsync(RFC_ChestNames[Lunatic->RFC.chestRarity], 0, nullptr);
+        if (loaded == 0)
+            return 0;
+        mobjdrv::mobjEntry(rfcChestName, RFC_ChestNames[Lunatic->RFC.chestRarity]);
+        mobjdrv::MobjEntry *mobj = mobjdrv::mobjNameToPtr(rfcChestName);
+        mobjdrv::mobjSetPosition(rfcChestName, 75.0f, 25.0f, -87.5f);
+        mobjdrv::mobjHitEntry(mobj, 6);
+        mobjdrv::mobjCalcMtx(mobj);
+        mobj->updateFunction = evt_mobj::mobj_thako;
+        mobj->interactScript = interactScript;
+        mobj->afterInteractScript = openScript;
+        mobj->flag0 |= 0x400046;
+        return 2;
+    }
+
+    s32 RFCReroll(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)evtEntry;
+        (void)firstRun;
+        DanGen_Items(false);
+        return 2;
+    }
+
+    s32 RFCPatchDanChestMobjHitEntry(const char *modelName) // seems to be in r3 in both functions
+    {
+        s32 ret, i;
+        for (i = 0; i < 4; i += 1)
+        {
+            ret = msl::string::strcmp(modelName, RFC_ChestNames[i]);
+            if (ret == 0)
+                break;
+        }
+        return ret;
+    }
+
+    void RFCDRVPatches()
+    {
+        writeBranchLink(mobjdrv::mobjHitEntry, 0xF8, RFCPatchDanChestMobjHitEntry);
+        writeBranchLink(mobjdrv::mobjCalcMtx, 0xC8, RFCPatchDanChestMobjHitEntry);
     }
 }

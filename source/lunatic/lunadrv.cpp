@@ -132,10 +132,10 @@ namespace mod
         wp->storedHP = msl::math::floor((f32)pouch->maxHp * wp->marioHpMult);
         pouch->hp = msl::math::floor((f32)pouch->hp * wp->marioHpMult) + 1;
         pouch->maxHp -= wp->storedHP;
-        wp->storedCritRate = (s32)msl::math::floor((f32)Lunatic->Crit.Rate / 2.0);
-        Lunatic->Crit.Rate -= wp->storedCritRate;
-        wp->storedCritMult = msl::math::floor((f32)Lunatic->Crit.Mult / 2.0);
-        Lunatic->Crit.Mult -= wp->storedCritMult;
+        wp->storedCritRate = (s32)msl::math::floor((f32)Lunatic->Stats.CritRate / 2.0);
+        Lunatic->Stats.CritRate -= wp->storedCritRate;
+        wp->storedCritMult = msl::math::floor((f32)Lunatic->Stats.CritMult / 2.0);
+        Lunatic->Stats.CritMult -= wp->storedCritMult;
         return;
     }
 
@@ -145,8 +145,8 @@ namespace mod
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         pouch->maxHp += wp->storedHP;
         pouch->hp += (s32)(wp->storedHP * wp->marioHpMult);
-        Lunatic->Crit.Rate += wp->storedCritRate;
-        Lunatic->Crit.Mult += wp->storedCritMult;
+        Lunatic->Stats.CritRate += wp->storedCritRate;
+        Lunatic->Stats.CritMult += wp->storedCritMult;
         return;
     }
 
@@ -765,6 +765,9 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("E_3"), 0)
     USER_FUNC(evt_snd::evt_snd_sfxon, PTR("SFX_EVT_QUAKE1L"))
     USER_FUNC(evt_snd::evt_snd_get_last_sfx_id, LW(0))
+    IF_EQUAL(GSWF(1630), 0) // Lighter camera tremors ACTIVE
+    DIVF(LW(12), 4)
+    END_IF()
     USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(12), LW(12), FLOAT(0.0), 3000, 0)
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_7"), 0)
@@ -790,6 +793,9 @@ namespace mod
     EVT_BEGIN(EvtDisorderTremor)
     USER_FUNC(evt_snd::evt_snd_sfxon, PTR("SFX_EVT_QUAKE1L"))
     USER_FUNC(evt_snd::evt_snd_get_last_sfx_id, LW(0))
+    IF_EQUAL(GSWF(1630), 0) // Lighter camera tremors ACTIVE
+    DIVF(LW(12), 4)
+    END_IF()
     USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(12), LW(12), FLOAT(0.0), LW(10), 1)
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     RETURN()

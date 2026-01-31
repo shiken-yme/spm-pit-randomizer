@@ -186,8 +186,10 @@ namespace mod
         // Misc
         msgpatch::msgpatchAddEntry("D100_entrance_03", D100_entrance_03, true);
         msgpatch::msgpatchAddEntry("mac_kanban_004", mac_kanban_004, true);
-        msgpatch::msgpatchAddEntry("msg_blue_bump_name", mystBumpName, true);
-        msgpatch::msgpatchAddEntry("msg_blue_bump_desc", mystBumpDesc, true);
+        msgpatch::msgpatchAddEntry(mystBumpNamePtr, mystBumpName, true);
+        msgpatch::msgpatchAddEntry(mystBumpDescPtr, mystBumpDesc, true);
+        msgpatch::msgpatchAddEntry(chestKeyNamePtr, chestKeyName, true);
+        msgpatch::msgpatchAddEntry(chestKeyDescPtr, chestKeyDesc, true);
         return;
     }
 
@@ -221,6 +223,14 @@ namespace mod
             return tattleMsg;
         }
         return nullptr;
+    }
+
+    const char *npcGetNameFromTribeId(s32 tribeId)
+    {
+        if (tribeId < 0)
+            return npcGetNameFromTribeIdError;
+        npcdrv::NPCTribe *tribe = npcdrv::npcGetTribe(tribeId);
+        return msgdrv::msgSearch(item_data::itemDataTable[tribe->catchCardItemId].nameMsg);
     }
 
 }

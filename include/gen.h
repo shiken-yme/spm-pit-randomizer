@@ -15,8 +15,6 @@ namespace mod
         s32 max;
     };
 
-    DanNPCData **danNpcGetPtr();
-
     struct DanLevelData
     {
         s32 lv1Limiter;
@@ -39,6 +37,7 @@ namespace mod
         EnemyConfig Enemies[4];
     };
 
+    DanNPCData **danNpcGetPtr();
     DanLevelData *danLevelDataPtr(s32 level);
     spm::npcdrv::NPCTribeId *getlv1Tribes();
     spm::npcdrv::NPCTribeId *getlv2Tribes();
@@ -48,6 +47,7 @@ namespace mod
     EVT_DECLARE_USER_FUNC(evt_dan_read_data_new, -1)
     EVT_DECLARE_USER_FUNC(evt_dan_get_enemy_info_new, -1)
 
+    void DanGen_Items(bool onRoomLoad);
     void DanGen_Enemies(s32 roomGens, bool depravity);
     void DanGen_Enemies_Apply();
 }

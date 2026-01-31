@@ -24,7 +24,11 @@ namespace mod::tplpatch
 
   void patchTpl(TextureWork *textureWork);
 
+  void patchTpl2(u32 destId, u32 srcId, wii::tpl::TPLHeader * destTpl, wii::tpl::TPLHeader * srcTpl, const char * filePath, bool free, s32 heapType);
+
 #define TPLPATCH_ICON_REDIRECT 1600
 
   void iconPatch(char * iconFileName); // Put this in your mod's void main() to enable iconpatch functionality!
+
+  extern wii::tpl::TPLHeader *TPLPatchIconTPLHeader;
 }

@@ -44,6 +44,13 @@ namespace mod::tplpatch
     return;
   }
 
+  void patchTpl2(u32 destId, u32 srcId, wii::tpl::TPLHeader *destTpl, wii::tpl::TPLHeader *srcTpl, const char *filePath, bool free, s32 heapType)
+  {
+    TextureWork tw = {destId, srcId, destTpl, srcTpl, filePath, free, heapType};
+    patchTpl(&tw);
+    return;
+  }
+
   /*
   The iconpatch framework directly overrides normal uses of wicon.tpl (used for all items and many other icons) and points them to your very own custom TPL on the game's root directory.
   To make this library recognize your custom TPL, make sure to initialize tplpatch::iconPatch("filename") in void main() with the filename of your TPL sans .tpl.
@@ -56,8 +63,9 @@ namespace mod::tplpatch
   Have fun!!!!
   */
 
-  char *TPLPatchIconTPLName = nullptr;           // This corresponds to the name of your custom TPL! i.e.
-  filemgr::FileEntry *TPLPatchIconTPL = nullptr; // Initializes the custom TPL pointer
+  char *TPLPatchIconTPLName = nullptr;                  // This corresponds to the name of your custom TPL! i.e.
+  filemgr::FileEntry *TPLPatchIconTPL = nullptr;        // Initializes the custom TPL pointer
+  wii::tpl::TPLHeader *TPLPatchIconTPLHeader = nullptr; // For use in external files
 
   // These hook into vanilla icondrv functions right before they run.
   // These patches are meant to allocate the custom TPL to memory, make it accessible at any time, and help make the custom icons display properly.
@@ -78,6 +86,7 @@ namespace mod::tplpatch
                                            {
                                              file = filemgr::fileAllocf(4, "%s/%s.tpl", root, TPLPatchIconTPLName); // Allocates the custom tpl to ingame memory on game start
                                              TPLPatchIconTPL = file;                                                // Yippee!!!!!!!!
+                                             TPLPatchIconTPLHeader = (wii::tpl::TPLHeader *)file->sp->data;
                                            }
                                          }
                                          iconMainReal();
@@ -119,12 +128,12 @@ namespace mod::tplpatch
                                                  {
                                                    if (iconId >= TPLPATCH_ICON_REDIRECT)
                                                    {
-                                                      wii::tpl::ImageTableEntry *img = wii::tpl::TPLGet((wii::tpl::TPLHeader *)icondrv::icondrv_wp->wiconTpl->sp->data, iconId);
+                                                     wii::tpl::ImageTableEntry *img = wii::tpl::TPLGet((wii::tpl::TPLHeader *)icondrv::icondrv_wp->wiconTpl->sp->data, iconId);
                                                      *width = img->image->width;
                                                      *height = img->image->height;
                                                    }
                                                    else
-                                                    iconGetWidthHeightReal(width, height, iconId);
+                                                     iconGetWidthHeightReal(width, height, iconId);
                                                    return;
                                                  });
   }
