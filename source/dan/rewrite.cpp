@@ -126,7 +126,7 @@ namespace mod
         // Roll for Disorders, else decrement floorsRem
         s32 currentFloor = swdrv::swByteGet(1);
         s32 currentFloorLastDigit = currentFloor % 10;
-        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4 && Lunatic->Mover.moverRNG >= 15)
+        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4)
         {
             s32 difficulty = swdrv::swByteGet(1620);
             DecideDisorder(Lunatic->Mover.moverRNG, difficulty);

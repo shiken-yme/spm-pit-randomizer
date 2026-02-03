@@ -259,31 +259,31 @@ namespace mod
     }
 
     RFCItemData RFC_SpecialItems[] = {
-        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, nullptr, nullptr, {255, 142, 43, 255}, {191, 119, 55, 255}},
-        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, nullptr, nullptr, {248, 255, 43, 255}, {168, 171, 77, 255}},
-        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, nullptr, nullptr, {81, 140, 189, 255}, {46, 81, 97, 255}},
-        {ICON_VOUCHER_RED, redVName, redVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, nullptr, nullptr, {252, 77, 255, 255}, {164, 76, 166, 255}},           // kek
-        {ICON_SOUL_1, soul1Name, soul1Desc, nullptr, SoulDropUse, {248, 255, 156, 255}, {146, 153, 50, 255}},               // Soul Drop, +4% Crit Rate
-        {ICON_SOUL_2, soul2Name, soul2Desc, nullptr, SoulBoonUse, {248, 255, 156, 255}, {146, 153, 50, 255}},               // Soul Boon, +8% Crit Rate
-        {ICON_SOUL_3, soul3Name, soul3Desc, nullptr, SoulEpiphanyUse, {248, 255, 156, 255}, {146, 153, 50, 255}},           // Soul Epiphany, +12% Crit Rate
-        {ICON_SOUL_4, soul4Name, soul4Desc, nullptr, SoulLegacyUse, {248, 255, 156, 255}, {146, 153, 50, 255}},             // Soul Legacy, +16% Crit Rate
-        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, nullptr, SpiritDropUse, {41, 194, 255, 255}, {42, 116, 145, 255}},        // Spirit Drop, +25% Crit Mult
-        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, nullptr, SpiritBoonUse, {41, 194, 255, 255}, {42, 116, 145, 255}},        // Spirit Boon, +50% Crit Mult
-        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, nullptr, SpiritEpiphanyUse, {41, 194, 255, 255}, {42, 116, 145, 255}},    // Spirit Epiphany, +75% Crit Mult
-        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, nullptr, SpiritLegacyUse, {41, 194, 255, 255}, {42, 116, 145, 255}},      // Spirit Legacy, +100% Crit Mult
-        {ICON_AEGIS_1, aegis1Name, aegis1Desc, nullptr, AegisEndowmentUse, {33, 96, 255, 255}, {34, 64, 140, 255}},         // Aegis Endowment, +15% DR
-        {ICON_AEGIS_2, aegis2Name, aegis2Desc, nullptr, AegisInvocationUse, {33, 96, 255, 255}, {34, 64, 140, 255}},        // Aegis Invocation, +30% DR
-        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, nullptr, AuspiceEndowmentUse, {212, 53, 61, 255}, {135, 23, 29, 255}}, // Auspice Endowment, +1 DEF
-        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, nullptr, AuspiceInvocationUse, {212, 53, 61, 255}, {135, 23, 29, 255}} // Auspice Invocation, +2 DEF
+        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, cakeVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, thunderVGet, nullptr, {255, 142, 43, 100}, {191, 119, 55, 100}},
+        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, stellarVGet, nullptr, {248, 255, 43, 100}, {168, 171, 77, 100}},
+        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, judgementVGet, nullptr, {81, 140, 189, 100}, {46, 81, 97, 100}},
+        {ICON_VOUCHER_RED, redVName, redVDesc, redVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, orangeVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, yellowVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, greenVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, cyanVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, blueVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, purpleVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, whiteVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},
+        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, blackVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 100}},           // kek
+        {ICON_SOUL_1, soul1Name, soul1Desc, soul1Get, SoulDropUse, {248, 255, 156, 100}, {146, 153, 50, 100}},               // Soul Drop, +4% Crit Rate
+        {ICON_SOUL_2, soul2Name, soul2Desc, soul2Get, SoulBoonUse, {248, 255, 156, 100}, {146, 153, 50, 100}},               // Soul Boon, +8% Crit Rate
+        {ICON_SOUL_3, soul3Name, soul3Desc, soul3Get, SoulEpiphanyUse, {248, 255, 156, 100}, {146, 153, 50, 100}},           // Soul Epiphany, +12% Crit Rate
+        {ICON_SOUL_4, soul4Name, soul4Desc, soul4Get, SoulLegacyUse, {248, 255, 156, 100}, {146, 153, 50, 100}},             // Soul Legacy, +16% Crit Rate
+        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, spirit1Get, SpiritDropUse, {41, 194, 255, 100}, {42, 116, 145, 100}},        // Spirit Drop, +25% Crit Mult
+        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, spirit2Get, SpiritBoonUse, {41, 194, 255, 100}, {42, 116, 145, 100}},        // Spirit Boon, +50% Crit Mult
+        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, spirit3Get, SpiritEpiphanyUse, {41, 194, 255, 100}, {42, 116, 145, 100}},    // Spirit Epiphany, +75% Crit Mult
+        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, spirit4Get, SpiritLegacyUse, {41, 194, 255, 100}, {42, 116, 145, 100}},      // Spirit Legacy, +100% Crit Mult
+        {ICON_AEGIS_1, aegis1Name, aegis1Desc, aegis1Get, AegisEndowmentUse, {33, 96, 255, 100}, {34, 64, 140, 100}},         // Aegis Endowment, +15% DR
+        {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 100}},        // Aegis Invocation, +30% DR
+        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 100}}, // Auspice Endowment, +1 DEF
+        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, auspice2Get, AuspiceInvocationUse, {212, 53, 61, 100}, {135, 23, 29, 100}} // Auspice Invocation, +2 DEF
     };
 
     RFCColorDef RFC_Colors[] = {
@@ -364,6 +364,15 @@ namespace mod
         return 2;
     }
 
+    void RFCUpdateSpecialGetCol(effpatch::EffPatchColorMask *mask)
+    {
+        mask->col1.r = (u8)system::intplGetValue(0, 0, (f32)mask->col2.r, mask->frmCtr, 40);
+        mask->col1.g = (u8)system::intplGetValue(0, 0, (f32)mask->col2.g, mask->frmCtr, 40);
+        mask->col1.b = (u8)system::intplGetValue(0, 0, (f32)mask->col2.b, mask->frmCtr, 40);
+        mask->frmCtr += 1;
+        return;
+    }
+
     s32 RFCAnalyzeSpecial(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
@@ -372,8 +381,8 @@ namespace mod
         if (idx < 0)
             return 2;
         s32 trueIdx = customwin::GlobalCW->Select[customwin::GlobalCW->activeSelect]->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
-        effdrv::EffEntry *eff = eff_pansy_kirakira::effPansyKirakiraEntry(0);
-        effpatch::effpatchColorMaskEntry(eff, RFC_SpecialItems[trueIdx].effCol1, RFC_SpecialItems[trueIdx].effCol2, nullptr);
+        effdrv::EffEntry *eff = eff_pansy_kirakira::effPansyKirakiraEntry(1);
+        effpatch::effpatchColorMaskEntry(eff, {0, 0, 0, 255}, RFC_SpecialItems[trueIdx].effCol1, RFCUpdateSpecialGetCol);
         if (RFC_SpecialItems[trueIdx].useFunc != nullptr)
             (RFC_SpecialItems[trueIdx].useFunc)();
         if (RFC_SpecialItems[trueIdx].useMsg != nullptr)

@@ -383,6 +383,81 @@ namespace mod
     const char auspice2Desc[] =
         "Increases Defense by 2.";
 
+    const char cakeVGet[] =
+        "Cake Voucher";
+
+    const char thunderVGet[] =
+        "Thunder Voucher";
+
+    const char judgementVGet[] =
+        "Judgement Voucher";
+
+    const char stellarVGet[] =
+        "Stellar Voucher";
+
+    const char redVGet[] =
+        "Determination Voucher";
+
+    const char orangeVGet[] =
+        "Bravery Voucher";
+
+    const char yellowVGet[] =
+        "Justice Voucher";
+
+    const char greenVGet[] =
+        "Kindness Voucher";
+
+    const char cyanVGet[] =
+        "Patience Voucher";
+
+    const char blueVGet[] =
+        "Integrity Voucher";
+
+    const char purpleVGet[] =
+        "Perseverance Voucher";
+
+    const char whiteVGet[] =
+        "Limerence Voucher";
+
+    const char blackVGet[] =
+        "Contrivance Voucher";
+
+    const char soul1Get[] =
+        "<system>\nYour Crit Rate has been\nincreased by 4%!\n<k>";
+
+    const char soul2Get[] =
+        "<system>\nYour Crit Rate has been\nincreased by 8%!\n<k>";
+
+    const char soul3Get[] =
+        "<system>\nYour Crit Rate has been\nincreased by 12%!\n<k>";
+
+    const char soul4Get[] =
+        "<system>\nYour Crit Rate has been\nincreased by 16%!\n<k>";
+
+    const char spirit1Get[] =
+        "<system>\nYour Crit Mult has been\nincreased by 25%!\n<k>";
+
+    const char spirit2Get[] =
+        "<system>\nYour Crit Mult has been\nincreased by 50%!\n<k>";
+
+    const char spirit3Get[] =
+        "<system>\nYour Crit Mult has been\nincreased by 75%!\n<k>";
+
+    const char spirit4Get[] =
+        "<system>\nYour Crit Mult has been\nincreased by 100%!\n<k>";
+
+    const char aegis1Get[] =
+        "<system>\nYour Damage Reduction has been\nincreased by 15%!\n<k>";
+
+    const char aegis2Get[] =
+        "<system>\nYour Damage Reduction has been\nincreased by 30%!\n<k>";
+
+    const char auspice1Get[] =
+        "<system>\nYour Defense has been\nincreased by 1!\n<k>";
+
+    const char auspice2Get[] =
+        "<system>\nYour Defense has been\nincreased by 2!\n<k>";
+
     // Shadoo
     const char shadooIntro[] =
         "<housou><wave>Hiiiii, Heroes!</wave><wait 500> Did you have a\n"

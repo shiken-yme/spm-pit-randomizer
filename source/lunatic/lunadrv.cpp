@@ -846,6 +846,8 @@ namespace mod
             compare = 333;
             break;
         }
+        if (num == 999)
+            num = system::irand(999);
         if (num < compare)
         {
             s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;

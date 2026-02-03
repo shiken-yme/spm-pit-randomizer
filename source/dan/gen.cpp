@@ -1196,7 +1196,7 @@ namespace mod
             s32 disorderId = Lunatic->Luna.disorder;
             if (disorderId == DisorderId::DISORDER_GREEN) // Guarantee a maximally complex layout while Indifference is active
                 segmentCount = 16;
-            wii::os::OSReport("Rolled segmentRNG = %d, queueing %d segment generations for this room.\n", segmentRNG, segmentCount);
+            // wii::os::OSReport("Rolled segmentRNG = %d, queueing %d segment generations for this room.\n", segmentRNG, segmentCount);
 
             /*
                 ENCLOSED STRUCTURE GENERATION
@@ -1211,7 +1211,7 @@ namespace mod
             // SPLIT
             if (structureRNG >= 0 && structureRNG < 8)
             {
-                wii::os::OSReport("!!! SPLIT Structure is generating !!!\n");
+                // wii::os::OSReport("!!! SPLIT Structure is generating !!!\n");
                 segment2000 = true;
                 segment8 = true;
                 if (structureMiscRNG < 70)
@@ -1239,7 +1239,7 @@ namespace mod
             // Quarter
             else if (structureRNG >= 8 && structureRNG < 19)
             {
-                wii::os::OSReport("!!! QUARTER Structure is generating !!!\n");
+                // wii::os::OSReport("!!! QUARTER Structure is generating !!!\n");
                 if (structureMiscRNG < 31)
                 {
                     segment100 = true;
@@ -1293,7 +1293,7 @@ namespace mod
             // Cube
             else if (structureRNG >= 19 && structureRNG < 21)
             {
-                wii::os::OSReport("!!! CUBE Structure is generating !!!\n");
+                // wii::os::OSReport("!!! CUBE Structure is generating !!!\n");
                 segmentCount = segmentCount - 2;
                 if (structureMiscRNG < 50)
                 {
@@ -1318,7 +1318,7 @@ namespace mod
             // Pillar
             else if (structureRNG >= 21 && structureRNG < 23)
             {
-                wii::os::OSReport("!!! PILLAR Structure is generating !!!\n");
+                // wii::os::OSReport("!!! PILLAR Structure is generating !!!\n");
                 if (structureMiscRNG < 60)
                 {
                     segment800 = true;
@@ -1342,7 +1342,7 @@ namespace mod
             // Small
             else if (structureRNG >= 23 && structureRNG < 26)
             {
-                wii::os::OSReport("!!! SMALL Structure is generating !!!\n");
+                // wii::os::OSReport("!!! SMALL Structure is generating !!!\n");
                 if (structureMiscRNG < 33)
                 {
                     segment800 = true;
@@ -1401,7 +1401,7 @@ namespace mod
             // I'm sorry Tartt but I am leaving the stream during Lobates. They bore the hell out of me and frankly I can think of a whole host of things I'd rather be doing, including playing with a rubber band. Please
             else if (structureRNG >= 26 && structureRNG < 32)
             {
-                wii::os::OSReport("!!! LOBATE Structure is generating !!!\n");
+                // wii::os::OSReport("!!! LOBATE Structure is generating !!!\n");
                 segmentCount = segmentCount - 2;
                 if (structureMiscRNG <= 66)
                 {
@@ -1510,7 +1510,7 @@ namespace mod
             else
                 structureGenerated = false;
 
-            wii::os::OSReport("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
+            // wii::os::OSReport("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
 
             /*
                 SEGMENT GENERATION PROCEDURE & EVERY NECESSARY CHECK
@@ -1554,7 +1554,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 1;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1591,7 +1591,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 17;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1626,7 +1626,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 11;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1703,7 +1703,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 5;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1779,7 +1779,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 21;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1815,7 +1815,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 15;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1852,7 +1852,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 8;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1889,7 +1889,7 @@ namespace mod
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 24;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1922,7 +1922,7 @@ namespace mod
                     {
                         segment800 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1991,7 +1991,7 @@ namespace mod
                     {
                         segment80 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2024,7 +2024,7 @@ namespace mod
                     {
                         segment2 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2055,7 +2055,7 @@ namespace mod
                     {
                         segment2000 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2086,7 +2086,7 @@ namespace mod
                     {
                         segment8 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2119,7 +2119,7 @@ namespace mod
                     {
                         segment4000 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2189,7 +2189,7 @@ namespace mod
                     {
                         segment200 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2222,7 +2222,7 @@ namespace mod
                     {
                         segment10 = true;
                         segmentCount = segmentCount - 1;
-                        wii::os::OSReport("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
+                        // wii::os::OSReport("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
                 }
@@ -2293,7 +2293,7 @@ namespace mod
             if (segment20)
                 roomDecCode = roomDecCode + 0x20;
 
-            wii::os::OSReport("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
+            // wii::os::OSReport("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
 
             if (segment10000)
                 roomDecCode = roomDecCode + 0x10000;
@@ -2330,7 +2330,7 @@ namespace mod
             {
                 doorId = system::rand() % 32 + 1;
             }
-            wii::os::OSReport("Generated doorId %d.\n", doorId);
+            // wii::os::OSReport("Generated doorId %d.\n", doorId);
             if (doorId == 1)
             {
                 doorOnToggleableSegment = true;
@@ -2338,7 +2338,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 4 || doorId == 5)
@@ -2348,7 +2348,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 8)
@@ -2358,7 +2358,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 10 || doorId == 11)
@@ -2368,7 +2368,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 14 || doorId == 15)
@@ -2378,7 +2378,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 17)
@@ -2388,7 +2388,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 20 || doorId == 21)
@@ -2398,7 +2398,7 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 24)
@@ -2408,10 +2408,10 @@ namespace mod
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
                 }
             }
-            wii::os::OSReport("All toggleable segment checks finished; doorOnToggleableSegment is %d, successfulDoors is %d, currentDoorSuccess is %d.\n", doorOnToggleableSegment, successfulDoors, currentDoorSuccess);
+            // wii::os::OSReport("All toggleable segment checks finished; doorOnToggleableSegment is %d, successfulDoors is %d, currentDoorSuccess is %d.\n", doorOnToggleableSegment, successfulDoors, currentDoorSuccess);
             if (!doorOnToggleableSegment)
             {
                 if (doorId >= 25)
@@ -2420,14 +2420,14 @@ namespace mod
                     {
                         successfulDoors = successfulDoors + 1;
                         currentDoorSuccess = true;
-                        wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                        // wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
                     }
                 }
                 else
                 {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                    // wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
                 }
             }
             if (currentDoorSuccess)
@@ -2441,7 +2441,7 @@ namespace mod
                     doorExit = doorId;
                 }
             }
-            wii::os::OSReport("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
+            // wii::os::OSReport("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
         }
 
         for (s32 i = 0; i < 200; ++i)

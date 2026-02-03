@@ -1037,6 +1037,7 @@ namespace mod
         return 2;
     }
 
+    // Returns true to cancel sfx, returns false to play sfx
     bool sndMuteLowHpSfx(const char *sfxName)
     {
         if (swdrv::swGet(1621) == true)
@@ -1128,7 +1129,7 @@ namespace mod
                                                 if (type == ITEM_ID_KEY_MAC_KEY_00) // Chest keys no longer disappear when dropped & drop confetti
                                                 {
                                                     item->flags &= ~0x200;
-                                                    effdrv::EffEntry *star = eff_small_star::effSmallStarEntry(x, y, z, 0, -1.0, 0, 4, 8);
+                                                    eff_small_star::effSmallStarEntry(x, y, z, 0, -1.0, 0, 4, 8);
                                                 //    effpatch::effpatchColorMaskEntry(star, {0, 0, 0, 255}, {255, 255, 255, 255}, nullptr);
                                                 }
                                                 return item;
@@ -2279,11 +2280,12 @@ namespace mod
         (void)evtEntry;
         Lunatic->Mover.moverRNG = system::rand() % 1000;
         s32 floor = swdrv::swByteGet(1);
-        bool allowMovers = swdrv::swGet(1610);
-        if ((floor >= 43 && floor <= 148) || floor > 194 || !allowMovers || Lunatic->Luna.disorder > DISORDER_NULL)
+        bool blockMovers = swdrv::swGet(1610);
+        if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         // vv DEBUG vv
         // Lunatic->Mover.moverRNG = 2;
+        Lunatic->RFC.chestKeysOwned = 99;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
         return 2;

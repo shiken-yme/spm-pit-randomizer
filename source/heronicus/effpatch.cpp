@@ -16,7 +16,7 @@ namespace mod::effpatch
 
     void effpatchColorMaskEntry(effdrv::EffEntry *eff, wii::gx::GXColor col1, wii::gx::GXColor col2, EffpatchColorMaskUpdateFunc *updateFunc)
     {
-        //    wii::os::OSReport("EffPatch: Entries are located at %p.\n", &effpatchColorMaskEntries);
+        // wii::os::OSReport("EffPatch: Entries are located at %p.\n", &effpatchColorMaskEntries);
         s32 i;
         for (i = 0; i < EFFPATCH_COLOR_MASK_ENTRY_MAX; i += 1)
         {
@@ -28,6 +28,7 @@ namespace mod::effpatch
                 if (updateFunc != nullptr)
                 {
                     effpatchColorMaskEntries[i].updateFunc = updateFunc;
+                    effpatchColorMaskEntries[i].frmCtr = 0;
                 }
                 break;
             }
