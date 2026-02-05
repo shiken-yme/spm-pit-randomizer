@@ -25,7 +25,7 @@ namespace mod
 
     struct VCakeWork
     {
-        bool placeholder;
+        u8 rooms;
     };
 
     struct VThunderWork
@@ -53,7 +53,17 @@ namespace mod
     extern s32 RFCItems_Legendary[];
     extern const char *RFCRarityNames[];
 
-    VoucherState VoucherGetStateById(s32 itemId);
+    /*
+        Vouchers
+    */
+    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
+    
+    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
+
+
+    /*
+        RFC Driver
+    */
     void *RFCSpecialGetPtr();
     void *RFCColorsGetPtr();
     void RFCDRVPatches();

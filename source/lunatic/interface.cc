@@ -317,7 +317,7 @@ namespace mod
         }
     }
 
-    void voucherDisplay()
+    /*void voucherDisplay()
     {
         wii::mtx::Vec3 position = {355.0f, -215.0f, 0.0f};
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
@@ -326,8 +326,30 @@ namespace mod
             {
                 if (Lunatic->Voucher[i]->iconId != 0)
                 {
-                    icondrv::iconDispGxAlpha(0.73f, &position, 0x18, Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT, 200);
+                    icondrv::iconDispGxAlpha(0.73f, &position, 0x18, Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT, Lunatic->Voucher[i]->iconAlpha);
                     position.y += 20.0f;
+                }
+            }
+        }
+    }*/
+
+    void voucherDisplay()
+    {
+        f32 y = -210.0f;
+        wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        {
+            if (Lunatic->Voucher[i] != nullptr)
+            {
+                if (Lunatic->Voucher[i]->iconId != 0)
+                {
+                    wii::mtx::PSMTXTrans(mtxPos, 355.0f, y, 0.0f);
+                    wii::mtx::PSMTXScale(mtxScale, 0.73f, 0.73f, 0.73f);
+                    wii::mtx::PSMTXRotRad((Lunatic->Voucher[i]->iconRotation * PI / 180.0f), mtxRot, 0x7A); // 'z'
+                    wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
+                    wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
+                    icondrv::iconDispGxCol(mtxPos, 0x18, Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher[i]->iconAlpha});
+                    y += 35.0f;
                 }
             }
         }

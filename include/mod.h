@@ -253,6 +253,8 @@ namespace mod
     struct MagicTrick
     {
         bool torn;
+        u8 iconAlpha;
+        f32 iconRotation;
         LPCustomItem itemId;
         LPIcon iconId;
         union
@@ -264,6 +266,7 @@ namespace mod
             void *Any;
         } VW;
         Callback *tearFunc;
+        Callback *actionFunc;
     };
 
     struct LunaticPitWork
