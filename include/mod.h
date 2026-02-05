@@ -4,6 +4,7 @@
 #include <evt_cmd.h>
 #include <customwin.h>
 #include <lunadrv.h>
+#include <rfcdrv.h>
 #include <gen.h>
 
 namespace mod
@@ -221,8 +222,8 @@ namespace mod
         const char *description;
         const char *useMsg;
         Callback *useFunc;
-        wii::gx::GXColor effCol1;
-        wii::gx::GXColor effCol2;
+        wii::gx::GXColor effCol;
+        wii::gx::GXColor textDrawCol;
     };
 
     struct RFCColorDef
@@ -249,6 +250,22 @@ namespace mod
         s32 moverRNG;
     };
 
+    struct MagicTrick
+    {
+        bool torn;
+        LPCustomItem itemId;
+        LPIcon iconId;
+        union
+        {
+            VCakeWork *Cake;
+            VThunderWork *Thunder;
+            VStellarWork *Stellar;
+            VJudgementWork *Judgement;
+            void *Any;
+        } VW;
+        Callback *tearFunc;
+    };
+
     struct LunaticPitWork
     {
         FloorData Floor[200];
@@ -258,6 +275,7 @@ namespace mod
         RestFloorChest RFC;
         MoverWork Mover;
         Reaver Stats;
+        MagicTrick *Voucher[8];
     };
 
     extern LunaticPitWork *Lunatic;

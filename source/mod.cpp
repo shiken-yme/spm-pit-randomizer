@@ -2170,6 +2170,10 @@ namespace mod
         //    wii::os::OSReport("def0_1: %d.\n", def0_1.defense);
         //    wii::os::OSReport("defterm: %d.\n", defterm.defense);
 
+        // Force all enemies' stylish XP to 10% of kill XP
+        for (s32 i = 0; i < NPCTRIBE_MAX; i += 1)
+            npcdrv::npcTribes[i].stylishXp = (npcdrv::npcTribes[i].killXp / 10);
+
         // Let's replace the pit key texture while we're at it lol
         // Ty kiki!!! <3
         item_data::itemDataTable[48].iconId = ICON_SKULL_KEY + TPLPATCH_ICON_REDIRECT;
@@ -2284,7 +2288,7 @@ namespace mod
         if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         // vv DEBUG vv
-        // Lunatic->Mover.moverRNG = 2;
+         Lunatic->Mover.moverRNG = 2;
         Lunatic->RFC.chestKeysOwned = 99;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
@@ -2540,8 +2544,8 @@ namespace mod
     s32 mover_down_5(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         s32 floor = swdrv::swByteGet(1);
-        floor = floor + 4;
-        // floor = floor + 8; // DEBUG
+        // floor = floor + 4;
+         floor = floor + 8; // DEBUG
         // floor = floor + 198; // DEBUG
         swdrv::swByteSet(1, floor);
         const char *destMap = getNextDanMapnameNew(floor);
@@ -5456,6 +5460,9 @@ namespace mod
         evtpatch::evtmgrExtensionInit();
         tplpatch::iconPatch("wicon2");
         effpatch::effpatchInit();
+        // Debug tools & Pit Rando debug mode
+        yme::ymeMain();
+        DebugMode = true;
         // Mod functions
         guiOverrides();
         rewrite_main();
@@ -5471,9 +5478,6 @@ namespace mod
         patchMarioDamage();
         exceptionPatch();
         romfontExpand();
-        // Debug tools & Pit Rando debug mode
-        yme::ymeMain();
-        DebugMode = false;
         wii::os::OSReport("SPM Rel Loader: Lunatic Pit is now active.\n");
     }
 }

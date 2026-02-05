@@ -26,7 +26,7 @@ namespace mod::effpatch
     extern EffPatchColorMask effpatchColorMaskEntries[EFFPATCH_COLOR_MASK_ENTRY_MAX];
     extern s32 effpatchColorMaskEntryCount;
 
-    void effpatchColorMaskEntry(effdrv::EffEntry *eff, wii::gx::GXColor col1, wii::gx::GXColor col2, EffpatchColorMaskUpdateFunc *updateFunc);
+    EffPatchColorMask *effpatchColorMaskEntry(effdrv::EffEntry *eff, wii::gx::GXColor col1, wii::gx::GXColor col2, EffpatchColorMaskUpdateFunc *updateFunc);
     u8 effpatchChgColor(u8 color, u8 num, bool positive);
     void effpatchInit();
 }

@@ -5,7 +5,6 @@
 #include <evt_cmd.h>
 #include <spm/item_data.h>
 #include <lunatic/localize.h>
-#include <mod.h>
 
 namespace mod
 {
@@ -15,6 +14,35 @@ namespace mod
 
     #define RFC_SPECIAL_START 1000
 
+    #define VOUCHER_MAX 8
+    
+    enum VoucherState : s32
+    {
+        V_INACTIVE,
+        V_ACTIVE,
+        V_TORN
+    };
+
+    struct VCakeWork
+    {
+        bool placeholder;
+    };
+
+    struct VThunderWork
+    {
+        bool placeholder;
+    };
+
+    struct VStellarWork
+    {
+        bool placeholder;
+    };
+
+    struct VJudgementWork
+    {
+        bool placeholder;
+    };
+
     extern s32 RFCItems_Common_Size;
     extern s32 RFCItems_Uncommon_Size;
     extern s32 RFCItems_Rare_Size;
@@ -23,10 +51,11 @@ namespace mod
     extern s32 RFCItems_Uncommon[];
     extern s32 RFCItems_Rare[];
     extern s32 RFCItems_Legendary[];
-    extern RFCItemData RFC_SpecialItems[];
-    extern RFCColorDef RFC_Colors[];
     extern const char *RFCRarityNames[];
 
+    VoucherState VoucherGetStateById(s32 itemId);
+    void *RFCSpecialGetPtr();
+    void *RFCColorsGetPtr();
     void RFCDRVPatches();
 
     EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)

@@ -8,6 +8,7 @@
 #include <msgpatch.h>
 #include <customwin.h>
 #include <globalop.h>
+#include <rfcdrv.h>
 #include <lunadrv.h>
 
 #include "lunatic/localize.h"
@@ -316,13 +317,30 @@ namespace mod
         }
     }
 
+    void voucherDisplay()
+    {
+        wii::mtx::Vec3 position = {355.0f, -215.0f, 0.0f};
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        {
+            if (Lunatic->Voucher[i] != nullptr)
+            {
+                if (Lunatic->Voucher[i]->iconId != 0)
+                {
+                    icondrv::iconDispGxAlpha(0.73f, &position, 0x18, Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT, 200);
+                    position.y += 20.0f;
+                }
+            }
+        }
+    }
+
     void textDisplay(seqdrv::SeqWork *wp)
     {
-        merlunaBlessingDisplay();
+        /*merlunaBlessingDisplay();
         merlunaBlessingNumDisplay();
         merlunaCurseDisplay();
-        merlunaCurseNumDisplay();
+        merlunaCurseNumDisplay();*/
         disorderDisplay();
+        voucherDisplay();
         youSuckDisplay();
         seq_gameMainReal(wp);
     }
@@ -365,7 +383,75 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(LPGUIUnpause, 0)
 
-    EVT_BEGIN(LPGUI_ActiveConditions)
+    s32 GetEffectInfo(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 type = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        switch (type)
+        {
+        case 0: // Blessing
+            break;
+        case 1: // Curse
+            break;
+        case 2: // Disorder
+            if (Lunatic->Luna.disorder > 0)
+            {
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
+                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
+                msl::string::memset(Lunatic->Luna.DW.descBuf, 0, sizeof(Lunatic->Luna.DW.descBuf));
+                LeyLineDisorder *Disorders = (LeyLineDisorder *)DisorderDataGetPtr();
+                switch (Lunatic->Luna.disorder)
+                {
+                case DISORDER_RED:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
+                    break;
+                case DISORDER_ORANGE:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
+                    break;
+                case DISORDER_YELLOW:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
+                    break;
+                case DISORDER_GREEN:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
+                    break;
+                case DISORDER_CYAN:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
+                    break;
+                case DISORDER_BLUE:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
+                    break;
+                case DISORDER_PURPLE:
+                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
+                    break;
+                default:
+                    break;
+                }
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Luna.DW.descBuf);
+                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&Lunatic->Luna.Disorder->textDrawCol);
+            }
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.disorder);
+            break;
+        case 3: // Voucher
+            RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
+            s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+            if (Lunatic->Voucher[i] != nullptr)
+            {
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT);
+                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[Lunatic->Voucher[i]->itemId].name);
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)RFC_SpecialItems[Lunatic->Voucher[i]->itemId].description);
+                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[Lunatic->Voucher[i]->itemId].textDrawCol);
+                break;
+            }
+            else
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], 0);
+            break;
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(GetEffectInfo, 6)
+
+    EVT_BEGIN(LPGUI_ActiveEffects)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 128, 1000)
     INLINE_EVT()
     DO(0)
@@ -378,15 +464,26 @@ namespace mod
     WHILE()
     END_INLINE()
     WAIT_MSEC(500)
-    USER_FUNC(EvtCWSelectEntry, PTR("Active"), CWSELECT_DEFAULT, PTR("Active Conditions"), PTR(""), 0, 0)
+    USER_FUNC(EvtCWSelectEntry, PTR("Active"), CWSELECT_DEFAULT, PTR("Active Effects"), PTR(""), 0, 0)
     USER_FUNC(EvtCWSelectHideDescWindow, PTR("Active"))
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Active"), PTR(DoNothing))
-    USER_FUNC(LunaGetConditionInfo, 2, LW(2), LW(5), LW(6), LW(7), LW(9))
+    // Disorder: effect type, disorder id, icon id, name, description, text col
+    USER_FUNC(GetEffectInfo, 2, LW(2), LW(5), LW(6), LW(7), LW(9))
     IF_LARGE(LW(2), 0)
     SET(LW(8), 1)
     USER_FUNC(EvtCWSelectAddListing, PTR("Active"), LW(6), LW(7), LW(5), 0, 0, LW(9))
     END_IF()
-    IF_EQUAL(LW(8), 0)
+    // Voucher: effect type, voucher idx, icon id, name, description, text col
+    SET(LW(2), 0)
+    DO(VOUCHER_MAX)
+    USER_FUNC(GetEffectInfo, 3, LW(2), LW(5), LW(6), LW(7), LW(9))
+    IF_LARGE(LW(5), 0)
+    SET(LW(8), 1)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Active"), LW(6), LW(7), LW(5), 0, 0, LW(9))
+    END_IF()
+    ADD(LW(2), 1)
+    WHILE()
+    IF_EQUAL(LW(8), 0) // If 1, indicates that a listing was created
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(activeConditionsNone), 0, 0)
     ELSE()
     USER_FUNC(EvtCWSelectMenuStart, PTR("Active"), 0, 0)
@@ -421,7 +518,7 @@ namespace mod
                 {
                     pausewin::pausewinPauseGame();
                     hud::hudHide();
-                    evtmgr::evtEntryType(LPGUI_ActiveConditions, 0, 0, 0);
+                    evtmgr::evtEntryType(LPGUI_ActiveEffects, 0, 0, 0);
                 }
             }
         }

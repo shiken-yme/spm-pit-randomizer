@@ -1191,7 +1191,7 @@ namespace mod
     const char activeConditionsNone[] =
         "<system>\n"
         "There are no active\n"
-        "conditions to view right now!\n"
+        "effects to view right now!\n"
         "<k>";
 
     // Disorders
@@ -1207,7 +1207,7 @@ namespace mod
         "<k>\n<p>\n"
         "You can learn more about an\n"
         "active Disorder anytime in the\n"
-        "<icon PAD_1 0.67 0 0 0> Active Conditions menu.\n"
+        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n"
         "<k>";
 
     const char apathyName[] =

@@ -1067,7 +1067,10 @@ namespace mod
                 rarity += 1;
         }
         if (!onRoomLoad && rarity == Lunatic->RFC.chestRarity)
+        {
+            rarity = 0;
             goto rerollRarity;
+        }
         Lunatic->RFC.chestRarity = rarity;
         Lunatic->RFC.chestKeys = 2 + rarity + Lunatic->RFC.rerolls;
         // Select 3 items
@@ -1118,6 +1121,8 @@ namespace mod
             }
             itemsGenerated[i] = itemId;
             customwin::CWSelectItemDesc Desc;
+            RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
+            RFCColorDef *RFC_Colors = (RFCColorDef *)RFCColorsGetPtr();
             msl::string::memset(&Desc, 0, sizeof(Desc));
             if (itemId >= RFC_SPECIAL_START)
             {

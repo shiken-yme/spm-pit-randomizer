@@ -517,6 +517,11 @@ namespace mod
             {ruinName, ruinDesc, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                    // RUIN
     };
 
+    void *DisorderDataGetPtr()
+    {
+        return &Disorders[0];
+    }
+
     void SetDisorderSub(DisorderId id)
     {
         Lunatic->Luna.disorder = id;
@@ -579,58 +584,6 @@ namespace mod
         return 2;
     }
     EVT_DECLARE_USER_FUNC(DisorderIntroIconOnOff, 1)
-
-    s32 LunaGetConditionInfo(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 type = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        switch (type)
-        {
-        case 0: // Blessing
-            break;
-        case 1: // Curse
-            break;
-        case 2: // Disorder
-            if (Lunatic->Luna.disorder > 0)
-            {
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
-                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
-                msl::string::memset(Lunatic->Luna.DW.descBuf, 0, sizeof(Lunatic->Luna.DW.descBuf));
-                switch (Lunatic->Luna.disorder)
-                {
-                case DISORDER_RED:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
-                    break;
-                case DISORDER_ORANGE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
-                    break;
-                case DISORDER_YELLOW:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
-                    break;
-                case DISORDER_GREEN:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
-                    break;
-                case DISORDER_CYAN:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
-                    break;
-                case DISORDER_BLUE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
-                    break;
-                case DISORDER_PURPLE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
-                    break;
-                default:
-                    break;
-                }
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Luna.DW.descBuf);
-                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&Lunatic->Luna.Disorder->textDrawCol);
-            }
-            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.disorder);
-            break;
-        }
-        return 2;
-    }
 
     s32 DisorderDraw(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
