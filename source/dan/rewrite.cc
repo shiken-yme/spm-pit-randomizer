@@ -7,6 +7,7 @@
 #include <tplpatch.h>
 #include <lunatic/localize.h>
 #include <rewrite.h>
+#include <rfcdrv.h>
 #include <lunadrv.h>
 #include <mod.h>
 
@@ -471,6 +472,7 @@ namespace mod
     RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
+    USER_FUNC(EvtVoucherCallAction, VOUCHER_CAKE)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 0, 1000)
     DO(0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)

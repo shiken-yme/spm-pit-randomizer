@@ -1117,7 +1117,6 @@ namespace mod
                     goto tryAgain;
                 if ((system::rand() % 100) < 30) // 30% chance to fail at rolling the special item
                     goto tryAgain;
-                Lunatic->RFC.rfcSpecialObtained[itemId - RFC_SPECIAL_START] = true;
             }
             itemsGenerated[i] = itemId;
             customwin::CWSelectItemDesc Desc;

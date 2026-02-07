@@ -124,7 +124,9 @@ namespace mod
     struct LPSessionMiscs
     {
         bool youSuck;
+        bool tearFuncActive;
         f64 boobies;
+        u8 difficulty;
     };
 
     struct BoodinBalls
@@ -255,6 +257,7 @@ namespace mod
         bool torn;
         u8 iconAlpha;
         f32 iconRotation;
+        s32 iconRotationTimer;
         LPCustomItem itemId;
         LPIcon iconId;
         union

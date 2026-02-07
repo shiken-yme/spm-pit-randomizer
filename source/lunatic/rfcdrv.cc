@@ -201,64 +201,180 @@ namespace mod
         Lunatic->Voucher[i] = (MagicTrick *)memory::__memAlloc(0, sizeof(MagicTrick));
         msl::string::memset(Lunatic->Voucher[i], 0, sizeof(MagicTrick));
         Lunatic->Voucher[i]->VW.Any = wp;
-        Lunatic->Voucher[i]->iconAlpha = 200;
+        Lunatic->Voucher[i]->iconAlpha = 150;
         return i;
     }
 
-    void VoucherRemove(s32 itemId)
+    s32 VoucherItemIdToIdx(s32 itemId)
     {
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        s32 i;
+        for (i = 0; i < VOUCHER_MAX; i += 1)
         {
             if (Lunatic->Voucher[i] != nullptr) // In use
             {
                 if (Lunatic->Voucher[i]->itemId == itemId)
                 {
-                    msl::string::memset(Lunatic->Voucher[i], 0, sizeof(MagicTrick));
-                    memory::__memFree(0, Lunatic->Voucher[i]);
-                    Lunatic->Voucher[i] = nullptr;
-                    break;
+                    return i;
                 }
             }
         }
+        return -1;
+    }
+
+    void VoucherRemove(s32 itemId)
+    {
+        s32 i = VoucherItemIdToIdx(itemId);
+        msl::string::memset(Lunatic->Voucher[i], 0, sizeof(MagicTrick));
+        memory::__memFree(0, Lunatic->Voucher[i]);
+        Lunatic->Voucher[i] = nullptr;
         return;
     }
 
     VoucherState VoucherGetStateById(s32 itemId, s32 *idx)
     {
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        s32 i = VoucherItemIdToIdx(itemId);
+        *idx = i;
+        if (i == -1)
+            return V_INACTIVE;
+        if (Lunatic->Voucher[i]->torn)
+            return V_TORN;
+        return V_ACTIVE;
+    }
+
+    void VoucherActionSpin(s32 idx, s32 deleteIdx)
+    {
+        u8 alphaMod;
+        MagicTrick *Voucher = Lunatic->Voucher[idx];
+        if (Voucher->iconRotationTimer < 20)
         {
-            if (Lunatic->Voucher[i] != nullptr) // In use
+            alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 20);
+            Voucher->iconAlpha = (u8)150 + alphaMod;
+        }
+        else if (Voucher->iconRotationTimer <= 50)
+        {
+            alphaMod = (u8)system::intplGetValue(4, 0, 105, (Voucher->iconRotationTimer - 20), 30);
+            Voucher->iconAlpha = (u8)255 - alphaMod;
+        }
+        Voucher->iconRotation = system::intplGetValue(4, 0.0f, 360.0f, Voucher->iconRotationTimer, 60);
+        Voucher->iconRotationTimer += 1;
+        if (Voucher->iconRotation >= 359.5f)
+        {
+            Voucher->iconRotation = 0.0f;
+            Voucher->iconRotationTimer = 0;
+            globalop::globalopDelEntry(deleteIdx);
+        }
+        return;
+    }
+
+    void VoucherTearSpin(s32 idx, s32 deleteIdx)
+    {
+        u8 alphaMod;
+        MagicTrick *Voucher = Lunatic->Voucher[idx];
+        if (Voucher->iconRotationTimer < 30)
+        {
+            alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 30);
+            Voucher->iconAlpha = (u8)150 + alphaMod;
+        }
+        else if (Voucher->iconRotationTimer > 120)
+        {
+            alphaMod = (u8)system::intplGetValue(4, 0, 255, (Voucher->iconRotationTimer - 120), 120);
+            Voucher->iconAlpha = (u8)255 - alphaMod;
+        }
+        if (Voucher->iconRotationTimer < 60)
+            Voucher->iconRotation = system::intplGetValue(1, 0.0f, 360.0f, Voucher->iconRotationTimer, 60);
+        else
+            Voucher->iconRotation = system::intplGetValue(0, 0.0f, 360.0f, ((Voucher->iconRotationTimer - 60) % 10), 10);
+        Voucher->iconRotationTimer += 1;
+        if (Voucher->iconAlpha < 1)
+        {
+            Voucher->iconAlpha = 0;
+            Voucher->iconRotation = 0.0f;
+            Voucher->iconRotationTimer = 0;
+            VoucherRemove(Lunatic->Voucher[idx]->itemId);
+            globalop::globalopDelEntry(deleteIdx);
+        }
+        return;
+    }
+
+    bool VoucherTryTear()
+    {
+        s32 chance;
+        s32 difficulty = swdrv::swByteGet(1620);
+        switch (difficulty)
+        {
+        case 0:
+            chance = 2;
+            break;
+        case 1:
+            chance = 5;
+            break;
+        case 2:
+            chance = 100;
+            break;
+        default:
+            chance = 15;
+            break;
+        }
+        s32 odds = system::irand(99);
+        if (odds < chance)
+            return true;
+        return false;
+    }
+
+    void VoucherDoTear(s32 itemId)
+    {
+        s32 idx = VoucherItemIdToIdx(itemId);
+        Lunatic->Voucher[idx]->torn = true;
+        globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)idx);
+        (Lunatic->Voucher[idx]->tearFunc)();
+    }
+
+    void VoucherCallAction(s32 itemId)
+    {
+        s32 idx;
+        VoucherState state = VoucherGetStateById(itemId, &idx);
+        if (state == V_ACTIVE)
+        {
+            bool tear = VoucherTryTear();
+            if (tear)
+                VoucherDoTear(itemId);
+            else
             {
-                if (Lunatic->Voucher[i]->itemId == itemId)
-                {
-                    *idx = i;
-                    if (Lunatic->Voucher[i]->torn)
-                        return V_TORN;
-                    return V_ACTIVE;
-                }
+                globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)idx);
+                (Lunatic->Voucher[idx]->actionFunc)();
             }
         }
-        return V_INACTIVE;
+        return;
     }
 
     s32 EvtVoucherCallAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
-        s32 idx;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 itemId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        VoucherState state = VoucherGetStateById(itemId, &idx);
-        if (state == V_ACTIVE)
-            (Lunatic->Voucher[idx]->actionFunc)();
+        VoucherCallAction(itemId);
         return 2;
+    }
+
+    void CakeVoucherTear()
+    {
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        mario_pouch::pouchSetMaxHp(pouch->maxHp + 10);
+        s32 idx = -1;
+        VoucherGetStateById(VOUCHER_CAKE, &idx);
+        mario_pouch::pouchAddHp(Lunatic->Voucher[idx]->VW.Cake->rooms);
+        return;
     }
 
     void CakeVoucherAction()
     {
-        s32 idx = -1;
-        VoucherGetStateById(VOUCHER_CAKE, &idx);
-        if (idx != -1)
-            Lunatic->Voucher[idx]->VW.Cake->rooms += 1;
+        s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        Lunatic->Voucher[idx]->VW.Cake->rooms += 1;
+        s32 maxHp = pouch->maxHp;
+        mario_pouch::pouchSetMaxHp(pouch->maxHp + 1);
+        if (maxHp == pouch->maxHp) // If max HP cannot increment, instantly tear the voucher
+            VoucherDoTear(VOUCHER_CAKE);
         return;
     }
 
@@ -269,8 +385,18 @@ namespace mod
         s32 idx = VoucherAdd(wp);
         Lunatic->Voucher[idx]->iconId = ICON_VOUCHER_CAKE;
         Lunatic->Voucher[idx]->itemId = VOUCHER_CAKE;
-        //    Lunatic->Voucher[idx]->tearFunc = CakeVoucherTear;
-        //    Lunatic->Voucher[idx]->actionFunc = CakeVoucherAction;
+        Lunatic->Voucher[idx]->tearFunc = CakeVoucherTear;
+        Lunatic->Voucher[idx]->actionFunc = CakeVoucherAction;
+        return;
+    }
+
+    void ThunderVoucherTear()
+    {
+        return;
+    }
+
+    void ThunderVoucherAction()
+    {
         return;
     }
 
@@ -281,8 +407,18 @@ namespace mod
         s32 idx = VoucherAdd(wp);
         Lunatic->Voucher[idx]->iconId = ICON_VOUCHER_THUNDER;
         Lunatic->Voucher[idx]->itemId = VOUCHER_THUNDER;
-        //    Lunatic->Voucher[idx]->tearFunc = ThunderVoucherTear;
-        //    Lunatic->Voucher[idx]->actionFunc = ThunderVoucherAction;
+        Lunatic->Voucher[idx]->tearFunc = ThunderVoucherTear;
+        Lunatic->Voucher[idx]->actionFunc = ThunderVoucherAction;
+        return;
+    }
+
+    void StellarVoucherTear()
+    {
+        return;
+    }
+
+    void StellarVoucherAction()
+    {
         return;
     }
 
@@ -293,8 +429,18 @@ namespace mod
         s32 idx = VoucherAdd(wp);
         Lunatic->Voucher[idx]->iconId = ICON_VOUCHER_STELLAR;
         Lunatic->Voucher[idx]->itemId = VOUCHER_STELLAR;
-        //    Lunatic->Voucher[idx]->tearFunc = StellarVoucherTear;
-        //    Lunatic->Voucher[idx]->actionFunc = StellarVoucherAction;
+        Lunatic->Voucher[idx]->tearFunc = StellarVoucherTear;
+        Lunatic->Voucher[idx]->actionFunc = StellarVoucherAction;
+        return;
+    }
+
+    void JudgementVoucherTear()
+    {
+        return;
+    }
+
+    void JudgementVoucherAction()
+    {
         return;
     }
 
@@ -305,8 +451,8 @@ namespace mod
         s32 idx = VoucherAdd(wp);
         Lunatic->Voucher[idx]->iconId = ICON_VOUCHER_JUDGEMENT;
         Lunatic->Voucher[idx]->itemId = VOUCHER_JUDGEMENT;
-        //    Lunatic->Voucher[idx]->tearFunc = JudgementVoucherTear;
-        //    Lunatic->Voucher[idx]->actionFunc = JudgementVoucherAction;
+        Lunatic->Voucher[idx]->tearFunc = JudgementVoucherTear;
+        Lunatic->Voucher[idx]->actionFunc = JudgementVoucherAction;
         return;
     }
 
@@ -484,11 +630,11 @@ namespace mod
     void RFCUpdateSpecialGetCol(effpatch::EffPatchColorMask *mask)
     {
         mask->frmCtr += 1;
-        if (mask->frmCtr > 40 || mask->frmCtr < 0)
+        if (mask->frmCtr > 60)
             return;
-        mask->col1.r = (u8)system::intplGetValue(0, 0, (f32)mask->col2.r, mask->frmCtr, 40);
-        mask->col1.g = (u8)system::intplGetValue(0, 0, (f32)mask->col2.g, mask->frmCtr, 40);
-        mask->col1.b = (u8)system::intplGetValue(0, 0, (f32)mask->col2.b, mask->frmCtr, 40);
+        mask->col1.r = (u8)system::intplGetValue(1, 0, (f32)mask->col2.r, mask->frmCtr, 60);
+        mask->col1.g = (u8)system::intplGetValue(1, 0, (f32)mask->col2.g, mask->frmCtr, 60);
+        mask->col1.b = (u8)system::intplGetValue(1, 0, (f32)mask->col2.b, mask->frmCtr, 60);
         return;
     }
 
@@ -500,9 +646,9 @@ namespace mod
         if (idx < 0)
             return 2;
         s32 trueIdx = customwin::GlobalCW->Select[customwin::GlobalCW->activeSelect]->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
+        Lunatic->RFC.rfcSpecialObtained[trueIdx] = true;                                                                                              // Prevents item from reappearing in the shop
         effdrv::EffEntry *eff = eff_pansy_kirakira::effPansyKirakiraEntry(1);
-        effpatch::EffPatchColorMask *mask = effpatch::effpatchColorMaskEntry(eff, {0, 0, 0, 255}, RFC_SpecialItems[trueIdx].effCol, RFCUpdateSpecialGetCol);
-        mask->frmCtr = -20;
+        effpatch::effpatchColorMaskEntry(eff, {0, 0, 0, 255}, RFC_SpecialItems[trueIdx].effCol, RFCUpdateSpecialGetCol);
         if (RFC_SpecialItems[trueIdx].useFunc != nullptr)
             (RFC_SpecialItems[trueIdx].useFunc)();
         if (RFC_SpecialItems[trueIdx].useMsg != nullptr)
