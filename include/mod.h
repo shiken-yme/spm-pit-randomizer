@@ -252,9 +252,10 @@ namespace mod
         s32 moverRNG;
     };
 
-    struct MagicTrick
+    struct VoucherWork
     {
         bool torn;
+        s32 tearChance;
         u8 iconAlpha;
         f32 iconRotation;
         s32 iconRotationTimer;
@@ -267,9 +268,14 @@ namespace mod
             VStellarWork *Stellar;
             VJudgementWork *Judgement;
             void *Any;
-        } VW;
+        } UW;
         Callback *tearFunc;
         Callback *actionFunc;
+    };
+
+    struct MagicTrick
+    {
+        VoucherWork *Work[8];
     };
 
     struct LunaticPitWork
@@ -281,7 +287,7 @@ namespace mod
         RestFloorChest RFC;
         MoverWork Mover;
         Reaver Stats;
-        MagicTrick *Voucher[8];
+        MagicTrick Voucher;
     };
 
     extern LunaticPitWork *Lunatic;

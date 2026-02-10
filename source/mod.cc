@@ -5478,6 +5478,6 @@ namespace mod
         patchMarioDamage();
         exceptionPatch();
         romfontExpand();
-        wii::os::OSReport("SPM Rel Loader: Lunatic Pit is now active.\n");
+        wii::os::OSReport(MOD_VERSION": all modules successfully loaded.\n");
     }
 }

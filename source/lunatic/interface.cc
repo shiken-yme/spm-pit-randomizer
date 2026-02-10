@@ -323,16 +323,16 @@ namespace mod
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
         {
-            if (Lunatic->Voucher[i] != nullptr)
+            if (Lunatic->Voucher.Work[i] != nullptr)
             {
-                if (Lunatic->Voucher[i]->iconId != 0)
+                if (Lunatic->Voucher.Work[i]->iconId != 0)
                 {
                     wii::mtx::PSMTXTrans(mtxPos, 355.0f, y, 0.0f);
                     wii::mtx::PSMTXScale(mtxScale, 0.73f, 0.73f, 0.73f);
-                    wii::mtx::PSMTXRotRad((Lunatic->Voucher[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
+                    wii::mtx::PSMTXRotRad((Lunatic->Voucher.Work[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
                     wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
                     wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
-                    icondrv::iconDispGxCol(mtxPos, 0x18, Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher[i]->iconAlpha});
+                    icondrv::iconDispGxCol(mtxPos, 0x18, Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
                     y += 32.0f;
                 }
             }
@@ -441,12 +441,12 @@ namespace mod
         case 3: // Voucher
             RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
             s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-            if (Lunatic->Voucher[i] != nullptr)
+            if (Lunatic->Voucher.Work[i] != nullptr)
             {
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Voucher[i]->iconId + TPLPATCH_ICON_REDIRECT);
-                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[Lunatic->Voucher[i]->itemId].name);
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)RFC_SpecialItems[Lunatic->Voucher[i]->itemId].description);
-                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[Lunatic->Voucher[i]->itemId].textDrawCol);
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT);
+                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].name);
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].description);
+                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].textDrawCol);
                 break;
             }
             else

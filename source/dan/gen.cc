@@ -1051,7 +1051,8 @@ namespace mod
 
     void DanGen_Items(bool onRoomLoad)
     {
-        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, selectionIdx = 0, itemId = 0;
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, selectionIdx = 0, itemId = 0, voucherIdx = -1;
+        bool voucherSpin = false;
         if (onRoomLoad)
             Lunatic->RFC.rerolls = 0;
         else
@@ -1066,11 +1067,20 @@ namespace mod
             if (odds < 30)
                 rarity += 1;
         }
-        if (!onRoomLoad && rarity == Lunatic->RFC.chestRarity)
+        VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, voucherIdx);
+        if (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0))
+        {
+            voucherSpin = true;
+            rarity = 0;
+            goto rerollRarity;
+        }
+        else if (!onRoomLoad && rarity == Lunatic->RFC.chestRarity)
         {
             rarity = 0;
             goto rerollRarity;
         }
+        if (voucherSpin)
+            VoucherCallAction(VOUCHER_STELLAR);
         Lunatic->RFC.chestRarity = rarity;
         Lunatic->RFC.chestKeys = 2 + rarity + Lunatic->RFC.rerolls;
         // Select 3 items

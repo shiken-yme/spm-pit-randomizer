@@ -12,7 +12,15 @@ namespace mod
     using namespace spm::npcdrv;
     using namespace spm::item_data;
 
-    #define RFC_SPECIAL_START 1000
+    /*
+        Vouchers
+    */
+
+    void VoucherCallAction(s32 itemId);
+
+    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
+    
+    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
 
     #define VOUCHER_MAX 8
     
@@ -30,7 +38,10 @@ namespace mod
 
     struct VThunderWork
     {
-        bool placeholder;
+        u8 rooms;
+        s32 critRateBonus;
+        f32 critMultBonus;
+        s32 atkBonus;
     };
 
     struct VStellarWork
@@ -43,6 +54,12 @@ namespace mod
         bool placeholder;
     };
 
+    /*
+        RFC Driver
+    */
+    
+    #define RFC_SPECIAL_START 1000
+
     extern s32 RFCItems_Common_Size;
     extern s32 RFCItems_Uncommon_Size;
     extern s32 RFCItems_Rare_Size;
@@ -53,17 +70,6 @@ namespace mod
     extern s32 RFCItems_Legendary[];
     extern const char *RFCRarityNames[];
 
-    /*
-        Vouchers
-    */
-    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
-    
-    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
-
-
-    /*
-        RFC Driver
-    */
     void *RFCSpecialGetPtr();
     void *RFCColorsGetPtr();
     void RFCDRVPatches();
