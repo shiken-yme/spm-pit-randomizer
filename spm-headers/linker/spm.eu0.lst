@@ -699,9 +699,9 @@
 80109900:marioLuigiNpcDispCb
 80109d20:oChunksNpcDispCb
 80109da0:evt_npc_set_disp_callback
-8010a418:evt_npc_wait_for
+8010a148:evt_npc_set_unk_shell_sfx
 8010a37c:evt_npc_set_animpose_disp_callback
-8010a418:func_8010a418
+8010a418:evt_npc_wait_for
 8010a910:evt_npc_teleport_effect
 8010be00:evt_npc_agb_async
 8010be80:evt_npc_tribe_agb_async
@@ -1163,6 +1163,7 @@
 801e3a1c:npcDropItem
 801ca1a4:func_801ca1a4
 801c8b44:npcFleeped
+801cdb84:func_801cdb84
 801d233c:npcFreezeAll
 801e5fd0:func_801e5fd0
 // more

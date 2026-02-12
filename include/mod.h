@@ -11,6 +11,13 @@ namespace mod
 {
     #define MOD_VERSION "SPM Lunatic Pit beta v3.0"
 
+    enum NPCDanFlag : u32
+    {
+        DAN_NPC_HOLOGRAPHIC = 0x1,
+        DAN_NPC_STELLARIZED = 0x2,
+        DAN_NPC_NEGATIVE = 0x4
+    };
+
     enum BlessId : s32
     {
         /* 0x0 */ MERLUNA_NULL_BLESS,
@@ -255,6 +262,7 @@ namespace mod
     struct VoucherWork
     {
         bool torn;
+        bool isSpinning;
         s32 tearChance;
         u8 iconAlpha;
         f32 iconRotation;
@@ -293,6 +301,10 @@ namespace mod
     extern LunaticPitWork *Lunatic;
 
     extern bool DebugMode;
+
+    bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
+    void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
+    void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
 
     EVT_DECLARE(fwd_mover_speech)
     EVT_DECLARE(custom_pit_music)

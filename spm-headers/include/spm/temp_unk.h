@@ -42,8 +42,6 @@ extern spm::npcdrv::NPCDefense whacka_defenses;
 // should go in npcdrv.h, but compiler doesn't like recursive includes
 s32 npcHandleHitXp(spm::mario::MarioWork * marioWork, spm::npcdrv::NPCEntry * npcEntry, s32 killXp, s32 unk_variant);
 
-void npcDropItem(spm::npcdrv::NPCEntry * npcEntry, s32 itemType, s32 coinCount);
-
 s32 backCursyaHit(spm::npcdrv::NPCEntry * npcEntry, s32 firstRun);
 
 CPP_WRAPPER_END()

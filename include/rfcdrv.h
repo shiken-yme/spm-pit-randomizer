@@ -16,12 +16,6 @@ namespace mod
         Vouchers
     */
 
-    void VoucherCallAction(s32 itemId);
-
-    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
-    
-    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
-
     #define VOUCHER_MAX 8
     
     enum VoucherState : s32
@@ -30,6 +24,12 @@ namespace mod
         V_ACTIVE,
         V_TORN
     };
+
+    void VoucherCallAction(s32 itemId);
+
+    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
+    
+    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
 
     struct VCakeWork
     {

@@ -1051,6 +1051,8 @@ namespace mod
 
     void DanGen_Items(bool onRoomLoad)
     {
+        if (onRoomLoad && (swdrv::swByteGet(1) % 10) != 9)
+            return;
         s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, selectionIdx = 0, itemId = 0, voucherIdx = -1;
         bool voucherSpin = false;
         if (onRoomLoad)
@@ -1067,7 +1069,7 @@ namespace mod
             if (odds < 30)
                 rarity += 1;
         }
-        VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, voucherIdx);
+        VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, &voucherIdx);
         if (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0))
         {
             voucherSpin = true;

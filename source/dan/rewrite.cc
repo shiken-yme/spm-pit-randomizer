@@ -200,22 +200,32 @@ namespace mod
         npcdrv::NPCDropItem *dropItems = npcdrv::npcTribes[tribe].dropItemList;
         // Nerf all random item drops
         s32 difficulty = swdrv::swByteGet(1620);
-        if (npc->dropItemId != 48)
+        if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00)
         {
-            switch (difficulty)
+            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
+            if (vState == V_ACTIVE)
             {
-            case 0:
-                if (sup > 80)
-                    npc->dropItemId = 0;
-                break;
-            case 1:
-                if (sup > 60)
-                    npc->dropItemId = 0;
-                break;
-            case 2:
-                if (sup > 10)
-                    npc->dropItemId = 0;
-                break;
+                s32 vOdds = system::rand() % 100;
+                if (vOdds > 50)
+                    npcSetDanFlag(npc, DAN_NPC_STELLARIZED);
+            }
+            if (npcCheckDanFlag(npc, DAN_NPC_STELLARIZED) == false)
+            {
+                switch (difficulty)
+                {
+                case 0:
+                    if (sup > 80)
+                        npc->dropItemId = 0;
+                    break;
+                case 1:
+                    if (sup > 60)
+                        npc->dropItemId = 0;
+                    break;
+                case 2:
+                    if (sup > 10)
+                        npc->dropItemId = 0;
+                    break;
+                }
             }
         }
         if (Lunatic->Luna.disorder == DISORDER_RED) // APATHY
@@ -231,9 +241,9 @@ namespace mod
         {
             if ((s32)npc != 0 && npc->templateUnkScript9 == 0 && npc->tribeId != 200 && npc->tribeId != 201 && npc->tribeId != 32 && npc->tribeId != 142 && npc->tribeId != 144 && npc->tribeId != 146 && npc->tribeId != 504 && npc->tribeId != 156 && npc->tribeId != 157 && npc->tribeId != 188 && npc->tribeId != 189 && npc->tribeId != 184 && npc->tribeId != 185)
             {
-                npc->maxHp = (npc->maxHp * 2);
-                npc->hp = (npc->hp * 2);
-                npc->unkShellSfx = holo;
+                npc->maxHp *= 2;
+                npc->hp *= 2;
+                npcSetDanFlag(npc, DAN_NPC_HOLOGRAPHIC);
                 sup = system::rand() % 100;
                 if (sup > 25)
                 {
@@ -241,7 +251,7 @@ namespace mod
                     {
                         sup = 1;
                         s32 i = 0;
-                        for (i = 0; sup != 0; ++i)
+                        for (i = 0; sup != 0; i += 1)
                             sup = dropItems[i].itemId;
                         do
                         {
@@ -294,7 +304,7 @@ namespace mod
                 else
                     goto rerollFloor;
             }
-            wii::os::OSReport("%d guaranteed chest keys for this cycle @ rooms ending in %d, %d, %d, %d\n", guaranteedFloors, Lunatic->RFC.chestKeysToSpawn[0]+1, Lunatic->RFC.chestKeysToSpawn[1]+1, Lunatic->RFC.chestKeysToSpawn[2]+1, Lunatic->RFC.chestKeysToSpawn[3]+1);
+            wii::os::OSReport("%d guaranteed chest keys for this cycle @ rooms ending in %d, %d, %d, %d\n", guaranteedFloors, Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1, Lunatic->RFC.chestKeysToSpawn[2] + 1, Lunatic->RFC.chestKeysToSpawn[3] + 1);
         }
         // Create list of enemies to give keys in the current room
         for (i = 0; i < npcWp->num; curNpc++, i++)
@@ -311,11 +321,8 @@ namespace mod
             if (n > 50) // Failsafe
                 return 2;
             s32 random = system::rand() % enemyCount;
-            if (enemies[random]->unkShellSfx != nullptr)
-            {
-                if (msl::string::strcmp(enemies[random]->unkShellSfx, "holo") == 0) // Is holo enemy
-                    goto buh;
-            }
+            if (npcCheckDanFlag(enemies[random], DAN_NPC_HOLOGRAPHIC) == true) // Block holographic enemies
+                goto buh;
             if (i == 0) // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
             else // Distribute chest key

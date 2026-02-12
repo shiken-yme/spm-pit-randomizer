@@ -5,6 +5,8 @@
 
 namespace mod::msgpatch
 {
+    #define MSGPATCH_ENTRY_MAX 512
+
     struct MsgPatchPtrs
     {
         const char *identifier;
@@ -17,7 +19,7 @@ namespace mod::msgpatch
     EVT_DECLARE_USER_FUNC(evt_msgpatch_add_entry, 3)
     EVT_DECLARE_USER_FUNC(evt_msgpatch_del_entry, 1)
 
-    extern MsgPatchPtrs msgpatchEntries[512];
+    extern MsgPatchPtrs msgpatchEntries[MSGPATCH_ENTRY_MAX];
 
     void msgpatchMain();
 }

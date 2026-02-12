@@ -700,10 +700,12 @@ DECOMP_STATIC(NPCWork * npcdrv_wp)
 
 typedef bool (EnemyCanSpawnFunction)();
 
-struct NPCEntryUnkDef {
-    int type;
-    void *value;
-};
+typedef struct
+{
+/* 0x0 */ s32 type;
+/* 0x4 */ void *value;
+} NPCEntryUnkDef;
+SIZE_ASSERT(NPCEntryUnkDef, 0x8)
 
 typedef struct
 {
@@ -971,7 +973,7 @@ UNKNOWN_FUNCTION(func_801cd6d4)
 UNKNOWN_FUNCTION(func_801cd82c)
 UNKNOWN_FUNCTION(func_801cd834)
 UNKNOWN_FUNCTION(func_801cd95c)
-UNKNOWN_FUNCTION(func_801cdb84)
+void func_801cdb84(NPCEntry * npcEntry);
 UNKNOWN_FUNCTION(func_801ceb08)
 UNKNOWN_FUNCTION(func_801ceeac)
 UNKNOWN_FUNCTION(func_801cf0a0)

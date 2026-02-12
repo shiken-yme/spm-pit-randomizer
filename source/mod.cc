@@ -88,6 +88,7 @@
 #include <spm/msgdrv.h>
 #include <spm/npc_tile.h>
 #include <spm/npcdrv.h>
+#include <spm/npcmisc.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
 #include <spm/seq_mapchange.h>
@@ -307,14 +308,39 @@ namespace mod
 
     bool critActuate;
 
-    bool npcCheckHolo(npcdrv::NPCEntry *npc)
+    bool npcIsShellEnemy(npcdrv::NPCEntry *npc)
     {
-        if (npc->unkShellSfx != nullptr)
+        s32 i = 0;
+        NPCEntryUnkDef *def = npcdrv::npcEnemyTemplates[npc->tribeId].unkDefinitionTable;
+        for (i = 0; def[i].type != 0; i += 1)
         {
-            if (msl::string::strcmp(npc->unkShellSfx, holo) == 0)
+            if (def[i].type == 6) // Shell wakeup evt, probably exclusively?
                 return true;
         }
         return false;
+    }
+
+    bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        if (((u32)npc->unkShellSfx & flag) != 0)
+            return true;
+        return false;
+    }
+
+    void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        u32 f = (u32)npc->unkShellSfx;
+        f |= flag;
+        npc->unkShellSfx = (const char *)f;
+        return;
+    }
+
+    void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        u32 f = (u32)npc->unkShellSfx;
+        f &= ~flag;
+        npc->unkShellSfx = (const char *)f;
+        return;
     }
 
     // Input needs to be positive
@@ -540,7 +566,7 @@ namespace mod
                                                      }
                                                  }
 
-                                                 if (npcCheckHolo(part->owner) == true) // Holographic enemies in the Pit will have 1.5x direct ATK
+                                                 if (npcCheckDanFlag(part->owner, DAN_NPC_HOLOGRAPHIC) == true) // Holographic enemies in the Pit will have 1.5x direct ATK
                                                  {
                                                      if (damage % 2 == 1) // Variable is odd, so round up.
                                                      {
@@ -574,7 +600,7 @@ namespace mod
                                                      f32 xp = (f32)Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct / 100.0f;
                                                      killXp *= (s32)-xp;
                                                  }
-                                                 if (npcCheckHolo(npcEntry) == true)
+                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_HOLOGRAPHIC) == true)
                                                      killXp *= 2; //  Holographic enemies in the Pit will give 2x score
                                                  return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
                                              });
@@ -585,7 +611,7 @@ namespace mod
                                                 s32 difficulty = swdrv::swByteGet(1620);
                                                 if (defenseType == 5 && difficulty >= 2)
                                                 {
-                                                    if (npcCheckHolo(npcPart->owner) == false && npcPart->owner->unkShellSfx != nullptr) // Crude way to check for shell-type enemies
+                                                    if (npcIsShellEnemy(npcPart->owner) == true)
                                                     {
                                                         if (npcPart != 0)
                                                         {
@@ -1182,6 +1208,9 @@ namespace mod
         writeBranchLink(framedrv::frameDisp, 0x3EC, debugModeGayFrame);
         // cudge patch - thanks lily!
         writeBranch(spm::npcdrv::npcTakeDamage, 0x1DC, setCudgeFloat);
+        // Remove anything that sets or reads npcentry->unkShellSfx
+        writeWord(npcdrv::func_801cdb84, 0xB6C, NOP); // remove the call to play unkShellSfx
+        writeWord(evt_npc::evt_npc_set_unk_shell_sfx, 0x58, NOP);
     }
 
     static void danDontFuckingCrash()
@@ -2288,7 +2317,7 @@ namespace mod
         if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         // vv DEBUG vv
-         Lunatic->Mover.moverRNG = 2;
+        // Lunatic->Mover.moverRNG = 2;
         Lunatic->RFC.chestKeysOwned = 99;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
@@ -2665,10 +2694,10 @@ namespace mod
         s32 itemType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 coinCount = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key and Chest Key.
-        if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != 48 && itemType != 47)
+        if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00) 
             return 2;
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
-        if (npcCheckHolo(npc) == true)
+        if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true)
         {
             coinCount *= 5;
             if (coinCount < 10)
@@ -2680,7 +2709,13 @@ namespace mod
                 coinCount = 30;
             }
         }
-        temp_unk::npcDropItem(npc, itemType, coinCount);
+        if (npcCheckDanFlag(npc, DAN_NPC_STELLARIZED) == true)
+        {
+            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
+            if (itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00 && vState == V_ACTIVE)
+                VoucherCallAction(VOUCHER_STELLAR);
+        }
+        npcmisc::npcDropItem(npc, itemType, coinCount);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_npc_drop_item_new, 2)

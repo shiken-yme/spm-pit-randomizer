@@ -110,14 +110,12 @@ namespace mod
     using namespace spm;
     using namespace customwin;
 
-    static seqdef::SeqFunc *seq_gameMainReal;
-
-    void youSuckDisplay()
+    void youSuckDisplay(f32 offset)
     {
         if (Lunatic->Misc.youSuck)
         {
             wii::gx::GXColor funnyColor = {255, 255, 255, 255};
-            f32 scale = 2.8f;
+            f32 scale = 3.69f;
             char buffer[50];
             const char *youSuckText = "YOU SUCK";
             msl::stdio::sprintf(buffer, "%s", youSuckText);
@@ -129,7 +127,7 @@ namespace mod
             fontmgr::FontDrawNoiseOff();
             fontmgr::FontDrawRainbowColor();
             f32 x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
-            fontmgr::FontDrawString(x, 200.0f, msg);
+            fontmgr::FontDrawString(x, (0.0f + (offset * 2)), msg);
         }
     }
 
@@ -287,15 +285,15 @@ namespace mod
         }
     }
 
-    void disorderDisplay()
+    void disorderDisplay(f32 offset)
     {
         s32 disorderNum = (s32)Lunatic->Luna.disorder;
         if (disorderNum > 0)
         {
-            wii::mtx::Vec3 position = {-355.0, -215.0, 0.0};
+            wii::mtx::Vec3 position = {-365.0f, (-220.0f - (offset / 1.5f)), 0.0f};
             s32 mainIconId = (disorderNum - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
-            icondrv::iconDispGxAlpha(0.64f, &position, 0x18, mainIconId, 200);
-            icondrv::iconDispGxAlpha(0.64f, &position, 0x18, ICON_BORDER_DISORDER + TPLPATCH_ICON_REDIRECT, 225);
+            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, mainIconId, 200);
+            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, ICON_BORDER_DISORDER + TPLPATCH_ICON_REDIRECT, 225);
         }
         s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
         if (disorderRooms > 0)
@@ -310,16 +308,17 @@ namespace mod
             fontmgr::FontDrawScale(0.64f);
             fontmgr::FontDrawNoiseOff();
             fontmgr::FontDrawRainbowColor();
-            f32 x = -359.0;
+            f32 x = -381.0f;
             if (disorderRooms == 1)
                 x += 1.0f;
-            fontmgr::FontDrawString(x, -170.0f, msg);
+            fontmgr::FontDrawString(x, (-180.0f - (offset / 1.5f)), msg);
         }
     }
 
-    void voucherDisplay()
+    void voucherDisplay(f32 offset)
     {
         f32 y = -215.0f;
+        f32 x = 355.0f + (offset / 1.5f);
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
         {
@@ -327,28 +326,25 @@ namespace mod
             {
                 if (Lunatic->Voucher.Work[i]->iconId != 0)
                 {
-                    wii::mtx::PSMTXTrans(mtxPos, 355.0f, y, 0.0f);
+                    wii::mtx::PSMTXTrans(mtxPos, x, y, 0.0f);
                     wii::mtx::PSMTXScale(mtxScale, 0.73f, 0.73f, 0.73f);
                     wii::mtx::PSMTXRotRad((Lunatic->Voucher.Work[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
                     wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
                     wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
-                    icondrv::iconDispGxCol(mtxPos, 0x18, Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
+                    icondrv::iconDispGxCol(mtxPos, 0x10, Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
                     y += 32.0f;
                 }
             }
         }
     }
 
-    void textDisplay(seqdrv::SeqWork *wp)
+    mario::MarioWork *danDisplay()
     {
-        /*merlunaBlessingDisplay();
-        merlunaBlessingNumDisplay();
-        merlunaCurseDisplay();
-        merlunaCurseNumDisplay();*/
-        disorderDisplay();
-        voucherDisplay();
-        youSuckDisplay();
-        seq_gameMainReal(wp);
+        f32 offset = hud::hud_wp->basePos.y;
+        disorderDisplay(offset);
+        voucherDisplay(offset);
+        youSuckDisplay(offset);
+        return mario::marioGetPtr();
     }
 
     static seqdef::SeqFunc *seq_titleMainReal;
@@ -534,8 +530,7 @@ namespace mod
     {
         seq_titleMainReal = seqdef::seq_data[seqdrv::SEQ_TITLE].main;
         seqdef::seq_data[seqdrv::SEQ_TITLE].main = &seq_titleMainOverride;
-        seq_gameMainReal = seqdef::seq_data[seqdrv::SEQ_GAME].main;
-        seqdef::seq_data[seqdrv::SEQ_GAME].main = &textDisplay;
+        writeBranchLink(hud::hudDisp, 0x54, danDisplay);
         globalop::globalopAddEntry((void *)danInterfaceMain, nullptr);
     }
 }

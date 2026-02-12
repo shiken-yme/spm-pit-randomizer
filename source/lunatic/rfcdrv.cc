@@ -198,7 +198,7 @@ namespace mod
                 break;
         }
         assertf(i < VOUCHER_MAX, "Voucher limit of %d (VOUCHER_MAX) exceeded", VOUCHER_MAX); // todo: send system message and fail to apply voucher instead of crashing
-        Lunatic->Voucher.Work[i] = (MagicTrick *)memory::__memAlloc(0, sizeof(VoucherWork));
+        Lunatic->Voucher.Work[i] = (VoucherWork *)memory::__memAlloc(0, sizeof(VoucherWork));
         msl::string::memset(Lunatic->Voucher.Work[i], 0, sizeof(VoucherWork));
         Lunatic->Voucher.Work[i]->UW.Any = wp;
         Lunatic->Voucher.Work[i]->iconAlpha = 150;
@@ -230,7 +230,8 @@ namespace mod
     VoucherState VoucherGetStateById(s32 itemId, s32 *idx)
     {
         s32 i = VoucherItemIdToIdx(itemId);
-        *idx = i;
+        if (idx != nullptr)
+            *idx = i;
         if (i == -1)
             return V_INACTIVE;
         if (Lunatic->Voucher.Work[i]->torn)
@@ -238,10 +239,14 @@ namespace mod
         return V_ACTIVE;
     }
 
-    void VoucherActionSpin(s32 idx, s32 deleteIdx)
+    void VoucherActionSpin(s32 itemId, s32 deleteIdx)
     {
+        if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
+            return;
+        s32 idx = VoucherItemIdToIdx(itemId);
         u8 alphaMod;
-        MagicTrick *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->isSpinning = true;
         if (Voucher->iconRotationTimer < 20)
         {
             alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 20);
@@ -258,15 +263,20 @@ namespace mod
         {
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
+            Voucher->isSpinning = false;
             globalop::globalopDelEntry(deleteIdx);
         }
         return;
     }
 
-    void VoucherTearSpin(s32 idx, s32 deleteIdx)
+    void VoucherTearSpin(s32 itemId, s32 deleteIdx)
     {
+        if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
+            return;
+        s32 idx = VoucherItemIdToIdx(itemId);
         u8 alphaMod;
-        MagicTrick *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->isSpinning = true;
         if (Voucher->iconRotationTimer < 30)
         {
             alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 30);
@@ -287,6 +297,7 @@ namespace mod
             Voucher->iconAlpha = 0;
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
+            Voucher->isSpinning = false;
             VoucherRemove(Lunatic->Voucher.Work[idx]->itemId);
             globalop::globalopDelEntry(deleteIdx);
         }
@@ -305,7 +316,7 @@ namespace mod
     {
         s32 idx = VoucherItemIdToIdx(itemId);
         Lunatic->Voucher.Work[idx]->torn = true;
-        globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)idx);
+        globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
         (Lunatic->Voucher.Work[idx]->tearFunc)();
         return;
     }
@@ -334,9 +345,13 @@ namespace mod
     {
         s32 idx;
         VoucherState state = VoucherGetStateById(itemId, &idx);
+        if (state == V_TORN) // Don't redundantly call a voucher action once it's already torn
+            return;
         if (state == V_ACTIVE)
         {
-            bool tear = VoucherTryTear();
+            if (Lunatic->Voucher.Work[idx]->isSpinning == true)
+                return;
+            bool tear = VoucherTryTear(idx);
             if (tear)
                 VoucherDoTear(itemId);
             else
@@ -375,7 +390,7 @@ namespace mod
             return;
         }
         Lunatic->Voucher.Work[idx]->UW.Cake->rooms += 1;
-        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)idx);
+        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_CAKE);
         return;
     }
 
@@ -423,7 +438,7 @@ namespace mod
             Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus += 2;
             Lunatic->Stats.CritRate += 2;
         }
-        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)idx);
+        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_THUNDER);
         return;
     }
 
@@ -442,11 +457,13 @@ namespace mod
 
     void StellarVoucherTear()
     {
+        Lunatic->RFC.chestKeysOwned += 3;
         return;
     }
 
     void StellarVoucherAction()
     {
+        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_STELLAR);
         return;
     }
 

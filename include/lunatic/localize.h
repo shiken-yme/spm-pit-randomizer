@@ -1533,9 +1533,6 @@ namespace mod
 
     // Tattles and Catch Cards :(
 
-    const char holo[] =
-        "holo";
-
     const char tattle_phantom_mario[] =
         "That's Phantom Mario.<wait 150> This\n"
         "fake Mario lives in the Pit\n"

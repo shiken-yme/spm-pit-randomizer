@@ -24,7 +24,7 @@ namespace mod::msgpatch
 
         MsgPatch allows you to add multiple references to the same identifier ("layering"), and can also halt if the same identifier is already present in MsgPatchPtrs.
         The most recently-added entry with a matching identifier will always take priority in both msgpatchSearch and msgpatchDelEntry.
-        Whether or not to allow layering for a given identifier is left up to you. Layering may be helpful for complex variable-dependent text events. 
+        Whether or not to allow layering for a given identifier is left up to you. Layering may be helpful for complex variable-dependent text events.
 
         -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -67,9 +67,9 @@ namespace mod::msgpatch
         msgpatch::msgpatchAddEntry(textId, pText, false); // Override the Tippi tattle for the Ice Cherbil
 
         -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        
+
         Final notes:
-        
+
         Due to the way different parts of the game choose to display certain item/card descriptions, msgSearchNoFallback has been patched to not only scan for matching msgpatchEntries,
         but to also search for matching "_ex" and "_ex2" appendices, which (potentially) represent different descriptions for each item.
         For ease of use, you need not include these appendices in a MsgPatch entry if you do not wish to differentiate them; this library will automatically handle that for you.
@@ -83,19 +83,15 @@ namespace mod::msgpatch
 
     using namespace spm;
 
-    MsgPatchPtrs msgpatchEntries[512];
+    MsgPatchPtrs msgpatchEntries[MSGPATCH_ENTRY_MAX];
 
     void msgpatchAddEntry(const char *msgName, const char *newText, bool allowDuplicate)
     {
         // msgpatchAddEntry adds an entry to the lowest possible empty slot.
         // In the event of duplicate entries, if allowed, the most recent (highest-numbered) slot takes priority in msgpatchSearch and msgpatchDelEntry.
-        if (newText == nullptr)
-        {
-            wii::os::OSReport("MsgPatch: AddEntry call failed; identifier \"%s\" provides a null pointer to newText.\n", msgName);
-            return;
-        }
+        assertf(newText != nullptr, "Msg ID\"%s\" provides a null pointer to newText", msgName);
         s32 i = 0;
-        while (i < 512)
+        while (i < MSGPATCH_ENTRY_MAX)
         {
             if (!allowDuplicate)
             {
@@ -103,7 +99,7 @@ namespace mod::msgpatch
                 {
                     if (msl::string::strcmp(msgpatchEntries[i].identifier, msgName) == 0)
                     {
-                        wii::os::OSReport("MsgPatch: AddEntry call failed; duplicate identifier \"%s\" detected.\n", msgName);
+                        // wii::os::OSReport("MsgPatch: AddEntry call failed; duplicate identifier \"%s\" detected.\n", msgName);
                         return;
                     }
                 }
@@ -112,19 +108,19 @@ namespace mod::msgpatch
             {
                 msgpatchEntries[i].identifier = msgName;
                 msgpatchEntries[i].newText = newText;
-                wii::os::OSReport("MsgPatch: AddEntry call successful; identifier \"%s\" added to MsgPatchPtrs slot %d.\n", msgName, i);
+                // wii::os::OSReport("MsgPatch: AddEntry call successful; identifier \"%s\" added to MsgPatchPtrs slot %d.\n", msgName, i);
                 return;
             }
-            i = i + 1;
+            i += 1;
         }
-        wii::os::OSReport("MsgPatch: AddEntry call failed; maximum limit of 512 MsgPatchPtrs reached, please chill out or reach out to Yme.\n");
+        assertf(i < MSGPATCH_ENTRY_MAX, "Limit of %d MsgPatchPtrs exceeded. You can change this in msgpatch.h", MSGPATCH_ENTRY_MAX);
         return;
     }
 
     void msgpatchDelEntry(const char *msgName)
     {
         // msgpatchDelEntry removes the highest-numbered (most recent) matching entry and then sorts the msgpatchEntries array.
-        s32 i = 511;
+        s32 i = MSGPATCH_ENTRY_MAX - 1;
         while (i >= 0)
         {
             if (msgpatchEntries[i].identifier == nullptr)
@@ -136,19 +132,19 @@ namespace mod::msgpatch
                 goto sort;
             }
         next:
-            i = i - 1;
+            i -= 1;
         }
-        wii::os::OSReport("MsgPatch: DelEntry call failed; identifier %s not found, ending process.\n", msgName);
+        // wii::os::OSReport("MsgPatch: DelEntry call failed; identifier %s not found, ending process.\n", msgName);
         return;
     sort:
-        wii::os::OSReport("MsgPatch: DelEntry call succesful; %s was removed from MsgPatchPtrs slot %d. Sorting entries.\n", msgName, i);
-        while (i < 511) // We don't want this array accessing oob memory lol
+        // wii::os::OSReport("MsgPatch: DelEntry call succesful; %s was removed from MsgPatchPtrs slot %d. Sorting entries.\n", msgName, i);
+        while (i < (MSGPATCH_ENTRY_MAX - 1)) // We don't want this array accessing oob memory lol
         {
             if (msgpatchEntries[i + 1].identifier != nullptr)
             {
                 msgpatchEntries[i].identifier = msgpatchEntries[i + 1].identifier;
                 msgpatchEntries[i].newText = msgpatchEntries[i + 1].newText;
-                i = i + 1;
+                i += 1;
             }
             else // Eliminate duplicate; already backed up in previous slot
             {
@@ -183,7 +179,7 @@ namespace mod::msgpatch
     const char *msgpatchSearch(const char *msgName, u32 *containsEx, bool checkForEx)
     {
         // msgpatchSearch starts from the highest entry num and counts down. This is because when duplicate entries are added, we want the most recent one to take priority.
-        s32 i = 511;
+        s32 i = MSGPATCH_ENTRY_MAX - 1;
         bool getOut = false;
         while (i >= 0)
         {
@@ -203,20 +199,13 @@ namespace mod::msgpatch
             if (getOut)
                 return msgpatchEntries[i].newText;
         next:
-            i = i - 1;
+            i -= 1;
         }
         return nullptr;
     }
 
-    const char *msgSearchNew(const char *msgName)
+    const char *msgSearchMainRewrite(const char *msgName)
     {
-        // Custom execution sequence
-        const char *patchedMsg = msgpatchSearch(msgName, 0, false);
-        // wii::os::OSReport("MsgPatch: MsgSearch Call; Init MsgpatchSearch Routine Complete; msgName = %s, patchedMsg = %s\n", msgName, patchedMsg);
-        if (patchedMsg != nullptr)
-            return patchedMsg;
-        // If not custom string, resume vanilla execution
-        // wii::os::OSReport("MsgPatch: MsgSearch Call; Vanilla MsgSearch Routine Start; msgName = %s\n", msgName);
         u32 n = 0;
         s32 i = 0;
         s32 idk = 0;
@@ -231,7 +220,6 @@ namespace mod::msgpatch
                 s32 msgCnt = wp->files[0].messageCount;
                 while ((i <= msgCnt && (idk = (i + msgCnt) / 2, idk < wp->files[0].messageCount)))
                 {
-                    //    wii::os::OSReport("MsgPatch: Vanilla MsgSearch While Loop; i = %d, idk = %d\n", i, idk);
                     s32 strcmp = msl::string::strcmp(msgName, wp->files[0].contents + (s32)entry[idk].nameOffset);
                     if (strcmp == 0)
                         return wp->files[0].contents + (s32)entry[idk].contentsOffset;
@@ -241,37 +229,42 @@ namespace mod::msgpatch
                         i = idk + 1;
                 }
             }
-            n = n + 1;
+            n += 1;
             wp = (msgdrv::MsgWork *)(wp->files + 1);
         } while (n < 9);
+        return nullptr;
+    }
+
+    const char *msgSearchNew(const char *msgName)
+    {
+        const char *patchedMsg = msgpatchSearch(msgName, 0, false);
+        if (patchedMsg != nullptr)
+            return patchedMsg;
+        // If not custom string, resume vanilla execution
+        const char *vMsg = msgSearchMainRewrite(msgName);
+        if (vMsg != nullptr)
+            return vMsg;
         return msgdrv::msgSearch("anna_no_message");
     }
 
     const char *msgSearchNoFallbackNew(const char *msgName)
     {
-        // Custom execution sequence
         u32 containsEx = 0;
         const char *patchedMsg = msgpatchSearch(msgName, &containsEx, true);
-        // wii::os::OSReport("MsgPatch: MsgSearchNF Call; Init MsgpatchSearch Routine Complete; msgName = %s, containsEx = %d, patchedMsg = %s\n", msgName, containsEx, patchedMsg);
         if (containsEx > 0)
         {
             if (patchedMsg != nullptr)
-            {
                 return patchedMsg;
-            }
             else
             {
                 u32 length = msl::string::strlen(msgName);
                 char flexBuf[length];
                 msl::string::memset(flexBuf, 0, sizeof(flexBuf));
                 if (containsEx == 1)
-                {
                     msl::string::strncpy(flexBuf, msgName, (length - 3));
-                }
                 else
                     msl::string::strncpy(flexBuf, msgName, (length - 4));
                 const char *newMsgName = flexBuf;
-                // wii::os::OSReport("MsgPatch: MsgSearchNF Call; Msg %s contains EX %d; newMsgName = %s, length = %d.\n", msgName, containsEx, newMsgName, length);
                 const char *patchedMsg2 = msgpatchSearch(newMsgName, &containsEx, false);
                 if (patchedMsg2 != nullptr)
                     return patchedMsg2;
@@ -280,35 +273,7 @@ namespace mod::msgpatch
         else if (patchedMsg != nullptr)
             return patchedMsg;
         // If not custom string, resume vanilla execution
-        // wii::os::OSReport("MsgPatch: MsgSearch Call; Vanilla MsgSearch Routine Start; msgName = %s\n", msgName);
-        u32 n = 0;
-        s32 i = 0;
-        s32 idk = 0;
-        msgdrv::MsgWork *wp = msgdrv::msgdrv_msgw;
-        do
-        {
-            memory::SmartAllocation *msgs = wp->files[0].messages;
-            if (msgs != 0)
-            {
-                i = 0;
-                msgdrv::MsgEntry *entry = (msgdrv::MsgEntry *)msgs->data;
-                s32 msgCnt = wp->files[0].messageCount;
-                while ((i <= msgCnt && (idk = (i + msgCnt) / 2, idk < wp->files[0].messageCount)))
-                {
-                    // wii::os::OSReport("MsgPatch: Vanilla MsgSearchNF While Loop; i = %d, idk = %d\n", i, idk);
-                    s32 strcmp = msl::string::strcmp(msgName, wp->files[0].contents + (s32)entry[idk].nameOffset);
-                    if (strcmp == 0)
-                        return wp->files[0].contents + (s32)entry[idk].contentsOffset;
-                    if (strcmp < 0)
-                        msgCnt = idk - 1;
-                    if (strcmp > -1)
-                        i = idk + 1;
-                }
-            }
-            n = n + 1;
-            wp = (msgdrv::MsgWork *)(wp->files + 1);
-        } while (n < 9);
-        return (const char *)0;
+        return msgSearchMainRewrite(msgName);
     }
 
     void implement()
