@@ -110,25 +110,31 @@ namespace mod
     using namespace spm;
     using namespace customwin;
 
+    void LPGUI_DrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
+    {
+        if (alpha > 0)
+            fontmgr::FontDrawStart_alpha(alpha);
+        else
+            fontmgr::FontDrawStart();
+        fontmgr::FontDrawEdge();
+        fontmgr::FontDrawColor(&color);
+        fontmgr::FontDrawScale(scale);
+        fontmgr::FontDrawNoiseOff();
+        if (rainbow)
+            fontmgr::FontDrawRainbowColor();
+        else
+            fontmgr::FontDrawRainbowColorOff();
+        fontmgr::FontDrawString(x, y, msg);
+        return;
+    }
+
     void youSuckDisplay(f32 offset)
     {
-        if (Lunatic->Misc.youSuck)
-        {
-            wii::gx::GXColor funnyColor = {255, 255, 255, 255};
-            f32 scale = 3.69f;
-            char buffer[50];
-            const char *youSuckText = "YOU SUCK";
-            msl::stdio::sprintf(buffer, "%s", youSuckText);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart();
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColor();
-            f32 x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
-            fontmgr::FontDrawString(x, (0.0f + (offset * 2)), msg);
-        }
+        if (!Lunatic->Misc.youSuck)
+            return;
+        const char *youSuckText = "YOU SUCK";
+        f32 scale = 3.69f;
+        LPGUI_DrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (0.0f + (offset * 2)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
     }
 
     void new_dan_gameover()
@@ -136,161 +142,13 @@ namespace mod
         Lunatic->Misc.youSuck = true;
     }
 
-    void merlunaBlessingDisplay()
-    {
-        s32 blessingRoomCounter = swdrv::swByteGet(1602);
-        if (blessingRoomCounter > 0)
-        {
-            bool roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {18, 227, 178, 255};
-            f32 scale = 0.64f;
-            char buffer[100];
-            s32 blessingNum = swdrv::swByteGet(1600);
-            bool houraiActivation = swdrv::swGet(1671);
-            // Iterate through exceptional cases that modify message text
-            if (houraiActivation)
-            {
-                funnyColor = {227, 178, 18, 255};
-                msl::stdio::sprintf(buffer, "Affliction: Phoenix's Tail");
-                if (roomOnHud)
-                {
-                    alpha = 80;
-                }
-            }
-            else if (blessingNum == BlessId::MERLUNA_PARAMITA)
-            {
-                s32 paramitaTimer = swdrv::swByteGet(1610);
-                if (paramitaTimer > 20)
-                {
-                    paramitaTimer = paramitaTimer - 20;
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Active, %d)", paramitaTimer);
-                }
-                else if (paramitaTimer > 0)
-                {
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Cooldown, %d)", paramitaTimer);
-                }
-                else
-                {
-                    msl::stdio::sprintf(buffer, "Blessing: Paramita (Press B to use)");
-                }
-            }
-            else
-            {
-                const char *blessingNames[] = {"DUMMY", "Spectre", "Hourai Doll", "Paramita"};
-                const char *blessingDisp = blessingNames[blessingNum];
-                msl::stdio::sprintf(buffer, "Blessing: %s", blessingDisp);
-            }
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -170.0f, msg);
-        }
-    }
-
-    void merlunaBlessingNumDisplay()
-    {
-        s32 blessingRoomCounter = swdrv::swByteGet(1602);
-        if (blessingRoomCounter > 0)
-        {
-            bool roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {8, 110, 102, 255};
-            f32 scale = 0.64f;
-            char buffer[50];
-            bool houraiActivation = swdrv::swGet(1671);
-            if (houraiActivation)
-            {
-                funnyColor = {140, 110, 18, 225};
-                if (roomOnHud)
-                {
-                    funnyColor = {140, 110, 18, 80};
-                }
-            }
-            msl::stdio::sprintf(buffer, "Neutralizes in %d rooms", blessingRoomCounter);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -190.0f, msg);
-        }
-    }
-
-    void merlunaCurseDisplay()
-    {
-        s32 curseNum = swdrv::swByteGet(1601);
-        if (curseNum > 0)
-        {
-            bool roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {138, 0, 207, 255};
-            f32 scale = 0.64f;
-            char buffer[100];
-            const char *curseNames[] = {"DUMMY", "Tatarian Aster", "Vulnerability Hex", "Migraine"};
-            const char *curseDisp = curseNames[curseNum];
-            msl::stdio::sprintf(buffer, "Curse: %s", curseDisp);
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -170.0f, msg);
-        }
-    }
-
-    void merlunaCurseNumDisplay()
-    {
-        s32 curseNum = swdrv::swByteGet(1601);
-        if (curseNum > 0)
-        {
-            bool roomOnHud = swdrv::swGet(422);
-            s32 alpha = 225;
-            if (roomOnHud)
-            {
-                alpha = 80;
-            }
-            wii::gx::GXColor funnyColor = {71, 4, 99, 255};
-            f32 scale = 0.64f;
-            char buffer[50];
-            msl::stdio::sprintf(buffer, "Pay Merluna to clear");
-            const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(alpha);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(scale);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColorOff();
-            fontmgr::FontDrawString(-360, -190.0f, msg);
-        }
-    }
-
     void disorderDisplay(f32 offset)
     {
+        f32 x = -385.0f;
         s32 disorderNum = (s32)Lunatic->Luna.disorder;
         if (disorderNum > 0)
         {
-            wii::mtx::Vec3 position = {-365.0f, (-220.0f - (offset / 1.5f)), 0.0f};
+            wii::mtx::Vec3 position = {x, (-230.0f - (offset / 1.5f)), 0.0f};
             s32 mainIconId = (disorderNum - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
             icondrv::iconDispGxAlpha(0.64f, &position, 0x10, mainIconId, 200);
             icondrv::iconDispGxAlpha(0.64f, &position, 0x10, ICON_BORDER_DISORDER + TPLPATCH_ICON_REDIRECT, 225);
@@ -302,23 +160,17 @@ namespace mod
             char buffer[4];
             msl::stdio::sprintf(buffer, "%d", disorderRooms);
             const char *msg = buffer;
-            fontmgr::FontDrawStart_alpha(200);
-            fontmgr::FontDrawEdge();
-            fontmgr::FontDrawColor(&funnyColor);
-            fontmgr::FontDrawScale(0.64f);
-            fontmgr::FontDrawNoiseOff();
-            fontmgr::FontDrawRainbowColor();
-            f32 x = -381.0f;
+            x -= 4.0f;
             if (disorderRooms == 1)
                 x += 1.0f;
-            fontmgr::FontDrawString(x, (-180.0f - (offset / 1.5f)), msg);
+            LPGUI_DrawText(x, (-185.0f - (offset / 1.5f)), 0.64f, 200, funnyColor, true, msg);
         }
     }
 
     void voucherDisplay(f32 offset)
     {
-        f32 y = -215.0f;
-        f32 x = 355.0f + (offset / 1.5f);
+        f32 y = -230.0f;
+        f32 x = 385.0f;
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
         {
@@ -338,12 +190,39 @@ namespace mod
         }
     }
 
+    void critDisplay(f32 offset)
+    {
+        f32 x = -360.0f;
+        f32 y = 105.0f + (offset * 1.25f);
+
+        // Mult
+        wii::mtx::Vec3 position = {x, y, 0.0f};
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, ICON_SPIRIT_2 + TPLPATCH_ICON_REDIRECT, 200);
+        char multBuf[4];
+        msl::stdio::sprintf(multBuf, "%d%%", (s32)Lunatic->Stats.CritMult);
+        const char *multMsg = multBuf;
+        LPGUI_DrawText((x + 15.0f), (y + 20.0f), 0.7f, 0, {58, 158, 255, 255}, false, multMsg);
+
+        // Rate
+        y -= 25.0f;
+        position = {x, y, 0.0f};
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, ICON_SOUL_2 + TPLPATCH_ICON_REDIRECT, 225);
+        char rateBuf[4];
+        msl::stdio::sprintf(rateBuf, "%d%%", Lunatic->Stats.CritRate);
+        const char *rateMsg = rateBuf;
+        LPGUI_DrawText((x + 15.0f), (y + 20.0f), 0.7f, 0, {251, 211, 0, 255}, false, rateMsg);
+    }
+
     mario::MarioWork *danDisplay()
     {
-        f32 offset = hud::hud_wp->basePos.y;
-        disorderDisplay(offset);
-        voucherDisplay(offset);
-        youSuckDisplay(offset);
+        if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
+        {
+            f32 offset = hud::hud_wp->basePos.y;
+            disorderDisplay(offset);
+            voucherDisplay(offset);
+            youSuckDisplay(offset);
+            critDisplay(offset);
+        }
         return mario::marioGetPtr();
     }
 

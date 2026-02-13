@@ -30,6 +30,7 @@ namespace mod
     VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
     
     EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
+    EVT_DECLARE_USER_FUNC(ThunderVoucherIncrementCtr, 1)
 
     struct VCakeWork
     {
@@ -38,7 +39,7 @@ namespace mod
 
     struct VThunderWork
     {
-        u8 rooms;
+        u8 enemies;
         s32 critRateBonus;
         f32 critMultBonus;
         s32 atkBonus;

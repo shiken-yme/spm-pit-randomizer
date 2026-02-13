@@ -4483,13 +4483,13 @@ namespace mod
     RETURN_FROM_CALL()
 
     EVT_BEGIN(spectre_logic)
-    IF_EQUAL(GSW(1600), 1)
+    /*IF_EQUAL(GSW(1600), 1)
     USER_FUNC(rand100, LW(1))
     IF_SMALL(LW(1), 20)
     USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(1))
     IF_NOT_EQUAL(LW(1), 156)
     IF_NOT_EQUAL(LW(1), 157)
-    USER_FUNC(evt_npc::evt_npc_get_max_hp, PTR("me"), LW(1)) // Set to LW(1) after test
+    USER_FUNC(evt_npc::evt_npc_get_max_hp, PTR("me"), LW(1))
     USER_FUNC(spectreFloor, LW(1), LW(2))
     USER_FUNC(evt_mario::evt_mario_get_pos, LW(3), LW(4), LW(5))
     USER_FUNC(evt_mario::evt_mario_get_height, LW(7))
@@ -4499,7 +4499,9 @@ namespace mod
     END_IF()
     END_IF()
     END_IF()
-    END_IF()
+    END_IF()*/
+    USER_FUNC(evt_npc::evt_npc_get_max_hp, PTR("me"), LW(1))
+    USER_FUNC(ThunderVoucherIncrementCtr, LW(1))
     RETURN_FROM_CALL()
 
     EVT_BEGIN(npc_drop_item_patch)

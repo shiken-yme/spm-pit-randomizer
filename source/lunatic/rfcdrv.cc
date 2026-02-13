@@ -420,21 +420,19 @@ namespace mod
     void ThunderVoucherAction()
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        Lunatic->Voucher.Work[idx]->UW.Thunder->rooms += 1;
-        if ((Lunatic->Voucher.Work[idx]->UW.Thunder->rooms % 5) != 0)
-            return;
-        s32 odds = system::irand(2);
-        switch (odds)
+        s32 odds = system::rand() % 10;
+        if (odds < 2)
         {
-        case 0:
             Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus += 1;
-            pouch->attack += 1;
-            break;
-        case 1:
+            mario_pouch::pouchGetPtr()->attack += 1;
+        }
+        else if (odds < 7)
+        {
             Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 4.0f;
             Lunatic->Stats.CritMult += 4.0f;
-        default:
+        }
+        else
+        {
             Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus += 2;
             Lunatic->Stats.CritRate += 2;
         }
@@ -453,6 +451,24 @@ namespace mod
         Lunatic->Voucher.Work[idx]->actionFunc = ThunderVoucherAction;
         Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(10);
         return;
+    }
+
+    s32 ThunderVoucherIncrementCtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        s32 idx;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 hp = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER, &idx);
+        if (hp <= 1 || vState != V_ACTIVE)
+            return 2;
+        Lunatic->Voucher.Work[idx]->UW.Thunder->enemies += 1;
+        if (Lunatic->Voucher.Work[idx]->UW.Thunder->enemies == 30)
+        {
+            Lunatic->Voucher.Work[idx]->UW.Thunder->enemies = 0;
+            VoucherCallAction(VOUCHER_THUNDER);
+        }
+        return 2;
     }
 
     void StellarVoucherTear()
