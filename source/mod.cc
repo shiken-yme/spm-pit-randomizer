@@ -1156,7 +1156,7 @@ namespace mod
                                                 {
                                                     item->flags &= ~0x200;
                                                     eff_small_star::effSmallStarEntry(x, y, z, 0, -1.0, 0, 4, 8);
-                                                //    effpatch::effpatchColorMaskEntry(star, {0, 0, 0, 255}, {255, 255, 255, 255}, nullptr);
+                                                    //    effpatch::effpatchColorMaskEntry(star, {0, 0, 0, 255}, {255, 255, 255, 255}, nullptr);
                                                 }
                                                 return item;
                                             });
@@ -2574,7 +2574,7 @@ namespace mod
     {
         s32 floor = swdrv::swByteGet(1);
         // floor = floor + 4;
-         floor = floor + 8; // DEBUG
+        floor = floor + 8; // DEBUG
         // floor = floor + 198; // DEBUG
         swdrv::swByteSet(1, floor);
         const char *destMap = getNextDanMapnameNew(floor);
@@ -2694,7 +2694,7 @@ namespace mod
         s32 itemType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 coinCount = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key and Chest Key.
-        if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00) 
+        if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00)
             return 2;
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
         if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true)
@@ -4543,6 +4543,7 @@ namespace mod
     // Disable some Jimbo parameters
     SET(GSWF(1621), 1) // Low HP Sounds
     SET(GSWF(1630), 1) // Lighter Tremors
+    SET(GSWF(1613), 1) // DEBUG: Green Mario
     USER_FUNC(evt_seq::evt_seq_set_seq, seqdrv::SEQ_MAPCHANGE, PTR("mac_05"), PTR("elv1"))
     END_IF()
     RETURN_FROM_CALL()
@@ -4590,6 +4591,20 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(clear_disorder, 0)
 
+    s32 marioChgModelName(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 targetChar = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        const char *poseName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        mario::marioCharPoseNames[targetChar][0] = poseName;
+        // Refresh model
+        mario_motion::_marioChangeCharacter(mario::marioGetPtr()->character);
+        //  wii::os::OSReport("marioChgModelName: targetChar == %d, poseName == %p (%s)\n", targetChar, poseName, poseName);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(marioChgModelName, 2)
+
     EVT_BEGIN(cwselect_features)
     USER_FUNC(EvtCWSelectEntry, PTR("Features"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
     SET(LW(1), 0x86)
@@ -4601,15 +4616,29 @@ namespace mod
     SET(LW(1), 0x86)
     ADD(LW(1), GSWF(1612))
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(marioFeaturesName), PTR(marioFeaturesDesc), LW(1), 0, 0, 0)
+    // Debug: Add L emblem test
+    USER_FUNC(DebugModeGetStatus, LW(3))
+    IF_EQUAL(LW(3), 1)
+    SET(LW(1), 0x86)
+    ADD(LW(1), GSWF(1613))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR("GREEEEEEN!"), PTR("This Super Paper Mario Mod\nMakes You GREEN!"), LW(1), 0, 0, 0)
+    END_IF()
+    // End debug, open select menu
     USER_FUNC(EvtCWSelectMenuStart, PTR("Features"), 0, LW(1))
-    SWITCH(LW(1))
-    CASE_EQUAL(0) // MOVERS
-    USER_FUNC(ToggleGSWF, 1610)
-    CASE_EQUAL(1) // MERLUNA
-    USER_FUNC(ToggleGSWF, 1611)
-    CASE_EQUAL(2) // MARIO
-    USER_FUNC(ToggleGSWF, 1612)
-    END_SWITCH()
+    SET(LW(2), LW(1))
+    ADD(LW(2), 1610)
+    USER_FUNC(ToggleGSWF, LW(2))
+    // Debug: Refresh character model
+    IF_EQUAL(LW(3), 1)
+    IF_EQUAL(LW(1), 3)
+    IF_EQUAL(GSWF(1613), 1) // Disabled
+    USER_FUNC(marioChgModelName, 0, PTR("p_wii_mario"))
+    ELSE()
+    USER_FUNC(marioChgModelName, 0, PTR("p_wii_gario"))
+    END_IF()
+    END_IF()
+    END_IF()
+    // End debug, reset select menu
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Features"))
     RETURN()
@@ -4624,12 +4653,9 @@ namespace mod
     ADD(LW(1), GSWF(1621))
     USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(hpPatchesName), PTR(hpPatchesDesc), LW(1), 0, 0, 0)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Patches"), 0, LW(1))
-    SWITCH(LW(1))
-    CASE_EQUAL(0) // LOCKS
-    USER_FUNC(ToggleGSWF, 1620)
-    CASE_EQUAL(1) // HP SOUND
-    USER_FUNC(ToggleGSWF, 1621)
-    END_SWITCH()
+    SET(LW(2), LW(1))
+    ADD(LW(2), 1620)
+    USER_FUNC(ToggleGSWF, LW(2))
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Patches"))
     RETURN()
@@ -4641,10 +4667,9 @@ namespace mod
     ADD(LW(1), GSWF(1630))
     USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(explosionShakeAccessName), PTR(explosionShakeAccessDesc), LW(1), 0, 0, 0)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Accessibility"), 0, LW(1))
-    SWITCH(LW(1))
-    CASE_EQUAL(0) // EXPLOSION SHAKES
-    USER_FUNC(ToggleGSWF, 1630)
-    END_SWITCH()
+    SET(LW(2), LW(1))
+    ADD(LW(2), 1630)
+    USER_FUNC(ToggleGSWF, LW(2))
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Accessibility"))
     RETURN()
@@ -5515,6 +5540,6 @@ namespace mod
         patchMarioDamage();
         exceptionPatch();
         romfontExpand();
-        wii::os::OSReport(MOD_VERSION": all modules successfully loaded.\n");
+        wii::os::OSReport(MOD_VERSION ": all modules successfully loaded.\n");
     }
 }

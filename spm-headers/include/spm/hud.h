@@ -9,6 +9,8 @@ CPP_WRAPPER(spm::hud)
 
 USING(wii::mtx::Vec2)
 
+typedef void (CountdownDoneCb)();
+
 typedef struct
 {
 /* 0x000 */ u32 flags;
@@ -29,27 +31,26 @@ DECOMP_STATIC(HudWork * hud_wp)
 
 void hudInit();
 void hudReInit();
-UNKNOWN_FUNCTION(hudLoadStats)
+void hudLoadStats();
 void hudMain();
-UNKNOWN_FUNCTION(hudGetPos)
+void hudGetPos(f32 * x, f32 * y);
 void hudUnhideAlt();
 void hudHide();
-UNKNOWN_FUNCTION(func_80199b0c)
-UNKNOWN_FUNCTION(func_80199b5c)
+void func_80199b0c();
+void func_80199b5c();
 void hudUnhide();
-UNKNOWN_FUNCTION(func_80199c74)
-UNKNOWN_FUNCTION(func_80199c88)
-UNKNOWN_FUNCTION(func_80199c9c)
-UNKNOWN_FUNCTION(func_80199cb0)
-typedef void (CountdownDoneCb)();
+void hudUnblockDisp();
+void hudBlockDisp();
+void func_80199c9c();
+void func_80199cb0();
 void hudStartCountdown(u32 length, CountdownDoneCb * cb);
-UNKNOWN_FUNCTION(func_80199cf8)
-UNKNOWN_FUNCTION(hudUpdateStats)
+bool hudCheckStatsDesynced();
+void hudUpdateStats();
 void hudDisp();
 void func_8019af88();
 void hudTurnOffFlipTimeBox(s32 idx);
-UNKNOWN_FUNCTION(func_8019b0dc)
+void func_8019b0dc();
 void func_8019be84();
-UNKNOWN_FUNCTION(func_8019bea8)
+void func_8019bea8(f32 p1);
 
 CPP_WRAPPER_END()

@@ -141,12 +141,12 @@ namespace mod::customwin
                 if (msl::string::strcmp(GlobalCW->SelectKeys[i].name, key) == 0)
                 {
                     GlobalCW->activeSelect = i;
-                    wii::os::OSReport("CustomWin::CWSelectSetActive: Select entry with key name \'%s\' (GlobalCW->Select[%d]) set as active select menu.\n", key, i);
+                    CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectSetActive: Select entry with key name \'%s\' (GlobalCW->Select[%d]) set as active select menu.\n", key, i);
                     return i;
                 }
             }
         }
-        wii::os::OSReport("CustomWin::CWSelectSetActive: Could not find select entry with key name \'%s\'.\n", key);
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectSetActive: Could not find select entry with key name \'%s\'.\n", key);
         return -1;
     }
 
@@ -163,7 +163,7 @@ namespace mod::customwin
                     return i;
             }
         }
-        wii::os::OSReport("CustomWin::CWSelectKeyToId: Could not find select entry with key name \'%s\'.\n", key);
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectKeyToId: Could not find select entry with key name \'%s\'.\n", key);
         return -1;
     }
 
@@ -176,7 +176,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::CWSelectDelete: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectDelete: Entry with key \'%s\' not found; aborting process.\n", key);
             return;
         }
         if (GlobalCW->Select[id]->type == CWSELECT_INFOGRAPHIC)
@@ -200,7 +200,7 @@ namespace mod::customwin
         memory::__memFree(0, GlobalCW->Select[id]);
         CWDebug_GetMainHeapFreeSpace(false);
         GlobalCW->Select[id] = nullptr;
-        wii::os::OSReport("CustomWin::CWSelectDelete: Entry with key \'%s\' has been removed.\n", key);
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectDelete: Entry with key \'%s\' has been removed.\n", key);
         return;
     }
 
@@ -211,7 +211,7 @@ namespace mod::customwin
     {
         if (msl::string::strlen(key) > CWKEY_NAME_LENGTH)
         {
-            wii::os::OSReport("CustomWin::CWSelectEntry: Key \'%s\' is longer than CWKEY_NAME_LENGTH (%d). Failed to create select entry.\n", key, CWKEY_NAME_LENGTH);
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectEntry: Key \'%s\' is longer than CWKEY_NAME_LENGTH (%d). Failed to create select entry.\n", key, CWKEY_NAME_LENGTH);
         }
         for (u32 i = 0; i < CWSELECT_ENTRY_MAX; i += 1)
         {
@@ -227,14 +227,14 @@ namespace mod::customwin
                 if (setActive)
                 {
                     GlobalCW->activeSelect = i;
-                    wii::os::OSReport("CustomWin::CWSelectEntry: New select entry with key \'%s\' (GlobalCW->Select[%d]) created. Set as active select menu.\n", key, i);
+                    CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectEntry: New select entry with key \'%s\' (GlobalCW->Select[%d]) created. Set as active select menu.\n", key, i);
                 }
                 else
-                    wii::os::OSReport("CustomWin::CWSelectEntry: New select entry with key \'%s\' (GlobalCW->Select[%d]) created.\n", key, i);
+                    CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectEntry: New select entry with key \'%s\' (GlobalCW->Select[%d]) created.\n", key, i);
                 return GlobalCW->Select[i];
             }
         }
-        wii::os::OSReport("CustomWin::CWSelectEntry: Select entries maxed out at CWSELECT_ENTRY_MAX (%d), cannot create new entry.\n", CWSELECT_ENTRY_MAX);
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectEntry: Select entries maxed out at CWSELECT_ENTRY_MAX (%d), cannot create new entry.\n", CWSELECT_ENTRY_MAX);
         return nullptr;
     }
 
@@ -319,7 +319,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectAddListing: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectAddListing: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (color == nullptr)
@@ -351,7 +351,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectAddItem: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectAddItem: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (cost == -1)
@@ -379,7 +379,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectOverrideSelectionBehavior: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectOverrideSelectionBehavior: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
 
@@ -400,7 +400,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectHideDescWindow: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectHideDescWindow: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         GlobalCW->Select[id]->hideDescWin = true;
@@ -423,7 +423,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetShopIcon: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetShopIcon: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         GlobalCW->Select[id]->ShopIcon.id = iconId;
@@ -441,12 +441,12 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectAddInfoPage: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectAddInfoPage: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (GlobalCW->Select[id]->type != CWSELECT_INFOGRAPHIC)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectAddInfoPage: Entry with key \'%s\' is not of type CWSELECT_INFOGRAPHIC; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectAddInfoPage: Entry with key \'%s\' is not of type CWSELECT_INFOGRAPHIC; aborting process.\n", key);
             return 2;
         }
         CWSelect *entry = GlobalCW->Select[id];
@@ -485,12 +485,12 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetBGColor: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetBGColor: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (color == nullptr)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetBGColor: CWSelectColorDef argument provided is a null pointer; aborting process.\n");
+            CWDEBUG_OSREPORT("CustomWin::EvtCWSelectSetBGColor: CWSelectColorDef argument provided is a null pointer; aborting process.\n");
             return 2;
         }
         GlobalCW->Select[id]->Colorize.Colors = color;
@@ -498,17 +498,17 @@ namespace mod::customwin
         if (numDefs > 1)
         {
             GlobalCW->Select[id]->Colorize.animate = true;
-            wii::os::OSReport("CustomWin::EvtCWSelectSetBGColor: Set animated BG gradient for entry with key \'%s\'.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetBGColor: Set animated BG gradient for entry with key \'%s\'.\n", key);
         }
         else
         {
             GlobalCW->Select[id]->Colorize.animate = false;
             if (msl::string::memcmp(&color->colorTop, &color->colorBottom, 4) == 0)
             {
-                wii::os::OSReport("CustomWin::EvtCWSelectSetBGColor: Set BG color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->colorTop.r, color->colorTop.g, color->colorTop.b, color->colorTop.a);
+                CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetBGColor: Set BG color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->colorTop.r, color->colorTop.g, color->colorTop.b, color->colorTop.a);
             }
             else
-                wii::os::OSReport("CustomWin::EvtCWSelectSetBGColor: Set BG gradient for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X -> #%.2X%.2X%.2X%.2X.\n", key, color->colorTop.r, color->colorTop.g, color->colorTop.b, color->colorTop.a, color->colorBottom.r, color->colorBottom.g, color->colorBottom.b, color->colorBottom.a);
+                CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetBGColor: Set BG gradient for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X -> #%.2X%.2X%.2X%.2X.\n", key, color->colorTop.r, color->colorTop.g, color->colorTop.b, color->colorTop.a, color->colorBottom.r, color->colorBottom.g, color->colorBottom.b, color->colorBottom.a);
         }
         return 2;
     }
@@ -526,16 +526,16 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderColor: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetHeaderColor: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (color == nullptr)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderColor: GXColor argument provided is a null pointer; aborting process.\n");
+            CWDEBUG_OSREPORT("CustomWin::EvtCWSelectSetHeaderColor: GXColor argument provided is a null pointer; aborting process.\n");
             return 2;
         }
         GlobalCW->Select[id]->Colorize.headerColor = *color;
-        wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderColor: Set header color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
+        CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetHeaderColor: Set header color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
         return 2;
     }
 
@@ -552,16 +552,16 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetSelectTextColor: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetSelectTextColor: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (color == nullptr)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetSelectTextColor: GXColor argument provided is a null pointer; aborting process.\n");
+            CWDEBUG_OSREPORT("CustomWin::EvtCWSelectSetSelectTextColor: GXColor argument provided is a null pointer; aborting process.\n");
             return 2;
         }
         GlobalCW->Select[id]->Colorize.selectTxtColor = *color;
-        wii::os::OSReport("CustomWin::EvtCWSelectSetSelectTextColor: Set select box text color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
+        CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetSelectTextColor: Set select box text color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
         return 2;
     }
 
@@ -578,16 +578,16 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderTextColor: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetHeaderTextColor: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         if (color == nullptr)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderTextColor: GXColor argument provided is a null pointer; aborting process.\n");
+            CWDEBUG_OSREPORT("CustomWin::EvtCWSelectSetHeaderTextColor: GXColor argument provided is a null pointer; aborting process.\n");
             return 2;
         }
         GlobalCW->Select[id]->Colorize.headerTxtColor = *color;
-        wii::os::OSReport("CustomWin::EvtCWSelectSetHeaderTextColor: Set header text color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
+        CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetHeaderTextColor: Set header text color for entry with key \'%s\' to RGBA #%.2X%.2X%.2X%.2X.\n", key, color->r, color->g, color->b, color->a);
         return 2;
     }
 
@@ -617,13 +617,13 @@ namespace mod::customwin
             CWSelectSetActive(key);
 
             // blacklist autogenning item ids that belong to items
-            // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Beginning Item ID Blacklist Process\n");
+            // CWDEBUG_OSREPORT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Beginning Item ID Blacklist Process\n");
             for (i = 0; i < GlobalCW->Select[id]->num; i += 1)
             {
                 if (GlobalCW->Select[id]->Descs[i].itemId > 0)
                 {
                     blacklist[size] = GlobalCW->Select[id]->Descs[i].itemId;
-                    // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item ID %d has been reserved!\n", blacklist[size]);
+                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item ID %d has been reserved!\n", blacklist[size]);
                     size += 1;
                 }
             }
@@ -637,14 +637,14 @@ namespace mod::customwin
                     {
                         if (itemId == blacklist[j])
                         {
-                            // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) attempted to assign ID %d and encountered blacklisted ID %d. Incrementing ID...\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId, blacklist[j]);
+                            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) attempted to assign ID %d and encountered blacklisted ID %d. Incrementing ID...\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId, blacklist[j]);
                             itemId += 1;
                             j = 0;
                         }
                         else
                             j += 1;
                     }
-                    // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) has successfully assigned ID %d.\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId);
+                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) has successfully assigned ID %d.\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId);
                     GlobalCW->Select[id]->itemTable[i] = itemId;
                     msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].nameMsg, GlobalCW->Select[id]->Descs[i].nameTxt, 1);
                     msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].descMsg, GlobalCW->Select[id]->Descs[i].descTxt, 1);
@@ -652,7 +652,7 @@ namespace mod::customwin
                 }
                 else
                 {
-                    // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item \'%s\' (i = %d) has successfully assigned ID %d.\n", msgdrv::msgSearch(item_data::itemDataTable[GlobalCW->Select[GlobalCW->activeSelect]->Descs[i].itemId].nameMsg), i, blacklist[idx]);
+                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item \'%s\' (i = %d) has successfully assigned ID %d.\n", msgdrv::msgSearch(item_data::itemDataTable[GlobalCW->Select[GlobalCW->activeSelect]->Descs[i].itemId].nameMsg), i, blacklist[idx]);
                     GlobalCW->Select[id]->itemTable[i] = blacklist[idx];
                     idx += 1;
                 }
@@ -665,7 +665,7 @@ namespace mod::customwin
                 msgpatch::msgpatchAddEntry(GlobalCW->selectWinSelectMsgId, GlobalCW->Select[id]->windowSelect, 1);
             // Reset colorize timer just in case
             GlobalCW->Select[id]->Colorize.timer = 0;
-            // wii::os::OSReport("CustomWin::EvtCWSelectPrepare: Select menu item table prepared; custom menu is ready to display. Item Table: %p\n", &GlobalCW->Select[id]->itemTable);
+            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: Select menu item table prepared; custom menu is ready to display. Item Table: %p\n", &GlobalCW->Select[id]->itemTable);
 
             // Prepare the WinmgrSelect entry
             menu = winmgr::winMgrSelectEntry((s32)&GlobalCW->Select[GlobalCW->activeSelect]->itemTable, 0, 1);
@@ -679,7 +679,7 @@ namespace mod::customwin
                 winmgr::winmgr_wp->entries[menu->entryIds[0]].desc = &CWSelectWindowDescs[0];
                 winmgr::winmgr_wp->entries[menu->entryIds[1]].desc = &CWSelectWindowDescs[1];
             }
-            // wii::os::OSReport("CustomWin::EvtCWSelectMenuStart: WinmgrSelect entry is @ %p\n", menu);
+            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectMenuStart: WinmgrSelect entry is @ %p\n", menu);
             evtEntry->tempU[0] = (u32)menu;
             evtEntry->tempF[1] = 0.0;
             evtEntry->tempS[2] = 0;
@@ -819,7 +819,7 @@ namespace mod::customwin
         s32 id = CWSelectKeyToId(key);
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectRemoveListing: Entry with key \'%s\' not found; aborting process.\n", key);
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectRemoveListing: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
         GlobalCW->Select[id]->num -= 1;
@@ -843,7 +843,7 @@ namespace mod::customwin
         s32 id = GlobalCW->activeSelect;
         if (id == -1)
         {
-            wii::os::OSReport("CustomWin::EvtCWSelectReset: There is no active CWSelect entry; aborting process.\n");
+            CWDEBUG_OSREPORT("CustomWin::EvtCWSelectReset: There is no active CWSelect entry; aborting process.\n");
             return 2;
         }
         for (i = 0; i < GlobalCW->Select[id]->num; i += 1)
@@ -860,7 +860,7 @@ namespace mod::customwin
         if (GlobalCW->Select[id]->windowTitle[0] != 0)
             msgpatch::msgpatchDelEntry(GlobalCW->selectWinTitleMsgId);
         GlobalCW->activeSelect = -1;
-        wii::os::OSReport("CustomWin::EvtCWSelectReset: All live CWSelect message patches have been reset.\n");
+        CWDEBUG_OSREPORT("CustomWin::EvtCWSelectReset: All live CWSelect message patches have been reset.\n");
         return 2;
     }
 
@@ -896,10 +896,10 @@ namespace mod::customwin
             rem += sizeof(wii::mem::MEMAllocation);
         if (alloc)
         {
-            wii::os::OSReport("CustomWin::CWDebug_GetMainHeapFreeSpace: mem allocation! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem allocation! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
         }
         else
-            wii::os::OSReport("CustomWin::CWDebug_GetMainHeapFreeSpace: mem free! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem free! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
         return;*/
     }
 
@@ -976,7 +976,7 @@ namespace mod::customwin
             gxsub::gxsubInit_Colour();
             gxsub::gxsubDrawQuadGradient(posX, posY, scaleX, scaleY, &top, &bottom);
         }
-        // wii::os::OSReport("CustomWin::CWColorOverrideAnimateAction: Timer is %d.\n", timer);
+        // CWDEBUG_OSREPORT_FMT("CustomWin::CWColorOverrideAnimateAction: Timer is %d.\n", timer);
 
         // Increment timer by 1 when subTimer reaches 3 (necessary because function runs 3 times a frame)
         colorize->subTimer += 1;
@@ -1289,7 +1289,7 @@ namespace mod::customwin
             gxsub::gxsubDrawLineSquare(hdrPosX, hdrPosY, (200 * entry->scalarScale), (28 * entry->scalarScale), 0x10, &black);
             break;
         }
-        // wii::os::OSReport("CustomWin::CWWinMgrDisp: WinmgrEntry scale fields are... x = %d, y = %d, scalar = %.5f\n", entry->scale.x, entry->scale.y, entry->scalarScale);
+        // CWDEBUG_OSREPORT_FMT("CustomWin::CWWinMgrDisp: WinmgrEntry scale fields are... x = %d, y = %d, scalar = %.5f\n", entry->scale.x, entry->scale.y, entry->scalarScale);
         // Override default disp funcs
         if (entry->desc->dispFunc != nullptr)
             (entry->desc->dispFunc)(entry);
@@ -1419,7 +1419,7 @@ namespace mod::customwin
                     curEnt->seqProgress = 0;
                 }
             }
-            wii::os::OSReport("CustomWin::CWSelect_Main: WinmgrSelect is located at %p\n", select);
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWSelect_Main: WinmgrSelect is located at %p\n", select);
             select->state += 1;
             break;
         case 1:

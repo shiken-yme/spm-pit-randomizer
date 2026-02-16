@@ -534,6 +534,10 @@ SIZE_ASSERT(CharacterProperties, 0x14)
 
 extern CharacterProperties characterProperties[4]; // index character id
 
+extern const char * marioCharPoseNames[4][2]; // indices are character id, normal/mega
+
+extern const char * marioCharBackPoseNames[4][2];
+
 typedef void (MarioMotFunc)(MarioWork * mp);
 
 typedef struct

@@ -130,7 +130,7 @@ namespace mod
 
     void youSuckDisplay(f32 offset)
     {
-        if (!Lunatic->Misc.youSuck)
+        if (!Lunatic->Interface.youSuck)
             return;
         const char *youSuckText = "YOU SUCK";
         f32 scale = 3.69f;
@@ -139,7 +139,7 @@ namespace mod
 
     void new_dan_gameover()
     {
-        Lunatic->Misc.youSuck = true;
+        Lunatic->Interface.youSuck = true;
     }
 
     void disorderDisplay(f32 offset)
@@ -192,8 +192,37 @@ namespace mod
 
     void critDisplay(f32 offset)
     {
-        f32 x = -360.0f;
-        f32 y = 105.0f + (offset * 1.25f);
+        f32 slide = -100.0f;
+        bool roomNameDisp = swdrv::swGet(422);
+        if (roomNameDisp)
+        {
+            if (!Lunatic->Interface.critDisp)
+            {
+                Lunatic->Interface.critDisp = true;
+                Lunatic->Interface.critDispProgress = 0;
+            }
+            slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 100.0f, Lunatic->Interface.critDispProgress, 60);
+            if (Lunatic->Interface.critDispProgress < 60)
+                Lunatic->Interface.critDispProgress += 1;
+        }
+        else
+        {
+            if (Lunatic->Interface.critDisp)
+            {
+                Lunatic->Interface.critDisp = false;
+                Lunatic->Interface.critDispProgress = 0;
+                Lunatic->Interface.critDispSlideOutAdj = 100.0f;
+            }
+            slide -= (system::intplGetValue(system::INTPL_MODE_QUADRATIC_IN, 0.0f, 100.0f, Lunatic->Interface.critDispProgress, 60) * 1.25f);
+            slide += Lunatic->Interface.critDispSlideOutAdj;
+            if (Lunatic->Interface.critDispProgress < 60)
+                Lunatic->Interface.critDispProgress += 1;
+            else
+                Lunatic->Interface.critDispSlideOutAdj = 0.0f;
+        }
+
+        f32 x = -360.0f - offset + slide;
+        f32 y = 105.0f;
 
         // Mult
         wii::mtx::Vec3 position = {x, y, 0.0f};

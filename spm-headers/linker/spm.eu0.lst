@@ -812,11 +812,14 @@
 80145a44:marioFall
 80146570:marioEndMotIfJump
 80146f0c:func_80146f0c
+80147570:marioChangeCharacter
 80147604:_marioChangeCharacter
 80147e18:marioChangePixl
 80148c28:func_80148c28
 801624b8:boomerFuseMain
 // data
+804265e8:marioCharPoseNames
+80426608:marioCharBackPoseNames
 80426bb8:marioMotTbl
 80426e28:marioJumpFallParaDefs
 // more
@@ -1004,8 +1007,13 @@
 80199cc4:hudStartCountdown
 8019a16c:hudDisp
 801994e0:hudMain
+80199a74:hudGetPos
 80199ba8:hudUnhide
 80199a90:hudUnhideAlt
+80199c74:hudUnblockDisp
+80199c88:hudBlockDisp
+80199cf8:hudCheckStatsDesynced
+80199d98:hudUpdateStats
 // data
 805ae100:hud_wp
 // more

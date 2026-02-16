@@ -130,7 +130,6 @@ namespace mod
 
     struct LPSessionMiscs
     {
-        bool youSuck;
         bool tearFuncActive;
         f64 boobies;
         u8 difficulty;
@@ -286,16 +285,26 @@ namespace mod
         VoucherWork *Work[8];
     };
 
+    struct LPGUIGlobals
+    {
+        bool youSuck;
+        bool critDisp;
+        bool updateCritParams;
+        f32 critDispSlideOutAdj;
+        s32 critDispProgress;
+    };
+
     struct LunaticPitWork
     {
         FloorData Floor[200];
-        LPSessionMiscs Misc;
         BoodinBalls Boodin;
         InvisibleFullMoon Luna;
         RestFloorChest RFC;
+        MagicTrick Voucher;
         MoverWork Mover;
         Reaver Stats;
-        MagicTrick Voucher;
+        LPGUIGlobals Interface;
+        LPSessionMiscs Misc;
     };
 
     extern LunaticPitWork *Lunatic;

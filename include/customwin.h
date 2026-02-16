@@ -4,10 +4,20 @@
 #include <spm/evtmgr_cmd.h>
 #include <spm/winmgr.h>
 #include <wii/gx.h>
+#include <wii/os.h>
 
 namespace mod::customwin
 {
     using namespace spm;
+
+    // Set to true to enable CustomWin debug osreports
+    #define CUSTOMWIN_DEBUG_PRINT false
+
+    #define CWDEBUG_OSREPORT(message) \
+        if (CUSTOMWIN_DEBUG_PRINT) wii::os::OSReport(message);
+
+    #define CWDEBUG_OSREPORT_FMT(message, ...) \
+        if (CUSTOMWIN_DEBUG_PRINT) wii::os::OSReport(message, __VA_ARGS__);
 
     #define CWKEY_NAME_LENGTH 16
     #define CWSELECT_NAME_TXT_LENGTH 32
