@@ -151,8 +151,8 @@ namespace mod
     {
         s32 CritRate; // base value of 4 when initialized
         f32 CritMult; // base value of 50.0 when initialized
-        s32 AuspiceDefense; // Damage taken is subtracted by this #
-        f32 AegisDR; // Damage taken is multiplied by (1 - (this number / 100))
+        f32 AuspiceDR; // Damage taken is multiplied by (1 - (this number / 100))
+        s32 AegisDef; // Damage taken is subtracted by this #
     };
 
     struct DivineJudgement
@@ -289,7 +289,7 @@ namespace mod
     {
         bool youSuck;
         bool critDisp;
-        bool updateCritParams;
+        bool critDispStartDisp;
         f32 critDispSlideOutAdj;
         s32 critDispProgress;
     };

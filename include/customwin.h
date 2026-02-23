@@ -11,13 +11,13 @@ namespace mod::customwin
     using namespace spm;
 
     // Set to true to enable CustomWin debug osreports
-    #define CUSTOMWIN_DEBUG_PRINT false
+    #define CUSTOMWIN_DEBUG false
 
     #define CWDEBUG_OSREPORT(message) \
-        if (CUSTOMWIN_DEBUG_PRINT) wii::os::OSReport(message);
+        if (CUSTOMWIN_DEBUG) wii::os::OSReport(message);
 
     #define CWDEBUG_OSREPORT_FMT(message, ...) \
-        if (CUSTOMWIN_DEBUG_PRINT) wii::os::OSReport(message, __VA_ARGS__);
+        if (CUSTOMWIN_DEBUG) wii::os::OSReport(message, __VA_ARGS__);
 
     #define CWKEY_NAME_LENGTH 16
     #define CWSELECT_NAME_TXT_LENGTH 32
@@ -119,6 +119,8 @@ namespace mod::customwin
         const char *selectWinTitleMsgId;
         const char *selectWinSelectMsgId;
     };
+
+    CWSelect *CWSelectGetActiveEntry();
 
     EVT_DECLARE_USER_FUNC(EvtCWSelectEntry, 6)
     EVT_DECLARE_USER_FUNC(EvtCWSelectAddListing, 7)

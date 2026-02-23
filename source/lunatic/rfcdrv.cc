@@ -519,27 +519,27 @@ namespace mod
         return;
     }
 
-    void AuspiceEndowmentUse()
-    {
-        Lunatic->Stats.AuspiceDefense += 1;
-        return;
-    }
-
-    void AuspiceInvocationUse()
-    {
-        Lunatic->Stats.AuspiceDefense += 2;
-        return;
-    }
-
     void AegisEndowmentUse()
     {
-        Lunatic->Stats.AegisDR += 15.0;
+        Lunatic->Stats.AegisDef += 1;
         return;
     }
 
     void AegisInvocationUse()
     {
-        Lunatic->Stats.AegisDR += 30.0;
+        Lunatic->Stats.AegisDef += 2;
+        return;
+    }
+
+    void AuspiceEndowmentUse()
+    {
+        Lunatic->Stats.AuspiceDR += 15.0;
+        return;
+    }
+
+    void AuspiceInvocationUse()
+    {
+        Lunatic->Stats.AuspiceDR += 30.0;
         return;
     }
 

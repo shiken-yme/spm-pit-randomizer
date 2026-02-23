@@ -1,5 +1,6 @@
 #include "mod.h"
 #include <common.h>
+#include <lp_common.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
 #include <evt_cmd.h>
@@ -10,6 +11,7 @@
 #include <globalop.h>
 #include <rfcdrv.h>
 #include <lunadrv.h>
+#include <interface.h>
 
 #include "lunatic/localize.h"
 #include <gen.h>
@@ -110,7 +112,7 @@ namespace mod
     using namespace spm;
     using namespace customwin;
 
-    void LPGUI_DrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
+    void LPGUIDrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
     {
         if (alpha > 0)
             fontmgr::FontDrawStart_alpha(alpha);
@@ -134,7 +136,7 @@ namespace mod
             return;
         const char *youSuckText = "YOU SUCK";
         f32 scale = 3.69f;
-        LPGUI_DrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (0.0f + (offset * 2)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
+        LPGUIDrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (0.0f + (offset * 2)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
     }
 
     void new_dan_gameover()
@@ -149,9 +151,9 @@ namespace mod
         if (disorderNum > 0)
         {
             wii::mtx::Vec3 position = {x, (-230.0f - (offset / 1.5f)), 0.0f};
-            s32 mainIconId = (disorderNum - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
+            s32 mainIconId = (disorderNum - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
             icondrv::iconDispGxAlpha(0.64f, &position, 0x10, mainIconId, 200);
-            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, ICON_BORDER_DISORDER + TPLPATCH_ICON_REDIRECT, 225);
+            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 225);
         }
         s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
         if (disorderRooms > 0)
@@ -163,7 +165,7 @@ namespace mod
             x -= 4.0f;
             if (disorderRooms == 1)
                 x += 1.0f;
-            LPGUI_DrawText(x, (-185.0f - (offset / 1.5f)), 0.64f, 200, funnyColor, true, msg);
+            LPGUIDrawText(x, (-185.0f - (offset / 1.5f)), 0.64f, 200, funnyColor, true, msg);
         }
     }
 
@@ -183,26 +185,25 @@ namespace mod
                     wii::mtx::PSMTXRotRad((Lunatic->Voucher.Work[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
                     wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
                     wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
-                    icondrv::iconDispGxCol(mtxPos, 0x10, Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT, {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
+                    icondrv::iconDispGxCol(mtxPos, 0x10, TPLPATCH_ICON(Lunatic->Voucher.Work[i]->iconId), {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
                     y += 32.0f;
                 }
             }
         }
     }
 
-    void critDisplay(f32 offset)
+    void critDisplay()
     {
         f32 slide = -100.0f;
-        bool roomNameDisp = swdrv::swGet(422);
-        if (roomNameDisp)
+        if (Lunatic->Interface.critDispStartDisp)
         {
             if (!Lunatic->Interface.critDisp)
             {
                 Lunatic->Interface.critDisp = true;
                 Lunatic->Interface.critDispProgress = 0;
             }
-            slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 100.0f, Lunatic->Interface.critDispProgress, 60);
-            if (Lunatic->Interface.critDispProgress < 60)
+            slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 140.0f, Lunatic->Interface.critDispProgress, 30);
+            if (Lunatic->Interface.critDispProgress < 30)
                 Lunatic->Interface.critDispProgress += 1;
         }
         else
@@ -211,35 +212,56 @@ namespace mod
             {
                 Lunatic->Interface.critDisp = false;
                 Lunatic->Interface.critDispProgress = 0;
-                Lunatic->Interface.critDispSlideOutAdj = 100.0f;
+                Lunatic->Interface.critDispSlideOutAdj = 140.0f;
             }
-            slide -= (system::intplGetValue(system::INTPL_MODE_QUADRATIC_IN, 0.0f, 100.0f, Lunatic->Interface.critDispProgress, 60) * 1.25f);
+            slide -= system::intplGetValue(system::INTPL_MODE_QUADRATIC_IN, 0.0f, 140.0f, Lunatic->Interface.critDispProgress, 30);
             slide += Lunatic->Interface.critDispSlideOutAdj;
-            if (Lunatic->Interface.critDispProgress < 60)
+            if (Lunatic->Interface.critDispProgress < 30)
                 Lunatic->Interface.critDispProgress += 1;
             else
                 Lunatic->Interface.critDispSlideOutAdj = 0.0f;
         }
 
-        f32 x = -360.0f - offset + slide;
+        f32 x = -420.0f + slide;
         f32 y = 105.0f;
+        const char *fmt = "%s: %d%%";
+
+        const char *interfaceCM[2] = {interfaceCM1, interfaceCM2};
+        const char *interfaceCR[2] = {interfaceCR1, interfaceCR2};
+        const char *interfaceDEF[2] = {interfaceDEF1, interfaceDEF2};
+        const char *interfaceDR[2] = {interfaceDR1, interfaceDR2};
 
         // Mult
         wii::mtx::Vec3 position = {x, y, 0.0f};
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, ICON_SPIRIT_2 + TPLPATCH_ICON_REDIRECT, 200);
-        char multBuf[4];
-        msl::stdio::sprintf(multBuf, "%d%%", (s32)Lunatic->Stats.CritMult);
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SPIRIT_2), 200);
+        char multBuf[24];
+        msl::stdio::sprintf(multBuf, fmt, interfaceCM[(s32)swdrv::swGet(1632)], (s32)Lunatic->Stats.CritMult);
         const char *multMsg = multBuf;
-        LPGUI_DrawText((x + 15.0f), (y + 20.0f), 0.7f, 0, {58, 158, 255, 255}, false, multMsg);
+        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {58, 158, 255, 255}, false, multMsg);
 
         // Rate
-        y -= 25.0f;
-        position = {x, y, 0.0f};
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, ICON_SOUL_2 + TPLPATCH_ICON_REDIRECT, 225);
-        char rateBuf[4];
-        msl::stdio::sprintf(rateBuf, "%d%%", Lunatic->Stats.CritRate);
+        position.y -= 25.0f;
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SOUL_2), 225);
+        char rateBuf[24];
+        msl::stdio::sprintf(rateBuf, fmt, interfaceCR[(s32)swdrv::swGet(1632)], Lunatic->Stats.CritRate);
         const char *rateMsg = rateBuf;
-        LPGUI_DrawText((x + 15.0f), (y + 20.0f), 0.7f, 0, {251, 211, 0, 255}, false, rateMsg);
+        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {251, 211, 0, 255}, false, rateMsg);
+
+        // Defense
+        position.y -= 25.0f;
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AEGIS_2), 225);
+        char defBuf[24];
+        msl::stdio::sprintf(defBuf, "%s: %d", interfaceDEF[(s32)swdrv::swGet(1632)], Lunatic->Stats.AegisDef);
+        const char *defMsg = defBuf;
+        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {96, 100, 196, 255}, false, defMsg);
+
+        // Damage Reduction
+        position.y -= 25.0f;
+        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AUSPICE_2), 225);
+        char drBuf[24];
+        msl::stdio::sprintf(drBuf, fmt, interfaceDR[(s32)swdrv::swGet(1632)], round(Lunatic->Stats.AuspiceDR));
+        const char *drMsg = drBuf;
+        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {232, 67, 122, 255}, false, drMsg);
     }
 
     mario::MarioWork *danDisplay()
@@ -250,7 +272,7 @@ namespace mod
             disorderDisplay(offset);
             voucherDisplay(offset);
             youSuckDisplay(offset);
-            critDisplay(offset);
+            critDisplay();
         }
         return mario::marioGetPtr();
     }
@@ -276,6 +298,25 @@ namespace mod
     {
         patch::hookFunction(dan::danCountdownDone, new_dan_gameover);
     }
+
+    s32 LPGUIShowHideStats(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 showHide = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        showHide == 1 ? Lunatic->Interface.critDispStartDisp = true : Lunatic->Interface.critDispStartDisp = false;
+        return 2;
+    }
+
+    /*EVT_BEGIN(LPGUIShowStats)
+    USER_FUNC(LPGUIShowHideStats, 1)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(LPGUIHideStats)
+    USER_FUNC(LPGUIShowHideStats, 0)
+    RETURN()
+    EVT_END()*/
 
     bool DoNothing(winmgr::WinmgrSelect *sel)
     {
@@ -307,7 +348,7 @@ namespace mod
         case 2: // Disorder
             if (Lunatic->Luna.disorder > 0)
             {
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + ICON_DISORDER_APATHY + TPLPATCH_ICON_REDIRECT);
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
                 msl::string::memset(Lunatic->Luna.DW.descBuf, 0, sizeof(Lunatic->Luna.DW.descBuf));
                 LeyLineDisorder *Disorders = (LeyLineDisorder *)DisorderDataGetPtr();
@@ -347,7 +388,7 @@ namespace mod
             s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
             if (Lunatic->Voucher.Work[i] != nullptr)
             {
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Voucher.Work[i]->iconId + TPLPATCH_ICON_REDIRECT);
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], TPLPATCH_ICON((s32)Lunatic->Voucher.Work[i]->iconId));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].name);
                 evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].description);
                 evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].textDrawCol);
@@ -361,7 +402,7 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(GetEffectInfo, 6)
 
-    EVT_BEGIN(LPGUI_ActiveEffects)
+    EVT_BEGIN(LPGUIActiveEffects)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 128, 1000)
     INLINE_EVT()
     DO(0)
@@ -374,6 +415,7 @@ namespace mod
     WHILE()
     END_INLINE()
     WAIT_MSEC(500)
+    USER_FUNC(LPGUIShowHideStats, 1)
     USER_FUNC(EvtCWSelectEntry, PTR("Active"), CWSELECT_DEFAULT, PTR("Active Effects"), PTR(""), 0, 0)
     USER_FUNC(EvtCWSelectHideDescWindow, PTR("Active"))
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Active"), PTR(DoNothing))
@@ -400,6 +442,7 @@ namespace mod
     USER_FUNC(EvtCWSelectReset)
     END_IF()
     USER_FUNC(EvtCWSelectDelete, PTR("Active"))
+    USER_FUNC(LPGUIShowHideStats, 0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 128, 255, 500)
     DO(0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
@@ -428,7 +471,7 @@ namespace mod
                 {
                     pausewin::pausewinPauseGame();
                     hud::hudHide();
-                    evtmgr::evtEntryType(LPGUI_ActiveEffects, 0, 0, 0);
+                    evtmgr::evtEntryType(LPGUIActiveEffects, 0, 0, 0);
                 }
             }
         }

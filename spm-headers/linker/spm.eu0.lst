@@ -1165,6 +1165,7 @@
 801c2558:npcPartUpdatePosition
 801c65e8:npcTakeDamage
 801c82a8:npcHandleHitXp
+801c8d70:func_801c8d70
 801c9ac8:npcGetTribe
 801c9adc:npcGetWorkPtr
 801cc150:npcDamageMario

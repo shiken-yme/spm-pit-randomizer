@@ -239,7 +239,7 @@ namespace mod
         // NORMAL: sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3)
         if (sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3))
         {
-            if ((s32)npc != 0 && npc->templateUnkScript9 == 0 && npc->tribeId != 200 && npc->tribeId != 201 && npc->tribeId != 32 && npc->tribeId != 142 && npc->tribeId != 144 && npc->tribeId != 146 && npc->tribeId != 504 && npc->tribeId != 156 && npc->tribeId != 157 && npc->tribeId != 188 && npc->tribeId != 189 && npc->tribeId != 184 && npc->tribeId != 185)
+            if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && npc->tribeId != 200 && npc->tribeId != 201 && npc->tribeId != 32 && npc->tribeId != 142 && npc->tribeId != 144 && npc->tribeId != 146 && npc->tribeId != 504 && npc->tribeId != 156 && npc->tribeId != 157 && npc->tribeId != 188 && npc->tribeId != 189 && npc->tribeId != 184 && npc->tribeId != 185)
             {
                 npc->maxHp *= 2;
                 npc->hp *= 2;

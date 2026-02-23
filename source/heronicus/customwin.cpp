@@ -123,6 +123,12 @@ namespace mod::customwin
         return;
     }
 
+    /* --------------------------------------------------------------------------------------
+
+                                            CWSelect
+
+     -------------------------------------------------------------------------------------- */
+
     /*
         WindowDesc for custom select menus
     */
@@ -202,6 +208,14 @@ namespace mod::customwin
         GlobalCW->Select[id] = nullptr;
         CWDEBUG_OSREPORT_FMT("CustomWin::CWSelectDelete: Entry with key \'%s\' has been removed.\n", key);
         return;
+    }
+
+    /*
+        Returns the current active CWSelect entry
+    */
+    CWSelect *CWSelectGetActiveEntry()
+    {
+        return GlobalCW->Select[GlobalCW->activeSelect];
     }
 
     /*
@@ -382,7 +396,6 @@ namespace mod::customwin
             CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectOverrideSelectionBehavior: Entry with key \'%s\' not found; aborting process.\n", key);
             return 2;
         }
-
         GlobalCW->Select[id]->DefaultSelectBehavior = callback;
         return 2;
     }
@@ -470,10 +483,9 @@ namespace mod::customwin
         ** User Function **
         Sets a solid or gradient background color for a CWSelect entry's windows
         * Takes a CWSelectColorDef ptr as input
-        * Alpha field is partially supported; if left out, will default to alpha 255 (fully opaque)
-        * Currently, alpha will only correctly apply to the top 2 windows; the description window will always have white underneath
+        * If alpha field is left out, will default to alpha 255 (fully opaque)
         * If the CWSelectColorDef provided has more than 1 entry, it will animate
-        * Completely optional; if not set, all windows default to the classic white
+        * Completely optional; if not called, all windows default to the classic white
     */
     s32 EvtCWSelectSetBGColor(evtmgr::EvtEntry *evtEntry, bool firstCall)
     {
@@ -652,7 +664,7 @@ namespace mod::customwin
                 }
                 else
                 {
-                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item \'%s\' (i = %d) has successfully assigned ID %d.\n", msgdrv::msgSearch(item_data::itemDataTable[GlobalCW->Select[GlobalCW->activeSelect]->Descs[i].itemId].nameMsg), i, blacklist[idx]);
+                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item \'%s\' (i = %d) has successfully assigned ID %d.\n", msgdrv::msgSearch(item_data::itemDataTable[CWSelectGetActiveEntry()->Descs[i].itemId].nameMsg), i, blacklist[idx]);
                     GlobalCW->Select[id]->itemTable[i] = blacklist[idx];
                     idx += 1;
                 }
@@ -668,7 +680,7 @@ namespace mod::customwin
             // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: Select menu item table prepared; custom menu is ready to display. Item Table: %p\n", &GlobalCW->Select[id]->itemTable);
 
             // Prepare the WinmgrSelect entry
-            menu = winmgr::winMgrSelectEntry((s32)&GlobalCW->Select[GlobalCW->activeSelect]->itemTable, 0, 1);
+            menu = winmgr::winMgrSelectEntry((s32)&CWSelectGetActiveEntry()->itemTable, 0, 1);
             if (GlobalCW->Select[id]->type == CWSELECT_INFOGRAPHIC)
             {
                 winmgr::winmgr_wp->entries[menu->entryIds[0]].desc = &CWSelectWindowDescs_Info[0];
@@ -757,12 +769,12 @@ namespace mod::customwin
         {
             evtmgr_cmd::evtSetValue(evtEntry, args[1], -1);
         }
-        else if (GlobalCW->Select[GlobalCW->activeSelect]->Descs[idx].itemId > 0)
+        else if (CWSelectGetActiveEntry()->Descs[idx].itemId > 0)
         {
-            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)msgdrv::msgSearch(item_data::itemDataTable[GlobalCW->Select[GlobalCW->activeSelect]->Descs[idx].itemId].nameMsg));
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)msgdrv::msgSearch(item_data::itemDataTable[CWSelectGetActiveEntry()->Descs[idx].itemId].nameMsg));
         }
         else
-            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)&GlobalCW->Select[GlobalCW->activeSelect]->Descs[idx].nameTxt);
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)&CWSelectGetActiveEntry()->Descs[idx].nameTxt);
         return 2;
     }
 
@@ -780,7 +792,7 @@ namespace mod::customwin
             evtmgr_cmd::evtSetValue(evtEntry, args[1], -1);
         }
         else
-            evtmgr_cmd::evtSetValue(evtEntry, args[1], GlobalCW->Select[GlobalCW->activeSelect]->Descs[idx].cost);
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], CWSelectGetActiveEntry()->Descs[idx].cost);
         return 2;
     }
 
@@ -799,7 +811,7 @@ namespace mod::customwin
             evtmgr_cmd::evtSetValue(evtEntry, args[1], -1);
         }
         else
-            evtmgr_cmd::evtSetValue(evtEntry, args[1], GlobalCW->Select[GlobalCW->activeSelect]->Descs[idx].itemId);
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], CWSelectGetActiveEntry()->Descs[idx].itemId);
         return 2;
     }
 
@@ -886,21 +898,23 @@ namespace mod::customwin
 
     void CWDebug_GetMainHeapFreeSpace(bool alloc)
     {
-        return;
-        /*wii::mem::MEMEXPHeap *exph = (wii::mem::MEMEXPHeap *)memory::memory_wp->heapHandle[0];
-        u32 size = (u32)exph->end - (u32)exph->start;
-        u32 rem = 0;
-        for (wii::mem::MEMAllocation *p = exph->firstFree; p; p = p->next)
-            rem += p->size;
-        if (size == (rem + sizeof(wii::mem::MEMAllocation)))
-            rem += sizeof(wii::mem::MEMAllocation);
-        if (alloc)
+        if (CUSTOMWIN_DEBUG)
         {
-            CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem allocation! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
+            wii::mem::MEMEXPHeap *exph = (wii::mem::MEMEXPHeap *)memory::memory_wp->heapHandle[0];
+            u32 size = (u32)exph->end - (u32)exph->start;
+            u32 rem = 0;
+            for (wii::mem::MEMAllocation *p = exph->firstFree; p; p = p->next)
+                rem += p->size;
+            if (size == (rem + sizeof(wii::mem::MEMAllocation)))
+                rem += sizeof(wii::mem::MEMAllocation);
+            if (alloc)
+            {
+                CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem allocation! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
+            }
+            else
+                CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem free! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
         }
-        else
-            CWDEBUG_OSREPORT_FMT("CustomWin::CWDebug_GetMainHeapFreeSpace: mem free! main heap has %d/%d space remaining (%.4f)\n", rem, size, (f32)((rem / size) * 100));
-        return;*/
+        return;
     }
 
     wii::gx::GXColor CWColorOverrideRecalcAlpha(wii::gx::GXColor *color, pausewin::PausewinEntry *entry)
@@ -1022,7 +1036,7 @@ namespace mod::customwin
         u32 sciX, sciY, sciW, sciH;
         wii::mtx::Mtx34 mtxPos, mtxScale, mtxAnim, mtxRot;
         f32 msgW, xScl;
-        CWSelect *CW = GlobalCW->Select[GlobalCW->activeSelect];
+        CWSelect *CW = CWSelectGetActiveEntry();
         CWSelectItemDesc *Descs = CW->Descs;
         msl::string::memcpy(&hdrTxtCol, &CW->Colorize.headerTxtColor, sizeof(hdrTxtCol));
         if (hdrTxtCol.r == 0 && hdrTxtCol.g == 0 && hdrTxtCol.b == 0 && hdrTxtCol.a == 0)
@@ -1180,7 +1194,7 @@ namespace mod::customwin
 
     void CWSelect_Disp2(winmgr::WinmgrEntry *win)
     {
-        if (GlobalCW->Select[GlobalCW->activeSelect]->hideDescWin)
+        if (CWSelectGetActiveEntry()->hideDescWin)
             return;
         pausewin::PausewinEntry *pausewin = pausewin::pausewinGetEntry(win->select->pausewinId);
         wii::gx::GXColor col;
@@ -1210,7 +1224,7 @@ namespace mod::customwin
         winmgr::winmgr_wp->entries[select->entryIds[1]].scale.y = win->desc->scale.y + ((u32)outlines[0] * 22);
         if (win->rgba.r == 0 && win->rgba.g == 0 && win->rgba.b == 0 && win->rgba.a == 0)
             return;
-        msl::string::memcpy(&col, &GlobalCW->Select[GlobalCW->activeSelect]->Colorize.selectTxtColor, sizeof(col));
+        msl::string::memcpy(&col, &CWSelectGetActiveEntry()->Colorize.selectTxtColor, sizeof(col));
         if (col.r == 0 && col.g == 0 && col.b == 0 && col.a == 0)
             msl::string::memcpy(&col, &win->rgba, sizeof(win->rgba));
         wii::mtx::PSMTXTrans(mtxTrans, idfklol2, idfklol, 0.0);
@@ -1228,7 +1242,7 @@ namespace mod::customwin
         s32 id = GlobalCW->activeSelect;
         if (id > -1)
         {
-            if (entry->desc->type == 0 && GlobalCW->Select[GlobalCW->activeSelect]->hideDescWin)
+            if (entry->desc->type == 0 && CWSelectGetActiveEntry()->hideDescWin)
                 return;
         }
         wii::mtx::Mtx34 mtx;
@@ -1344,7 +1358,7 @@ namespace mod::customwin
         msl::string::memset(Entry->Descs, 0, sizeof(CWSelectItemDesc) * CWSELECT_DESC_MAX);
         msl::string::memcpy(Entry->Descs, Page->Descs, sizeof(CWSelectItemDesc) * Page->num);
         // Copy over the item table and msgpatches for each item
-        for (u8 i = 0; i < Page->num && i < 49; i += 1) // todo: when i eventually add defines, leave room for item limit + 1
+        for (u8 i = 0; i < Page->num && i < CWSELECT_PAGE_DESC_MAX; i += 1)
         {
             Entry->itemTable[i] = Page->itemTable[i];
             if (msl::string::strcmp("", Entry->Descs[i].nameTxt) != 0)
@@ -1406,7 +1420,7 @@ namespace mod::customwin
         u32 pressed = wpadmgr::wpadGetButtonsPressed(0);
         s32 i, ogSelIdx, item;
         winmgr::WinmgrEntry *curEnt;
-        CWSelect *Entry = GlobalCW->Select[GlobalCW->activeSelect];
+        CWSelect *Entry = CWSelectGetActiveEntry();
         switch (select->state)
         {
         case 0:
@@ -1538,7 +1552,7 @@ namespace mod::customwin
         s32 i, ogSelIdx;
         u8 ogPgIdx;
         winmgr::WinmgrEntry *curEnt;
-        CWSelect *Entry = GlobalCW->Select[GlobalCW->activeSelect];
+        CWSelect *Entry = CWSelectGetActiveEntry();
         CWSelectPageDef *Page = &Entry->Info.Pages[Entry->Info.currentPage];
         s32 numItems = (s32)Page->num;
         switch (select->state)
@@ -1668,6 +1682,12 @@ namespace mod::customwin
         }
         return;
     }
+
+    /* --------------------------------------------------------------------------------------
+
+                                            CWKeypad
+
+     -------------------------------------------------------------------------------------- */
 
     void CustomWinMain()
     {

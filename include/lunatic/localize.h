@@ -131,10 +131,10 @@ namespace mod
         "a key every time? Me, too.";
 
     const char hpPatchesName[] =
-        "Low HP Sounds";
+        "Mute Low HP Sounds";
 
     const char hpPatchesDesc[] =
-        "The only sound worse than your\n"
+        "The only sounds worse than your\n"
         "Wii crashing on a loading zone.";
 
     const char explosionShakeAccessName[] =
@@ -143,6 +143,16 @@ namespace mod
     const char explosionShakeAccessDesc[] =
         "When the screen shakes, it will\n"
         "be significantly more gentle.";
+
+    const char statNamesAccessName[] =
+        "Shorter Stat Names";
+
+    const char statNamesAccessDesc[] =
+        "Names on the stats display tab\n"
+        "will be truncated.\n"
+        "<k>\n<p>\n"
+        "Examples: Crit Mult -> CM;\n"
+        "Damage Reduction -> DR";
 
     const char selectMusicBox[] =
         "Select a Tune";
@@ -192,7 +202,7 @@ namespace mod
         "loot of increasing quality.\n"
         "<k>\n<p>\n"
         "Chest rarities spawn like so:\n"
-        "40% Common  30% Uncommon\n"
+        "40% Common   30% Uncommon\n"
         "20% Rare       10% Legendary\n"
         "<k>\n<p>\n"
         "In each chest,<wait 200> you <wave>may</wave> find\n"
@@ -208,8 +218,9 @@ namespace mod
         "floor, <wait 200><wave>but they're rare!\n"
         "</wave><k>\n<p>\n"
         "Up to 1 chest key can spawn\n"
-        "per floor, at a maximum of\n"
-        "3 keys per 10-floor phase.\n"
+        "per floor, with 2 guaranteed\n"
+        "to spawn per 10 floors.\n"
+        // Consider a blurb discussing random keys
         "<k>\n<p>\n"
         "Consider saving your chest\n"
         "keys for when you encounter\n"
@@ -369,18 +380,18 @@ namespace mod
     const char spirit4Desc[] =
         "Increases Crit Mult by 100%.";
 
-    const char aegis1Desc[] =
+    const char auspice1Desc[] =
         "Increases Damage Reduction\n"
         "by 15%.";
 
-    const char aegis2Desc[] =
+    const char auspice2Desc[] =
         "Increases Damage Reduction\n"
         "by 30%.";
 
-    const char auspice1Desc[] =
+    const char aegis1Desc[] =
         "Increases Defense by 1.";
 
-    const char auspice2Desc[] =
+    const char aegis2Desc[] =
         "Increases Defense by 2.";
 
     const char cakeVGet[] =
@@ -1193,6 +1204,30 @@ namespace mod
         "There are no active\n"
         "effects to view right now!\n"
         "<k>";
+
+    const char interfaceCM1[] =
+        "CM";
+
+    const char interfaceCM2[] =
+        "Crit Mult";
+
+    const char interfaceCR1[] =
+        "CR";
+
+    const char interfaceCR2[] =
+        "Crit Rate";
+
+    const char interfaceDEF1[] =
+        "DEF";
+
+    const char interfaceDEF2[] =
+        "Defense";
+
+    const char interfaceDR1[] =
+        "DR";
+
+    const char interfaceDR2[] =
+        "Dmg Reduction";
 
     // Disorders
 

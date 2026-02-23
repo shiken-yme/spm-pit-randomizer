@@ -494,15 +494,13 @@ namespace mod
         {
             {spectreName, {120, 0}, 0, nullptr, nullptr},
             {houraiName, {0, 0}, 0, nullptr, nullptr},
-            {paramitaName, {0, 0}, 0, nullptr, nullptr}
-        };
+            {paramitaName, {0, 0}, 0, nullptr, nullptr}};
 
     DivineJudgement Curses[MERLUNA_MIGRAINE] =
         {
             {shionName, {0, 0}, 0, nullptr, nullptr},
             {hexName, {0, 0}, 0, nullptr, nullptr},
-            {migraineName, {0, 0}, 0, nullptr, nullptr}
-        };
+            {migraineName, {0, 0}, 0, nullptr, nullptr}};
 
     LeyLineDisorder Disorders[DISORDER_BLACK] =
         {
@@ -514,7 +512,7 @@ namespace mod
             {depravityName, depravityDesc, {0, 0, 255, 30}, {0, 0, 255, 50}, {0, 0, 60, 255}, 50, 1.3, 6900, DepravitySet, nullptr},                  // DEPRAVITY
             {indolenceName, indolenceDesc, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, nullptr},             // INDOLENCE
             {melancholyName, melancholyDesc, {255, 255, 255, 30}, {255, 255, 255, 50}, {60, 60, 60, 255}, 20, 0.8, 3200, nullptr, nullptr},           // MELANCHOLY
-            {ruinName, ruinDesc, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                    // RUIN
+            {ruinName, ruinDesc, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                   // RUIN
     };
 
     void *DisorderDataGetPtr()
@@ -577,7 +575,7 @@ namespace mod
         s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         if (onOff > 0)
         {
-            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON_REDIRECT + ICON_B;
+            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON(ICON_B);
         }
         else
             msgdrv::msgdrv_msgIcon[3].iconId = 0xF;
@@ -598,7 +596,7 @@ namespace mod
         u8 alpha = Disorders[Lunatic->Luna.disorder - 1].mainCol.a;
         switch (Lunatic->Luna.DW.tremorState)
         {
-        case 1:                                                    // Tremor fadein
+        case 1:                                          // Tremor fadein
             if (Lunatic->Luna.DW.tremorIntplFrmMax == 0) // Init variables
             {
                 Lunatic->Luna.DW.tremorIntplFrmMax = (s32)msl::math::floor((f32)(Lunatic->Luna.DW.finalShakeTime / 1000 * 60));
@@ -743,13 +741,31 @@ namespace mod
     RETURN()
     EVT_END()
 
+    s32 EvtDisorderReleaseTremor(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        f32 intensity = evtmgr_cmd::evtGetFloat(evtEntry, args[0]);
+        camdrv::CamEntry *cam = camdrv::camPtrTbl[camdrv::CAM_ID_3D];
+        if (cam->shakeIntensity.x == intensity && cam->shakeIntensity.y == intensity && cam->shakeDuration >= 1900.0f) // Rough check to ensure shake params are correct
+        {
+            Lunatic->Luna.DW.tremorState = 1;
+            return 2;
+        }
+        return 0;
+    }
+    EVT_DECLARE_USER_FUNC(EvtDisorderReleaseTremor, 1)
+
     EVT_BEGIN(EvtDisorderTremor)
     USER_FUNC(evt_snd::evt_snd_sfxon, PTR("SFX_EVT_QUAKE1L"))
     USER_FUNC(evt_snd::evt_snd_get_last_sfx_id, LW(0))
     IF_EQUAL(GSWF(1630), 0) // Lighter camera tremors ACTIVE
     DIVF(LW(12), 4)
     END_IF()
-    USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(12), LW(12), FLOAT(0.0), LW(10), 1)
+    INLINE_EVT()
+    USER_FUNC(EvtDisorderReleaseTremor, LW(12))
+    END_INLINE()
+    USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(12), LW(12), FLOAT(0.0), LW(10), 0)
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     RETURN()
     EVT_END()
@@ -814,7 +830,6 @@ namespace mod
         s32 odds = system::rand() % 1000;
         if (odds < Lunatic->Luna.Disorder->shakeOdds && Lunatic->Luna.DW.tremorState == 0)
         {
-            Lunatic->Luna.DW.tremorState = 1;
             s32 time = (Lunatic->Luna.Disorder->shakeTime - ((s32)msl::math::floor(system::rand() % (Lunatic->Luna.Disorder->shakeTime / 2))));
             if (time < 2000)
                 time = 2000;

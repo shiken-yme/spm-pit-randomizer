@@ -1137,7 +1137,7 @@ namespace mod
             msl::string::memset(&Desc, 0, sizeof(Desc));
             if (itemId >= RFC_SPECIAL_START)
             {
-                Desc.iconId = (s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId + TPLPATCH_ICON_REDIRECT;
+                Desc.iconId = TPLPATCH_ICON((s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId);
                 msl::string::memcpy(&Desc.nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
                 msl::string::memcpy(&Desc.descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
                 wii::os::OSReport("RFC: Special item %d generated. Icon id set to %d. Name: %s\n", itemId, Desc.iconId, Desc.nameTxt);

@@ -28,6 +28,9 @@ namespace mod::tplpatch
 
 #define TPLPATCH_ICON_REDIRECT 1600
 
+#define TPLPATCH_ICON(idx) \
+  (idx + TPLPATCH_ICON_REDIRECT)
+
   void iconPatch(char * iconFileName); // Put this in your mod's void main() to enable iconpatch functionality!
 
   extern wii::tpl::TPLHeader *TPLPatchIconTPLHeader;
