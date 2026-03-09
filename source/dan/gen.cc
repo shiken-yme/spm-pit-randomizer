@@ -1084,7 +1084,7 @@ namespace mod
         if (voucherSpin)
             VoucherCallAction(VOUCHER_STELLAR);
         Lunatic->RFC.chestRarity = rarity;
-        Lunatic->RFC.chestKeys = 2 + rarity + Lunatic->RFC.rerolls;
+        Lunatic->RFC.chestKeys = 1 + rarity + Lunatic->RFC.rerolls;
         // Select 3 items
         for (i = 0; i < 3; i += 1)
         {

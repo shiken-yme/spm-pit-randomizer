@@ -1209,6 +1209,8 @@
 // more
 
 // spmario_snd.c
+80237bd0:readWiiMarioSndDat
+802382b0:spsndInit
 80238598:spsndExit
 802388b4:spsndSetFlag
 802388cc:spsndClearFlag
@@ -1230,6 +1232,8 @@
 8023b680:func_8023b680
 // data
 80532fe0:spsndBgmPlayers
+805339f0:spsnd_work
+805aea18:spsbgmlist
 // more
 
 // nw4r::snd.cpp

@@ -248,7 +248,7 @@ namespace mod
         bool rfcSpecialObtained[LPCUSTOMITEM_MAX];
         RFCItemData *rfcItemData[3];
         customwin::CWSelectItemDesc rfcItems[3];
-        u8 chestKeysToSpawn[8];
+        u8 chestKeysToSpawn[4];
         u8 chestKeysOwned;
         bool chestKeySpawned;
     };

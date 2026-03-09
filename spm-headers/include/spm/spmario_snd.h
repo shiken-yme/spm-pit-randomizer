@@ -12,12 +12,28 @@ USING(nw4r::snd::Snd_BasicSound)
 USING(wii::mtx::Vec3)
 
 typedef struct Snd_SoundHandle {
-    Snd_BasicSound *mSound;
+    Snd_BasicSound * mSound;
 } Snd_SoundHandle;
 SIZE_ASSERT(Snd_SoundHandle, 0x4)
 
 typedef struct {
-    char *name;
+    const char * name;
+    short brsarIdx; /* file param 4 */
+    short brsarIdx3d; /* file param 5 */
+    u8 runtimeFlags; /* file param 1 */
+    u8 volume; /* file param 2 */
+    u8 pan; /* file param 3 */
+    u8 reverb; /* file param 6 */
+    u8 priority; /* file param 7 */
+    u8 setupFlags; /* file param 11 */
+    s16 delayMsec; /* file param 8 */
+    s16 pitch; /* file param 9 */
+    s16 audibleDistance; /* file param 10 */
+} SfxEntry;
+SIZE_ASSERT(SfxEntry, 0x14)
+
+typedef struct {
+    const char * name;
     short brsarIdx; /* file param 6 */
     u16 fileParam1; /* file param 1 */
     u8 volume; /* file param 2 */
@@ -28,7 +44,7 @@ typedef struct {
 SIZE_ASSERT(BgmEntry, 0xc)
 
 typedef struct {
-    BgmEntry *bgmEntry;
+    BgmEntry * bgmEntry;
     Snd_SoundHandle soundHandle;
     u8 field2_0x8;
     u8 pan;
@@ -42,8 +58,28 @@ typedef struct {
 } BgmPlayer;
 SIZE_ASSERT(BgmPlayer, 0x28)
 
+typedef struct {
+/* 0x00 */ u8 unknown_0x00[0x60 - 0x00];
+/* 0x60 */ s16 bgmCount;
+/* 0x62 */ s16 sfxCount;
+/* 0x64 */ s16 envCount;
+/* 0x66 */ u8 unknown_0x66[0x70 - 0x66];
+} SpsndWork;
+SIZE_ASSERT(SpsndWork, 0x70)
+
+extern SpsndWork spsnd_work;
+
+extern BgmEntry * spsbgmlist;
+extern SfxEntry * spssfxlist;
 extern BgmPlayer spsndBgmPlayers[3];
 
+s32 sfxSearch(const char * key, SfxEntry * elem);
+const char * wiiMarioSndDatReadStr();
+s32 wiiMarioSndDatReadInt();
+s32 sfxCompare(SfxEntry * p1, SfxEntry * p2);
+void readWiiMarioSndDat();
+s32 brsarLoadThreadFunc();
+void wpadConnectCb(Unk p1, Unk p2);
 void spsndInit();
 void spsndMain();
 void spsndExit();

@@ -12,9 +12,9 @@
 namespace mod::tplpatch
 {
   /*
-  patchTpl and TextureWork were created by L5050.
-  The iconpatch framework was created by Yme.
-  Reach out to the respective authors if you need help with using any part of this library!
+    patchTpl and TextureWork were created by L5050.
+    The iconpatch framework was created by Yme.
+    Reach out to the respective authors if you need help with using any part of this library!
   */
 
   using namespace spm;

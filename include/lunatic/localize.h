@@ -171,7 +171,7 @@ namespace mod
     const char chestText[] =
         "<system>"
         "Open the %s Chest?\n"
-        "<wait 300>It'll take %d Chest Keys.\n"
+        "<wait 300>Chest Keys required: %d\n"
         "<wait 300>(You have %d!)\n"
         "<dkey><wait 300></dkey><o>";
 

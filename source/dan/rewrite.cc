@@ -278,7 +278,7 @@ namespace mod
     {
         (void)isFirstCall;
         (void)entry;
-        s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0;
+        s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0, difficulty = swdrv::swByteGet(1620);
         bool assign = false, randomKeyAssigned = false;
         npcdrv::NPCWork *npcWp = npcdrv::npcGetWorkPtr();
         NPCEntry *curNpc = npcWp->entries;
@@ -286,15 +286,13 @@ namespace mod
         NPCEntry *enemies[80];
         if ((currentFloor % 10) == 0)
         {
-            msl::string::memset(&Lunatic->RFC.chestKeysToSpawn[0], 0xff, 8);
-            s32 difficulty = swdrv::swByteGet(1620);
-            s32 guaranteedFloors = __builtin_abs(difficulty - 4);
-            for (i = 0; i < guaranteedFloors; i += 1)
+            msl::string::memset(&Lunatic->RFC.chestKeysToSpawn[0], 0xff, 4);
+            for (i = 0; i < 2; i += 1)
             {
             rerollFloor:
                 u8 rand = (u8)(system::rand() % 9);
                 assign = true;
-                for (j = 0; j < 8; j += 1)
+                for (j = 0; j < 4; j += 1)
                 {
                     if (rand == Lunatic->RFC.chestKeysToSpawn[j])
                         assign = false;
@@ -304,7 +302,7 @@ namespace mod
                 else
                     goto rerollFloor;
             }
-            wii::os::OSReport("%d guaranteed chest keys for this cycle @ rooms ending in %d, %d, %d, %d\n", guaranteedFloors, Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1, Lunatic->RFC.chestKeysToSpawn[2] + 1, Lunatic->RFC.chestKeysToSpawn[3] + 1);
+            wii::os::OSReport("Guaranteed chest keys for this cycle @ rooms ending in %d, %d\n", Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1);
         }
         // Create list of enemies to give keys in the current room
         for (i = 0; i < npcWp->num; curNpc++, i++)
@@ -330,7 +328,7 @@ namespace mod
                 if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY)
                     goto buh;
                 assign = false;
-                for (j = 0; j < 8; j += 1)
+                for (j = 0; j < 4; j += 1)
                 {
                     if ((u8)(currentFloor % 10) == Lunatic->RFC.chestKeysToSpawn[j])
                         assign = true;
@@ -352,7 +350,7 @@ namespace mod
                 for (j = 0; j < enemyCount; j += 1)
                 {
                     s32 odds = system::rand() % enemiesInCycle;
-                    if (odds == 0 && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
+                    if (odds < __builtin_abs(difficulty - 4) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
                     {
                         enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
                         randomKeyAssigned = true;

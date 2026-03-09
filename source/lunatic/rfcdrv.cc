@@ -166,9 +166,9 @@ namespace mod
         ITEM_ID_USE_SHINABITA_KINOKO,
         ITEM_ID_COOK_TRIAL_PAN,
         (VOUCHER_STELLAR + RFC_SPECIAL_START),
-        (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
+    //    (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
         (VOUCHER_STELLAR + RFC_SPECIAL_START),
-        (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
+    //    (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
         (SPIRIT_3 + RFC_SPECIAL_START),
         (SOUL_3 + RFC_SPECIAL_START),
         (AUSPICE_2 + RFC_SPECIAL_START)};
@@ -197,7 +197,7 @@ namespace mod
             if (Lunatic->Voucher.Work[i] == nullptr) // Not in use
                 break;
         }
-        assertf(i < VOUCHER_MAX, "Voucher limit of %d (VOUCHER_MAX) exceeded", VOUCHER_MAX); // todo: send system message and fail to apply voucher instead of crashing
+        assertf(i < VOUCHER_MAX, "Voucher limit of %d (VOUCHER_MAX) exceeded", VOUCHER_MAX);
         Lunatic->Voucher.Work[i] = (VoucherWork *)memory::__memAlloc(0, sizeof(VoucherWork));
         msl::string::memset(Lunatic->Voucher.Work[i], 0, sizeof(VoucherWork));
         Lunatic->Voucher.Work[i]->UW.Any = wp;
@@ -412,7 +412,7 @@ namespace mod
         s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         pouch->attack -= (s32)msl::math::floor((f32)Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus / 2.0f) + 1;
-        Lunatic->Stats.CritMult -= (s32)msl::math::floor(Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus / 2.0f) + 4.0f;
+        Lunatic->Stats.CritMult -= (s32)msl::math::floor(Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus / 2.0f) + 8.0f;
         Lunatic->Stats.CritRate -= (s32)msl::math::floor((f32)Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus / 2.0f) + 2;
         return;
     }
@@ -428,8 +428,8 @@ namespace mod
         }
         else if (odds < 7)
         {
-            Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 4.0f;
-            Lunatic->Stats.CritMult += 4.0f;
+            Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 8.0f;
+            Lunatic->Stats.CritMult += 8.0f;
         }
         else
         {

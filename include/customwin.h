@@ -142,6 +142,7 @@ namespace mod::customwin
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetShopIcon, 3)
 
     extern CustomWinWork *GlobalCW;
+    s32 CWSelectKeyToId(const char *key);
     void CWSelect_Main(winmgr::WinmgrEntry *win);
     void CWSelect_Main_Info(winmgr::WinmgrEntry *win);
     void CWSelect_Disp(winmgr::WinmgrEntry *win);

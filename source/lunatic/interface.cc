@@ -95,6 +95,7 @@
 #include <spm/system.h>
 #include <spm/npc_dimeen_l.h>
 #include <spm/winmgr.h>
+#include <spm/wpadmgr.h>
 #include <spm/rel/dan.h>
 #include <spm/rel/machi.h>
 #include <wii/os/OSError.h>
@@ -280,17 +281,28 @@ namespace mod
     static seqdef::SeqFunc *seq_titleMainReal;
     void seq_titleMainOverride(seqdrv::SeqWork *wp)
     {
+        const char *msg = MOD_VERSION;
+        const char *debugMsg = "LP Debug Mode activated! ^w^";
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
-        const char *msg = MOD_VERSION;
-        fontmgr::FontDrawStart();
-        fontmgr::FontDrawEdge();
-        fontmgr::FontDrawColor(&notgreen);
-        fontmgr::FontDrawScale(scale);
-        fontmgr::FontDrawNoiseOff();
-        fontmgr::FontDrawRainbowColorOff();
-        f32 x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
-        fontmgr::FontDrawString(x, 200.0f, msg);
+        f32 y = 200.0f;
+        f32 x;
+        if (!DebugMode)
+        {
+            x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
+            LPGUIDrawText(x, y, scale, 0, notgreen, false, msg);
+        }
+        else
+        {
+            x = -((fontmgr::FontGetMessageWidth(debugMsg) * scale) / 2);
+            LPGUIDrawText(x, y, scale, 0, notgreen, true, debugMsg);
+        }
+        // Hotkey to enable debug mode
+        if (!DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_Z) != 0 && (wpadmgr::wpadGetButtonsPressed(0) & WPAD_BTN_B) != 0)
+        {
+            DebugMode = true;
+            spmario_snd::spsndSFXOn("SFX_I_BRUNK_APPEAR1");
+        }
         seq_titleMainReal(wp);
     }
 

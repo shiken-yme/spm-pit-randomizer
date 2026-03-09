@@ -79,7 +79,7 @@ namespace mod
         }
         else
             spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - LINE_HEIGHT, scale, &titleColour,
-                                             "Crash occurred in gp \"%s\" - seq_mapchange_wp \"%s\"", spmario::gp->mapName, seq_mapchange::seq_mapchange_wp->mapName);
+                                         "Crash occurred in gp \"%s\" - seq_mapchange_wp \"%s\"", spmario::gp->mapName, seq_mapchange::seq_mapchange_wp->mapName);
         spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - (LINE_HEIGHT * 2), scale, &titleColour,
                                      "Show this crash to Yme in Flipside Tower mod-discussion, please! discord.gg/ndrxwcyCum");
     }
@@ -151,7 +151,7 @@ namespace mod
         // Print to OSReport
         wii::os::OSReport("%s\n", msg);
 
-        const f32 topY = 50.0f;
+        const f32 topY = 70.0f;
         f32 bottomY = getBottomY(msg);
         f32 yShift = topY;
         f32 delta = bottomY <= SCREEN_BOTTOM ? 1.0f : 0.0f;

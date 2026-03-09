@@ -55,10 +55,10 @@ typedef f32 (IntplUserFunc)(s32, s32, f32, f32);
 #else
 
 #define assert(condition, message) \
-    if (!(condition)) spm::system::__assert2(__FILE__, __LINE__, #condition, message)
+    if (!(condition)) spm::system::__assert2(__FILE_NAME__, __LINE__, #condition, message)
 
 #define assertf(condition, message, ...) \
-    if (!(condition)) spm::system::__assert2(__FILE__, __LINE__, #condition, message, __VA_ARGS__)
+    if (!(condition)) spm::system::__assert2(__FILE_NAME__, __LINE__, #condition, message, __VA_ARGS__)
 
 #endif
 

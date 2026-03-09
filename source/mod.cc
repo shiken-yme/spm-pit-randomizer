@@ -11,6 +11,7 @@
 #include <globalop.h>
 #include <msgpatch.h>
 #include <effpatch.h>
+#include <sndpatch.h>
 #include <customwin.h>
 #include <ymetools.h>
 
@@ -102,6 +103,7 @@
 #include <spm/system.h>
 #include <spm/npc_dimeen_l.h>
 #include <spm/winmgr.h>
+#include <spm/wpadmgr.h>
 #include <spm/rel/dan.h>
 #include <spm/rel/machi.h>
 #include <wii/os/OSError.h>
@@ -893,10 +895,7 @@ namespace mod
             s32 cur = 0;
             for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1)
             {
-                // if (frame->type != 3) // FRAME_TYPE_EVT
-                // {
                 frame->color = {(u8)frameR, (u8)frameG, (u8)frameB, 255};
-                //  }
                 frame = frame + 1;
             }
         }
@@ -1124,7 +1123,7 @@ namespace mod
                                                                {
                                                                    Lunatic->RFC.chestKeysOwned += 1;
                                                                    mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
-                                                                   wii::os::OSReport("Chest keys: %d\n", Lunatic->RFC.chestKeysOwned);
+                                                                   wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
                                                                }
                                                            }
                                                            return ret;
@@ -2271,8 +2270,8 @@ namespace mod
         bool blockMovers = swdrv::swGet(1610);
         if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
-        // vv DEBUG vv
-        // Lunatic->Mover.moverRNG = 2;
+        if (DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2))
+            Lunatic->Mover.moverRNG = 2;
         // THRESHOLD IS 14!!!!
         wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
         return 2;
@@ -2512,9 +2511,22 @@ namespace mod
     s32 mover_down_5(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         s32 floor = swdrv::swByteGet(1);
-        // floor = floor + 4;
-        floor = floor + 8; // DEBUG
-        // floor = floor + 198; // DEBUG
+        if (DebugMode)
+        {
+            if ((wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2))
+            {
+                floor += 8;
+            }
+            else if ((wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_A) != 0)
+            {
+                floor += 198;
+            }
+            else
+                floor += 4;
+        }
+        else
+            floor += 4;
+        //  // DEBUG
         swdrv::swByteSet(1, floor);
         const char *destMap = getNextDanMapnameNew(floor);
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
@@ -2742,9 +2754,10 @@ namespace mod
     {
         (void)evtEntry;
         (void)firstRun;
-        Lunatic->Boodin.cardNum = GlobalCW->Select[GlobalCW->activeSelect]->num;
+        s32 id = customwin::CWSelectKeyToId("Cards");
+        Lunatic->Boodin.cardNum = GlobalCW->Select[id]->num;
         msl::string::memset(&Lunatic->Boodin.Cards, 0, sizeof(Lunatic->Boodin.Cards));
-        msl::string::memcpy(&Lunatic->Boodin.Cards, GlobalCW->Select[GlobalCW->activeSelect]->Descs, sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum);
+        msl::string::memcpy(&Lunatic->Boodin.Cards, GlobalCW->Select[id]->Descs, sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_backup_descs, 0)
@@ -3197,8 +3210,8 @@ namespace mod
     CASE_EQUAL(4)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FPIANO"), 500)
     CASE_EQUAL(5)
-    // USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FBEATS"), 500)
-    //  CASE_EQUAL(6)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FBEATS"), 500)
+    CASE_EQUAL(6)
     USER_FUNC(evt_snd::evt_snd_bgmoff, 0)
     END_SWITCH()
     USER_FUNC(evt_snd::evt_snd_set_sfx_reverb_mode, 0)
@@ -3860,12 +3873,21 @@ namespace mod
     RETURN()
     EVT_END()
 
+    customwin::CWSelectColorDef boodinSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{185, 200, 240, 255}, {185, 200, 240, 255}, 120, 120}, // Blue
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{185, 240, 240, 255}, {185, 240, 240, 255}, 120, 120}, // Cyan
+    };
+
     EVT_BEGIN(boodin_speech)
     IF_EQUAL(LW(7), 0)
     USER_FUNC(evt_mario::evt_mario_key_off, 0)
     SET(LW(6), 0)
     USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
     USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Cards"), PTR(boodinSelectBgCols), 4)
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
     END_IF()
@@ -3876,6 +3898,7 @@ namespace mod
     USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
     USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
     USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+    USER_FUNC(EvtCWSelectReset)
     USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
     USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
     USER_FUNC(evt_msg::evt_msg_continue)
@@ -3901,6 +3924,7 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     IF_LARGE(LW(2), 0)
     USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+    USER_FUNC(dan_boodin_backup_descs)
     END_IF()
     // BUY ANOTHER?
     SET(LW(6), 1)
@@ -3922,10 +3946,8 @@ namespace mod
     ELSE()
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
     END_IF()
-    USER_FUNC(evt_mario::evt_mario_key_on)
-    USER_FUNC(dan_boodin_backup_descs)
-    USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
+    USER_FUNC(evt_mario::evt_mario_key_on)
     INLINE_EVT()
     IF_EQUAL(LW(6), 1)
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
@@ -3964,11 +3986,20 @@ namespace mod
     RETURN()
     EVT_END()
 
+    customwin::CWSelectColorDef rfcSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{255, 220, 180, 255}, {255, 220, 180, 255}, 120, 120}, // Orange
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{255, 250, 200, 255}, {255, 250, 200, 255}, 120, 120}, // Yellow
+    };
+
     EVT_BEGIN(new_dan_chest_open_evt)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR(rfcChestName), 0)
     USER_FUNC(RFCGetPtr, LW(1))
     USER_FUNC(EvtCWSelectEntry, PTR("RFC"), CWSELECT_DEFAULT, PTR("Loot"), PTR("Pick an item,\nany item!"), LW(1), 3)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("RFC"), PTR(&RFCHeaderCol))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("RFC"), PTR(rfcSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("RFC"), 0, LW(0))
     IF_EQUAL(LW(0), -1) // Select menu cancelled
     USER_FUNC(EvtCWSelectReset)
@@ -4378,6 +4409,14 @@ namespace mod
     USER_FUNC(evt_dan_patch_dokan)
     RETURN_FROM_CALL()
 
+    customwin::CWSelectColorDef musicSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{215, 195, 255, 255}, {215, 195, 255, 255}, 120, 120}, // Purple
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{245, 195, 255, 255}, {245, 195, 255, 255}, 120, 120}, // Magenta
+    };
+
     EVT_BEGIN(cwselect_music)
     USER_FUNC(EvtCWSelectEntry, PTR("Music"), CWSELECT_DEFAULT, PTR(selectMusicBlueText), PTR(selectMusicBox), 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), 0x164, 0, 0, 0)
@@ -4385,9 +4424,10 @@ namespace mod
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), 0x84, 0, 0, 0)
-    //  USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), 0x87, 0, 0, 0)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Music"), PTR(musicSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
     IF_NOT_EQUAL(LW(0), -1)
     SET(GSW(1621), LW(0))
@@ -4610,6 +4650,30 @@ namespace mod
         return false;
     }
 
+    customwin::CWSelectColorDef featuresSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{250, 200, 200, 255}, {250, 200, 200, 255}, 120, 120}, // Red
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    };
+
+    customwin::CWSelectColorDef patchesSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{225, 255, 225, 255}, {225, 255, 225, 255}, 120, 120}, // Green
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    };
+
+    customwin::CWSelectColorDef accessSelectBgCols[] =
+        {
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{210, 220, 255, 255}, {210, 220, 255, 255}, 120, 120}, // Blue
+            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    };
+
     EVT_BEGIN(cwselect_features)
     USER_FUNC(JimboSetGSWFBase, 1610)
     USER_FUNC(EvtCWSelectEntry, PTR("Features"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
@@ -4631,6 +4695,7 @@ namespace mod
     END_IF()
     // End debug, open select menu */
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Features"), PTR(JimboToggleOption))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Features"), PTR(featuresSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Features"), 0, 0)
     /* // Debug: Refresh character model
     IF_EQUAL(LW(3), 1)
@@ -4658,6 +4723,7 @@ namespace mod
     ADD(LW(1), GSWF(1621))
     USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(hpPatchesName), PTR(hpPatchesDesc), LW(1), 0, 0, 0)
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Patches"), PTR(JimboToggleOption))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Patches"), PTR(patchesSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Patches"), 0, 0)
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Patches"))
@@ -4674,6 +4740,7 @@ namespace mod
     ADD(LW(1), GSWF(1631))
     USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(statNamesAccessName), PTR(statNamesAccessDesc), LW(1), 0, 0, 0)
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Accessibility"), PTR(JimboToggleOption))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Accessibility"), PTR(accessSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Accessibility"), 0, 0)
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Accessibility"))
@@ -5521,9 +5588,12 @@ namespace mod
         evtpatch::evtmgrExtensionInit();
         tplpatch::iconPatch("wicon2");
         effpatch::effpatchInit();
-        // Debug tools & Pit Rando debug mode
+        sndpatch::sndpatchInit();
+        // Add new BGM entries
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FBEATS", 1384, 127, 64, 0, 0);
+        wii::os::OSReport("BGM slots taken: %d\n", spmario_snd::spsnd_work.bgmCount);
+        // Debug tools
         yme::ymeMain();
-        DebugMode = true;
         // Mod functions
         guiOverrides();
         rewrite_main();
