@@ -130,11 +130,12 @@ namespace mod
             break;
         }
         wp->storedHP = msl::math::floor((f32)pouch->maxHp * wp->marioHpMult);
-        pouch->hp = msl::math::floor((f32)pouch->hp * wp->marioHpMult) + 1;
         pouch->maxHp -= wp->storedHP;
-        wp->storedCritRate = (s32)msl::math::floor((f32)Lunatic->Stats.CritRate / 2.0);
+        if (pouch->maxHp < pouch->hp)
+            pouch->hp = pouch->maxHp;
+        wp->storedCritRate = Lunatic->Stats.CritRate / 2.0;
         Lunatic->Stats.CritRate -= wp->storedCritRate;
-        wp->storedCritMult = msl::math::floor((f32)Lunatic->Stats.CritMult / 2.0);
+        wp->storedCritMult = msl::math::floor(Lunatic->Stats.CritMult / 2.0);
         Lunatic->Stats.CritMult -= wp->storedCritMult;
         return;
     }
@@ -144,7 +145,6 @@ namespace mod
         ApathyWork *wp = Lunatic->Luna.DW.UW.Apathy;
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         pouch->maxHp += wp->storedHP;
-        pouch->hp += (s32)(wp->storedHP * wp->marioHpMult);
         Lunatic->Stats.CritRate += wp->storedCritRate;
         Lunatic->Stats.CritMult += wp->storedCritMult;
         return;

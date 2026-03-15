@@ -30,12 +30,17 @@ typedef struct _HitObj
 /* 0x002 */ u8 unknown_0x2[0x4 - 0x2];
 /* 0x004 */ u32 attr; // unknown bitflags
 /* 0x008 */ MapFileJoint * joint;
-/* 0x00C */ u8 unknown_0xc[0xcc - 0xc];
+/* 0x00C */ Mtx34 jointMtxWithParent;
+/* 0x03C */ Mtx34 jointMtx;
+/* 0x06C */ Mtx34 animMtx;
+/* 0x09C */ Mtx34 unkIdentityMtx;
 /* 0x0CC */ Vec3 position; 
 /* 0x0D8 */ s16 totalTri;
 /* 0x0DA */ s16 mapEntryIdx;
 /* 0x0DC */ Unk * tris; // array of totalTri length
-/* 0x0E0 */ u8 unknown_0xe0[0x100 - 0xe0];
+/* 0x0E0 */ u8 unknown_0xe0[0xf0 - 0xe0];
+/* 0x0F0 */ Vec3 processedPosition;
+/* 0x0FC */ f32 unkDistance;
 /* 0x100 */ union
             {
                 MobjEntry * mobj;
@@ -165,7 +170,11 @@ void hitObjGetNormal(const char * name, Vec3 * normalOut);
 */
 void hitGetMapEntryBbox(s32 mapEntryIdx, Vec3 * minOut, Vec3 * maxOut);
 
-UNKNOWN_FUNCTION(func_8007058c)
+/*
+    Returns the bounding box of a specified HitObj and all of its children
+*/
+void hitGetBboxFromHitObj(HitObj * hitObj, Vec3 * minOut, Vec3 * maxOut, bool chkSiblings);
+
 UNKNOWN_FUNCTION(func_80070790)
 
 /*
@@ -176,7 +185,7 @@ const char * hitGetName(HitObj * hitObj);
 /*
     Returns the attr of a HitObj
 */
-u32 hitGetAttr(HitObj * hitGetAttr);
+u32 hitGetAttr(HitObj * hitObj);
 
 /*
     Sets the owner of a HitObj

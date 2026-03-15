@@ -388,14 +388,16 @@ typedef struct
         2 is stand on
         3 is jump from
         6 is head
-        9 is cudged obj that interrupts the hammer animation
+        9 is last hammered wall
         Others unknown
     */
 /* 0x01BC */ HitObj * hitObjs1[10];
 /* 0x01E4 */ u8 unknown_0x1e4[0x1e8 - 0x1e4];
 /* 0x01E8 */ HitObj * cudgeFloorHitObj; // Updates for 1 frame during hammer action on a floor and then clears, value taken directly from below
 /* 0x01EC */ HitObj * cudgeFloorHitObj2; // Updates only when cudge is used (?)
-/* 0x01F0 */ u8 unknown_0x1ec[0x1fc - 0x1f0];
+/* 0x01F0 */ u8 unknown_0x1ec[0x1f4 - 0x1f0];
+/* 0x01F4 */ HitObj * unknown_0x1f4;
+/* 0x01F8 */ HitObj * unknown_0x1f8;
     /*
         0 is MOBJ interact
         1 is Bowser fire interact

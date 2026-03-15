@@ -203,6 +203,8 @@
 8006ffe4:hitObjGetPos
 8006bac0:hitDelete
 800703b0:hitGetMapEntryBbox
+8007058c:hitGetBboxFromHitObj
+80070898:hitGetName
 8006f920:hitNameToPtr
 8006bd80:hitObjFlagOn
 8006be08:hitObjFlagOff
@@ -1389,11 +1391,13 @@
 // mtx.c
 8027a2d0:PSMTXConcat
 8027a270:PSMTXIdentity
+8027a29c:PSMTXCopy
 8027a55c:PSMTXRotRad
 8027a7b4:PSMTXTrans
 8027a7e8:PSMTXTransApply
 8027a834:PSMTXScale
 8027a85c:PSMTXScaleApply
+8027acf0:PSMTXMultVec
 8027afac:C_MTXOrtho
 8027b4fc:PSVECSquareDistance
 // more

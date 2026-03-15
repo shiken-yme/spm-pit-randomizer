@@ -1090,10 +1090,10 @@ namespace mod
         {
             itemRarity = rarity;
             // Determine rarity of item to select
-            for (j = 0; j < __builtin_abs(rarity - 3); j += 1)
+            for (j = 0; j < (3 - rarity); j += 1)
             {
                 odds = system::rand() % 100;
-                if (odds < (5 + (rarity * 10))) // 5/15/25/35% chance to select a higher-tier item, repeated 3/2/1/0 times
+                if (odds < (5 + (rarity * 10))) // 5/15/25% chance to select a higher-tier item, ran 3/2/1 times
                     itemRarity += 1;
                 else
                     break;

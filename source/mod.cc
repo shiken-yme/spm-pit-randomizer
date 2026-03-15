@@ -1041,6 +1041,7 @@ namespace mod
     itemdrv::ItemEntry *(*itemEntryReal)(const char *name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode *pickupScript, evtmgr::EvtVar switchNumber);
     s32 (*itemCollectPouchItemReal)(itemdrv::ItemEntry *item);
     void (*TPLBindReal)(wii::tpl::TPLHeader *tpl);
+    void (*spsndBGMSetVolReal)(s32 player, s32 volume, u32 fadeMsec);
     static void miscLambdas()
     {
         searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg,
@@ -1139,6 +1140,21 @@ namespace mod
                                                   tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
                                               return;
                                           });
+
+        /*spsndBGMSetVolReal = patch::hookFunction(spmario_snd::spsndBGMSetVol,
+                                                 [](s32 player, s32 volume, u32 fadeMsec)
+                                                 {
+                                                    // Get brsar idx of the current bgm player
+                                                     s16 brsarIdx = spmario_snd::spsndBgmPlayers[player].bgmEntry->brsarIdx;
+                                                     // If brsar idx does not match a Lunatic track, it shouldn't be prevented
+                                                     if (brsarIdx < 1380 || brsarIdx > 1383)
+                                                        spsndBGMSetVolReal(player, volume, fadeMsec);
+                                                     // Check for fadeMsec "keys" called exclusively in the mod and allow all calls made using those parameters
+                                                     if (fadeMsec == 737 || fadeMsec == 1)
+                                                         spsndBGMSetVolReal(player, volume, fadeMsec);
+                                                     // Check for fadeMsec/volume 
+                                                     return;
+                                                 });*/
     }
 
     static void danOverwrite()
@@ -3119,80 +3135,16 @@ namespace mod
     EVT_END()
 
     EVT_BEGIN(LunaticMusicHandler)
-    IF_SMALL(GSW(1), 25)
+    SWITCH(GSW(1))
+    CASE_SMALL(25)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
-    RETURN()
-    END_IF()
-    IF_SMALL(GSW(1), 150)
+    CASE_SMALL(150)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_B"), 500)
-    RETURN()
-    END_IF()
-    IF_SMALL(GSW(1), 175)
+    CASE_SMALL(175)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
-    RETURN()
-    END_IF()
+    CASE_ETC()
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_D"), 500)
-    /*USER_FUNC(evt_snd::evt_snd_get_bgm_name, 0, LW(15))
-    IF_EQUAL(LW(15), 0)
-    GOTO(98)
-    END_IF()
-    USER_FUNC(evtCompareStrings, LW(15), PTR("LUNATIC"), LW(15))
-    IF_EQUAL(LW(15), 1)
-    GOTO(99)
-    END_IF()
-    USER_FUNC(evt_snd::evt_snd_get_bgm_name, 1, LW(15))
-    IF_EQUAL(LW(15), 0)
-    GOTO(98)
-    END_IF()
-    USER_FUNC(evtCompareStrings, LW(15), PTR("LUNATIC"), LW(15))
-    IF_EQUAL(LW(15), 1)
-    GOTO(99)
-    END_IF()
-    // Lunatic music init when NOT already playing a lunatic track
-    LBL(98)
-    IF_SMALL(GSW(1), 25)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
-    RETURN()
-    END_IF()
-    IF_SMALL(GSW(1), 150)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 0)
-    RETURN()
-    END_IF()
-    IF_SMALL(GSW(1), 175)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
-    RETURN()
-    END_IF()
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 0)
-    RETURN()
-    // Lunatic music init when already playing a lunatic track
-    LBL(99)
-    IF_EQUAL(GSW(1), 0) // 25
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_A"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_B"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
-    RETURN()
-    END_IF()
-    IF_EQUAL(GSW(1), 4) // 150
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 1000)
-    USER_FUNC(evt_snd::evt_snd_player_fadein, 1, 1000)
-    RETURN()
-    END_IF()
-    IF_EQUAL(GSW(1), 6) // 175
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_LUNATIC_C"), 500)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 1, PTR("BGM_MAP_LUNATIC_D"), 0)
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 1, 0)
-    RETURN()
-    END_IF()
-    USER_FUNC(evt_snd::evt_snd_player_fadeout, 0, 1000)
-    USER_FUNC(evt_snd::evt_snd_player_fadein, 1, 1000)*/
+    END_SWITCH()
     RETURN()
     EVT_END()
 
@@ -3204,7 +3156,7 @@ namespace mod
     CASE_EQUAL(1)
     RUN_CHILD_EVT(LunaticMusicHandler)
     CASE_EQUAL(2)
-    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_EVT_RELAXATION1"), 500)
+    USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100F8BIT"), 500)
     CASE_EQUAL(3)
     USER_FUNC(evt_snd::evt_snd_bgmon_f_d, 0, PTR("BGM_MAP_100FSYNTH"), 500)
     CASE_EQUAL(4)
@@ -3895,56 +3847,57 @@ namespace mod
     USER_FUNC(EvtCWSelectMenuStart, PTR("Cards"), 0, LW(2)) // LW(4) item ID, LW(5) item name, LW(1) buy price
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     IF_NOT_EQUAL(LW(2), -1)
-    USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
-    USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
-    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
-    USER_FUNC(EvtCWSelectReset)
-    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-    USER_FUNC(evt_msg::evt_msg_continue)
-    IF_EQUAL(LW(0), 0)
-    USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
-    IF_SMALL(LW(3), LW(1))
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
+        USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
+        USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
+        USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+        USER_FUNC(EvtCWSelectReset)
+        USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
+        USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+        USER_FUNC(evt_msg::evt_msg_continue)
+        IF_EQUAL(LW(0), 0)
+            USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
+            IF_SMALL(LW(3), LW(1))
+                USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
+            ELSE()
+                USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
+                IF_EQUAL(LW(3), 0)
+                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
+                ELSE()
+                    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+                    WAIT_MSEC(500)
+                    MUL(LW(1), -1)
+                    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
+                    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
+                    WAIT_MSEC(500)
+                    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
+                    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
+                    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
+                    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+                    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+                    IF_LARGE(LW(2), 0)
+                        USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+                        USER_FUNC(dan_boodin_backup_descs)
+                    END_IF()
+                    // BUY ANOTHER?
+                    SET(LW(6), 1)
+                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
+                    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+                    USER_FUNC(evt_msg::evt_msg_continue)
+                    IF_EQUAL(LW(0), 0)
+                        SET(LW(7), 1)
+                        RUN_CHILD_EVT(boodin_speech)
+                        RETURN()
+                    ELSE()
+                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
+                    END_IF()
+                END_IF()
+            END_IF()
+        ELSE()
+            USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+        END_IF()
     ELSE()
-    USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
-    IF_EQUAL(LW(3), 0)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
-    ELSE()
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-    WAIT_MSEC(500)
-    MUL(LW(1), -1)
-    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
-    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
-    WAIT_MSEC(500)
-    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
-    IF_LARGE(LW(2), 0)
-    USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
-    USER_FUNC(dan_boodin_backup_descs)
-    END_IF()
-    // BUY ANOTHER?
-    SET(LW(6), 1)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-    USER_FUNC(evt_msg::evt_msg_continue)
-    IF_EQUAL(LW(0), 0)
-    SET(LW(7), 1)
-    RUN_CHILD_EVT(boodin_speech)
-    RETURN()
-    ELSE()
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
-    END_IF()
-    END_IF()
-    END_IF()
-    ELSE()
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
-    END_IF()
-    ELSE()
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+        USER_FUNC(EvtCWSelectReset)
+        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -4495,6 +4448,7 @@ namespace mod
     IF_NOT_EQUAL(LW(0), -1)
     USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 0, 1000)
     WAIT_MSEC(1200)
+    SET(LW(15), 1)
     RUN_EVT(custom_pit_music)
     END_IF()
     RETURN_FROM_CALL()
@@ -5590,10 +5544,15 @@ namespace mod
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
         // Add new BGM entries
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100F8BIT", 1385, 50, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FSYNTH", 1378, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FPIANO", 1379, 127, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FBEATS", 1384, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_A", 1380, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_B", 1381, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_C", 1382, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_D", 1383, 127, 64, 0, 0);
         wii::os::OSReport("BGM slots taken: %d\n", spmario_snd::spsnd_work.bgmCount);
-        // Debug tools
-        yme::ymeMain();
         // Mod functions
         guiOverrides();
         rewrite_main();

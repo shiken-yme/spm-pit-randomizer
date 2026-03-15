@@ -12,6 +12,7 @@
 #include <rfcdrv.h>
 #include <lunadrv.h>
 #include <interface.h>
+#include <ymetools.h>
 
 #include "lunatic/localize.h"
 #include <gen.h>
@@ -173,7 +174,7 @@ namespace mod
     void voucherDisplay(f32 offset)
     {
         f32 y = -230.0f;
-        f32 x = 385.0f;
+        f32 x = 385.0f + offset;
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
         {
@@ -181,6 +182,7 @@ namespace mod
             {
                 if (Lunatic->Voucher.Work[i]->iconId != 0)
                 {
+                    // TODO: For Z axis rotation, look into PSVECNormalize
                     wii::mtx::PSMTXTrans(mtxPos, x, y, 0.0f);
                     wii::mtx::PSMTXScale(mtxScale, 0.73f, 0.73f, 0.73f);
                     wii::mtx::PSMTXRotRad((Lunatic->Voucher.Work[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
@@ -191,6 +193,23 @@ namespace mod
                 }
             }
         }
+    }
+
+    void chestKeyDisplay(f32 offset)
+    {
+        f32 y = 100.0f + offset;
+        if ((swdrv::swByteGet(1) % 10) == 9)
+            y += 15.0f;
+        f32 x = 335.0f;
+        wii::mtx::Mtx34 mtxPos, mtxScale;
+        wii::mtx::PSMTXTrans(mtxPos, x, y, 0.0f);
+        wii::mtx::PSMTXScale(mtxScale, 0.8f, 0.8f, 0.8f);
+        wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
+        icondrv::iconDispGxCol(mtxPos, 0x10, TPLPATCH_ICON(ICON_CHEST_KEY), {255, 255, 255, 255});
+        char buffer[4];
+        msl::stdio::sprintf(buffer, "%d", Lunatic->RFC.chestKeysOwned);
+        const char *msg = buffer;
+        LPGUIDrawText((x + 16.0f), (y + 24.0f), 0.8f, 0, {255, 135, 75, 255}, false, msg);
     }
 
     void critDisplay()
@@ -236,7 +255,7 @@ namespace mod
         wii::mtx::Vec3 position = {x, y, 0.0f};
         icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SPIRIT_2), 200);
         char multBuf[24];
-        msl::stdio::sprintf(multBuf, fmt, interfaceCM[(s32)swdrv::swGet(1632)], (s32)Lunatic->Stats.CritMult);
+        msl::stdio::sprintf(multBuf, fmt, interfaceCM[(s32)swdrv::swGet(1631)], (s32)Lunatic->Stats.CritMult);
         const char *multMsg = multBuf;
         LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {58, 158, 255, 255}, false, multMsg);
 
@@ -244,7 +263,7 @@ namespace mod
         position.y -= 25.0f;
         icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SOUL_2), 225);
         char rateBuf[24];
-        msl::stdio::sprintf(rateBuf, fmt, interfaceCR[(s32)swdrv::swGet(1632)], Lunatic->Stats.CritRate);
+        msl::stdio::sprintf(rateBuf, fmt, interfaceCR[(s32)swdrv::swGet(1631)], Lunatic->Stats.CritRate);
         const char *rateMsg = rateBuf;
         LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {251, 211, 0, 255}, false, rateMsg);
 
@@ -252,7 +271,7 @@ namespace mod
         position.y -= 25.0f;
         icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AEGIS_2), 225);
         char defBuf[24];
-        msl::stdio::sprintf(defBuf, "%s: %d", interfaceDEF[(s32)swdrv::swGet(1632)], Lunatic->Stats.AegisDef);
+        msl::stdio::sprintf(defBuf, "%s: %d", interfaceDEF[(s32)swdrv::swGet(1631)], Lunatic->Stats.AegisDef);
         const char *defMsg = defBuf;
         LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {96, 100, 196, 255}, false, defMsg);
 
@@ -260,7 +279,7 @@ namespace mod
         position.y -= 25.0f;
         icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AUSPICE_2), 225);
         char drBuf[24];
-        msl::stdio::sprintf(drBuf, fmt, interfaceDR[(s32)swdrv::swGet(1632)], round(Lunatic->Stats.AuspiceDR));
+        msl::stdio::sprintf(drBuf, fmt, interfaceDR[(s32)swdrv::swGet(1631)], round(Lunatic->Stats.AuspiceDR));
         const char *drMsg = drBuf;
         LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {232, 67, 122, 255}, false, drMsg);
     }
@@ -272,6 +291,7 @@ namespace mod
             f32 offset = hud::hud_wp->basePos.y;
             disorderDisplay(offset);
             voucherDisplay(offset);
+            chestKeyDisplay(offset);
             youSuckDisplay(offset);
             critDisplay();
         }
@@ -302,6 +322,8 @@ namespace mod
         {
             DebugMode = true;
             spmario_snd::spsndSFXOn("SFX_I_BRUNK_APPEAR1");
+            // Debug tools
+            yme::ymeMain();
         }
         seq_titleMainReal(wp);
     }

@@ -349,8 +349,12 @@ namespace mod
                 // If a floor does not have a guaranteed chest key, small chance for any enemy to be assigned one
                 for (j = 0; j < enemyCount; j += 1)
                 {
-                    s32 odds = system::rand() % enemiesInCycle;
-                    if (odds < __builtin_abs(difficulty - 4) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
+                    /*
+                        If 100 enemies in a 10-floor phase,
+                        2.8/2.1/1.4/0.7 in 100 chance for an enemy to drop a random key
+                    */
+                    s32 odds = system::rand() % (enemiesInCycle * 10);
+                    if (odds < ((4 - difficulty) * 7) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
                     {
                         enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
                         randomKeyAssigned = true;

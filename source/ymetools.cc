@@ -41,11 +41,13 @@
 #include <spm/evt_sub.h>
 #include <spm/framedrv.h>
 #include <spm/gxsub.h>
+#include <spm/dispdrv.h>
 #include <spm/hitdrv.h>
 #include <spm/fontmgr.h>
 #include <spm/filemgr.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
+#include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/hitdrv.h>
 #include <spm/itemdrv.h>
@@ -152,7 +154,68 @@ namespace mod::yme
 
     s32 ActiveYmeTool = 0;
 
+    // s32 curMap_n = 0;
+
     static seqdef::SeqFunc *seq_gameMainReal;
+
+    void hitboxDisplay(s32 camId, void *hitEnt)
+    {
+        hitdrv::HitObj *hitEntry = (hitdrv::HitObj *)hitEnt;
+        (void)camId;
+        wii::mtx::Vec3 start, end, a, b;
+        wii::gx::GXColor color = highlight;
+        if ((hitEntry->flags & 0x1) != 0)
+            color = highlightInactive;
+        f32 width = (hitEntry->joint->bboxMax.x - hitEntry->joint->bboxMin.x) * 10.0f;
+        f32 height = (hitEntry->joint->bboxMax.y - hitEntry->joint->bboxMin.y) * 10.0f;
+        f32 length = (hitEntry->joint->bboxMax.z - hitEntry->joint->bboxMin.z) * 10.0f;
+        hitdrv::hitObjGetPos(hitdrv::hitGetName(hitEntry), &start);
+        start = {start.x - (width / 2.0f), start.y - (height / 2.0f), start.z - (length / 2.0f)};
+        end.x = start.x + width;
+        end.y = start.y + height;
+        end.z = start.z + length;
+        gxsub::gxsubInit_Cam(camdrv::camGetPtr(camdrv::CAM_ID_3D));
+        a = {start.x, end.y, end.z};
+        b = {end.x, end.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {start.x, start.y, end.z};
+        b = {start.x, end.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, start.y, end.z};
+        b = {start.x, start.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, end.y, end.z};
+        b = {end.x, start.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {start.x, end.y, start.z};
+        b = {end.x, end.y, start.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {start.x, start.y, start.z};
+        b = {start.x, end.y, start.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, start.y, start.z};
+        b = {start.x, start.y, start.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, end.y, start.z};
+        b = {end.x, start.y, start.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, end.y, start.z};
+        b = {end.x, start.y, start.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, end.y, start.z};
+        b = {end.x, end.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {start.x, end.y, start.z};
+        b = {start.x, end.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {end.x, start.y, start.z};
+        b = {end.x, start.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        a = {start.x, start.y, start.z};
+        b = {start.x, start.y, end.z};
+        gxsub::gxsubDrawLine(&a, &b, 10, &color);
+        return;
+    }
 
     void hitobj9HitText()
     {
@@ -171,6 +234,44 @@ namespace mod::yme
             fontmgr::FontDrawNoiseOff();
             fontmgr::FontDrawRainbowColorOff();
             fontmgr::FontDrawString(-360, -80.0f, msg);
+            if (msl::string::strcmp(hitObjName, "Null") != 0)
+            {
+                wii::mtx::Vec3 hitPos;
+                hitdrv::hitObjGetPos(hitObjName, &hitPos);
+                dispdrv::dispEntry(camdrv::CAM_ID_3D, 11, dispdrv::dispCalcZ(&hitPos), hitboxDisplay, (void *)hitdrv::hitNameToPtr(hitObjName));
+            }
+            /*
+                Debug
+            */
+            /*hitdrv::HitObj *OneF4 = mario::marioGetPtr()->unknown_0x1f4;
+            if (OneF4 != nullptr)
+            {
+                char buf2[64];
+                msl::stdio::sprintf(buf2, "HitObj 0x1F4: %s", hitdrv::hitGetName(OneF4));
+                const char *msg2 = buf2;
+                fontmgr::FontDrawStart();
+                fontmgr::FontDrawEdge();
+                fontmgr::FontDrawColor(&funnyColor);
+                fontmgr::FontDrawScale(scale);
+                fontmgr::FontDrawNoiseOff();
+                fontmgr::FontDrawRainbowColorOff();
+                fontmgr::FontDrawString(-360, 0.0f, msg2);
+            }
+            hitdrv::HitObj *OneF8 = mario::marioGetPtr()->unknown_0x1f8;
+            if (OneF8 != nullptr)
+            {
+                char buf3[64];
+                msl::stdio::sprintf(buf3, "HitObj 0x1F8: %s", hitdrv::hitGetName(OneF8));
+                const char *msg3 = buf3;
+                fontmgr::FontDrawStart();
+                fontmgr::FontDrawEdge();
+                fontmgr::FontDrawColor(&funnyColor);
+                fontmgr::FontDrawScale(scale);
+                fontmgr::FontDrawNoiseOff();
+                fontmgr::FontDrawRainbowColorOff();
+                fontmgr::FontDrawString(-360, -20.0f, msg3);
+            }
+            */
         }
     }
 
@@ -833,6 +934,8 @@ namespace mod::yme
     void ymetoolsMain()
     {
         mario::MarioWork *mario = mario::marioGetPtr();
+        mapdrv::MapWorkGroup *mapWkGrp = mapdrv::mapGetWork();
+        mapdrv::MapEntry *mapEnt = &mapWkGrp->entries[0];
         // Handle opening the config menu
         u8 configMenuOpen = swdrv::swGet(1700);
         if (configMenuOpen == 0)
@@ -846,21 +949,20 @@ namespace mod::yme
         // Handle the mapobj display and hitobj on/off features
         if (ActiveYmeTool == YMETOOLS_OBJ_DISP)
         {
-            mapdrv::MapWorkGroup *mapWkGrp = mapdrv::mapGetWork();
-            if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+            if (curMapObj >= mapEnt->mapObjCount)
                 curMapObj = 0;
             if (curMapObj < 0)
-                curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-            mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                curMapObj = (mapEnt->mapObjCount - 1);
+            mapObj = mapEnt->mapObjs + curMapObj;
             // Ensure only map groups in MapGrp mode, and only map objects in MapObj mode
             while (((msl::string::strcmp(mapObj->joint->type, "mesh") == 0) && mapGrpMode) || ((msl::string::strcmp(mapObj->joint->type, "null") == 0) && !mapGrpMode))
             {
                 curMapObj = curMapObj + 1;
-                if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                if (curMapObj >= mapEnt->mapObjCount)
                     curMapObj = 0;
                 if (curMapObj < 0)
-                    curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                    curMapObj = (mapEnt->mapObjCount - 1);
+                mapObj = mapEnt->mapObjs + curMapObj;
             }
             msl::stdio::sprintf(mapObjName, "%s", mapObj->joint->name);
             if ((mapObj->flag0 & 0x1) != 0)
@@ -882,19 +984,19 @@ namespace mod::yme
                 evt->lw[0] = (s32)mapObj->joint->name;
                 evt->lw[1] = (s32)mapGrpMode;
                 curMapObj = curMapObj + 1;
-                if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                if (curMapObj >= mapEnt->mapObjCount)
                     curMapObj = 0;
                 if (curMapObj < 0)
-                    curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                    curMapObj = (mapEnt->mapObjCount - 1);
+                mapObj = mapEnt->mapObjs + curMapObj;
                 while (((msl::string::strcmp(mapObj->joint->type, "mesh") == 0) && mapGrpMode) || ((msl::string::strcmp(mapObj->joint->type, "null") == 0) && !mapGrpMode))
                 {
                     curMapObj = curMapObj + 1;
-                    if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                    if (curMapObj >= mapEnt->mapObjCount)
                         curMapObj = 0;
                     if (curMapObj < 0)
-                        curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                    mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                        curMapObj = (mapEnt->mapObjCount - 1);
+                    mapObj = mapEnt->mapObjs + curMapObj;
                 }
             }
             if ((mario->buttonsHeld & (WPAD_BTN_C)) == (WPAD_BTN_C) && (mario->buttonsPressed & (WPAD_BTN_1)) == (WPAD_BTN_1)) // C held & 1 pressed
@@ -909,19 +1011,19 @@ namespace mod::yme
                 evt->lw[0] = (s32)mapObj->joint->name;
                 evt->lw[1] = (s32)mapGrpMode;
                 curMapObj = curMapObj - 1;
-                if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                if (curMapObj >= mapEnt->mapObjCount)
                     curMapObj = 0;
                 if (curMapObj < 0)
-                    curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                    curMapObj = (mapEnt->mapObjCount - 1);
+                mapObj = mapEnt->mapObjs + curMapObj;
                 while (((msl::string::strcmp(mapObj->joint->type, "mesh") == 0) && mapGrpMode) || ((msl::string::strcmp(mapObj->joint->type, "null") == 0) && !mapGrpMode))
                 {
                     curMapObj = curMapObj - 1;
-                    if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                    if (curMapObj >= mapEnt->mapObjCount)
                         curMapObj = 0;
                     if (curMapObj < 0)
-                        curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                    mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                        curMapObj = (mapEnt->mapObjCount - 1);
+                    mapObj = mapEnt->mapObjs + curMapObj;
                 }
             }
             if ((mario->buttonsHeld & (WPAD_BTN_Z)) == (WPAD_BTN_Z) && (mario->buttonsPressed & (WPAD_BTN_2)) == (WPAD_BTN_2)) // Z held & 2 pressed
@@ -970,19 +1072,19 @@ namespace mod::yme
                     evt->lw[0] = (s32)mapObj->joint->name;
                     evt->lw[1] = (s32)mapGrpMode;
                     curMapObj = curMapObj + 1;
-                    if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                    if (curMapObj >= mapEnt->mapObjCount)
                         curMapObj = 0;
                     if (curMapObj < 0)
-                        curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                    mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                        curMapObj = (mapEnt->mapObjCount - 1);
+                    mapObj = mapEnt->mapObjs + curMapObj;
                     while (((msl::string::strcmp(mapObj->joint->type, "mesh") == 0) && mapGrpMode) || ((msl::string::strcmp(mapObj->joint->type, "null") == 0) && !mapGrpMode))
                     {
                         curMapObj = curMapObj + 1;
-                        if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                        if (curMapObj >= mapEnt->mapObjCount)
                             curMapObj = 0;
                         if (curMapObj < 0)
-                            curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                        mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                            curMapObj = (mapEnt->mapObjCount - 1);
+                        mapObj = mapEnt->mapObjs + curMapObj;
                     }
                 }
             }
@@ -1003,19 +1105,19 @@ namespace mod::yme
                     evt->lw[0] = (s32)mapObj->joint->name;
                     evt->lw[1] = (s32)mapGrpMode;
                     curMapObj = curMapObj - 1;
-                    if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                    if (curMapObj >= mapEnt->mapObjCount)
                         curMapObj = 0;
                     if (curMapObj < 0)
-                        curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                    mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                        curMapObj = (mapEnt->mapObjCount - 1);
+                    mapObj = mapEnt->mapObjs + curMapObj;
                     while (((msl::string::strcmp(mapObj->joint->type, "mesh") == 0) && mapGrpMode) || ((msl::string::strcmp(mapObj->joint->type, "null") == 0) && !mapGrpMode))
                     {
                         curMapObj = curMapObj - 1;
-                        if (curMapObj >= mapWkGrp->entries[0].mapObjCount)
+                        if (curMapObj >= mapEnt->mapObjCount)
                             curMapObj = 0;
                         if (curMapObj < 0)
-                            curMapObj = (mapWkGrp->entries[0].mapObjCount - 1);
-                        mapObj = mapWkGrp->entries[0].mapObjs + curMapObj;
+                            curMapObj = (mapEnt->mapObjCount - 1);
+                        mapObj = mapEnt->mapObjs + curMapObj;
                     }
                 }
             }
@@ -1032,12 +1134,11 @@ namespace mod::yme
         }
         else if (ActiveYmeTool == YMETOOLS_MAPANIM_DISP)
         {
-            mapdrv::MapWorkGroup *mapWkGrp = mapdrv::mapGetWork();
-            if (curMapAnim >= mapWkGrp->entries[0].animCount)
+            if (curMapAnim >= mapEnt->animCount)
                 curMapAnim = 0;
             if (curMapAnim < 0)
-                curMapAnim = (mapWkGrp->entries[0].animCount - 1);
-            mapAnim = mapWkGrp->entries[0].animData + curMapAnim;
+                curMapAnim = (mapEnt->animCount - 1);
+            mapAnim = mapEnt->animData + curMapAnim;
             if (mapAnim == nullptr)
             {
                 msl::stdio::sprintf(mapAnimName, "None here!");
@@ -1070,20 +1171,20 @@ namespace mod::yme
             if ((mario->buttonsHeld & (WPAD_BTN_C)) == (WPAD_BTN_C) && (mario->buttonsPressed & (WPAD_BTN_1)) == (WPAD_BTN_1)) // C held & 1 pressed
             {
                 curMapAnim = curMapAnim - 1;
-                if (curMapAnim >= mapWkGrp->entries[0].animCount)
+                if (curMapAnim >= mapEnt->animCount)
                     curMapAnim = 0;
                 if (curMapAnim < 0)
-                    curMapAnim = (mapWkGrp->entries[0].animCount - 1);
-                mapAnim = mapWkGrp->entries[0].animData + curMapAnim;
+                    curMapAnim = (mapEnt->animCount - 1);
+                mapAnim = mapEnt->animData + curMapAnim;
             }
             if ((mario->buttonsHeld & (WPAD_BTN_C)) == (WPAD_BTN_C) && (mario->buttonsPressed & (WPAD_BTN_2)) == (WPAD_BTN_2)) // C held & 2 pressed
             {
                 curMapAnim = curMapAnim + 1;
-                if (curMapAnim >= mapWkGrp->entries[0].animCount)
+                if (curMapAnim >= mapEnt->animCount)
                     curMapAnim = 0;
                 if (curMapAnim < 0)
-                    curMapAnim = (mapWkGrp->entries[0].animCount - 1);
-                mapAnim = mapWkGrp->entries[0].animData + curMapAnim;
+                    curMapAnim = (mapEnt->animCount - 1);
+                mapAnim = mapEnt->animData + curMapAnim;
             }
             if ((mario->buttonsHeld & (WPAD_BTN_C | WPAD_BTN_2)) == (WPAD_BTN_C | WPAD_BTN_2)) // C & 2 held
             {
@@ -1091,11 +1192,11 @@ namespace mod::yme
                 if (plusHeldTimer > 30 && spmario::gp->frameCounter % 6 == 0)
                 {
                     curMapAnim = curMapAnim + 1;
-                    if (curMapAnim >= mapWkGrp->entries[0].animCount)
+                    if (curMapAnim >= mapEnt->animCount)
                         curMapAnim = 0;
                     if (curMapAnim < 0)
-                        curMapAnim = (mapWkGrp->entries[0].animCount - 1);
-                    mapAnim = mapWkGrp->entries[0].animData + curMapAnim;
+                        curMapAnim = (mapEnt->animCount - 1);
+                    mapAnim = mapEnt->animData + curMapAnim;
                 }
             }
             else
@@ -1106,11 +1207,11 @@ namespace mod::yme
                 if (minusHeldTimer > 30 && spmario::gp->frameCounter % 6 == 0)
                 {
                     curMapAnim = curMapAnim - 1;
-                    if (curMapAnim >= mapWkGrp->entries[0].animCount)
+                    if (curMapAnim >= mapEnt->animCount)
                         curMapAnim = 0;
                     if (curMapAnim < 0)
-                        curMapAnim = (mapWkGrp->entries[0].animCount - 1);
-                    mapAnim = mapWkGrp->entries[0].animData + curMapAnim;
+                        curMapAnim = (mapEnt->animCount - 1);
+                    mapAnim = mapEnt->animData + curMapAnim;
                 }
             }
             else
@@ -1123,6 +1224,31 @@ namespace mod::yme
                 evtmgr::evtEntryType(ymetoolsMobjMenu_Main, 0, 0, 0);
             }
         }
+        /*
+            SLIM GAP VISUALIZER TEST!
+
+        if (seqdrv::seqGetSeq() == seqdrv::SEQ_GAMEOVER || seqdrv::seqGetSeq() == seqdrv::SEQ_TITLE)
+            seqdrv::seqSetSeq(seqdrv::SEQ_MAPCHANGE, map_data::mapData[curMap_n++]->name, "");
+        else if (seqdrv::seqGetSeq() == seqdrv::SEQ_GAME)
+        {
+            const char *name = seq_mapchange::seq_mapchange_wp->mapName;
+            s32 n = 0;
+            for (s32 i = 0; i < mapEnt->hitObjCount; i += 1)
+            {
+                hitdrv::HitObj *hitEntry = &mapEnt->hitObjs[i];
+                if ((hitEntry->attr & 0x10) != 0) // Is a slim gap
+                {
+                    n += 1;
+                    if ((hitEntry->attr & 0x40000000) != 0) // Is 2D
+                        wii::os::OSReport("[%s] Full Match: %s has attr 0x%x\n", name, hitdrv::hitGetName(hitEntry), hitEntry->attr);
+                    else
+                        wii::os::OSReport("[%s] Partial Match: %s has attr 0x%x.\n", name, hitdrv::hitGetName(hitEntry), hitEntry->attr);
+                }
+            }
+            if (n == 0)
+                wii::os::OSReport("[%s] No Slim gaps were found in this map.\n", name);
+            seqdrv::seqSetSeq(seqdrv::SEQ_MAPCHANGE, map_data::mapData[curMap_n++]->name, "");
+        }*/
         return;
     }
 
