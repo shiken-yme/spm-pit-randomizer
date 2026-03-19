@@ -674,7 +674,8 @@ typedef struct _NPCEntry
 /* 0x718 */ EvtScriptCode * templateField0x58; // field 0x58 from spawning SetupEnemyTemplate (unknown for non-templated NPCs)
 /* 0x71C */ u8 unknown_0x71c[0x730 - 0x71c];
 /* 0x730 */ _NPCEntry * master;
-/* 0x734 */ u8 unknown_0x734[0x748 - 0x734];
+/* 0x734 */ _NPCEntry * slaves[4];
+/* 0x744 */ u8 unknown_0x744[0x748 - 0x744];
 } NPCEntry;
 SIZE_ASSERT(NPCEntry, 0x748)
 

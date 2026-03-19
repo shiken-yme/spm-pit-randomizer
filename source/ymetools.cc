@@ -78,6 +78,12 @@
 
 namespace mod::yme
 {
+    /*
+        Proprietary tool for debugging, reverse engineering, and feature testing
+        You can use this tool if you want by entering Debug Mode (Z + B on title screen, then Z + B ingame) but the controls aren't intuitive
+        I will not offer support for these tools, as they are not necessarily meant for public use... but maybe one day
+    */
+
     using namespace spm;
 
     // Init variables for ObjDisp
@@ -158,6 +164,10 @@ namespace mod::yme
 
     static seqdef::SeqFunc *seq_gameMainReal;
 
+    /*
+        This gxsubDrawLine pattern is pretty much copied from npcHitboxDisp.
+        I'll try to make something a little better one day.
+    */
     void hitboxDisplay(s32 camId, void *hitEnt)
     {
         hitdrv::HitObj *hitEntry = (hitdrv::HitObj *)hitEnt;

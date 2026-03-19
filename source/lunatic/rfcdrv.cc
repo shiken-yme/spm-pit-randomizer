@@ -1,4 +1,5 @@
 #include <common.h>
+#include <lp_common.h>
 #include <evt_cmd.h>
 #include <rfcdrv.h>
 #include <mod.h>
@@ -100,31 +101,29 @@
 
 namespace mod
 {
+    /*
+        This file contains code for Rest Floor Chests & the special items contained with them
+        RFC is powered heavily by CustomWin and IconPatch. I'm so glad that developing those libraries is paying off now!
+    */
+
     using namespace spm;
     using namespace spm::npcdrv;
     using namespace spm::item_data;
 
     s32 RFCItems_Common[] = {
-        ITEM_ID_USE_HONOO_SAKURETU,
         ITEM_ID_USE_STAR_MEDAL,
         ITEM_ID_USE_KOURA_DE_PON,
         ITEM_ID_USE_KOORI_NO_IBUKI,
         ITEM_ID_USE_BARIA_FRAME,
-        ITEM_ID_COOK_BOMB_EGG,
         ITEM_ID_USE_POW_BLOCK,
         ITEM_ID_USE_TOROPICO_MANGO,
         ITEM_ID_USE_MILD_CACAO,
-        ITEM_ID_USE_ROW_PASTA,
-        ITEM_ID_USE_INGREDIENTS_OF_SWEET,
         ITEM_ID_USE_TUKUSHINBO,
-        ITEM_ID_USE_HERB,
         ITEM_ID_COOK_KAME_TEA,
-        ITEM_ID_COOK_HERB_TEA,
-        ITEM_ID_COOK_TRIAL_PAN,
-        (SPIRIT_1 + RFC_SPECIAL_START),
-        (SPIRIT_1 + RFC_SPECIAL_START),
-        (SOUL_1 + RFC_SPECIAL_START),
-        (SOUL_1 + RFC_SPECIAL_START)};
+        RFC_ITEM(SPIRIT_1),
+        RFC_ITEM(SPIRIT_1),
+        RFC_ITEM(SOUL_1),
+        RFC_ITEM(SOUL_1)};
 
     s32 RFCItems_Uncommon[] = {
         ITEM_ID_COOK_HUNNY_KINOKO,
@@ -132,62 +131,64 @@ namespace mod
         ITEM_ID_COOK_KINOKO_FRY,
         ITEM_ID_USE_BIG_EGG,
         ITEM_ID_USE_NANIGA_OKORUKANA,
-        ITEM_ID_USE_TUYOTUYO_DRINK,
-        ITEM_ID_COOK_HOTDOG,
+        ITEM_ID_COOK_KARAKARA_COOK,
         ITEM_ID_COOK_HANAJIRU_SYRUP,
         ITEM_ID_USE_KINKYU_KINOKO,
+        ITEM_ID_USE_KIRAKIRA_OTOSHI,
         ITEM_ID_USE_POWERFUL_MEET,
         ITEM_ID_USE_PRIMITIVENUT,
-        ITEM_ID_COOK_TRIAL_PAN,
-        (VOUCHER_CAKE + RFC_SPECIAL_START),
-        (VOUCHER_THUNDER + RFC_SPECIAL_START),
-        (VOUCHER_CAKE + RFC_SPECIAL_START),
-        (VOUCHER_THUNDER + RFC_SPECIAL_START),
-        (SPIRIT_2 + RFC_SPECIAL_START),
-        (SOUL_2 + RFC_SPECIAL_START),
-        (AEGIS_1 + RFC_SPECIAL_START),
-        (AUSPICE_1 + RFC_SPECIAL_START)};
+        RFC_ITEM(VOUCHER_CAKE),
+        RFC_ITEM(VOUCHER_CAKE),
+        RFC_ITEM(VOUCHER_THUNDER),
+        RFC_ITEM(VOUCHER_THUNDER),
+        RFC_ITEM(SPIRIT_2),
+        RFC_ITEM(SPIRIT_2),
+        RFC_ITEM(SOUL_2),
+        RFC_ITEM(SOUL_2),
+        RFC_ITEM(AEGIS_1),
+        RFC_ITEM(AUSPICE_1)};
 
     s32 RFCItems_Rare[] = {
-        ITEM_ID_COOK_KINOKO_HOILE_FRY,
-        ITEM_ID_USE_KIRAKIRA_OTOSHI,
         ITEM_ID_COOK_DINNER,
-        ITEM_ID_COOK_HANA_DANGO,
-        ITEM_ID_COOK_MANGO_PUDDING,
+        ITEM_ID_COOK_PANSY_SYRUP,
         ITEM_ID_COOK_GOLD_CHOKO,
-        ITEM_ID_USE_GOLD_MEDAL,
         ITEM_ID_COOK_LOVE_NOODLE,
         ITEM_ID_COOK_FRUITS_HUMBURG,
-        ITEM_ID_USE_KINKYU_KINOKO,
+        ITEM_ID_COOK_HOTDOG,
         ITEM_ID_COOK_PEACH_TART,
         ITEM_ID_COOK_MIX_SHAKE,
         ITEM_ID_COOK_MOUSSE_CAKE,
         ITEM_ID_COOK_CHOCOLA_CAKE,
-        ITEM_ID_USE_SHINABITA_KINOKO,
-        ITEM_ID_COOK_TRIAL_PAN,
-        (VOUCHER_STELLAR + RFC_SPECIAL_START),
-    //    (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
-        (VOUCHER_STELLAR + RFC_SPECIAL_START),
-    //    (VOUCHER_JUDGEMENT + RFC_SPECIAL_START),
-        (SPIRIT_3 + RFC_SPECIAL_START),
-        (SOUL_3 + RFC_SPECIAL_START),
-        (AUSPICE_2 + RFC_SPECIAL_START)};
+        ITEM_ID_COOK_SUGER_HOUSE,
+        RFC_ITEM(VOUCHER_STELLAR),
+        RFC_ITEM(VOUCHER_STELLAR),
+        RFC_ITEM(SPIRIT_3),
+        RFC_ITEM(SOUL_3)};
 
     s32 RFCItems_Legendary[] = {
         ITEM_ID_USE_ULTRA_DRINK,
-        ITEM_ID_COOK_DOROCY_SPECIAL,
+        ITEM_ID_COOK_DOROCY_DINNER,
         ITEM_ID_COOK_SNOW_RABBIT,
         ITEM_ID_COOK_TRIAL_PAN,
-        (VOUCHER_RED + RFC_SPECIAL_START),
-        (VOUCHER_ORANGE + RFC_SPECIAL_START),
-        (VOUCHER_YELLOW + RFC_SPECIAL_START),
-        (VOUCHER_GREEN + RFC_SPECIAL_START),
-        (VOUCHER_CYAN + RFC_SPECIAL_START),
-        (VOUCHER_BLUE + RFC_SPECIAL_START),
-        (VOUCHER_PURPLE + RFC_SPECIAL_START),
-        (SPIRIT_4 + RFC_SPECIAL_START),
-        (SOUL_4 + RFC_SPECIAL_START),
-        (AEGIS_2 + RFC_SPECIAL_START)};
+        RFC_ITEM(VOUCHER_RED),
+        RFC_ITEM(VOUCHER_ORANGE),
+        RFC_ITEM(VOUCHER_YELLOW),
+        RFC_ITEM(VOUCHER_GREEN),
+        RFC_ITEM(VOUCHER_CYAN),
+        RFC_ITEM(VOUCHER_BLUE),
+        RFC_ITEM(VOUCHER_PURPLE),
+        RFC_ITEM(SPIRIT_4),
+        RFC_ITEM(SOUL_4),
+        RFC_ITEM(AUSPICE_2),
+        RFC_ITEM(AEGIS_2)};
+
+    s32 RFCItems_Artifacts[] = {
+        RFC_ITEM(ARTIFACT_SOUL),
+        RFC_ITEM(ARTIFACT_SPIRIT),
+        RFC_ITEM(ARTIFACT_AEGIS),
+        RFC_ITEM(ARTIFACT_AUSPICE),
+        RFC_ITEM(ARTIFACT_DELIGHT),
+        RFC_ITEM(ARTIFACT_DEMISE)};
 
     s32 VoucherAdd(void *wp)
     {
@@ -237,6 +238,27 @@ namespace mod
         if (Lunatic->Voucher.Work[i]->torn)
             return V_TORN;
         return V_ACTIVE;
+    }
+
+    void VoucherSpin(s32 itemId, bool tearSpin)
+    {
+        s32 idx = VoucherItemIdToIdx(itemId);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        if (Voucher->isSpinning) // If a spin is active, force-reset it unequivocally
+        {
+            globalop::globalopDelEntry(Voucher->spinDeleteFuncIdx);
+            Voucher->iconAlpha = 150;
+            Voucher->iconRotation = 0.0f;
+            Voucher->iconRotationTimer = 0;
+            Voucher->isSpinning = false;
+            Voucher->spinDeleteFuncIdx = 0;
+        }
+        if (!tearSpin)
+            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)itemId);
+        else
+            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
+        // FRIEREN BURGER
+        return;
     }
 
     void VoucherActionSpin(s32 itemId, s32 deleteIdx)
@@ -316,7 +338,7 @@ namespace mod
     {
         s32 idx = VoucherItemIdToIdx(itemId);
         Lunatic->Voucher.Work[idx]->torn = true;
-        globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
+        VoucherSpin(itemId, true);
         (Lunatic->Voucher.Work[idx]->tearFunc)();
         return;
     }
@@ -327,13 +349,13 @@ namespace mod
         switch (difficulty)
         {
         case 1:
-            baseChance *= 2;
+            baseChance *= 1.5f;
             break;
         case 2:
-            baseChance *= 3;
+            baseChance *= 2;
             break;
         case 3:
-            baseChance *= 4;
+            baseChance *= 2.5f;
             break;
         default:
             break;
@@ -372,9 +394,8 @@ namespace mod
     void CakeVoucherTear()
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        mario_pouch::pouchSetMaxHp(pouch->maxHp -= (Lunatic->Voucher.Work[idx]->UW.Cake->rooms / 2));
-        mario_pouch::pouchAddHp(Lunatic->Voucher.Work[idx]->UW.Cake->rooms);
+        s32 hp = Lunatic->Voucher.Work[idx]->UW.Cake->rooms;
+        lpAddHp(-(hp / 2), hp); // Remove half of the max HP bonus, but add total bonus to reg HP
         return;
     }
 
@@ -383,14 +404,14 @@ namespace mod
         s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 maxHp = pouch->maxHp;
-        mario_pouch::pouchSetMaxHp(pouch->maxHp + 1);
-        if (maxHp == pouch->maxHp) // If max HP cannot increment, instantly tear the voucher
-        {
+        lpAddHp(2, 2);
+        if (maxHp == pouch->maxHp) // If max HP cannot increment, you are a fatass. No more cake for you
             VoucherDoTear(VOUCHER_CAKE);
-            return;
+        else
+        {
+            Lunatic->Voucher.Work[idx]->UW.Cake->rooms += 1;
+            VoucherSpin(VOUCHER_CAKE, false);
         }
-        Lunatic->Voucher.Work[idx]->UW.Cake->rooms += 1;
-        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_CAKE);
         return;
     }
 
@@ -403,17 +424,16 @@ namespace mod
         Lunatic->Voucher.Work[idx]->itemId = VOUCHER_CAKE;
         Lunatic->Voucher.Work[idx]->tearFunc = CakeVoucherTear;
         Lunatic->Voucher.Work[idx]->actionFunc = CakeVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(3);
+        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(6);
         return;
     }
 
     void ThunderVoucherTear()
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        pouch->attack -= (s32)msl::math::floor((f32)Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus / 2.0f) + 1;
-        Lunatic->Stats.CritMult -= (s32)msl::math::floor(Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus / 2.0f) + 8.0f;
-        Lunatic->Stats.CritRate -= (s32)msl::math::floor((f32)Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus / 2.0f) + 2;
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        lpAddAtk(-(round(Voucher->UW.Thunder->atkBonus / 2)));
+        lpAddCrit(-(round((f32)Voucher->UW.Thunder->critRateBonus / 2)) + 2, -(msl::math::floor(Voucher->UW.Thunder->critMultBonus / 2.0f)) + 8.0f);
         return;
     }
 
@@ -421,22 +441,13 @@ namespace mod
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
         s32 odds = system::rand() % 10;
-        if (odds < 2)
-        {
-            Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus += 1;
-            mario_pouch::pouchGetPtr()->attack += 1;
-        }
-        else if (odds < 7)
-        {
-            Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 8.0f;
-            Lunatic->Stats.CritMult += 8.0f;
-        }
-        else
-        {
-            Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus += 2;
-            Lunatic->Stats.CritRate += 2;
-        }
-        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_THUNDER);
+        if (odds < 2) // 20%
+            lpAddAtk(Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus += 1);
+        else if (odds < 7) // 50%
+            lpAddCrit(0, Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 8.0f);
+        else // 30%
+            lpAddCrit(Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus += 2, 0);
+        VoucherSpin(VOUCHER_THUNDER, false);
         return;
     }
 
@@ -479,7 +490,7 @@ namespace mod
 
     void StellarVoucherAction()
     {
-        globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)VOUCHER_STELLAR);
+        VoucherSpin(VOUCHER_STELLAR, false);
         return;
     }
 
@@ -557,13 +568,13 @@ namespace mod
 
     void SoulEpiphanyUse()
     {
-        Lunatic->Stats.CritRate += 12;
+        Lunatic->Stats.CritRate += 16;
         return;
     }
 
     void SoulLegacyUse()
     {
-        Lunatic->Stats.CritRate += 16;
+        Lunatic->Stats.CritRate += 24;
         return;
     }
 
@@ -581,13 +592,13 @@ namespace mod
 
     void SpiritEpiphanyUse()
     {
-        Lunatic->Stats.CritMult += 75.0;
+        Lunatic->Stats.CritMult += 100.0;
         return;
     }
 
     void SpiritLegacyUse()
     {
-        Lunatic->Stats.CritMult += 100.0;
+        Lunatic->Stats.CritMult += 150.0;
         return;
     }
 
@@ -607,12 +618,12 @@ namespace mod
         {ICON_VOUCHER_BLACK, blackVName, blackVDesc, blackVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},             // kek
         {ICON_SOUL_1, soul1Name, soul1Desc, soul1Get, SoulDropUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                  // Soul Drop, +4% Crit Rate
         {ICON_SOUL_2, soul2Name, soul2Desc, soul2Get, SoulBoonUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                  // Soul Boon, +8% Crit Rate
-        {ICON_SOUL_3, soul3Name, soul3Desc, soul3Get, SoulEpiphanyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},              // Soul Epiphany, +12% Crit Rate
-        {ICON_SOUL_4, soul4Name, soul4Desc, soul4Get, SoulLegacyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                // Soul Legacy, +16% Crit Rate
+        {ICON_SOUL_3, soul3Name, soul3Desc, soul3Get, SoulEpiphanyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},              // Soul Epiphany, +16% Crit Rate
+        {ICON_SOUL_4, soul4Name, soul4Desc, soul4Get, SoulLegacyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                // Soul Legacy, +24% Crit Rate
         {ICON_SPIRIT_1, spirit1Name, spirit1Desc, spirit1Get, SpiritDropUse, {41, 194, 255, 100}, {42, 116, 145, 255}},         // Spirit Drop, +25% Crit Mult
         {ICON_SPIRIT_2, spirit2Name, spirit2Desc, spirit2Get, SpiritBoonUse, {41, 194, 255, 100}, {42, 116, 145, 255}},         // Spirit Boon, +50% Crit Mult
-        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, spirit3Get, SpiritEpiphanyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},     // Spirit Epiphany, +75% Crit Mult
-        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, spirit4Get, SpiritLegacyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},       // Spirit Legacy, +100% Crit Mult
+        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, spirit3Get, SpiritEpiphanyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},     // Spirit Epiphany, +100% Crit Mult
+        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, spirit4Get, SpiritLegacyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},       // Spirit Legacy, +150% Crit Mult
         {ICON_AEGIS_1, aegis1Name, aegis1Desc, aegis1Get, AegisEndowmentUse, {33, 96, 255, 100}, {34, 64, 140, 255}},           // Aegis Endowment, +15% DR
         {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 255}},          // Aegis Invocation, +30% DR
         {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Endowment, +1 DEF

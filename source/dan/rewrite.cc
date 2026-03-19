@@ -101,6 +101,11 @@
 
 namespace mod
 {
+    /*
+        This file contains important EVT rewrites and proprietary user funcs for said EVTs
+        I have yet to put a lot of stuff from mod.cc into here. I should do that one day
+    */
+
     using namespace spm;
 
     const char *restFloorNpcNames[] = {"Null", "Flimm", "Merluna", "Boodin", "undetermined"};
@@ -203,26 +208,20 @@ namespace mod
         if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00)
         {
             VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
-            if (vState == V_ACTIVE)
-            {
-                s32 vOdds = system::rand() % 100;
-                if (vOdds > 50)
-                    npcSetDanFlag(npc, DAN_NPC_STELLARIZED);
-            }
-            if (npcCheckDanFlag(npc, DAN_NPC_STELLARIZED) == false)
+            if (vState != V_ACTIVE)
             {
                 switch (difficulty)
                 {
                 case 0:
-                    if (sup > 80)
+                    if (sup < 20)
                         npc->dropItemId = 0;
                     break;
                 case 1:
-                    if (sup > 60)
+                    if (sup < 40)
                         npc->dropItemId = 0;
                     break;
                 case 2:
-                    if (sup > 10)
+                    if (sup < 75)
                         npc->dropItemId = 0;
                     break;
                 }
@@ -237,7 +236,7 @@ namespace mod
         // Create holographic enemy
         // DEBUG: sup > -1 && currentFloor > -1 && (npc->maxHp >= 1 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 0)
         // NORMAL: sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3)
-        if (sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3))
+        if (sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3) && difficulty != 0)
         {
             if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && npc->tribeId != 200 && npc->tribeId != 201 && npc->tribeId != 32 && npc->tribeId != 142 && npc->tribeId != 144 && npc->tribeId != 146 && npc->tribeId != 504 && npc->tribeId != 156 && npc->tribeId != 157 && npc->tribeId != 188 && npc->tribeId != 189 && npc->tribeId != 184 && npc->tribeId != 185)
             {

@@ -119,6 +119,12 @@
 
 namespace mod
 {
+    /*
+        Main file for Lunatic Pit code
+        This is by far the messiest file, as it has a lot of the oldest code & a lot of artifacts from earlier development
+        Not everything I'd like to move out of this file has been moved out, reorganized, or refactored, but I promise I tried
+    */
+
     using namespace spm;
     using namespace customwin;
 
@@ -129,6 +135,8 @@ namespace mod
     wii::gx::GXColor MusicHeaderCol = {185, 135, 240, 255};
 
     wii::gx::GXColor RFCHeaderCol = {210, 100, 95, 255};
+
+    wii::gx::GXColor RFCArtiHeaderCol = {255, 99, 236, 255};
 
     s32 whackaItems[] = {106, -1};
 
@@ -332,7 +340,7 @@ namespace mod
     }
 
     // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't override all defenses with damage reduction.
-    // There are certainly a few in this array that can use DEFs, DR is just easier for me right now.
+    // There are certainly a few in this array that can use DEFs, direct DR is just easier for me right now.
     s32 (*marioCalcDamageToEnemy)(s32 damageType, s32 tribeId);
     void (*marioTakeDamage)(wii::mtx::Vec3 *position, u32 flags, s32 damage);
     s32 (*npcDamageMario)(npcdrv::NPCEntry *npcEntry, npcdrv::NPCPart *part, wii::mtx::Vec3 *position, u32 status, s32 damage, u32 flags);
@@ -542,15 +550,11 @@ namespace mod
                                                  }
 
                                                  if (npcCheckDanFlag(part->owner, DAN_NPC_HOLOGRAPHIC) == true) // Holographic enemies in the Pit will have 1.5x direct ATK
+                                                     damage *= 1.5;
+                                                 else if (part->owner->master != nullptr)
                                                  {
-                                                     if (damage % 2 == 1) // Variable is odd, so round up.
-                                                     {
-                                                         damage = ((f32)damage * 1.5) + 0.5;
-                                                     }
-                                                     else
-                                                     {
+                                                     if (npcCheckDanFlag(part->owner->master, DAN_NPC_HOLOGRAPHIC) == true)
                                                          damage *= 1.5;
-                                                     }
                                                  }
                                                  // Auspice and Aegis
                                                  if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
@@ -885,6 +889,7 @@ namespace mod
             else if ((dungeonNo >= 170) && (dungeonNo <= 199)) // 71-79 are White Pure Heart, 81-89 are Bleck/Tippi, 91-99 are Shadoo Blank
                 return "dan_44";
         }
+        return nullptr;
     }
 
     static void debugModeGayFrame()
@@ -1152,7 +1157,7 @@ namespace mod
                                                      // Check for fadeMsec "keys" called exclusively in the mod and allow all calls made using those parameters
                                                      if (fadeMsec == 737 || fadeMsec == 1)
                                                          spsndBGMSetVolReal(player, volume, fadeMsec);
-                                                     // Check for fadeMsec/volume 
+                                                     // Check for fadeMsec/volume
                                                      return;
                                                  });*/
     }
@@ -1438,7 +1443,11 @@ namespace mod
                     (npc->m_Anim).blue = 127;
                     animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
                 }
-                else return 2;
+                else if (npc->master != nullptr)
+                {
+                    if (npcCheckDanFlag(npc->master, DAN_NPC_HOLOGRAPHIC) == true)
+                        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
+                }
             }
             else
             {
@@ -2310,6 +2319,11 @@ namespace mod
     {
         (void)firstRun;
         (void)evtEntry;
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        pouch->attack -= Lunatic->Stats.DemiseATK;
+        pouch->maxHp -= Lunatic->Stats.DelightHP;
+        if (pouch->hp > pouch->maxHp)
+            pouch->hp = pouch->maxHp;
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = 0x5D;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = "in_town_key_00";
@@ -2681,22 +2695,12 @@ namespace mod
         if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00)
             return 2;
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
-        if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true)
-        {
-            coinCount *= 5;
-            if (coinCount < 10)
-            {
-                coinCount = 10;
-            }
-            else if (coinCount > 30)
-            {
-                coinCount = 30;
-            }
-        }
-        if (npcCheckDanFlag(npc, DAN_NPC_STELLARIZED) == true)
+        if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true) // If holo, increase coin output
+            coinCount = clamp((coinCount * 5), 10, 30);
+        else // If NOT holo, check for Stellar and register a use if an item drops
         {
             VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
-            if (itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00 && vState == V_ACTIVE)
+            if (itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00 && itemType != ITEM_ID_NULL && vState == V_ACTIVE)
                 VoucherCallAction(VOUCHER_STELLAR);
         }
         npcmisc::npcDropItem(npc, itemType, coinCount);
@@ -3255,61 +3259,29 @@ namespace mod
     RETURN()
     EVT_END()
 
-    EVT_BEGIN(easyChestRewards)
-    USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("me"), LW(0), LW(1), LW(2))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i1"), 0xE7, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i1"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i1"))
-    ADD(GSW(1622), 1)
-    RETURN()
-    EVT_END()
+    customwin::CWSelectColorDef rainbowSelectBgCols[] =
+        {
+            {{255, 160, 160, 160}, {255, 200, 160, 160}, 80, 0}, // Red-Orange
+            {{255, 160, 255, 160}, {255, 160, 160, 160}, 80, 0}, // Magenta-Red
+            {{200, 160, 255, 160}, {255, 160, 255, 160}, 80, 0}, // Purple-Magenta
+            {{160, 160, 255, 160}, {200, 160, 255, 160}, 80, 0}, // Blue-Purple
+            {{160, 255, 255, 160}, {160, 160, 255, 160}, 80, 0}, // Cyan-Blue
+            {{160, 255, 160, 160}, {160, 255, 255, 160}, 80, 0}, // Green-Cyan
+            {{255, 255, 160, 160}, {160, 255, 160, 160}, 80, 0}, // Yellow-Green
+            {{255, 200, 160, 160}, {255, 255, 160, 160}, 80, 0}  // Orange-Yellow
+    };
 
-    EVT_BEGIN(normalChestRewards)
+    EVT_BEGIN(artifactReward)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("me"), LW(0), LW(1), LW(2))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i1"), 0x59, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i1"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i1"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i2"), 0x59, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i2"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i2"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i3"), 0x5A, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i3"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i3"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i4"), 0x5A, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i4"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i4"))
-    ADD(GSW(1622), 1)
+    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), &RFCItems_Artifacts, 6) // todo: b less bad
+    USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Artifact"), PTR(&RFCArtiHeaderCol))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Artifact"), PTR(rainbowSelectBgCols), 8)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Artifact"), 0, LW(0))
+    IF_EQUAL(LW(0), -1) // Select menu cancelled
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Artifact"))
     RETURN()
-    EVT_END()
-
-    EVT_BEGIN(hardChestRewards)
-    USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("me"), LW(0), LW(1), LW(2))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i1"), 0x20A, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i1"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i1"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i2"), 0x20B, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i2"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i2"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i3"), 0x1CA, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i3"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i3"))
-    USER_FUNC(evt_item::evt_item_entry, PTR("i4"), 0x209, 0, LW(0), LW(1), LW(2), 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("i4"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("i4"))
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-    WAIT_MSEC(500)
-    INLINE_EVT()
-    USER_FUNC(evt_pouch::evt_pouch_get_max_hp, LW(0))
-    USER_FUNC(evt_pouch::evt_pouch_set_hp, LW(0))
-    END_INLINE()
-    USER_FUNC(evt_pouch::evt_pouch_set_coins, 998)
-    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
-    WAIT_MSEC(500)
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-    WAIT_MSEC(700)
+    END_IF()
     ADD(GSW(1622), 1)
     RETURN()
     EVT_END()
@@ -3354,6 +3326,18 @@ namespace mod
     RUN_EVT(new_shadoo_evt)
     RETURN_FROM_CALL()
 
+    s32 dan_70_determine_artifact_spawn(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        s32 difficulty = swdrv::swByteGet(1620);
+        bool beatenThisDifficulty = swdrv::swGet(1650 + difficulty);
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)beatenThisDifficulty);
+        if (!beatenThisDifficulty)
+            swdrv::swSet(1650 + difficulty);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(dan_70_determine_artifact_spawn, 1)
+
     EVT_BEGIN(dan_70_new_rewards)
     WAIT_MSEC(500)
     USER_FUNC(evt_mario::evt_mario_get_pos, LW(0), LW(1), LW(2))
@@ -3394,6 +3378,8 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_face_coords, 200, 0)
     USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, 0, 160, 1034, 0, 160, -16, 500, 11)
     WAIT_MSEC(500)
+    USER_FUNC(dan_70_determine_artifact_spawn, LW(2))
+    IF_EQUAL(LW(2), 0)
     INLINE_EVT()
     USER_FUNC(evt_snd::evt_snd_bgmon, 2, PTR("BGM_FF_CORRECT1"))
     USER_FUNC(evt_snd::evt_snd_get_bgm_wait_time, 2, LW(0))
@@ -3401,33 +3387,9 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 2, 1000)
     RUN_EVT(custom_pit_music)
     END_INLINE()
-    SET(LW(1), GSW(1622))
-    SET(LW(2), 0)
-    IF_LARGE_EQUAL(GSW(1620), 0)
-    IF_LARGE(LW(1), 0)
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("easy"), -250, -100, -75, 0, 0, 0, 1)
-    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 0, PTR("easy"), 0x40)
-    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 1, PTR("easy"), 0x10000)
-    ELSE()
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("easy"), -250, -100, -75, 0, PTR(easyChestRewards), 0, 0)
-    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 0, PTR("easy"), 0x40)
-    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 1, PTR("easy"), 0x10000)
-    END_IF()
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 1)
-    IF_LARGE(LW(1), 1)
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("normal"), 250, -100, -75, 0, 0, 0, 1)
-    ELSE()
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("normal"), 250, -100, -75, 0, PTR(normalChestRewards), 0, 0)
-    END_IF()
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 2)
-    IF_LARGE(LW(1), 2)
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("hard"), 0, -100, -75, 0, 0, 0, 1)
-    ELSE()
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("hard"), 0, -100, -75, 0, PTR(hardChestRewards), 0, 0)
-    END_IF()
-    END_IF()
+    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("Artifact"), -250, -100, -75, 0, PTR(artifactReward), 0, 0)
+    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 0, PTR("Artifact"), 0x40)
+    USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 1, PTR("Artifact"), 0x10000)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 1000, 0, 2000)
     DO(0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
@@ -3436,31 +3398,13 @@ namespace mod
     MULF(LW(2), FLOAT(-100.0))
     SETF(LW(3), LW(0))
     MULF(LW(3), FLOAT(1440.0))
-    IF_LARGE_EQUAL(GSW(1620), 0)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("easy"), LW(5), LW(6), LW(7))
-    USER_FUNC(evt_mobj::evt_mobj_set_position, PTR("easy"), LW(5), LW(2), LW(7))
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 1)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("normal"), LW(5), LW(6), LW(7))
-    USER_FUNC(evt_mobj::evt_mobj_set_position, PTR("normal"), LW(5), LW(2), LW(7))
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 2)
-    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("hard"), LW(5), LW(6), LW(7))
-    USER_FUNC(evt_mobj::evt_mobj_set_position, PTR("hard"), LW(5), LW(2), LW(7))
-    END_IF()
+    USER_FUNC(evt_mobj::evt_mobj_get_position, PTR("Artifact"), LW(5), LW(6), LW(7))
+    USER_FUNC(evt_mobj::evt_mobj_set_position, PTR("Artifact"), LW(5), LW(2), LW(7))
     WAIT_FRM(1)
     IF_EQUAL(LW(1), 0)
     DO_BREAK()
     END_IF()
     WHILE()
-    IF_LARGE_EQUAL(GSW(1620), 0)
-    USER_FUNC(evt_mobj::evt_mobj_hit_onoff, 1, PTR("easy"))
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 1)
-    USER_FUNC(evt_mobj::evt_mobj_hit_onoff, 1, PTR("normal"))
-    END_IF()
-    IF_LARGE_EQUAL(GSW(1620), 2)
-    USER_FUNC(evt_mobj::evt_mobj_hit_onoff, 1, PTR("hard"))
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_anim_change_handler, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 500, 11)
@@ -3847,57 +3791,57 @@ namespace mod
     USER_FUNC(EvtCWSelectMenuStart, PTR("Cards"), 0, LW(2)) // LW(4) item ID, LW(5) item name, LW(1) buy price
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     IF_NOT_EQUAL(LW(2), -1)
-        USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
-        USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
-        USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
-        USER_FUNC(EvtCWSelectReset)
-        USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
-        USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-        USER_FUNC(evt_msg::evt_msg_continue)
-        IF_EQUAL(LW(0), 0)
-            USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
-            IF_SMALL(LW(3), LW(1))
-                USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
-            ELSE()
-                USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
-                IF_EQUAL(LW(3), 0)
-                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
-                ELSE()
-                    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-                    WAIT_MSEC(500)
-                    MUL(LW(1), -1)
-                    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
-                    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
-                    WAIT_MSEC(500)
-                    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
-                    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
-                    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
-                    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-                    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
-                    IF_LARGE(LW(2), 0)
-                        USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
-                        USER_FUNC(dan_boodin_backup_descs)
-                    END_IF()
-                    // BUY ANOTHER?
-                    SET(LW(6), 1)
-                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
-                    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-                    USER_FUNC(evt_msg::evt_msg_continue)
-                    IF_EQUAL(LW(0), 0)
-                        SET(LW(7), 1)
-                        RUN_CHILD_EVT(boodin_speech)
-                        RETURN()
-                    ELSE()
-                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
-                    END_IF()
-                END_IF()
-            END_IF()
-        ELSE()
-            USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
-        END_IF()
+    USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
+    USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
+    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+    USER_FUNC(evt_msg::evt_msg_continue)
+    IF_EQUAL(LW(0), 0)
+    USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
+    IF_SMALL(LW(3), LW(1))
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
     ELSE()
-        USER_FUNC(EvtCWSelectReset)
-        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+    USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
+    IF_EQUAL(LW(3), 0)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
+    ELSE()
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+    WAIT_MSEC(500)
+    MUL(LW(1), -1)
+    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
+    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
+    WAIT_MSEC(500)
+    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    IF_LARGE(LW(2), 0)
+    USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+    USER_FUNC(dan_boodin_backup_descs)
+    END_IF()
+    // BUY ANOTHER?
+    SET(LW(6), 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+    USER_FUNC(evt_msg::evt_msg_continue)
+    IF_EQUAL(LW(0), 0)
+    SET(LW(7), 1)
+    RUN_CHILD_EVT(boodin_speech)
+    RETURN()
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
+    END_IF()
+    END_IF()
+    END_IF()
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+    END_IF()
+    ELSE()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -4390,21 +4334,9 @@ namespace mod
     RETURN()
     EVT_END()
 
-    customwin::CWSelectColorDef disorderSelectBgCols[] =
-        {
-            {{255, 100, 100, 100}, {255, 128, 100, 100}, 60, 0}, // Red-Orange
-            {{255, 100, 255, 100}, {255, 100, 100, 100}, 60, 0}, // Magenta-Red
-            {{128, 100, 255, 100}, {255, 100, 255, 100}, 60, 0}, // Purple-Magenta
-            {{100, 100, 255, 100}, {128, 100, 255, 100}, 60, 0}, // Blue-Purple
-            {{100, 255, 255, 100}, {100, 100, 255, 100}, 60, 0}, // Cyan-Blue
-            {{100, 255, 100, 100}, {100, 255, 255, 100}, 60, 0}, // Green-Cyan
-            {{255, 255, 100, 100}, {100, 255, 100, 100}, 60, 0}, // Yellow-Green
-            {{255, 128, 100, 100}, {255, 255, 100, 100}, 60, 0}  // Orange-Yellow
-    };
-
     EVT_BEGIN(cwselect_disorder)
     USER_FUNC(EvtCWSelectEntry, PTR("Disorder"), CWSELECT_DEFAULT, PTR("Disorders"), PTR("!!! Debug Menu !!!\nSelect a Disorder"), 0, 0)
-    USER_FUNC(EvtCWSelectSetBGColor, PTR("Disorder"), PTR(disorderSelectBgCols), 8)
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Disorder"), PTR(rainbowSelectBgCols), 8)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(apathyName), PTR(apathyDesc), TPLPATCH_ICON(ICON_DISORDER_APATHY), 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(dreadName), PTR(dreadDesc), TPLPATCH_ICON(ICON_DISORDER_DREAD), 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(prejudiceName), PTR(prejudiceDesc), TPLPATCH_ICON(ICON_DISORDER_PREJUDICE), 0, 0, 0)
@@ -5164,6 +5096,24 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(kami_bomb, 1)
 
+    EVT_BEGIN(kami_no_dokkan_sub)
+    USER_FUNC(evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
+    ADD(LW(8), 50)
+    USER_FUNC(evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(8), LW(9), 800, 0, 45, 0, 16, 0)
+    USER_FUNC(evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
+    USER_FUNC(kami_bomb, 5200)
+    USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
+    INLINE_EVT()
+    IF_EQUAL(GSWF(1630), 1)
+    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.9), FLOAT(0.9), FLOAT(0.0), 173, 0)
+    ELSE()
+    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.5), FLOAT(0.5), FLOAT(0.0), 173, 0)
+    END_IF()
+    END_INLINE()
+    RETURN()
+    EVT_END()
+
     // Kamikaze Goomba explosion visuals & second attack
     EVT_BEGIN(kami_no_dokkan)
     USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(11))
@@ -5174,52 +5124,20 @@ namespace mod
     USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
     USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
     INLINE_EVT()
-    IF_EQUAL(GSWF(1630), 0)
-    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
+    IF_EQUAL(GSWF(1630), 1)
+    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.9), FLOAT(0.9), FLOAT(0.0), 173, 0)
+    ELSE()
+    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.5), FLOAT(0.5), FLOAT(0.0), 173, 0)
     END_IF()
     END_INLINE()
     // Explosion #2 if difficulty is Normal
     IF_LARGE_EQUAL(GSW(1620), 1)
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
-    ADD(LW(8), 50)
-    USER_FUNC(evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(8), LW(9), 800, 0, 45, 0, 16, 0)
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
-    USER_FUNC(kami_bomb, 5200)
-    USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
-    INLINE_EVT()
-    IF_EQUAL(GSWF(1630), 0)
-    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
-    END_IF()
-    END_INLINE()
+    RUN_CHILD_EVT(kami_no_dokkan_sub)
     END_IF()
     // Explode twice more if difficulty is Hard
-    // Explosion #2 if difficulty is Normal
-    IF_EQUAL(GSW(1620), 2)
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
-    ADD(LW(8), 50)
-    USER_FUNC(evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(8), LW(9), 800, 0, 45, 0, 16, 0)
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
-    USER_FUNC(kami_bomb, 5200)
-    USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
-    INLINE_EVT()
-    IF_EQUAL(GSWF(1630), 0)
-    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
-    END_IF()
-    END_INLINE()
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
-    ADD(LW(8), 50)
-    USER_FUNC(evt_npc::evt_npc_arc_to, PTR("me"), LW(11), LW(8), LW(9), 800, 0, 45, 0, 16, 0)
-    USER_FUNC(evt_npc::evt_npc_get_position, PTR("me"), LW(11), LW(8), LW(9))
-    USER_FUNC(kami_bomb, 5200)
-    USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(11), LW(8), LW(9), FLOAT(1.0), 0, 0, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(11), LW(8), LW(9))
-    INLINE_EVT()
-    IF_EQUAL(GSWF(1630), 0)
-    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.8), FLOAT(0.8), FLOAT(0.0), 173, 0)
-    END_IF()
-    END_INLINE()
+    IF_LARGE_EQUAL(GSW(1620), 2)
+    RUN_CHILD_EVT(kami_no_dokkan_sub)
+    RUN_CHILD_EVT(kami_no_dokkan_sub)
     END_IF()
     // Bounce
     USER_FUNC(evt_npc::evt_npc_get_position, PTR("target"), LW(11), LW(8), LW(9))
@@ -5239,8 +5157,10 @@ namespace mod
     USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 2, LW(13), LW(14), LW(15), FLOAT(1.2), 0, 0, 0, 0, 0, 0, 0)
     USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_E_CAMEREBOM2_EXPLOSION1"), LW(13), LW(14), LW(15))
     INLINE_EVT()
-    IF_EQUAL(GSWF(1630), 0)
+    IF_EQUAL(GSWF(1630), 1)
     USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(1.3), FLOAT(1.3), FLOAT(0.0), 173, 0)
+    ELSE()
+    USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.6), FLOAT(0.6), FLOAT(0.0), 173, 0)
     END_IF()
     END_INLINE()
     END_IF()

@@ -1,6 +1,7 @@
 #include "mod.h"
 #include <gen.h>
 #include <common.h>
+#include <lp_common.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
 #include <evt_cmd.h>
@@ -91,7 +92,6 @@ namespace mod
     {
         ApathyWork *wp = (ApathyWork *)memory::__memAlloc(0, sizeof(ApathyWork));
         msl::string::memset(wp, 0, sizeof(ApathyWork));
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 difficulty = swdrv::swByteGet(1620);
         Lunatic->Luna.DW.UW.Apathy = wp;
         switch (difficulty)
@@ -114,7 +114,7 @@ namespace mod
             break;
         case 2:
             wp->marioHpMult = 0.33;
-            wp->enemyDamageIncrease = 3;
+            wp->enemyDamageIncrease = 2;
             wp->marioDamageDecrease = 1;
             wp->enemyMaxHPMult = 1.5;
             wp->dispMaxHPDecrease = 33;
@@ -122,31 +122,26 @@ namespace mod
             break;
         default:
             wp->marioHpMult = 0.5;
-            wp->enemyDamageIncrease = 4;
+            wp->enemyDamageIncrease = 3;
             wp->marioDamageDecrease = 2;
             wp->enemyMaxHPMult = 2.0;
             wp->dispMaxHPDecrease = 50;
             wp->dispEnemyHPIncrease = 100;
             break;
         }
-        wp->storedHP = msl::math::floor((f32)pouch->maxHp * wp->marioHpMult);
-        pouch->maxHp -= wp->storedHP;
-        if (pouch->maxHp < pouch->hp)
-            pouch->hp = pouch->maxHp;
-        wp->storedCritRate = Lunatic->Stats.CritRate / 2.0;
-        Lunatic->Stats.CritRate -= wp->storedCritRate;
+        wp->storedHP = msl::math::floor((f32)mario_pouch::pouchGetPtr()->maxHp * wp->marioHpMult);
+        wp->storedCritRate = (Lunatic->Stats.CritRate / 2);
         wp->storedCritMult = msl::math::floor(Lunatic->Stats.CritMult / 2.0);
-        Lunatic->Stats.CritMult -= wp->storedCritMult;
+        lpAddHp(-wp->storedHP, 0);
+        lpAddCrit(-wp->storedCritRate, -wp->storedCritMult);
         return;
     }
 
     void ApathyClear()
     {
         ApathyWork *wp = Lunatic->Luna.DW.UW.Apathy;
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        pouch->maxHp += wp->storedHP;
-        Lunatic->Stats.CritRate += wp->storedCritRate;
-        Lunatic->Stats.CritMult += wp->storedCritMult;
+        lpAddHp(wp->storedHP, wp->storedHP);
+        lpAddCrit(wp->storedCritRate, wp->storedCritMult);
         return;
     }
 
@@ -253,7 +248,8 @@ namespace mod
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 indiffItems[] = {83, 95, 98, 160, 174, 175, 176, 178};
+        s32 indiffItems[] = {ITEM_ID_USE_OBAKE_KINOKO, ITEM_ID_USE_DOKU_KINOKO, ITEM_ID_COOK_NURU_ESSENCE, ITEM_ID_COOK_BOMB_EGG,
+                             ITEM_ID_COOK_TRIAL_PAN, ITEM_ID_COOK_DANGEROUS_COOKING, ITEM_ID_COOK_NORMAL_CHOKO, ITEM_ID_COOK_GERORIN_FOOD};
         s32 i, idx;
         s32 itemsSpawned = 0;
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
@@ -262,7 +258,7 @@ namespace mod
         for (i = 0; i < Lunatic->Luna.DW.UW.Indifference->repeat; i += 1)
         {
             s32 odds = system::rand() % 100;
-            if (odds < 50)
+            if (odds < 67)
             {
                 idx = system::rand() % (sizeof(indiffItems) / 4);
                 if ((mario_pouch::pouchCountUseItems() + itemsSpawned) < 10)

@@ -23,6 +23,6 @@ namespace mod::globalop
     };
 
     void GlobalOperationsInit();
-    void globalopAddEntry(void *func, void *param);
+    s32 globalopAddEntry(void *func, void *param);
     void globalopDelEntry(s32 deleteIdx);
 }

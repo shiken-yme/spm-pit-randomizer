@@ -198,7 +198,7 @@ namespace mod
     void chestKeyDisplay(f32 offset)
     {
         f32 y = 100.0f + offset;
-        if ((swdrv::swByteGet(1) % 10) == 9)
+        if ((swdrv::swByteGet(1) % 10) == 0) // I guess this is because GSW(1) updates immediately after room entry
             y += 15.0f;
         f32 x = 335.0f;
         wii::mtx::Mtx34 mtxPos, mtxScale;
@@ -243,7 +243,7 @@ namespace mod
         }
 
         f32 x = -420.0f + slide;
-        f32 y = 105.0f;
+        f32 y = 60.0f;
         const char *fmt = "%s: %d%%";
 
         const char *interfaceCM[2] = {interfaceCM1, interfaceCM2};

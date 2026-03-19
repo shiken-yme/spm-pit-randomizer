@@ -61,6 +61,9 @@ namespace mod
     
     #define RFC_SPECIAL_START 1000
 
+    #define RFC_ITEM(idx) \
+        (idx + RFC_SPECIAL_START)
+
     extern s32 RFCItems_Common_Size;
     extern s32 RFCItems_Uncommon_Size;
     extern s32 RFCItems_Rare_Size;
@@ -69,6 +72,7 @@ namespace mod
     extern s32 RFCItems_Uncommon[];
     extern s32 RFCItems_Rare[];
     extern s32 RFCItems_Legendary[];
+    extern s32 RFCItems_Artifacts[];
     extern const char *RFCRarityNames[];
 
     void *RFCSpecialGetPtr();

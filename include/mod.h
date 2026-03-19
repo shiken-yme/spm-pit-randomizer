@@ -14,8 +14,7 @@ namespace mod
     enum NPCDanFlag : u32
     {
         DAN_NPC_HOLOGRAPHIC = 0x1,
-        DAN_NPC_STELLARIZED = 0x2,
-        DAN_NPC_NEGATIVE = 0x4
+        DAN_NPC_NEGATIVE = 0x2
     };
 
     enum BlessId : s32
@@ -93,7 +92,13 @@ namespace mod
         ICON_AEGIS_1,
         ICON_AEGIS_2,
         ICON_AUSPICE_1,
-        ICON_AUSPICE_2
+        ICON_AUSPICE_2,
+        ARTIFACT_SOUL,
+        ARTIFACT_SPIRIT,
+        ARTIFACT_AEGIS,
+        ARTIFACT_AUSPICE,
+        ARTIFACT_DELIGHT,
+        ARTIFACT_DEMISE
     };
 
     enum LPCustomItem : s32
@@ -123,6 +128,12 @@ namespace mod
         AEGIS_2,
         AUSPICE_1,
         AUSPICE_2,
+        ARTIFACT_SOUL,
+        ARTIFACT_SPIRIT,
+        ARTIFACT_AEGIS,
+        ARTIFACT_AUSPICE,
+        ARTIFACT_DELIGHT,
+        ARTIFACT_DEMISE,
         LPCUSTOMITEM_MAX
     };
 
@@ -153,6 +164,8 @@ namespace mod
         f32 CritMult; // base value of 50.0 when initialized
         f32 AuspiceDR; // Damage taken is multiplied by (1 - (this number / 100))
         s32 AegisDef; // Damage taken is subtracted by this #
+        s32 DelightHP; // True HP bonus in Pit; subtracted from max HP when exiting
+        s32 DemiseATK; // True ATK bonus in Pit; subtracted from total ATK when exiting
     };
 
     struct DivineJudgement
@@ -262,6 +275,7 @@ namespace mod
     {
         bool torn;
         bool isSpinning;
+        s32 spinDeleteFuncIdx;
         s32 tearChance;
         u8 iconAlpha;
         f32 iconRotation;

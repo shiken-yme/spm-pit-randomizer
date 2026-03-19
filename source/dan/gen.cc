@@ -98,6 +98,12 @@
 
 namespace mod
 {
+    /*
+        This file contains most of the code for Lunatic Pit room generation and enemy data
+        NPCDATA is something I'm very scared to refactor. I know it's awful. I'll get around to it one day.
+        NPCDATA used to be part of a header with no C file. I was a different fellow. I promise I've changed.
+    */
+
     using namespace spm;
     using namespace spm::npcdrv;
     using namespace spm::item_data;
@@ -2832,8 +2838,8 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        // dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_STRIKER + 1);
-        // dan::dan_wp->dungeons[0].enemies[1].num = 4;
+         dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_HEADBONK_GOOMBA + 1);
+         dan::dan_wp->dungeons[0].enemies[1].num = 1;
         //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
         //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
         //  dan::dan_wp->dungeons[0].enemies[3].name = 11;

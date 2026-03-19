@@ -14,13 +14,13 @@ namespace mod::globalop
 {
     GlobalOperations *GlobalOp = nullptr;
 
-    void globalopAddEntry(void *func, void *param)
+    s32 globalopAddEntry(void *func, void *param)
     {
         GlobalOp->Operations[GlobalOp->entryCount].func = (GlobalOpFunc *)func;
         GlobalOp->Operations[GlobalOp->entryCount].param = param;
         GlobalOp->Operations[GlobalOp->entryCount].deleteIdx = GlobalOp->entryCount;
         GlobalOp->entryCount += 1;
-        return;
+        return GlobalOp->Operations[GlobalOp->entryCount].deleteIdx;
     }
 
     void globalopDelEntry(s32 deleteIdx)

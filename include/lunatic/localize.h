@@ -363,10 +363,10 @@ namespace mod
         "Increases Crit Rate by 8%.";
 
     const char soul3Desc[] =
-        "Increases Crit Rate by 12%.";
+        "Increases Crit Rate by 16%.";
 
     const char soul4Desc[] =
-        "Increases Crit Rate by 16%.";
+        "Increases Crit Rate by 24%.";
 
     const char spirit1Desc[] =
         "Increases Crit Mult by 25%.";
@@ -375,10 +375,10 @@ namespace mod
         "Increases Crit Mult by 50%.";
 
     const char spirit3Desc[] =
-        "Increases Crit Mult by 75%.";
+        "Increases Crit Mult by 100%.";
 
     const char spirit4Desc[] =
-        "Increases Crit Mult by 100%.";
+        "Increases Crit Mult by 150%.";
 
     const char auspice1Desc[] =
         "Increases Damage Reduction\n"
@@ -440,10 +440,10 @@ namespace mod
         "<system>\nYour Crit Rate has been\nincreased by 8%!\n<k>";
 
     const char soul3Get[] =
-        "<system>\nYour Crit Rate has been\nincreased by 12%!\n<k>";
+        "<system>\nYour Crit Rate has been\nincreased by 16%!\n<k>";
 
     const char soul4Get[] =
-        "<system>\nYour Crit Rate has been\nincreased by 16%!\n<k>";
+        "<system>\nYour Crit Rate has been\nincreased by 24%!\n<k>";
 
     const char spirit1Get[] =
         "<system>\nYour Crit Mult has been\nincreased by 25%!\n<k>";
@@ -452,21 +452,21 @@ namespace mod
         "<system>\nYour Crit Mult has been\nincreased by 50%!\n<k>";
 
     const char spirit3Get[] =
-        "<system>\nYour Crit Mult has been\nincreased by 75%!\n<k>";
-
-    const char spirit4Get[] =
         "<system>\nYour Crit Mult has been\nincreased by 100%!\n<k>";
 
-    const char aegis1Get[] =
-        "<system>\nYour Damage Reduction has been\nincreased by 15%!\n<k>";
-
-    const char aegis2Get[] =
-        "<system>\nYour Damage Reduction has been\nincreased by 30%!\n<k>";
+    const char spirit4Get[] =
+        "<system>\nYour Crit Mult has been\nincreased by 150%!\n<k>";
 
     const char auspice1Get[] =
-        "<system>\nYour Defense has been\nincreased by 1!\n<k>";
+        "<system>\nYour Damage Reduction has\nbeen increased by 15%!\n<k>";
 
     const char auspice2Get[] =
+        "<system>\nYour Damage Reduction has\nbeen increased by 30%!\n<k>";
+
+    const char aegis1Get[] =
+        "<system>\nYour Defense has been\nincreased by 1!\n<k>";
+
+    const char aegis2Get[] =
         "<system>\nYour Defense has been\nincreased by 2!\n<k>";
 
     // Shadoo
@@ -1318,7 +1318,7 @@ namespace mod
         "Disorder: Indifference\n"
         "\"What a waste of energy...\"\n"
         "<k>\n<p>\n"
-        "50%% chance to add a random\n"
+        "67%% chance to add a random\n"
         "trash item to the inventory.\n"
         "<k>\n<p>\n"
         "If there is no space, a random\n"
