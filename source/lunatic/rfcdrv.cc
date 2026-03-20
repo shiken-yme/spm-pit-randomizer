@@ -240,27 +240,6 @@ namespace mod
         return V_ACTIVE;
     }
 
-    void VoucherSpin(s32 itemId, bool tearSpin)
-    {
-        s32 idx = VoucherItemIdToIdx(itemId);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
-        if (Voucher->isSpinning) // If a spin is active, force-reset it unequivocally
-        {
-            globalop::globalopDelEntry(Voucher->spinDeleteFuncIdx);
-            Voucher->iconAlpha = 150;
-            Voucher->iconRotation = 0.0f;
-            Voucher->iconRotationTimer = 0;
-            Voucher->isSpinning = false;
-            Voucher->spinDeleteFuncIdx = 0;
-        }
-        if (!tearSpin)
-            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)itemId);
-        else
-            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
-        // FRIEREN BURGER
-        return;
-    }
-
     void VoucherActionSpin(s32 itemId, s32 deleteIdx)
     {
         if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
@@ -323,6 +302,27 @@ namespace mod
             VoucherRemove(Lunatic->Voucher.Work[idx]->itemId);
             globalop::globalopDelEntry(deleteIdx);
         }
+        return;
+    }
+
+    void VoucherSpin(s32 itemId, bool tearSpin)
+    {
+        s32 idx = VoucherItemIdToIdx(itemId);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        if (Voucher->isSpinning) // If a spin is active, force-reset it unequivocally
+        {
+            globalop::globalopDelEntry(Voucher->spinDeleteFuncIdx);
+            Voucher->iconAlpha = 150;
+            Voucher->iconRotation = 0.0f;
+            Voucher->iconRotationTimer = 0;
+            Voucher->isSpinning = false;
+            Voucher->spinDeleteFuncIdx = 0;
+        }
+        if (!tearSpin)
+            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)itemId);
+        else
+            Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
+        // FRIEREN BURGER
         return;
     }
 
@@ -544,13 +544,13 @@ namespace mod
 
     void AuspiceEndowmentUse()
     {
-        Lunatic->Stats.AuspiceDR += 15.0;
+        Lunatic->Stats.AuspiceDR += 20.0f;
         return;
     }
 
     void AuspiceInvocationUse()
     {
-        Lunatic->Stats.AuspiceDR += 30.0;
+        Lunatic->Stats.AuspiceDR += 30.0f;
         return;
     }
 
@@ -580,25 +580,67 @@ namespace mod
 
     void SpiritDropUse()
     {
-        Lunatic->Stats.CritMult += 25.0;
+        Lunatic->Stats.CritMult += 25.0f;
         return;
     }
 
     void SpiritBoonUse()
     {
-        Lunatic->Stats.CritMult += 50.0;
+        Lunatic->Stats.CritMult += 50.0f;
         return;
     }
 
     void SpiritEpiphanyUse()
     {
-        Lunatic->Stats.CritMult += 100.0;
+        Lunatic->Stats.CritMult += 100.0f;
         return;
     }
 
     void SpiritLegacyUse()
     {
-        Lunatic->Stats.CritMult += 150.0;
+        Lunatic->Stats.CritMult += 150.0f;
+        return;
+    }
+
+    void SoulArtifactUse()
+    {
+        Lunatic->Stats.CritRate += 12;
+        swdrv::swSet(1654);
+        return;
+    }
+
+    void SpiritArtifactUse()
+    {
+        Lunatic->Stats.CritMult += 100.0f;
+        swdrv::swSet(1655);
+        return;
+    }
+
+    void AegisArtifactUse()
+    {
+        Lunatic->Stats.AegisDef += 1;
+        swdrv::swSet(1656);
+        return;
+    }
+
+    void AuspiceArtifactUse()
+    {
+        Lunatic->Stats.AuspiceDR += 25.0f;
+        swdrv::swSet(1657);
+        return;
+    }
+
+    void DelightArtifactUse()
+    {
+        lpAddHp(30, 0);
+        swdrv::swSet(1658);
+        return;
+    }
+
+    void DemiseArtifactUse()
+    {
+        lpAddAtk(2);
+        swdrv::swSet(1659);
         return;
     }
 
@@ -627,7 +669,13 @@ namespace mod
         {ICON_AEGIS_1, aegis1Name, aegis1Desc, aegis1Get, AegisEndowmentUse, {33, 96, 255, 100}, {34, 64, 140, 255}},           // Aegis Endowment, +15% DR
         {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 255}},          // Aegis Invocation, +30% DR
         {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Endowment, +1 DEF
-        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, auspice2Get, AuspiceInvocationUse, {212, 53, 61, 100}, {135, 23, 29, 255}} // Auspice Invocation, +2 DEF
+        {ICON_AUSPICE_2, auspice2Name, auspice2Desc, auspice2Get, AuspiceInvocationUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Invocation, +2 DEF
+        {ICON_ARTIFACT_SOUL, artiSoulName, artiSoulDesc, nullptr, SoulArtifactUse, {248, 255, 156, 100}, {146, 153, 50, 255}},
+        {ICON_ARTIFACT_SPIRIT, artiSpiritName, artiSpiritDesc, nullptr, SpiritArtifactUse, {41, 194, 255, 100}, {42, 116, 145, 255}},
+        {ICON_ARTIFACT_AEGIS, artiAegisName, artiAegisDesc, nullptr, AegisArtifactUse, {33, 96, 255, 100}, {34, 64, 140, 255}},
+        {ICON_ARTIFACT_AUSPICE, artiAuspiceName, artiAuspiceDesc, nullptr, AuspiceArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
+        {ICON_ARTIFACT_DELIGHT, artiDelightName, artiDelightDesc, nullptr, DelightArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
+        {ICON_ARTIFACT_DEMISE, artiDemiseName, artiDemiseDesc, nullptr, DemiseArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}}
     };
 
     RFCColorDef RFC_Colors[] = {

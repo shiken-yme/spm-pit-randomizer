@@ -93,12 +93,12 @@ namespace mod
         ICON_AEGIS_2,
         ICON_AUSPICE_1,
         ICON_AUSPICE_2,
-        ARTIFACT_SOUL,
-        ARTIFACT_SPIRIT,
-        ARTIFACT_AEGIS,
-        ARTIFACT_AUSPICE,
-        ARTIFACT_DELIGHT,
-        ARTIFACT_DEMISE
+        ICON_ARTIFACT_SOUL,
+        ICON_ARTIFACT_SPIRIT,
+        ICON_ARTIFACT_AEGIS,
+        ICON_ARTIFACT_AUSPICE,
+        ICON_ARTIFACT_DELIGHT,
+        ICON_ARTIFACT_DEMISE
     };
 
     enum LPCustomItem : s32

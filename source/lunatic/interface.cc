@@ -222,7 +222,7 @@ namespace mod
                 Lunatic->Interface.critDisp = true;
                 Lunatic->Interface.critDispProgress = 0;
             }
-            slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 140.0f, Lunatic->Interface.critDispProgress, 30);
+            slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 200.0f, Lunatic->Interface.critDispProgress, 30);
             if (Lunatic->Interface.critDispProgress < 30)
                 Lunatic->Interface.critDispProgress += 1;
         }
@@ -232,9 +232,9 @@ namespace mod
             {
                 Lunatic->Interface.critDisp = false;
                 Lunatic->Interface.critDispProgress = 0;
-                Lunatic->Interface.critDispSlideOutAdj = 140.0f;
+                Lunatic->Interface.critDispSlideOutAdj = 200.0f;
             }
-            slide -= system::intplGetValue(system::INTPL_MODE_QUADRATIC_IN, 0.0f, 140.0f, Lunatic->Interface.critDispProgress, 30);
+            slide -= system::intplGetValue(system::INTPL_MODE_QUADRATIC_IN, 0.0f, 200.0f, Lunatic->Interface.critDispProgress, 30);
             slide += Lunatic->Interface.critDispSlideOutAdj;
             if (Lunatic->Interface.critDispProgress < 30)
                 Lunatic->Interface.critDispProgress += 1;
@@ -242,8 +242,8 @@ namespace mod
                 Lunatic->Interface.critDispSlideOutAdj = 0.0f;
         }
 
-        f32 x = -420.0f + slide;
-        f32 y = 60.0f;
+        f32 x = -480.0f + slide;
+        f32 y = 30.0f;
         const char *fmt = "%s: %d%%";
 
         const char *interfaceCM[2] = {interfaceCM1, interfaceCM2};

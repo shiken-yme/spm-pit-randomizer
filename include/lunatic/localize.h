@@ -317,6 +317,48 @@ namespace mod
     const char auspice2Name[] =
         "Auspice Invocation";
 
+    const char artiSoulName[] =
+        "Artifact of Soul";
+
+    const char artiSpiritName[] =
+        "Artifact of Spirit";
+
+    const char artiAegisName[] =
+        "Artifact of Aegis";
+
+    const char artiAuspiceName[] =
+        "Artifact of Auspice";
+
+    const char artiDelightName[] =
+        "Artifact of Delight";
+
+    const char artiDemiseName[] =
+        "Artifact of Demise";
+
+    const char artiSoulDesc[] =
+        "Permanently gain +12%\n"
+        "Crit Rate while in the Pit.";
+
+    const char artiSpiritDesc[] =
+        "Permanently gain +100%\n"
+        "Crit Mult while in the Pit.";
+
+    const char artiAegisDesc[] =
+        "Permanently gain +1 Defense\n"
+        "while in the Pit.";
+
+    const char artiAuspiceDesc[] =
+        "Permanently gain +25% Damage\n"
+        "Reduction while in the Pit.";
+
+    const char artiDelightDesc[] =
+        "Permanently gain +30\n"
+        "Max HP while in the Pit.";
+
+    const char artiDemiseDesc[] =
+        "Permanently gain +2 Attack\n"
+        "while in the Pit.";
+
     const char cakeVDesc[] =
         "Cake Voucher";
 
@@ -458,7 +500,7 @@ namespace mod
         "<system>\nYour Crit Mult has been\nincreased by 150%!\n<k>";
 
     const char auspice1Get[] =
-        "<system>\nYour Damage Reduction has\nbeen increased by 15%!\n<k>";
+        "<system>\nYour Damage Reduction has\nbeen increased by 20%!\n<k>";
 
     const char auspice2Get[] =
         "<system>\nYour Damage Reduction has\nbeen increased by 30%!\n<k>";
@@ -499,10 +541,10 @@ namespace mod
         "<wait 200>how interesting...<wait 350> You've\n"
         "returned, <wait 200><wave>but this is no fun!\n"
         "</wave><k>\n<p>\n"
-        "You won't be rewarded for\n"
-        "defeating me on the same\n"
-        "difficulty<wait 100> <shake>twice, </shake><wait 200>you know...\n"
-        "</shake><k>\n<p>\n"
+        "Fighting me on the same\n"
+        "difficulty <wait 100><shake>twice?</shake><wait 500><wave> Are you trying\n"
+        "to cheese me? <wait 500>How crude!\n"
+        "</wave><k>\n<p>\n"
         "<wave>Oh,<wait 200> but I shall entertain you\n"
         "nevertheless,<wait 200> great Heroes!\n"
         "<wait 500><shake><dynamic 3>Here I cooooome!\n"

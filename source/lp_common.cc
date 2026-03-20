@@ -51,7 +51,7 @@ namespace mod
     {
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();    
         s32 preHp = pouch->maxHp;
-        pouch->attack += maxHp;
+        pouch->maxHp += maxHp;
         Lunatic->Stats.DelightHP += (pouch->maxHp - preHp);
         pouch->hp += hp;
         if (pouch->hp > pouch->maxHp)

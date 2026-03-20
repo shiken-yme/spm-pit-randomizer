@@ -2309,6 +2309,18 @@ namespace mod
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
         Lunatic->Stats.CritRate = 4;
         Lunatic->Stats.CritMult = 50.0f;
+        if (swdrv::swGet(1654) == true)
+            lpAddCrit(12, 0);
+        if (swdrv::swGet(1655) == true)
+            lpAddCrit(0, 100.0f);
+        if (swdrv::swGet(1656) == true)
+            Lunatic->Stats.AegisDef += 1;
+        if (swdrv::swGet(1657) == true)
+            Lunatic->Stats.AuspiceDR += 25.0f;
+        if (swdrv::swGet(1658) == true)
+            lpAddHp(30, 0);
+        if (swdrv::swGet(1659) == true)
+            lpAddAtk(2);
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = TPLPATCH_ICON(ICON_CHEST_KEY);
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = chestKeyNamePtr;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].descMsg = chestKeyDescPtr;
@@ -3191,7 +3203,9 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_11"), 0)
     END_INLINE()
     IF_LARGE(GSW(1622), 0) // If you've already fought Shadoo, new dialogue
-    IF_LARGE(GSW(1622), GSW(1620))
+    SET(LW(15), GSW(1620))
+    ADD(LW(15), 1)
+    IF_LARGE_EQUAL(GSW(1622), LW(15))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(shadooIntroMock), 0, 0)
     ELSE()
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(shadooIntroRamp), 0, 0)
@@ -3271,18 +3285,56 @@ namespace mod
             {{255, 200, 160, 160}, {255, 255, 160, 160}, 80, 0}  // Orange-Yellow
     };
 
+    s32 dan_70_generate_artifact_defs(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        customwin::CWSelectItemDesc *ArtifactDefs = (customwin::CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(customwin::CWSelectItemDesc) * 6);
+        RFCItemData *RFC_SpecialItems = RFCSpecialGetPtr();
+        for (s32 i = 0; i < 6; i += 1)
+        {
+            s32 itemId = i + ARTIFACT_SOUL;
+            msl::string::memcpy(ArtifactDefs[i].nameTxt, RFC_SpecialItems[itemId].name, msl::string::strlen(RFC_SpecialItems[itemId].name));
+            msl::string::memcpy(ArtifactDefs[i].descTxt, RFC_SpecialItems[itemId].description, msl::string::strlen(RFC_SpecialItems[itemId].description));
+            ArtifactDefs[i].nameColor = RFC_SpecialItems[itemId].textDrawCol;
+            ArtifactDefs[i].iconId = TPLPATCH_ICON(RFC_SpecialItems[itemId].iconId);
+        }
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)ArtifactDefs);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(dan_70_generate_artifact_defs, 1)
+
     EVT_BEGIN(artifactReward)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
-    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), &RFCItems_Artifacts, 6) // todo: b less bad
+    USER_FUNC(dan_70_generate_artifact_defs, LW(0))
+    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), LW(0), 6) // todo: b less bad
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Artifact"), PTR(&RFCArtiHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Artifact"), PTR(rainbowSelectBgCols), 8)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Artifact"), 0, LW(0))
-    IF_EQUAL(LW(0), -1) // Select menu cancelled
+    IF_NOT_EQUAL(LW(0), -1) // Select menu cancelled
+    USER_FUNC(LPGUIShowHideStats, 1)
+    WAIT_MSEC(1000)
+    USER_FUNC(evt_mario::evt_mario_get_pos, LW(1), LW(2), LW(3))
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_I_HEART_HUERU1"), LW(1), LW(2), LW(3))
+    INLINE_EVT()
+    WAIT_MSEC(200)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("I_2"), 0)
+    END_INLINE()
+    USER_FUNC(RFCAnalyzeSpecial, LW(0), 0)
+    WAIT_MSEC(1000)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    USER_FUNC(LPGUIShowHideStats, 0)
+    WAIT_MSEC(1000)
+    END_IF()
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Artifact"))
-    RETURN()
-    END_IF()
+    // Set GSW(1622) to highest difficulty beaten + 1
+    SET(LW(0), GSW(1620))
+    ADD(LW(0), 1)
+    IF_SMALL(GSW(1622), GSW(1620))
+    SET(GSW(1622), GSW(1620))
     ADD(GSW(1622), 1)
+    END_IF()
+    SET(LSWF(1), 1)
     RETURN()
     EVT_END()
 
@@ -3292,7 +3344,7 @@ namespace mod
     USER_FUNC(evt_cam::evt_cam_look_at_door, 1, 0)
     USER_FUNC(evt_map::evt_mapobj_get_position, PTR("dokan"), LW(0), LW(1), LW(2))
     USER_FUNC(evt_cam::func_800e01f8)
-    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, LW(0), EVT_NULLPTR, EVT_NULLPTR, LW(0), EVT_NULLPTR, EVT_NULLPTR, 500, 11)
+    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, LW(0), EVT_NULLPTR, EVT_NULLPTR, LW(0), EVT_NULLPTR, EVT_NULLPTR, 1000, 11)
     WAIT_MSEC(500)
     WAIT_MSEC(1000)
     USER_FUNC(evt_map::evt_mapobj_flag_onoff, 1, 0, PTR("dokan"), 1)
@@ -3329,6 +3381,7 @@ namespace mod
     s32 dan_70_determine_artifact_spawn(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 difficulty = swdrv::swByteGet(1620);
         bool beatenThisDifficulty = swdrv::swGet(1650 + difficulty);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)beatenThisDifficulty);
@@ -3376,10 +3429,10 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 0, 2000)
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     USER_FUNC(evt_mario::evt_mario_face_coords, 200, 0)
-    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, 0, 160, 1034, 0, 160, -16, 500, 11)
-    WAIT_MSEC(500)
     USER_FUNC(dan_70_determine_artifact_spawn, LW(2))
     IF_EQUAL(LW(2), 0)
+    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, 0, 160, 1034, 0, 160, -16, 500, 11)
+    WAIT_MSEC(500)
     INLINE_EVT()
     USER_FUNC(evt_snd::evt_snd_bgmon, 2, PTR("BGM_FF_CORRECT1"))
     USER_FUNC(evt_snd::evt_snd_get_bgm_wait_time, 2, LW(0))
@@ -3387,7 +3440,7 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 2, 1000)
     RUN_EVT(custom_pit_music)
     END_INLINE()
-    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("Artifact"), -250, -100, -75, 0, PTR(artifactReward), 0, 0)
+    USER_FUNC(evt_mobj::evt_mobj_thako, 1, PTR("Artifact"), 0, -100, -75, 0, PTR(artifactReward), 0, 0)
     USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 0, PTR("Artifact"), 0x40)
     USER_FUNC(evt_mobj::evt_mobj_flag_onoff, 1, 1, PTR("Artifact"), 0x10000)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 1000, 0, 2000)
@@ -3405,14 +3458,15 @@ namespace mod
     DO_BREAK()
     END_IF()
     WHILE()
+    ELSE()
+    SET(LSWF(1), 1)
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_anim_change_handler, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 500, 11)
+    WAIT_MSEC(500)
     USER_FUNC(evt_mario::evt_mario_key_on)
-    SET(LW(0), GSW(1620))
-    ADD(LW(0), 1)
     DO(0)
-    IF_SMALL_EQUAL(LW(0), GSW(1622))
+    IF_EQUAL(LSWF(1), 1)
     RUN_EVT(dan_70_rewards_cont)
     RETURN()
     END_IF()
