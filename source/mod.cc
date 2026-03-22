@@ -3975,8 +3975,16 @@ namespace mod
     WAIT_MSEC(200)
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("I_2"), 0)
     END_INLINE()
-    USER_FUNC(RFCAnalyzeSpecial, LW(0), LW(1))
+    USER_FUNC(RFCAnalyzeSpecial, LW(0), LW(1)) // Takes cwselect item idx, returns RFCCustomItem idx and msg id
     WAIT_MSEC(1500)
+    IF_NOT_EQUAL(GSWF(1606), 1) // Voucher intro text not seen
+    IF_LARGE_EQUAL(LW(0), (s32)VOUCHER_CAKE)
+    IF_SMALL_EQUAL(LW(0), (s32)VOUCHER_BLACK)
+    SET(GSWF(1606), 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(voucherIntro), 0, 0)
+    END_IF()
+    END_IF()
+    END_IF()
     IF_NOT_EQUAL(LW(1), -1) // Dialogue
     USER_FUNC(evt_msg::evt_msg_print, 1, LW(1), 0, 0)
     END_IF()
@@ -3997,6 +4005,10 @@ namespace mod
     SWITCH(LW(0))
     CASE_EQUAL(0) // Open it!
     USER_FUNC(evt_msg::evt_msg_continue)
+    USER_FUNC(DebugModeGetStatus, LW(3))
+    IF_EQUAL(LW(3), 1)
+    RETURN()
+    END_IF()
     IF_SMALL(LW(2), LW(1))
     USER_FUNC(evt_sub::evt_sub_random, 3, LW(3))
     ADD(LW(3), 2)

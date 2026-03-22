@@ -190,6 +190,8 @@ namespace mod
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
+    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {8, 10, 7, 8, 2, 2, 2, 2, 2, 2, 2, 2};
+
     s32 VoucherAdd(void *wp)
     {
         s32 i;
@@ -343,19 +345,19 @@ namespace mod
         return;
     }
 
-    s32 VoucherSetTearChance(s32 baseChance)
+    s32 VoucherGetTearChance(s32 baseChance)
     {
         s32 difficulty = swdrv::swByteGet(1620);
         switch (difficulty)
         {
         case 1:
-            baseChance *= 1.5f;
+            baseChance *= 1.25f;
             break;
         case 2:
-            baseChance *= 2;
+            baseChance *= 1.5;
             break;
         case 3:
-            baseChance *= 2.5f;
+            baseChance *= 1.75f;
             break;
         default:
             break;
@@ -394,7 +396,7 @@ namespace mod
     void CakeVoucherTear()
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
-        s32 hp = Lunatic->Voucher.Work[idx]->UW.Cake->rooms;
+        s32 hp = Lunatic->Voucher.Work[idx]->UW.Cake->hpGain;
         lpAddHp(-(hp / 2), hp); // Remove half of the max HP bonus, but add total bonus to reg HP
         return;
     }
@@ -409,7 +411,7 @@ namespace mod
             VoucherDoTear(VOUCHER_CAKE);
         else
         {
-            Lunatic->Voucher.Work[idx]->UW.Cake->rooms += 1;
+            Lunatic->Voucher.Work[idx]->UW.Cake->hpGain += (pouch->maxHp - maxHp);
             VoucherSpin(VOUCHER_CAKE, false);
         }
         return;
@@ -424,7 +426,7 @@ namespace mod
         Lunatic->Voucher.Work[idx]->itemId = VOUCHER_CAKE;
         Lunatic->Voucher.Work[idx]->tearFunc = CakeVoucherTear;
         Lunatic->Voucher.Work[idx]->actionFunc = CakeVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(6);
+        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
         return;
     }
 
@@ -432,7 +434,7 @@ namespace mod
     {
         s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
         VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
-        lpAddAtk(-(round(Voucher->UW.Thunder->atkBonus / 2)));
+        lpAddAtk(-(round(Voucher->UW.Thunder->atkBonus / 2)) + 1);
         lpAddCrit(-(round((f32)Voucher->UW.Thunder->critRateBonus / 2)) + 2, -(msl::math::floor(Voucher->UW.Thunder->critMultBonus / 2.0f)) + 8.0f);
         return;
     }
@@ -460,7 +462,7 @@ namespace mod
         Lunatic->Voucher.Work[idx]->itemId = VOUCHER_THUNDER;
         Lunatic->Voucher.Work[idx]->tearFunc = ThunderVoucherTear;
         Lunatic->Voucher.Work[idx]->actionFunc = ThunderVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(10);
+        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
         return;
     }
 
@@ -503,7 +505,7 @@ namespace mod
         Lunatic->Voucher.Work[idx]->itemId = VOUCHER_STELLAR;
         Lunatic->Voucher.Work[idx]->tearFunc = StellarVoucherTear;
         Lunatic->Voucher.Work[idx]->actionFunc = StellarVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(6);
+        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
         return;
     }
 
@@ -526,7 +528,7 @@ namespace mod
         Lunatic->Voucher.Work[idx]->itemId = VOUCHER_JUDGEMENT;
         Lunatic->Voucher.Work[idx]->tearFunc = JudgementVoucherTear;
         Lunatic->Voucher.Work[idx]->actionFunc = JudgementVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherSetTearChance(4);
+        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
         return;
     }
 
@@ -645,38 +647,37 @@ namespace mod
     }
 
     RFCItemData RFC_SpecialItems[] = {
-        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, cakeVGet, CakeVoucherUse, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, thunderVGet, ThunderVoucherUse, {255, 142, 43, 100}, {191, 119, 55, 255}},
-        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, stellarVGet, StellarVoucherUse, {248, 255, 43, 100}, {168, 171, 77, 255}},
-        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, judgementVGet, JudgementVoucherUse, {81, 140, 189, 100}, {46, 81, 97, 255}},
-        {ICON_VOUCHER_RED, redVName, redVDesc, redVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, orangeVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, yellowVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, greenVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, cyanVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, blueVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, purpleVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, whiteVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
-        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, blackVGet, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},             // kek
-        {ICON_SOUL_1, soul1Name, soul1Desc, soul1Get, SoulDropUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                  // Soul Drop, +4% Crit Rate
-        {ICON_SOUL_2, soul2Name, soul2Desc, soul2Get, SoulBoonUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                  // Soul Boon, +8% Crit Rate
-        {ICON_SOUL_3, soul3Name, soul3Desc, soul3Get, SoulEpiphanyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},              // Soul Epiphany, +16% Crit Rate
-        {ICON_SOUL_4, soul4Name, soul4Desc, soul4Get, SoulLegacyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                // Soul Legacy, +24% Crit Rate
-        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, spirit1Get, SpiritDropUse, {41, 194, 255, 100}, {42, 116, 145, 255}},         // Spirit Drop, +25% Crit Mult
-        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, spirit2Get, SpiritBoonUse, {41, 194, 255, 100}, {42, 116, 145, 255}},         // Spirit Boon, +50% Crit Mult
-        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, spirit3Get, SpiritEpiphanyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},     // Spirit Epiphany, +100% Crit Mult
-        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, spirit4Get, SpiritLegacyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},       // Spirit Legacy, +150% Crit Mult
-        {ICON_AEGIS_1, aegis1Name, aegis1Desc, aegis1Get, AegisEndowmentUse, {33, 96, 255, 100}, {34, 64, 140, 255}},           // Aegis Endowment, +15% DR
-        {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 255}},          // Aegis Invocation, +30% DR
-        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Endowment, +1 DEF
+        {ICON_VOUCHER_CAKE, cakeVName, cakeVDesc, nullptr, CakeVoucherUse, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_THUNDER, thunderVName, thunderVDesc, nullptr, ThunderVoucherUse, {255, 142, 43, 100}, {191, 119, 55, 255}},
+        {ICON_VOUCHER_STELLAR, stellarVName, stellarVDesc, nullptr, StellarVoucherUse, {248, 255, 43, 100}, {168, 171, 77, 255}},
+        {ICON_VOUCHER_JUDGEMENT, judgementVName, judgementVDesc, nullptr, JudgementVoucherUse, {81, 140, 189, 100}, {46, 81, 97, 255}},
+        {ICON_VOUCHER_RED, redVName, redVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_ORANGE, orangeVName, orangeVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_YELLOW, yellowVName, yellowVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_GREEN, greenVName, greenVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_CYAN, cyanVName, cyanVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_BLUE, blueVName, blueVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_PURPLE, purpleVName, purpleVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_WHITE, whiteVName, whiteVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},
+        {ICON_VOUCHER_BLACK, blackVName, blackVDesc, nullptr, nullptr, {252, 77, 255, 100}, {164, 76, 166, 255}},                // kek
+        {ICON_SOUL_1, soul1Name, soul1Desc, soul1Get, SoulDropUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                   // Soul Drop, +4% Crit Rate
+        {ICON_SOUL_2, soul2Name, soul2Desc, soul2Get, SoulBoonUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                   // Soul Boon, +8% Crit Rate
+        {ICON_SOUL_3, soul3Name, soul3Desc, soul3Get, SoulEpiphanyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},               // Soul Epiphany, +16% Crit Rate
+        {ICON_SOUL_4, soul4Name, soul4Desc, soul4Get, SoulLegacyUse, {248, 255, 156, 100}, {146, 153, 50, 255}},                 // Soul Legacy, +24% Crit Rate
+        {ICON_SPIRIT_1, spirit1Name, spirit1Desc, spirit1Get, SpiritDropUse, {41, 194, 255, 100}, {42, 116, 145, 255}},          // Spirit Drop, +25% Crit Mult
+        {ICON_SPIRIT_2, spirit2Name, spirit2Desc, spirit2Get, SpiritBoonUse, {41, 194, 255, 100}, {42, 116, 145, 255}},          // Spirit Boon, +50% Crit Mult
+        {ICON_SPIRIT_3, spirit3Name, spirit3Desc, spirit3Get, SpiritEpiphanyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},      // Spirit Epiphany, +100% Crit Mult
+        {ICON_SPIRIT_4, spirit4Name, spirit4Desc, spirit4Get, SpiritLegacyUse, {41, 194, 255, 100}, {42, 116, 145, 255}},        // Spirit Legacy, +150% Crit Mult
+        {ICON_AEGIS_1, aegis1Name, aegis1Desc, aegis1Get, AegisEndowmentUse, {33, 96, 255, 100}, {34, 64, 140, 255}},            // Aegis Endowment, +15% DR
+        {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 255}},           // Aegis Invocation, +30% DR
+        {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 255}},  // Auspice Endowment, +1 DEF
         {ICON_AUSPICE_2, auspice2Name, auspice2Desc, auspice2Get, AuspiceInvocationUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Invocation, +2 DEF
         {ICON_ARTIFACT_SOUL, artiSoulName, artiSoulDesc, nullptr, SoulArtifactUse, {248, 255, 156, 100}, {146, 153, 50, 255}},
         {ICON_ARTIFACT_SPIRIT, artiSpiritName, artiSpiritDesc, nullptr, SpiritArtifactUse, {41, 194, 255, 100}, {42, 116, 145, 255}},
         {ICON_ARTIFACT_AEGIS, artiAegisName, artiAegisDesc, nullptr, AegisArtifactUse, {33, 96, 255, 100}, {34, 64, 140, 255}},
         {ICON_ARTIFACT_AUSPICE, artiAuspiceName, artiAuspiceDesc, nullptr, AuspiceArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
         {ICON_ARTIFACT_DELIGHT, artiDelightName, artiDelightDesc, nullptr, DelightArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
-        {ICON_ARTIFACT_DEMISE, artiDemiseName, artiDemiseDesc, nullptr, DemiseArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}}
-    };
+        {ICON_ARTIFACT_DEMISE, artiDemiseName, artiDemiseDesc, nullptr, DemiseArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}}};
 
     RFCColorDef RFC_Colors[] = {
         {{10, 10, 10, 255}, {0, 0, 0, 255}},          // Common
@@ -777,6 +778,7 @@ namespace mod
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFC_SpecialItems[trueIdx].useMsg);
         else
             evtmgr_cmd::evtSetValue(evtEntry, args[1], -1);
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], trueIdx);
         return 2;
     }
 

@@ -480,7 +480,6 @@ namespace mod
     RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    USER_FUNC(EvtVoucherCallAction, VOUCHER_CAKE)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 0, 1000)
     DO(0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
@@ -496,6 +495,7 @@ namespace mod
     INLINE_EVT()
     USER_FUNC(evt_dan_handle_key_failsafe_new) // Completely overhauls key despawn behavior
     END_INLINE()
+    USER_FUNC(EvtVoucherCallAction, VOUCHER_CAKE)
     USER_FUNC(evt_sub::func_800d4de4, 1, 0)
     RETURN()
     EVT_END()

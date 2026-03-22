@@ -86,6 +86,12 @@
 
 namespace mod
 {
+    /* 
+        lunadrv contains most code for the Merluna-focused features, Disorders and Divine Judgement
+        Now just how are Disorders related to Merluna?... That's a secret, hehehe~ :3
+        Divine Judgement doesn't have code here yet because I yet to reimplement it. One day!!
+    */
+
     using namespace spm;
 
     void ApathySet()

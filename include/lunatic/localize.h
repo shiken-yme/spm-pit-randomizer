@@ -239,6 +239,31 @@ namespace mod
         "you don't have the keys.\n"
         "<k>";
 
+    const char voucherIntro[] =
+        "<system>\n"
+        "You've obtained a Voucher!\n"
+        "<k>\n<p>\n"
+        "When certain conditions are\n"
+        "met, Vouchers will cause a\n"
+        "positive effect to occur.\n"
+        "<k>\n<p>\n"
+        "When a Voucher takes effect,\n"
+        "you'll see its icon spin\n"
+        "around briefly.\n"
+        "<k>\n<p>\n"
+        "However, any time a Voucher\n"
+        "activates, it might tear,\n"
+        "making it spin rapidly.\n"
+        "<k>\n<p>\n"
+        "When a Voucher tears, a\n"
+        "secondary effect will occur\n"
+        "before it disappears.\n"
+        "<k>\n<p>\n"
+        "You can learn more about an\n"
+        "active Voucher anytime in the\n"
+        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n"
+        "<k>";
+
     const char chestKeyName[] =
         "Chest Key";
 
@@ -360,16 +385,46 @@ namespace mod
         "while in the Pit.";
 
     const char cakeVDesc[] =
-        "Cake Voucher";
+        "Max HP is increased by 2 for\n"
+        "every enemy room completed.\n"
+        "<k>\n<p>\n"
+        "%d%% chance to tear upon any\n"
+        "activation.\n"
+        "<k>\n<p>\n"
+        "Tear: Halves total Max HP\n"
+        "bonus and adds it to HP.";
 
     const char thunderVDesc[] =
-        "Thunder Voucher";
+        "An offensive stat is increased\n"
+        "for every 30 enemies defeated.\n"
+        "<k>\n<p>\n"
+        "You may get either +8%% Crit Mult,\n"
+        "+4%% Crit Rate, or +1 Attack.\n"
+        "<k>\n<p>\n"
+        "%d%% chance to tear upon any\n"
+        "activation.\n"
+        "<k>\n<p>\n"
+        "Tear: Halves all offensive stat\n"
+        "bonuses, then adds a final bonus.";
 
     const char judgementVDesc[] =
         "Judgement Voucher";
 
     const char stellarVDesc[] =
-        "Stellar Voucher";
+        "Significantly increases item\n"
+        "drop rates from all enemies.\n"
+        "<k>\n<p>\n"
+        "This effect intensifies with\n"
+        "your difficulty setting.\n"
+        "<k>\n<p>\n"
+        "Common-tier Chests will never\n"
+        "spawn on rest floors.\n"
+        "<k>\n<p>\n"
+        "%d%% chance to tear upon any\n"
+        "activation.\n"
+        "<k>\n<p>\n"
+        "Tear: Instantly obtain 3\n"
+        "Chest Keys.";
 
     const char redVDesc[] =
         "Determination Voucher";
@@ -435,45 +490,6 @@ namespace mod
 
     const char aegis2Desc[] =
         "Increases Defense by 2.";
-
-    const char cakeVGet[] =
-        "Cake Voucher";
-
-    const char thunderVGet[] =
-        "Thunder Voucher";
-
-    const char judgementVGet[] =
-        "Judgement Voucher";
-
-    const char stellarVGet[] =
-        "Stellar Voucher";
-
-    const char redVGet[] =
-        "Determination Voucher";
-
-    const char orangeVGet[] =
-        "Bravery Voucher";
-
-    const char yellowVGet[] =
-        "Justice Voucher";
-
-    const char greenVGet[] =
-        "Kindness Voucher";
-
-    const char cyanVGet[] =
-        "Patience Voucher";
-
-    const char blueVGet[] =
-        "Integrity Voucher";
-
-    const char purpleVGet[] =
-        "Perseverance Voucher";
-
-    const char whiteVGet[] =
-        "Limerence Voucher";
-
-    const char blackVGet[] =
-        "Contrivance Voucher";
 
     const char soul1Get[] =
         "<system>\nYour Crit Rate has been\nincreased by 4%!\n<k>";

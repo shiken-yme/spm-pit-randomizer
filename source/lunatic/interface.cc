@@ -422,10 +422,13 @@ namespace mod
             s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
             if (Lunatic->Voucher.Work[i] != nullptr)
             {
+                s32 itemId = Lunatic->Voucher.Work[i]->itemId;
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], TPLPATCH_ICON((s32)Lunatic->Voucher.Work[i]->iconId));
-                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].name);
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].description);
-                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[Lunatic->Voucher.Work[i]->itemId].textDrawCol);
+                evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[itemId].name);
+                Lunatic->Voucher.Work[i]->aeDescBuf = (char *)memory::__memAlloc(1, 300);
+                msl::stdio::sprintf(Lunatic->Voucher.Work[i]->aeDescBuf, RFC_SpecialItems[itemId].description, VoucherGetTearChance(VoucherTearChances[itemId]));
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Voucher.Work[i]->aeDescBuf);
+                evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[itemId].textDrawCol);
                 break;
             }
             else

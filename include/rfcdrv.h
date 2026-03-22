@@ -34,7 +34,7 @@ namespace mod
 
     struct VCakeWork
     {
-        u8 rooms;
+        s32 hpGain;
     };
 
     struct VThunderWork
@@ -54,6 +54,10 @@ namespace mod
     {
         bool placeholder;
     };
+
+    s32 VoucherGetTearChance(s32 baseChance);
+
+    extern s32 VoucherTearChances[];
 
     /*
         RFC Driver

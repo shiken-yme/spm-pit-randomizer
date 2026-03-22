@@ -292,6 +292,7 @@ namespace mod
         } UW;
         Callback *tearFunc;
         Callback *actionFunc;
+        char *aeDescBuf;
     };
 
     struct MagicTrick

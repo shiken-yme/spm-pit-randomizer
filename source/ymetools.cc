@@ -1057,14 +1057,23 @@ namespace mod::yme
                     hitdrv::HitObj *hitObj = hitdrv::hitNameToPtr(msg);
                     if ((hitObj->flags & 0x1) == 0)
                     {
-                        hitdrv::hitObjFlagOn(0, msg, 1);
+                        hitdrv::hitGrpFlagOn(0, msg, 1);
                         hitObjStatus = 1;
                     }
                     else
                     {
-                        hitdrv::hitObjFlagOff(0, msg, 1);
+                        hitdrv::hitGrpFlagOff(0, msg, 1);
                         hitObjStatus = 2;
                     }
+                }
+            }
+            if ((mario->buttonsHeld & (WPAD_BTN_Z)) == (WPAD_BTN_Z) && (mario->buttonsPressed & (WPAD_BTN_PLUS)) == (WPAD_BTN_PLUS)) // Z held & + pressed
+            {
+                if (msl::string::strcmp(hitObjName, "Null") != 0)
+                {
+                    hitdrv::HitObj *hObj = hitdrv::hitNameToPtr(hitObjName);
+                    if (hObj->parent != nullptr)
+                        msl::stdio::sprintf(hitObjName, "%s", hObj->parent->joint->name);
                 }
             }
             if ((mario->buttonsHeld & (WPAD_BTN_C | WPAD_BTN_2)) == (WPAD_BTN_C | WPAD_BTN_2)) // C and 2 held to scroll
@@ -1259,6 +1268,22 @@ namespace mod::yme
                 wii::os::OSReport("[%s] No Slim gaps were found in this map.\n", name);
             seqdrv::seqSetSeq(seqdrv::SEQ_MAPCHANGE, map_data::mapData[curMap_n++]->name, "");
         }*/
+
+        /*
+             Code directly stolent from SPMIIWG to make these controls less awful
+             Hammer with B any time instead of Cudge and 1
+        */
+        if ((mario->buttonsPressed & (WPAD_BTN_B)) == (WPAD_BTN_B)) // B pressed
+        {
+            if ((mario->flags & 0x40000000) != 0 || (mario->flags & 0x10000000) != 0)
+                return; // Mega Star; Lock Motion ID
+            if ((mario->dispFlags & MARIO_DISP_FLAG_CAM_ID) == 0 && (mario->dispFlags & MARIO_DISP_FLAG_INVISIBLE) == 0 && (mario->flags & 8) == 0)
+            {
+                u16 motion = mario->motionId;
+                if ((motion == MOT_WALK || motion == MOT_DASH || motion == MOT_STAY || motion == MOT_SPACE_SWIM || motion == MOT_SPINDASH) && (msl::string::strcmp(mario->curPoseName, "D_2") != 0))
+                    mario_motion::marioChgMot(MOT_HAMMER);
+            }
+        }
         return;
     }
 
@@ -1304,8 +1329,32 @@ namespace mod::yme
         postTextDisplay();
     }
 
+    void mot_hammer_post_new(mario::MarioWork *mario)
+    {
+        mario->flags = mario->flags & ~0x980;
+    }
+
+    void patchHammerFuncs()
+    {
+        // Patch mot_hammer with NOPS. Thank you for the help John
+        writeWord(mot_fairy_mario::mot_hammer, 0x38, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x2B0, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x2B4, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x2B8, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x2BC, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x3D4, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x3D8, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x3DC, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x3E0, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x654, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x658, NOP);
+        writeWord(mot_fairy_mario::mot_hammer, 0x65C, NOP);
+        patch::hookFunction(mot_fairy_mario::mot_hammer_post, mot_hammer_post_new);
+    }
+
     void ymeMain()
     {
         implementTools();
+        patchHammerFuncs();
     }
 }
