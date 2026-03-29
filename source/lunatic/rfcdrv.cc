@@ -221,12 +221,28 @@ namespace mod
         return -1;
     }
 
+    VoucherWork *VoucherItemIdToPtr(s32 itemId)
+    {
+        VoucherWork *Voucher = nullptr;
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        {
+            Voucher = Lunatic->Voucher.Work[i];
+            if (Voucher != nullptr) // In use
+            {
+                if (Voucher->itemId == itemId)
+                    break;
+            }
+        }
+        assertf(Voucher != nullptr, "VoucherWork not found; itemId == %d", itemId);
+        return Voucher;
+    }
+
     void VoucherRemove(s32 itemId)
     {
-        s32 i = VoucherItemIdToIdx(itemId);
-        msl::string::memset(Lunatic->Voucher.Work[i], 0, sizeof(VoucherWork));
-        memory::__memFree(0, Lunatic->Voucher.Work[i]);
-        Lunatic->Voucher.Work[i] = nullptr;
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        msl::string::memset(Voucher, 0, sizeof(VoucherWork));
+        memory::__memFree(0, Voucher);
+        Voucher = nullptr;
         return;
     }
 
@@ -246,9 +262,8 @@ namespace mod
     {
         if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
             return;
-        s32 idx = VoucherItemIdToIdx(itemId);
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
         u8 alphaMod;
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
         Voucher->isSpinning = true;
         if (Voucher->iconRotationTimer < 20)
         {
@@ -276,9 +291,8 @@ namespace mod
     {
         if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
             return;
-        s32 idx = VoucherItemIdToIdx(itemId);
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
         u8 alphaMod;
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
         Voucher->isSpinning = true;
         if (Voucher->iconRotationTimer < 30)
         {
@@ -301,7 +315,7 @@ namespace mod
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
             Voucher->isSpinning = false;
-            VoucherRemove(Lunatic->Voucher.Work[idx]->itemId);
+            VoucherRemove(Voucher->itemId);
             globalop::globalopDelEntry(deleteIdx);
         }
         return;
@@ -309,8 +323,7 @@ namespace mod
 
     void VoucherSpin(s32 itemId, bool tearSpin)
     {
-        s32 idx = VoucherItemIdToIdx(itemId);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
         if (Voucher->isSpinning) // If a spin is active, force-reset it unequivocally
         {
             globalop::globalopDelEntry(Voucher->spinDeleteFuncIdx);
@@ -328,20 +341,21 @@ namespace mod
         return;
     }
 
-    bool VoucherTryTear(s32 idx)
+    bool VoucherTryTear(s32 itemId)
     {
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
         s32 odds = system::irand(99);
-        if (odds < Lunatic->Voucher.Work[idx]->tearChance)
+        if (odds < Voucher->tearChance)
             return true;
         return false;
     }
 
     void VoucherDoTear(s32 itemId)
     {
-        s32 idx = VoucherItemIdToIdx(itemId);
-        Lunatic->Voucher.Work[idx]->torn = true;
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        Voucher->torn = true;
         VoucherSpin(itemId, true);
-        (Lunatic->Voucher.Work[idx]->tearFunc)();
+        (Voucher->tearFunc)();
         return;
     }
 
@@ -367,19 +381,26 @@ namespace mod
 
     void VoucherCallAction(s32 itemId)
     {
-        s32 idx;
-        VoucherState state = VoucherGetStateById(itemId, &idx);
+        VoucherState state = VoucherGetStateById(itemId, nullptr);
         if (state == V_TORN) // Don't redundantly call a voucher action once it's already torn
             return;
         if (state == V_ACTIVE)
         {
-            if (Lunatic->Voucher.Work[idx]->isSpinning == true)
+            VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+            if (Voucher->isSpinning == true)
                 return;
-            bool tear = VoucherTryTear(idx);
-            if (tear)
-                VoucherDoTear(itemId);
+            if (Voucher->guaranteeTrig == 0)
+            {
+                if (VoucherTryTear(itemId) == true)
+                    VoucherDoTear(itemId);
+                else
+                    (Voucher->actionFunc)();
+            }
             else
-                (Lunatic->Voucher.Work[idx]->actionFunc)();
+            {
+                Voucher->guaranteeTrig -= 1;
+                (Voucher->actionFunc)();
+            }
         }
         return;
     }
@@ -395,15 +416,15 @@ namespace mod
 
     void CakeVoucherTear()
     {
-        s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
-        s32 hp = Lunatic->Voucher.Work[idx]->UW.Cake->hpGain;
+        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
+        s32 hp = Voucher->UW.Cake->hpGain;
         lpAddHp(-(hp / 2), hp); // Remove half of the max HP bonus, but add total bonus to reg HP
         return;
     }
 
     void CakeVoucherAction()
     {
-        s32 idx = VoucherItemIdToIdx(VOUCHER_CAKE);
+        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 maxHp = pouch->maxHp;
         lpAddHp(2, 2);
@@ -411,7 +432,7 @@ namespace mod
             VoucherDoTear(VOUCHER_CAKE);
         else
         {
-            Lunatic->Voucher.Work[idx]->UW.Cake->hpGain += (pouch->maxHp - maxHp);
+            Voucher->UW.Cake->hpGain += (pouch->maxHp - maxHp);
             VoucherSpin(VOUCHER_CAKE, false);
         }
         return;
@@ -422,18 +443,19 @@ namespace mod
         VCakeWork *wp = (VCakeWork *)memory::__memAlloc(0, sizeof(VCakeWork));
         msl::string::memset(wp, 0, sizeof(VCakeWork));
         s32 idx = VoucherAdd(wp);
-        Lunatic->Voucher.Work[idx]->iconId = ICON_VOUCHER_CAKE;
-        Lunatic->Voucher.Work[idx]->itemId = VOUCHER_CAKE;
-        Lunatic->Voucher.Work[idx]->tearFunc = CakeVoucherTear;
-        Lunatic->Voucher.Work[idx]->actionFunc = CakeVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->iconId = ICON_VOUCHER_CAKE;
+        Voucher->itemId = VOUCHER_CAKE;
+        Voucher->tearFunc = CakeVoucherTear;
+        Voucher->actionFunc = CakeVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
+        Voucher->guaranteeTrig = 5;
         return;
     }
 
     void ThunderVoucherTear()
     {
-        s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
         lpAddAtk(-(round(Voucher->UW.Thunder->atkBonus / 2)) + 1);
         lpAddCrit(-(round((f32)Voucher->UW.Thunder->critRateBonus / 2)) + 2, -(msl::math::floor(Voucher->UW.Thunder->critMultBonus / 2.0f)) + 8.0f);
         return;
@@ -441,14 +463,14 @@ namespace mod
 
     void ThunderVoucherAction()
     {
-        s32 idx = VoucherItemIdToIdx(VOUCHER_THUNDER);
+        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
         s32 odds = system::rand() % 10;
         if (odds < 2) // 20%
-            lpAddAtk(Lunatic->Voucher.Work[idx]->UW.Thunder->atkBonus += 1);
+            lpAddAtk(Voucher->UW.Thunder->atkBonus += 1);
         else if (odds < 7) // 50%
-            lpAddCrit(0, Lunatic->Voucher.Work[idx]->UW.Thunder->critMultBonus += 8.0f);
+            lpAddCrit(0, Voucher->UW.Thunder->critMultBonus += 8.0f);
         else // 30%
-            lpAddCrit(Lunatic->Voucher.Work[idx]->UW.Thunder->critRateBonus += 2, 0);
+            lpAddCrit(Voucher->UW.Thunder->critRateBonus += 2, 0);
         VoucherSpin(VOUCHER_THUNDER, false);
         return;
     }
@@ -458,27 +480,29 @@ namespace mod
         VThunderWork *wp = (VThunderWork *)memory::__memAlloc(0, sizeof(VThunderWork));
         msl::string::memset(wp, 0, sizeof(VThunderWork));
         s32 idx = VoucherAdd(wp);
-        Lunatic->Voucher.Work[idx]->iconId = ICON_VOUCHER_THUNDER;
-        Lunatic->Voucher.Work[idx]->itemId = VOUCHER_THUNDER;
-        Lunatic->Voucher.Work[idx]->tearFunc = ThunderVoucherTear;
-        Lunatic->Voucher.Work[idx]->actionFunc = ThunderVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->iconId = ICON_VOUCHER_THUNDER;
+        Voucher->itemId = VOUCHER_THUNDER;
+        Voucher->tearFunc = ThunderVoucherTear;
+        Voucher->actionFunc = ThunderVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
+        Voucher->guaranteeTrig = 3;
         return;
     }
 
     s32 ThunderVoucherIncrementCtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
-        s32 idx;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 hp = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER, &idx);
+        VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER, nullptr);
         if (hp <= 1 || vState != V_ACTIVE)
             return 2;
-        Lunatic->Voucher.Work[idx]->UW.Thunder->enemies += 1;
-        if (Lunatic->Voucher.Work[idx]->UW.Thunder->enemies == 30)
+        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
+        Voucher->UW.Thunder->enemies += 1;
+        if (Voucher->UW.Thunder->enemies == 30)
         {
-            Lunatic->Voucher.Work[idx]->UW.Thunder->enemies = 0;
+            Voucher->UW.Thunder->enemies = 0;
             VoucherCallAction(VOUCHER_THUNDER);
         }
         return 2;
@@ -501,11 +525,13 @@ namespace mod
         VStellarWork *wp = (VStellarWork *)memory::__memAlloc(0, sizeof(VStellarWork));
         msl::string::memset(wp, 0, sizeof(VStellarWork));
         s32 idx = VoucherAdd(wp);
-        Lunatic->Voucher.Work[idx]->iconId = ICON_VOUCHER_STELLAR;
-        Lunatic->Voucher.Work[idx]->itemId = VOUCHER_STELLAR;
-        Lunatic->Voucher.Work[idx]->tearFunc = StellarVoucherTear;
-        Lunatic->Voucher.Work[idx]->actionFunc = StellarVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->iconId = ICON_VOUCHER_STELLAR;
+        Voucher->itemId = VOUCHER_STELLAR;
+        Voucher->tearFunc = StellarVoucherTear;
+        Voucher->actionFunc = StellarVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
+        Voucher->guaranteeTrig = 4;
         return;
     }
 
@@ -524,11 +550,13 @@ namespace mod
         VJudgementWork *wp = (VJudgementWork *)memory::__memAlloc(0, sizeof(VJudgementWork));
         msl::string::memset(wp, 0, sizeof(VJudgementWork));
         s32 idx = VoucherAdd(wp);
-        Lunatic->Voucher.Work[idx]->iconId = ICON_VOUCHER_JUDGEMENT;
-        Lunatic->Voucher.Work[idx]->itemId = VOUCHER_JUDGEMENT;
-        Lunatic->Voucher.Work[idx]->tearFunc = JudgementVoucherTear;
-        Lunatic->Voucher.Work[idx]->actionFunc = JudgementVoucherAction;
-        Lunatic->Voucher.Work[idx]->tearChance = VoucherGetTearChance(VoucherTearChances[Lunatic->Voucher.Work[idx]->itemId]);
+        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        Voucher->iconId = ICON_VOUCHER_JUDGEMENT;
+        Voucher->itemId = VOUCHER_JUDGEMENT;
+        Voucher->tearFunc = JudgementVoucherTear;
+        Voucher->actionFunc = JudgementVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
+        Voucher->guaranteeTrig = 0;
         return;
     }
 

@@ -570,21 +570,6 @@ namespace mod
         return 2;
     }
 
-    s32 DisorderIntroIconOnOff(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        if (onOff > 0)
-        {
-            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON(ICON_B);
-        }
-        else
-            msgdrv::msgdrv_msgIcon[3].iconId = 0xF;
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(DisorderIntroIconOnOff, 1)
-
     s32 DisorderDraw(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
@@ -727,9 +712,9 @@ namespace mod
     WAIT_MSEC(700)
     IF_EQUAL(GSWF(1661), 0)
     SET(GSWF(1661), 1)
-    USER_FUNC(DisorderIntroIconOnOff, 1)
+    USER_FUNC(ActiveEffectsToggleIconB, 1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(disorderIntro), 0, 0)
-    USER_FUNC(DisorderIntroIconOnOff, 0)
+    USER_FUNC(ActiveEffectsToggleIconB, 0)
     WAIT_MSEC(300)
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)

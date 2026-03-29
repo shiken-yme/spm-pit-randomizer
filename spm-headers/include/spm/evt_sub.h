@@ -5,9 +5,9 @@
 
 CPP_WRAPPER(spm::evt_sub)
 
-DECOMP_STATIC(const char *evt_subKeypadKeysJP[12])
-DECOMP_STATIC(const char *evt_subKeypadKeys[12])
-DECOMP_STATIC(char evt_subKeypadInputStorage[32])
+DECOMP_STATIC(const char *keypadKeysJP[12])
+DECOMP_STATIC(const char *keypadKeys[12])
+DECOMP_STATIC(char keypadInputStorage[32])
 
 UNKNOWN_FUNCTION(func_800d378c)
 EVT_DECLARE_USER_FUNC(evt_sub_intpl_msec_init, 4)

@@ -1471,12 +1471,12 @@ namespace mod
             }
             return 2; });
 
-        patch::hookFunction(evt_npc::evt_npc_set_colorcopy, [](evtmgr::EvtEntry *entry, bool isFirstCall)
+        patch::hookFunction(evt_npc::evt_npc_set_part_color, [](evtmgr::EvtEntry *entry, bool isFirstCall)
                             {
             (void)entry;
             (void)isFirstCall;
             return 2; });
-        patch::hookFunction(evt_npc::evt_npc_set_colorcopytwo, [](evtmgr::EvtEntry *entry, bool isFirstCall)
+        patch::hookFunction(evt_npc::evt_npc_set_all_part_color, [](evtmgr::EvtEntry *entry, bool isFirstCall)
                             {
             (void)entry;
             (void)isFirstCall;
@@ -2337,7 +2337,7 @@ namespace mod
         if (pouch->hp > pouch->maxHp)
             pouch->hp = pouch->maxHp;
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
-        item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = 0x5D;
+        item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = icondrv::ICON_MACHI_KEY;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = "in_town_key_00";
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].descMsg = "msg_town_key_00";
         return 2;
@@ -2727,13 +2727,13 @@ namespace mod
         s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         if (onOff > 0)
         {
-            msgdrv::msgdrv_msgIcon[3].iconId = 0x86;
-            msgdrv::msgdrv_msgIcon[4].iconId = 0x87;
+            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_CATCH_CARD;
+            msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_CATCH_CARD_SP;
         }
         else
         {
-            msgdrv::msgdrv_msgIcon[3].iconId = 0xF;
-            msgdrv::msgdrv_msgIcon[4].iconId = 0x10;
+            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_BTN_1;
+            msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_BTN_2;
         }
         return 2;
     }
@@ -3981,7 +3981,9 @@ namespace mod
     IF_LARGE_EQUAL(LW(0), (s32)VOUCHER_CAKE)
     IF_SMALL_EQUAL(LW(0), (s32)VOUCHER_BLACK)
     SET(GSWF(1606), 1)
+    USER_FUNC(ActiveEffectsToggleIconB, 1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(voucherIntro), 0, 0)
+    USER_FUNC(ActiveEffectsToggleIconB, 0)
     END_IF()
     END_IF()
     END_IF()
@@ -4382,13 +4384,13 @@ namespace mod
 
     EVT_BEGIN(cwselect_music)
     USER_FUNC(EvtCWSelectEntry, PTR("Music"), CWSELECT_DEFAULT, PTR(selectMusicBlueText), PTR(selectMusicBox), 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), 0x164, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(nyMusicName), PTR(nyMusicDesc), 0x85, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), 0x84, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), 0x84, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), 0x84, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), 0x84, 0, 0, 0)
-    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), 0x87, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(vMusicName), PTR(vMusicDesc), icondrv::ICON_COOKING_DISK_R, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(nyMusicName), PTR(nyMusicDesc), icondrv::ICON_POWER_PLUS, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(ttMusicName), PTR(ttMusicDesc), icondrv::ICON_HP_PLUS, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(plMusicName), PTR(plMusicDesc), icondrv::ICON_HP_PLUS, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(jdMusicName), PTR(jdMusicDesc), icondrv::ICON_HP_PLUS, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(zkMusicName), PTR(zkMusicDesc), icondrv::ICON_HP_PLUS, 0, 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), icondrv::ICON_CATCH_CARD_SP, 0, 0, 0)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Music"), PTR(musicSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
@@ -4598,7 +4600,7 @@ namespace mod
             swdrv::swSet(gswf);
             spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_DELETE1");
         }
-        customwin::CWSelectGetActiveEntry()->Descs[select->selectedItemIdx].iconId = 0x86 + (u8)swdrv::swGet(gswf);
+        customwin::CWSelectGetActiveEntry()->Descs[select->selectedItemIdx].iconId = icondrv::ICON_CATCH_CARD + (u8)swdrv::swGet(gswf);
         return false;
     }
 
@@ -5480,21 +5482,21 @@ namespace mod
 
         // Pit room pipe speedup
         evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_left_same_map_evt, 108, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::lbl_80414a80, 92, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_left_same_map_evt, 99, dan_enter_pipe_wait);
+        /*evtpatch::hookEvtReplace(evt_door::lbl_80414a80, 92, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80414ad0, 85, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80414b88, 71, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_left_same_map_evt, 99, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80414a80, 83, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80414ad0, 76, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80414b88, 62, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 119, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80415154, 92, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_804151a4, 85, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_8041525c, 71, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 110, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_80415154, 83, dan_enter_pipe_wait);
         evtpatch::hookEvtReplace(evt_door::lbl_804151a4, 76, dan_enter_pipe_wait);
-        evtpatch::hookEvtReplace(evt_door::lbl_8041525c, 62, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::lbl_8041525c, 62, dan_enter_pipe_wait);*/
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 119, dan_enter_pipe_wait);
+        evtpatch::hookEvtReplace(evt_door::evt_door_enter_dokan_right_same_map_evt, 110, dan_enter_pipe_wait);
 
         // Quickstart
         evtpatch::hookEvt(aa1_01::aa1_01_mario_house_transition_evt, 10, determine_quickstart);

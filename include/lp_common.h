@@ -1,5 +1,6 @@
 #pragma once
 #include <common.h>
+#include <evt_cmd.h>
 #include <wii/os.h>
 
 namespace mod
@@ -11,5 +12,7 @@ namespace mod
     void lpAddHp(s32 maxHp, s32 hp);
     void lpAddCrit(s32 rate, f32 mult);
     const char *npcTribeToName(s32 tribeId);
+    
+    EVT_DECLARE_USER_FUNC(ActiveEffectsToggleIconB, 1)
 
 }

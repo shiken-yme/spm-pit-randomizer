@@ -128,7 +128,7 @@ namespace mod::tplpatch
                                                  {
                                                    if (iconId >= TPLPATCH_ICON_REDIRECT)
                                                    {
-                                                     wii::tpl::ImageTableEntry *img = wii::tpl::TPLGet((wii::tpl::TPLHeader *)icondrv::icondrv_wp->wiconTpl->sp->data, iconId);
+                                                     wii::tpl::ImageTableEntry *img = wii::tpl::TPLGet(TPLPatchIconTPLHeader, iconId);
                                                      *width = img->image->width;
                                                      *height = img->image->height;
                                                    }

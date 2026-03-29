@@ -2,7 +2,9 @@
 #include <spm/item_data.h>
 #include <spm/mario_pouch.h>
 #include <spm/msgdrv.h>
+#include <spm/icondrv.h>
 #include <spm/npcdrv.h>
+#include <tplpatch.h>
 #include <wii/os.h>
 
 #include <mod.h>
@@ -70,6 +72,18 @@ namespace mod
     const char *npcTribeToName(s32 tribeId)
     {
         return msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcTribes[tribeId].catchCardItemId].nameMsg);
+    }
+
+    s32 ActiveEffectsToggleIconB(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    {
+        (void)firstRun;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        if (onOff > 0)
+            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON(ICON_B);
+        else
+            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_BTN_1;
+        return 2;
     }
 
 }

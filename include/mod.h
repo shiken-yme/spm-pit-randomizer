@@ -277,6 +277,7 @@ namespace mod
         bool isSpinning;
         s32 spinDeleteFuncIdx;
         s32 tearChance;
+        s32 guaranteeTrig;
         u8 iconAlpha;
         f32 iconRotation;
         s32 iconRotationTimer;

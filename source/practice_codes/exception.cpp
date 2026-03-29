@@ -81,7 +81,7 @@ namespace mod
             spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - LINE_HEIGHT, scale, &titleColour,
                                          "Crash occurred in gp \"%s\" - seq_mapchange_wp \"%s\"", spmario::gp->mapName, seq_mapchange::seq_mapchange_wp->mapName);
         spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - (LINE_HEIGHT * 2), scale, &titleColour,
-                                     "Show this crash to Yme in Flipside Tower mod-discussion, please! discord.gg/ndrxwcyCum");
+                                     "Show this crash to Yme in Flipside Tower mod-discussion! discord.gg/ndrxwcyCum");
     }
 
     static void draw(char *msg, f32 yShift, f32 scale)

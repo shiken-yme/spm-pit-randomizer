@@ -579,7 +579,7 @@ namespace mod::yme
         {
             if ((mobj->flag0 & 1) != 0)
             {
-                cwDescs[n].iconId = 0x44;
+                cwDescs[n].iconId = icondrv::ICON_YELLOW_CHOCO;
                 msl::string::strcpy(cwDescs[n].nameTxt, mobj->instanceName);
                 msl::stdio::sprintf(cwDescs[n].descTxt, ymetoolsMobjMenu_ExistingMobjs, mobjdrv::mobjGetModelName(mobj), (s32)mobj->pos.x, (s32)mobj->pos.y, (s32)mobj->pos.z);
                 n = n + 1;
@@ -609,7 +609,7 @@ namespace mod::yme
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        const char *input = evt_sub::evt_subKeypadInputStorage;
+        const char *input = evt_sub::keypadInputStorage;
         s32 coord = 0;
         msl::stdio::sscanf(input, "%d", &coord);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], coord);
@@ -939,6 +939,8 @@ namespace mod::yme
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
     RETURN()
     EVT_END()
+
+    s32 iconEnum_FrmCtr = 0;
 
     // Handles checking for certain button combinations every frame
     void ymetoolsMain()
@@ -1284,6 +1286,17 @@ namespace mod::yme
                     mario_motion::marioChgMot(MOT_HAMMER);
             }
         }
+        /*
+            ICON ID ENUM TEST, REMOVE LATER
+
+        if ((mario->buttonsHeld & (WPAD_BTN_B)) == (WPAD_BTN_B)) // B held
+        {
+            wii::mtx::Mtx34 mtxPos, mtxScale;
+            wii::mtx::PSMTXTrans(mtxPos, 0.0f, 0.0f, 0.0f);
+            wii::mtx::PSMTXScale(mtxScale, 1.0f, 1.0f, 1.0f);
+            wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
+            icondrv::iconDispGxCol(mtxPos, 0x18, iconEnum_FrmCtr++, {255, 255, 255, 255});
+        }*/
         return;
     }
 

@@ -370,9 +370,9 @@
 800d8498:evt_sub_keypad
 800d8700:func_800d8700
 // data
-80410558:evt_subKeypadKeysJP
-80410588:evt_subKeypadKeys
-8050c970:evt_subKeypadInputStorage
+80410558:keypadKeysJP
+80410588:keypadKeys
+8050c970:keypadInputStorage
 // more
 
 // evtmgr.c
@@ -428,13 +428,7 @@
 80413df0:evt_door_enter_dokan_right_evt
 80414248:evt_door_enter_dokan_down_same_map_evt
 804149b4:evt_door_enter_dokan_left_same_map_evt
-80414a80:lbl_80414a80
-80414ad0:lbl_80414ad0
-80414b88:lbl_80414b88
 80415020:evt_door_enter_dokan_right_same_map_evt
-80415154:lbl_80415154
-804151a4:lbl_804151a4
-8041525c:lbl_8041525c
 80417e10:lock_pre_open_evt
 8041a2b0:door_init_evt
 // more
@@ -648,8 +642,8 @@
 800fee80:evt_npc_get_scale
 800fef30:evt_npc_set_scale
 800ff470:evt_npc_set_color
-800ff5a4:evt_npc_set_colorcopy
-800ff6f4:evt_npc_set_colorcopytwo
+800ff5a4:evt_npc_set_part_color
+800ff6f4:evt_npc_set_all_part_color
 800ffbd8:evt_npc_walk_to
 801006fc:evt_npc_arc_to
 801004c0:evt_npc_jump_to
@@ -784,7 +778,6 @@
 80122bf4:marioKeyOff
 80122c2c:marioKeyOn
 801243a8:marioMain
-801266e4:marioChgPose
 80126940:marioChgPaper
 80126aac:marioPaperOn
 8012a680:marioTakeDamage

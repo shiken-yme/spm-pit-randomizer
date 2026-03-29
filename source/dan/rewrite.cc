@@ -213,15 +213,15 @@ namespace mod
                 switch (difficulty)
                 {
                 case 0:
-                    if (sup < 20)
+                    if (sup < 30)
                         npc->dropItemId = 0;
                     break;
                 case 1:
-                    if (sup < 40)
+                    if (sup < 65)
                         npc->dropItemId = 0;
                     break;
                 case 2:
-                    if (sup < 75)
+                    if (sup < 85)
                         npc->dropItemId = 0;
                     break;
                 }

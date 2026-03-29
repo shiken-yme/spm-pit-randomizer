@@ -1156,7 +1156,7 @@ namespace mod::customwin
                 wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
                 wii::mtx::PSMTXConcat(mtxPos, mtxAnim, mtxPos);
                 wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
-                icondrv::iconDispGxCol(mtxPos, 0x4010, 0x14E, iconCol);
+                icondrv::iconDispGxCol(mtxPos, 0x4010, icondrv::ICON_POINTING_ARROW, iconCol);
             }
             if ((u32)select->scrollIdx != (CW->num - 8))
             {
@@ -1164,7 +1164,7 @@ namespace mod::customwin
                 wii::mtx::PSMTXScale(mtxScale, 0.6, 0.6, 0.6);
                 wii::mtx::PSMTXConcat(mtxPos, mtxAnim, mtxPos);
                 wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
-                icondrv::iconDispGxCol(mtxPos, 0x4010, 0x14E, iconCol);
+                icondrv::iconDispGxCol(mtxPos, 0x4010, icondrv::ICON_POINTING_ARROW, iconCol);
             }
         }
         // Draw left/right arrows if we have pages
@@ -1177,18 +1177,18 @@ namespace mod::customwin
             wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
             wii::mtx::PSMTXConcat(mtxPos, mtxAnim, mtxPos);
             wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
-            icondrv::iconDispGxCol(mtxPos, 0x4010, 0x14E, iconCol);
+            icondrv::iconDispGxCol(mtxPos, 0x4010, icondrv::ICON_POINTING_ARROW, iconCol);
             wii::mtx::PSMTXTrans(mtxPos, (win->scale.x * 0.5) + win->pos.x + 120.0, win->pos.y, 0.0);
             wii::mtx::PSMTXRotRad((PI / 2), mtxRot, 122); // "z"
             wii::mtx::PSMTXScale(mtxScale, 0.6, 0.6, 0.6);
             wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
             wii::mtx::PSMTXConcat(mtxPos, mtxAnim, mtxPos);
             wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
-            icondrv::iconDispGxCol(mtxPos, 0x4010, 0x14E, iconCol);
+            icondrv::iconDispGxCol(mtxPos, 0x4010, icondrv::ICON_POINTING_ARROW, iconCol);
         }
         // Draw cursor
         wii::mtx::Vec3 cursorPos = {select->pos.x, select->pos.y, 1.0};
-        icondrv::iconDispGx(1.0, &cursorPos, 0x14, 0xB3);
+        icondrv::iconDispGx(1.0, &cursorPos, 0x14, icondrv::ICON_FINGER_POINT_HORIZONTAL);
         return;
     }
 
