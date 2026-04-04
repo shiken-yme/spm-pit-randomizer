@@ -190,35 +190,28 @@ namespace mod
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
-    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {8, 10, 7, 8, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {8, 10, 10, 8, 2, 2, 2, 2, 2, 2, 2, 2};
+
+    VoucherWork *VoucherGetPtr(s32 idx)
+    {
+        return Lunatic->Voucher.Work[idx];
+    }
 
     s32 VoucherAdd(void *wp)
     {
         s32 i;
         for (i = 0; i < VOUCHER_MAX; i += 1)
         {
-            if (Lunatic->Voucher.Work[i] == nullptr) // Not in use
+            if (VoucherGetPtr(i) == nullptr) // Not in use
                 break;
         }
         assertf(i < VOUCHER_MAX, "Voucher limit of %d (VOUCHER_MAX) exceeded", VOUCHER_MAX);
         Lunatic->Voucher.Work[i] = (VoucherWork *)memory::__memAlloc(0, sizeof(VoucherWork));
-        msl::string::memset(Lunatic->Voucher.Work[i], 0, sizeof(VoucherWork));
-        Lunatic->Voucher.Work[i]->UW.Any = wp;
-        Lunatic->Voucher.Work[i]->iconAlpha = 150;
+        VoucherWork *Voucher = Lunatic->Voucher.Work[i];
+        msl::string::memset(Voucher, 0, sizeof(VoucherWork));
+        Voucher->UW.Any = wp;
+        Voucher->iconAlpha = 150;
         return i;
-    }
-
-    s32 VoucherItemIdToIdx(s32 itemId)
-    {
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
-        {
-            if (Lunatic->Voucher.Work[i] != nullptr) // In use
-            {
-                if (Lunatic->Voucher.Work[i]->itemId == itemId)
-                    return i;
-            }
-        }
-        return -1;
     }
 
     VoucherWork *VoucherItemIdToPtr(s32 itemId)
@@ -226,7 +219,7 @@ namespace mod
         VoucherWork *Voucher = nullptr;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1)
         {
-            Voucher = Lunatic->Voucher.Work[i];
+            Voucher = VoucherGetPtr(i);
             if (Voucher != nullptr) // In use
             {
                 if (Voucher->itemId == itemId)
@@ -237,25 +230,37 @@ namespace mod
         return Voucher;
     }
 
+    s32 VoucherItemIdToIdx(s32 itemId)
+    {
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
+        {
+            if (VoucherGetPtr(i) != nullptr) // In use
+            {
+                if (VoucherGetPtr(i)->itemId == itemId)
+                    return i;
+            }
+        }
+        return -1;
+    }
+
     void VoucherRemove(s32 itemId)
     {
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
-        msl::string::memset(Voucher, 0, sizeof(VoucherWork));
-        memory::__memFree(0, Voucher);
-        Voucher = nullptr;
+        s32 idx = VoucherItemIdToIdx(itemId);
+        msl::string::memset(Lunatic->Voucher.Work[idx], 0, sizeof(VoucherWork));
+        memory::__memFree(0, Lunatic->Voucher.Work[idx]);
+        Lunatic->Voucher.Work[idx] = nullptr;
         return;
     }
 
-    VoucherState VoucherGetStateById(s32 itemId, s32 *idx)
+    VoucherState VoucherGetStateById(s32 itemId)
     {
-        s32 i = VoucherItemIdToIdx(itemId);
-        if (idx != nullptr)
-            *idx = i;
-        if (i == -1)
+        s32 idx = VoucherItemIdToIdx(itemId);
+        if (idx == -1)
             return V_INACTIVE;
-        if (Lunatic->Voucher.Work[i]->torn)
+        else if (VoucherGetPtr(idx)->torn)
             return V_TORN;
-        return V_ACTIVE;
+        else
+            return V_ACTIVE;
     }
 
     void VoucherActionSpin(s32 itemId, s32 deleteIdx)
@@ -381,26 +386,22 @@ namespace mod
 
     void VoucherCallAction(s32 itemId)
     {
-        VoucherState state = VoucherGetStateById(itemId, nullptr);
-        if (state == V_TORN) // Don't redundantly call a voucher action once it's already torn
+        if (VoucherGetStateById(itemId) != V_ACTIVE)
             return;
-        if (state == V_ACTIVE)
+        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        if (Voucher->isSpinning == true)
+            return;
+        if (Voucher->guaranteeTrig == 0)
         {
-            VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
-            if (Voucher->isSpinning == true)
-                return;
-            if (Voucher->guaranteeTrig == 0)
-            {
-                if (VoucherTryTear(itemId) == true)
-                    VoucherDoTear(itemId);
-                else
-                    (Voucher->actionFunc)();
-            }
+            if (VoucherTryTear(itemId) == true)
+                VoucherDoTear(itemId);
             else
-            {
-                Voucher->guaranteeTrig -= 1;
                 (Voucher->actionFunc)();
-            }
+        }
+        else
+        {
+            Voucher->guaranteeTrig -= 1;
+            (Voucher->actionFunc)();
         }
         return;
     }
@@ -443,13 +444,13 @@ namespace mod
         VCakeWork *wp = (VCakeWork *)memory::__memAlloc(0, sizeof(VCakeWork));
         msl::string::memset(wp, 0, sizeof(VCakeWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_CAKE;
         Voucher->itemId = VOUCHER_CAKE;
         Voucher->tearFunc = CakeVoucherTear;
         Voucher->actionFunc = CakeVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 5;
+        Voucher->guaranteeTrig = 4;
         return;
     }
 
@@ -480,7 +481,7 @@ namespace mod
         VThunderWork *wp = (VThunderWork *)memory::__memAlloc(0, sizeof(VThunderWork));
         msl::string::memset(wp, 0, sizeof(VThunderWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_THUNDER;
         Voucher->itemId = VOUCHER_THUNDER;
         Voucher->tearFunc = ThunderVoucherTear;
@@ -495,7 +496,7 @@ namespace mod
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 hp = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER, nullptr);
+        VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER);
         if (hp <= 1 || vState != V_ACTIVE)
             return 2;
         VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
@@ -525,13 +526,13 @@ namespace mod
         VStellarWork *wp = (VStellarWork *)memory::__memAlloc(0, sizeof(VStellarWork));
         msl::string::memset(wp, 0, sizeof(VStellarWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_STELLAR;
         Voucher->itemId = VOUCHER_STELLAR;
         Voucher->tearFunc = StellarVoucherTear;
         Voucher->actionFunc = StellarVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 4;
+        Voucher->guaranteeTrig = 2;
         return;
     }
 
@@ -550,7 +551,7 @@ namespace mod
         VJudgementWork *wp = (VJudgementWork *)memory::__memAlloc(0, sizeof(VJudgementWork));
         msl::string::memset(wp, 0, sizeof(VJudgementWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = Lunatic->Voucher.Work[idx];
+        VoucherWork *Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_JUDGEMENT;
         Voucher->itemId = VOUCHER_JUDGEMENT;
         Voucher->tearFunc = JudgementVoucherTear;
@@ -757,6 +758,7 @@ namespace mod
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys);      // chest keys required
         evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->RFC.chestKeysOwned); // chest keys owned
+        evtmgr_cmd::evtSetValue(evtEntry, args[2], Lunatic->RFC.rerollCost);     // chest keys owned
         return 2;
     }
 
@@ -766,7 +768,7 @@ namespace mod
         (void)evtEntry;
         mobjdrv::MobjEntry *chest = mobjdrv::mobjNameToPtr("box");
         mario::marioKeyOn();
-        npcdrv::npcDamageMario(0, 0, &chest->pos, 0, Lunatic->RFC.chestKeys, 4);
+        npcdrv::npcDamageMario(0, 0, &chest->pos, 0, Lunatic->RFC.chestKeys + Lunatic->RFC.rerollCost, 4);
         return 2;
     }
 

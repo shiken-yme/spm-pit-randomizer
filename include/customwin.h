@@ -90,7 +90,7 @@ namespace mod::customwin
         CWSelectPageDef *Pages;
     };
 
-    struct CWSelectShopIcon
+    struct CWSelectIconDef
     {
         s16 id; // wicon.tpl index. todo: expand functionality to support animPoseIds
         f32 scale;
@@ -104,7 +104,8 @@ namespace mod::customwin
         CWSelectCallback *DefaultSelectBehavior;
         CWSelectColorization Colorize;
         CWSelectInfographic Info;
-        CWSelectShopIcon ShopIcon; // icon at top-right of menu
+        CWSelectIconDef ShopIcon; // icon at top-right of menu
+        CWSelectIconDef PointerIcon; // hand icon that points at selected item
         bool hideDescWin;
         s32 itemTable[CWSELECT_DESC_MAX];
         char windowTitle[CWSELECT_NAME_TXT_LENGTH];   // blue header, e.g. Items, Catch Cards
@@ -140,6 +141,7 @@ namespace mod::customwin
     EVT_DECLARE_USER_FUNC(EvtCWSelectGetSelectionCost, 2)
     EVT_DECLARE_USER_FUNC(EvtCWSelectGetSelectionItemId, 2)
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetShopIcon, 3)
+    EVT_DECLARE_USER_FUNC(EvtCWSelectSetPointerIcon, 3)
 
     extern CustomWinWork *GlobalCW;
     s32 CWSelectKeyToId(const char *key);

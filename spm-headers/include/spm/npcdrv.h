@@ -479,6 +479,21 @@ typedef enum NPCMoveMode {
     NPC_MOVE_BARRY=9
 } NPCMoveMode;
 
+typedef struct
+{
+/* 0x000 */ s32 m_nPoseId;
+/* 0x004 */ char animPoseName[32];
+/* 0x024 */ u8 unknown_0x24[0x48 - 0x24];
+/* 0x048 */ NPCTribeAnimDef * tribeAnims;
+/* 0x04C */ u8 unknown_0x4c[0xb8 - 0x4c];
+/* 0x0B8 */ u8 red;
+/* 0x0B9 */ u8 green;
+/* 0x0BA */ u8 blue;
+/* 0x0BB */ u8 alpha;
+/* 0x0BC */ u8 unknown_0xbc[0x254 - 0xbc];
+} NPCAnim; // unknown size
+SIZE_ASSERT(NPCAnim, 0x254)
+
 typedef struct _NPCPart
 {
 /* 0x000 */ u16 id;
@@ -491,7 +506,9 @@ typedef struct _NPCPart
 /* 0x030 */ u32 hitFlags;
 /* 0x034 */ u8 unknown_0x34[0x3c - 0x34];
 /* 0x03c */ Vec3 hitboxSize;
-/* 0x034 */ u8 unknown_0x48[0x378 - 0x48];
+/* 0x048 */ u8 unknown_0x48[0x54 - 0x48];
+/* 0x054 */ NPCAnim m_Anim;
+/* 0x2A8 */ u8 unknown_0x2a8[0x378 - 0x2a8];
 /* 0x378 */ s32 attackPower; // initialised as 1, changed by onSpawnScript if needed
 /* 0x37C */ u8 unknown_0x37c[0x388 - 0x37c];
 /* 0x388 */ struct _NPCEntry * owner;
@@ -532,7 +549,10 @@ typedef struct
 /* 0x04 */ NPCTribeAnimDef * animDefs; // list terminated by one with id -1
 /* 0x08 */ s32 catchCardItemId;
 /* 0x0C */ s16 catchCardDefense;
-/* 0x0E */ u8 unknown_0xe[0x18 - 0xe];
+/* 0x0E */ s16 height; // y
+/* 0x10 */ s16 width; // x
+/* 0x12 */ s16 length; // z
+/* 0x14 */ u8 unknown_0x14[0x18 - 0x14];
 /* 0x18 */ u8 maxHp;
 /* 0x19 */ u8 partsCount;
 /* 0x1A */ // padding 0x1a-1b
@@ -564,21 +584,6 @@ typedef struct
 /* 0x65 */ u8 padding_0x65[0x68 - 0x65]; // padding
 } NPCTribe;
 SIZE_ASSERT(NPCTribe, 0x68)
-
-typedef struct
-{
-/* 0x000 */ s32 m_nPoseId;
-/* 0x004 */ char animPoseName[32];
-/* 0x024 */ u8 unknown_0x24[0x48 - 0x24];
-/* 0x048 */ NPCTribeAnimDef * tribeAnims;
-/* 0x04C */ u8 unknown_0x4c[0xb8 - 0x4c];
-/* 0x0B8 */ u8 red;
-/* 0x0B9 */ u8 green;
-/* 0x0BA */ u8 blue;
-/* 0x0BB */ u8 alpha;
-/* 0x0BC */ u8 unknown_0xbc[0x254 - 0xbc];
-} NPCAnim; // unknown size
-SIZE_ASSERT(NPCAnim, 0x254)
 
 typedef struct _NPCEntry
 {
@@ -634,7 +639,10 @@ typedef struct _NPCEntry
 /* 0x3AC */ f32 unknown_0x3ac;
 /* 0x3B0 */ u8 unknown_0x3b0[0x400 - 0x3b0];
 /* 0x400 */ f32 unknown_0x400;
-/* 0x3B0 */ u8 unknown_0x404[0x46c - 0x404];
+/* 0x3B0 */ u8 unknown_0x404[0x428 - 0x404];
+/* 0x428 */ Unk unknown_0x428;
+/* 0x42C */ Unk unknown_0x42c;
+/* 0x430 */ u8 unknown_0x430[0x46c - 0x430];
     /*
         0x80000000 is frozen
         0x40000 is on different pane to Mario
@@ -665,7 +673,9 @@ typedef struct _NPCEntry
                                    // (unknown for non-templated NPCs)
 /* 0x584 */ u32 templateField0x64; // field 0x64 of spawning SetupEnemyTemplate
                                    // (unknown for non-templated NPCs)
-/* 0x588 */ u8 unknown_0x588[0x624 - 0x588];
+/* 0x588 */ u8 unknown_0x588[0x618 - 0x588];
+/* 0x618 */ f32 zAxisRotation; // degrees anti-clockwise about the z-axis, if MiscSetupDataV6.gravityRotation is to be believed
+/* 0x588 */ u8 unknown_0x61c[0x624 - 0x61c];
 /* 0x624 */ f32 stunTime;
 /* 0x628 */ u8 unknown_0x628[0x6e0 - 0x628];
 /* 0x6E0 */ const char * unkShellSfx;
@@ -853,7 +863,7 @@ UNKNOWN_FUNCTION(func_801c01c0)
 UNKNOWN_FUNCTION(func_801c01dc)
 UNKNOWN_FUNCTION(func_801c0284)
 UNKNOWN_FUNCTION(npcGetDefense)
-UNKNOWN_FUNCTION(npcGetScript)
+EvtScriptCode * npcGetScript(NPCEntry * npc, s32 scriptId);
 UNKNOWN_FUNCTION(func_801c0454)
 bool npcReadSetupFile(const char * mapName, bool reAllocate);
 void npcUpdateSetupFile0To1(Unk * file);

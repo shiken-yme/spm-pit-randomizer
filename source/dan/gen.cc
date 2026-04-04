@@ -6,6 +6,7 @@
 #include <cutscene_helpers.h>
 #include <evtpatch.h>
 #include <tplpatch.h>
+#include <lp_common.h>
 #include <mod.h>
 
 #include <spm/rel/aa1_01.h>
@@ -268,6 +269,7 @@ namespace mod
     DanNPCData npcStruct481 = {481, 20, 0, 2, 4};
     DanNPCData npcStruct496 = {496, 40, 0, 2, 6};
     DanNPCData npcStruct497 = {497, 45, 0, 2, 5};
+    DanNPCData npcStruct504 = {504, 20, 0, 3, 5}; // Bullet William Blaster
     DanNPCData npcStruct505 = {505, 55, 0, 2, 4};
     DanNPCData npcStruct507 = {507, 16, 0, 1, 2};
     DanNPCData npcStruct531 = {531, 25, 0, 1, 3}; // Green Shy Guy
@@ -780,7 +782,7 @@ namespace mod
         nullptr,       // 501,
         nullptr,       // 502,
         nullptr,       // 503,
-        nullptr,       // 504,
+        &npcStruct504, // 504,
         &npcStruct505, // 505,
         nullptr,       // 506,
         &npcStruct507, // 507
@@ -824,6 +826,8 @@ namespace mod
         NPC_GOOMBA,
         NPC_FLIP_GOOMBA,
         NPC_PARAGOOMBA,
+        NPC_GLOOMBA,
+        NPC_SPIKED_GOOMBA,
         NPC_KOOPA_TROOPA,
         NPC_KOOPA_TROOPA_STG3,
         NPC_RED_KOOPA,
@@ -855,8 +859,6 @@ namespace mod
         NPC_JAWBUS};
 
     NPCTribeId lv2Tribes[] = {
-        NPC_GLOOMBA,
-        NPC_SPIKED_GOOMBA,
         NPC_UNUSED_SPIKED_GOOMBA,
         NPC_RED_PARATROOPA,
         NPC_FLIP_RED_PARATROOPA,
@@ -987,6 +989,7 @@ namespace mod
         NPC_DARK_SPIKY_SKELLOBIT,
         NPC_DARK_HAMMER_BRO,
         NPC_DARK_BOOMERANG_BRO,
+        NPC_BOMBSHELL_BILL_BLASTER,
         NPC_DARK_STRIKER};
 
     DanNPCData **danNpcGetPtr()
@@ -1059,50 +1062,59 @@ namespace mod
     {
         if (onRoomLoad && (swdrv::swByteGet(1) % 10) != 9)
             return;
-        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, j = 0, selectionIdx = 0, itemId = 0, voucherIdx = -1;
-        bool voucherSpin = false;
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, selectionIdx = 0, itemId = 0;
+        VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
         if (onRoomLoad)
+        {
             Lunatic->RFC.rerolls = 0;
+            Lunatic->RFC.rerollCost = 1;
+            if (vState == V_ACTIVE)
+            {
+                VoucherCallAction(VOUCHER_STELLAR);
+                Lunatic->RFC.rerollCost = 0;
+            }
+        }
         else
+        {
             Lunatic->RFC.rerolls += 1;
+            Lunatic->RFC.rerollCost += 1;
+        }
         // Reset existing items
         s32 itemsGenerated[3] = {0, 0, 0};
-        // Decide chest rarity
-    rerollRarity:
-        for (i = 0; i < 3; i += 1)
+        // Decides chest rarity; tries again if a Reroll hits the same rarity OR Stellar is active
+        do
         {
             odds = system::rand() % 100;
-            if (odds < 30)
-                rarity += 1;
-        }
-        VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, &voucherIdx);
-        if (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0))
-        {
-            voucherSpin = true;
             rarity = 0;
-            goto rerollRarity;
-        }
-        else if (!onRoomLoad && rarity == Lunatic->RFC.chestRarity)
+            if (odds < 10) // 10% for Legendary
+                rarity = 3;
+            if (odds < 30) // 20% for Rare
+                rarity = 2;
+            if (odds < 60) // 30% Uncommon
+                rarity = 1;
+        } while ((!onRoomLoad && rarity == Lunatic->RFC.chestRarity) || (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0)));
+        // First rest floor should always have a common or uncommon chest
+        if (swdrv::swByteGet(1) == 9)
         {
             rarity = 0;
-            goto rerollRarity;
+            odds = system::rand() % 100;
+            if (odds < 40)
+                rarity = 1;
         }
-        if (voucherSpin)
-            VoucherCallAction(VOUCHER_STELLAR);
+        // Sets chest rarity and open cost
         Lunatic->RFC.chestRarity = rarity;
-        Lunatic->RFC.chestKeys = 1 + rarity + Lunatic->RFC.rerolls;
+        Lunatic->RFC.chestKeys = rarity + 1;
         // Select 3 items
         for (i = 0; i < 3; i += 1)
         {
             itemRarity = rarity;
-            // Determine rarity of item to select
-            for (j = 0; j < (3 - rarity); j += 1)
+            // Small chance for item rarity to increment if rarity isn't legendary
+            if (itemRarity != 3)
             {
                 odds = system::rand() % 100;
-                if (odds < (5 + (rarity * 10))) // 5/15/25% chance to select a higher-tier item, ran 3/2/1 times
+                // 10% chance to select a higher-tier item
+                if (odds < 10)
                     itemRarity += 1;
-                else
-                    break;
             }
         // Pull item from array
         tryAgain:
@@ -2841,13 +2853,13 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        // dan::dan_wp->dungeons[0].enemies[1].name = (NPC_DARK_HEADBONK_GOOMBA + 1);
+        // dan::dan_wp->dungeons[0].enemies[1].name = (NPC_BOMBSHELL_BILL_BLASTER + 1);
         // dan::dan_wp->dungeons[0].enemies[1].num = 1;
         //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
         //  dan::dan_wp->dungeons[0].enemies[2].num = 10;
         //  dan::dan_wp->dungeons[0].enemies[3].name = 11;
         //  dan::dan_wp->dungeons[0].enemies[3].num = 7;
-        dan::dan_wp->dungeons[0].enemyCount = 2;
+        // dan::dan_wp->dungeons[0].enemyCount = 2;
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;
@@ -2988,6 +3000,8 @@ namespace mod
                     npcdrv::npcEnemyTemplates[113].unknown_0x8 = 0;
                     npcdrv::npcEnemyTemplates[200].unknown_0x8 = 0;
                     npcdrv::npcEnemyTemplates[332].unknown_0x8 = 0;
+                    npcdrv::npcEnemyTemplates[108].unknown_0x8 = 0;
+                    npcdrv::npcEnemyTemplates[109].unknown_0x8 = 0;
 
                     if (((curTemplate->unknown_0x8 & 1) == 0) && (curTemplate->tribeId == tribeId))
                         break;

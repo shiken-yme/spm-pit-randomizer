@@ -155,6 +155,8 @@ namespace mod
             {NPC_RED_MAGIKOOPA_PROJ, "Red Magikoopa", desc_red_magikoopa, tattle_red_magikoopa},
             {NPC_SPINIA, "Spinia", desc_spinia, tattle_spinia},
             {NPC_SPUNIA, "Spunia", desc_spunia, tattle_spunia},
+            {NPC_BOMBSHELL_BILL, "Bullet William", desc_bullet_william, tattle_bullet_william},
+            {NPC_BOMBSHELL_BILL_BLASTER, "William Blaster", desc_william_blaster, tattle_william_blaster},
             {NPC_GREEN_BOOMBOXER, "Bleepboxer", desc_bleepboxer, tattle_bleepboxer},
             {NPC_GREEN_BOOMBOXER_PROJ, "Bleepboxer", desc_bleepboxer, tattle_bleepboxer},
             {NPC_PURPLE_MUTH, "Kilo Muth", desc_kilo_muth, tattle_kilo_muth},

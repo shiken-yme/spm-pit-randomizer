@@ -9,6 +9,7 @@
 #include <rewrite.h>
 #include <rfcdrv.h>
 #include <lunadrv.h>
+#include <lp_common.h>
 #include <mod.h>
 
 #include <spm/rel/aa1_01.h>
@@ -194,78 +195,98 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_dan_handle_key_failsafe_new, 0)
 
+    void danAssignSpecialEnemyItem(npcdrv::NPCEntry *npc, s32 useItemDropChance, s32 chestKeyDropChance)
+    {
+        npcdrv::NPCDropItem *dropItems = npcdrv::npcGetTribe(npc->tribeId)->dropItemList;
+        s32 sup = system::rand() % 100;
+        if (sup < useItemDropChance)
+        {
+            if (npc->dropItemId == 0 && dropItems[0].itemId != 0) // If it doesn't already have an item, continue
+            {
+                s32 itemId = -1;
+                s32 i;
+                // determines dropItems length
+                for (i = 0; itemId != 0; i += 1)
+                    itemId = dropItems[i].itemId;
+                do
+                {
+                    itemId = system::rand() % i;
+                    npc->dropItemId = dropItems[itemId].itemId;
+                    if (npc->dropItemId == ITEM_ID_USE_BLANK_KUN)
+                    {
+                        s32 sup2 = system::rand() % 100;
+                        if (sup2 < 60)
+                            npc->dropItemId = ITEM_ID_USE_SHINABITA_KINOKO; // 60% chance to replace Catch Card drops with Dried Shrooms
+                    }
+                } while (npc->dropItemId <= 0);
+            }
+        }
+        else if (sup < (useItemDropChance + chestKeyDropChance) && npc->dropItemId == 0)
+            npc->dropItemId = ITEM_ID_KEY_MAC_KEY_00;
+        return;
+    }
+
     s32 evt_dan_modify_enemy(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
         npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
         s32 sup = system::rand() % 100;
+        s32 stellarDiff = 0, remOdds = 0;
         s32 currentFloor = swdrv::swByteGet(1);
-        s32 tribe = npc->tribeId;
-        npcdrv::NPCDropItem *dropItems = npcdrv::npcTribes[tribe].dropItemList;
         // Nerf all random item drops
         s32 difficulty = swdrv::swByteGet(1620);
         if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00)
         {
-            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
-            if (vState != V_ACTIVE)
+            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
+            if (vState == V_ACTIVE)
+                stellarDiff = 40;
+            switch (difficulty)
             {
-                switch (difficulty)
-                {
-                case 0:
-                    if (sup < 30)
-                        npc->dropItemId = 0;
-                    break;
-                case 1:
-                    if (sup < 65)
-                        npc->dropItemId = 0;
-                    break;
-                case 2:
-                    if (sup < 85)
-                        npc->dropItemId = 0;
-                    break;
-                }
+            case 0:
+                remOdds = 30;
+                break;
+            case 1:
+                remOdds = 65;
+                break;
+            case 2:
+                remOdds = 85;
+                break;
             }
+            if (sup < (remOdds - stellarDiff))
+                npc->dropItemId = 0;
         }
         if (Lunatic->Luna.disorder == DISORDER_RED) // APATHY
         {
             npc->maxHp = (u32)msl::math::floor((f32)npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
             npc->hp = npc->maxHp;
         }
+        /*
+            Create a holographic enemy
+            Base 10% chance for any enemy spawned past Floor 50 on Normal-Hard modes to be holographic
+            Enemy must have a base attack strength of 3+ OR max hp of 10+
+            Enemy must not have a tribe that makes the holo effect look buggy or not appear
+            Shlurp-type and Koopa-type enemies are excluded because being holo does not significantly affect them
+            Todo: maybe try and remove kick behavior from holo koopa-type enemies?
+        */
         sup = system::rand() % 100;
-        // Create holographic enemy
-        // DEBUG: sup > -1 && currentFloor > -1 && (npc->maxHp >= 1 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 0)
-        // NORMAL: sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3)
-        if (sup > 95 && currentFloor > 149 && (npc->maxHp >= 10 || npcdrv::npcTribes[npc->tribeId].attackStrength >= 3) && difficulty != 0)
+        if (sup < 8)
         {
-            if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && npc->tribeId != 200 && npc->tribeId != 201 && npc->tribeId != 32 && npc->tribeId != 142 && npc->tribeId != 144 && npc->tribeId != 146 && npc->tribeId != 504 && npc->tribeId != 156 && npc->tribeId != 157 && npc->tribeId != 188 && npc->tribeId != 189 && npc->tribeId != 184 && npc->tribeId != 185)
+            if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && difficulty > 0 && currentFloor > 149 && npc->tribeId != NPC_SHLORP && npc->tribeId != NPC_SHLURP)
             {
-                npc->maxHp *= 2;
-                npc->hp *= 2;
-                npcSetDanFlag(npc, DAN_NPC_HOLOGRAPHIC);
-                sup = system::rand() % 100;
-                if (sup > 25)
-                {
-                    if (npc->dropItemId == 0 && dropItems[0].itemId != 0) // If it doesn't already have an item, continue
-                    {
-                        sup = 1;
-                        s32 i = 0;
-                        for (i = 0; sup != 0; i += 1)
-                            sup = dropItems[i].itemId;
-                        do
-                        {
-                            sup = system::rand() % i;
-                            npc->dropItemId = dropItems[sup].itemId;
-                            if (npc->dropItemId == 0x57)
-                            {
-                                s32 sup2 = system::rand() % 100;
-                                if (sup2 > 25)
-                                    npc->dropItemId = 0x53; // 75% chance to replace Catch Card drops with Dried Shrooms
-                            }
-                        } while (dropItems[sup].itemId == 0);
-                    }
-                }
+                npcMakeHolo(npc);
+                danAssignSpecialEnemyItem(npc, round((f32)npc->maxHp / 1.5f), 8);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 1);
+            }
+        }
+        else
+        {
+            sup = system::rand() % 100;
+            if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO)
+            {
+                npcMakeNegative(npc);
+                danAssignSpecialEnemyItem(npc, npc->maxHp * 8, 10);
+                evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
             }
         }
         return 2;
@@ -318,13 +339,13 @@ namespace mod
             if (n > 50) // Failsafe
                 return 2;
             s32 random = system::rand() % enemyCount;
-            if (npcCheckDanFlag(enemies[random], DAN_NPC_HOLOGRAPHIC) == true) // Block holographic enemies
+            if (npcCheckDanFlag(enemies[random], (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
                 goto buh;
             if (i == 0) // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
             else // Distribute chest key
             {
-                if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY)
+                if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY || enemies[random]->dropItemId == item_data::ITEM_ID_KEY_MAC_KEY_00)
                     goto buh;
                 assign = false;
                 for (j = 0; j < 4; j += 1)
@@ -350,10 +371,10 @@ namespace mod
                 {
                     /*
                         If 100 enemies in a 10-floor phase,
-                        2.8/2.1/1.4/0.7 in 100 chance for an enemy to drop a random key
+                        2.0/1.5/1.0/0.5 in 100 chance for an enemy to drop a random key
                     */
                     s32 odds = system::rand() % (enemiesInCycle * 10);
-                    if (odds < ((4 - difficulty) * 7) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
+                    if (odds < ((4 - difficulty) * 5) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
                     {
                         enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
                         randomKeyAssigned = true;
@@ -431,9 +452,12 @@ namespace mod
     ADD(LW(9), 1)
     USER_FUNC(evt_npc::evt_npc_entry_from_template, 0, LW(11), LW(13), LW(14), LW(15), LW(5), EVT_NULLPTR)
     USER_FUNC(evt_dan_modify_enemy, LW(5), LW(6))
-    IF_EQUAL(LW(6), 1)
+    SWITCH(LW(6))
+    CASE_EQUAL(1)
     USER_FUNC(evt_npc::evt_npc_set_animpose_disp_callback, LW(5), PTR(mi4::mi4MimiHolographicEffect), 0)
-    END_IF()
+    CASE_EQUAL(2)
+    USER_FUNC(evt_npc::evt_npc_set_animpose_disp_callback, LW(5), PTR(DanEnemyNegativeDispCb), 0)
+    END_SWITCH()
     WHILE()
     END_IF()
     ADD(LW(10), 1)

@@ -504,6 +504,15 @@ namespace mod
                                                      }
                                                      return npcDamageMario(npcEntry, part, position, status, damage, flags);
                                                  }
+                                                 if (npcCheckDanFlag(part->owner, DAN_NPC_HOLOGRAPHIC) == true) // Holographic enemies have 1.5x direct ATK
+                                                     damage = round((f32)damage * 1.5f);
+                                                 if (npcCheckDanFlag(part->owner, DAN_NPC_NEGATIVE) == true) // Negative enemies have 3x direct ATK
+                                                 {
+                                                     if (damage > 5)
+                                                         damage = 15;
+                                                     else
+                                                         damage *= 3;
+                                                 }
                                                  // Disorder: Red/Apathy
                                                  s32 disorderId = Lunatic->Luna.disorder;
                                                  if (disorderId == DISORDER_RED)
@@ -548,14 +557,6 @@ namespace mod
                                                          break;
                                                      }
                                                  }
-
-                                                 if (npcCheckDanFlag(part->owner, DAN_NPC_HOLOGRAPHIC) == true) // Holographic enemies in the Pit will have 1.5x direct ATK
-                                                     damage *= 1.5;
-                                                 else if (part->owner->master != nullptr)
-                                                 {
-                                                     if (npcCheckDanFlag(part->owner->master, DAN_NPC_HOLOGRAPHIC) == true)
-                                                         damage *= 1.5;
-                                                 }
                                                  // Auspice and Aegis
                                                  if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
                                                  {
@@ -583,6 +584,8 @@ namespace mod
                                                  }
                                                  if (npcCheckDanFlag(npcEntry, DAN_NPC_HOLOGRAPHIC) == true)
                                                      killXp *= 2; //  Holographic enemies in the Pit will give 2x score
+                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_NEGATIVE) == true)
+                                                     killXp *= -1; //  Negative enemies give negative score
                                                  return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
                                              });
 
@@ -641,6 +644,10 @@ namespace mod
                                                         eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
                                                     }
                                                 }
+                                                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_HOLOGRAPHIC) == true)
+                                                    power -= 2;
+                                                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_NEGATIVE) == true && !((defenseType == 6 || defenseType == 4) && npcCheckDanFlag(npc, DAN_NPC_NEGATIVE) == true) && power >= 3) // Negative enemies should be vulnerable to Thoreau damage ONLY when colliding with another negative enemy
+                                                    power = round((f32)power / 3.0f);
                                                 s32 odds;
                                                 s32 disorderId = Lunatic->Luna.disorder;
                                                 if (disorderId == DISORDER_ORANGE && power > 0)
@@ -719,6 +726,259 @@ namespace mod
                                                      return;
                                                  marioChgMotSub(mot, p2);
                                              });
+    }
+
+    void npcInheritDanFlag(npcdrv::NPCEntry *parent, npcdrv::NPCEntry *child)
+    {
+        if (npcCheckDanFlag(parent, DAN_NPC_HOLOGRAPHIC) == true)
+            npcMakeHolo(child);
+        if (npcCheckDanFlag(parent, DAN_NPC_NEGATIVE) == true)
+            npcMakeNegative(child);
+        return;
+    }
+
+    s32 (*func_801f9294)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801f9cfc)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801fa3d0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80202ea8)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80200f5c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_802052fc)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_8022e008)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80206a84)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_802232c0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80221cf4)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801d9a88)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_802355f8)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801d8d94)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_802259f0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801f6514)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_8021eaac)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_8021e8ac)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80234368)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80234d3c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_80234fd4)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_8021259c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_8024b198)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*func_801f8220)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    s32 (*npc_jugemu_toss_spiny)(evtmgr::EvtEntry *evtEntry, bool firstRun);
+    static void hookNpcChildrenFromParentSpawnFuncs()
+    {
+        // Hammer Bros
+        func_801f9294 = patch::hookFunction(temp_unk::func_801f9294,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801f9294(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Boomerang Bros
+        func_801f9cfc = patch::hookFunction(temp_unk::func_801f9cfc,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801f9cfc(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Fire Bros
+        func_801fa3d0 = patch::hookFunction(temp_unk::func_801fa3d0,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801fa3d0(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Dull Bones
+        func_80202ea8 = patch::hookFunction(temp_unk::func_80202ea8,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80202ea8(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Magikoopas
+        func_80200f5c = patch::hookFunction(temp_unk::func_80200f5c,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80200f5c(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Koopa Strikers
+        func_802052fc = patch::hookFunction(temp_unk::func_802052fc,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_802052fc(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Pokeys
+        func_8022e008 = patch::hookFunction(temp_unk::func_8022e008,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_8022e008(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Ruff Puffs
+        func_80206a84 = patch::hookFunction(temp_unk::func_80206a84,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80206a84(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Dayzees
+        func_802232c0 = patch::hookFunction(temp_unk::func_802232c0,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_802232c0(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Squigs
+        func_80221cf4 = patch::hookFunction(temp_unk::func_80221cf4,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80221cf4(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Boomboxers
+        func_801d9a88 = patch::hookFunction(temp_unk::func_801d9a88,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801d9a88(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Sproing-Oings
+        func_802355f8 = patch::hookFunction(temp_unk::func_802355f8,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_802355f8(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Mr. Is
+        func_801d8d94 = patch::hookFunction(temp_unk::func_801d8d94,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801d8d94(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Foton
+        func_802259f0 = patch::hookFunction(temp_unk::func_802259f0,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_802259f0(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Eel/Hooligons
+        func_801f6514 = patch::hookFunction(temp_unk::func_801f6514,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801f6514(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Ninjoes (Bombs)
+        func_8021eaac = patch::hookFunction(temp_unk::func_8021eaac,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_8021eaac(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Ninjoes (Shurikens)
+        func_8021e8ac = patch::hookFunction(temp_unk::func_8021e8ac,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_8021e8ac(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Skellobomber (Head-Type)
+        func_80234368 = patch::hookFunction(temp_unk::func_80234368,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80234368(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Skellobomber (Bait-Type)
+        func_80234d3c = patch::hookFunction(temp_unk::func_80234d3c,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80234d3c(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Skellobait (Breath)
+        func_80234fd4 = patch::hookFunction(temp_unk::func_80234fd4,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_80234fd4(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Magiblots
+        func_8021259c = patch::hookFunction(temp_unk::func_8021259c,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_8021259c(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Cherbils
+        func_8024b198 = patch::hookFunction(temp_unk::func_8024b198,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_8024b198(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Growmebas
+        func_801f8220 = patch::hookFunction(temp_unk::func_801f8220,
+                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                            {
+                                                s32 ret = func_801f8220(evtEntry, firstRun);
+                                                if (ret == 2)
+                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                return ret;
+                                            });
+        // Lakitus
+        npc_jugemu_toss_spiny = patch::hookFunction(temp_unk::npc_jugemu_toss_spiny,
+                                                    [](evtmgr::EvtEntry *evtEntry, bool firstRun)
+                                                    {
+                                                        s32 ret = npc_jugemu_toss_spiny(evtEntry, firstRun);
+                                                        if (ret == 2)
+                                                            npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+                                                        return ret;
+                                                    });
     }
 
     // Called to remove default segments and their shadows from the map (Top 7 are the hitobjs, followed by mapobjs for visible segment and dropshadow)
@@ -1139,7 +1399,7 @@ namespace mod
                                           [](wii::tpl::TPLHeader *tpl)
                                           {
                                               TPLBindReal(tpl);
-                                              if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0)
+                                              if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0 && seqdrv::seqGetSeq() != 1)
                                                   return;
                                               if (tpl->imageTable->image->height == 184 && tpl->imageTable->image->width == 360 && tpl->imageTable->image->format == 5)
                                                   tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
@@ -1426,6 +1686,18 @@ namespace mod
         writeBranchLink(pausewin::pluswinKeyItemMain, 0x5E4, pluswinWhackaBumpFunc);
     }
 
+    void DanEnemyNegativeDispCb(wii::gx::GXTexObj *texObj)
+    {
+        wii::gx::GXSetTevOrder(texObj->stage, 255, 255, 255);
+        wii::gx::GXSetBlendMode(2, 2, 2, 12);
+        wii::gx::GXSetAlphaUpdate(1);
+        wii::gx::GXSetColorUpdate(1);
+        wii::gx::GXSetTevColorIn(texObj->stage, 0, 0, 0, 15);
+        wii::gx::GXSetTevAlphaIn(texObj->stage, 7, 7, 7, 0);
+        texObj->stage += 1;
+        return;
+    }
+
     static void patchNpcRgbaFuncs()
     {
         patch::hookFunction(evt_npc::evt_npc_set_color, [](evtmgr::EvtEntry *evtEntry, bool firstRun)
@@ -1443,11 +1715,14 @@ namespace mod
                     (npc->m_Anim).blue = 127;
                     animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
                 }
-                else if (npc->master != nullptr)
+                // This block is useless because set_color isn't guaranteed to run for all enemies
+                /*else if (npc->master != nullptr)
                 {
                     if (npcCheckDanFlag(npc->master, DAN_NPC_HOLOGRAPHIC) == true)
                         animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
-                }
+                    else if (npcCheckDanFlag(npc->master, DAN_NPC_NEGATIVE) == true)
+                        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
+                }*/
             }
             else
             {
@@ -1455,19 +1730,10 @@ namespace mod
                 s32 green = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
                 s32 blue = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
                 s32 alpha = evtmgr_cmd::evtGetValue(evtEntry, args[4]);
-                // a builtin clamp function that isn't evt opcode CLAMP_INT would be really nice
-                if (red > 255) red = 255;
-                if (red < 0) red = 0;
-                if (blue > 255) blue = 255;
-                if (blue < 0) blue = 0;
-                if (green > 255) green = 255;
-                if (green < 0) green = 0;
-                if (alpha > 255) alpha = 255;
-                if (alpha < 0) alpha = 0;
-                (npc->m_Anim).red = (u8)red;
-                (npc->m_Anim).blue = (u8)blue;
-                (npc->m_Anim).green = (u8)green;
-                (npc->m_Anim).alpha = (u8)alpha;
+                (npc->m_Anim).red = (u8)clamp(red, 0, 255);
+                (npc->m_Anim).blue = (u8)clamp(blue, 0, 255);
+                (npc->m_Anim).green = (u8)clamp(green, 0, 255);
+                (npc->m_Anim).alpha = (u8)clamp(alpha, 0, 255);
             }
             return 2; });
 
@@ -1689,6 +1955,7 @@ namespace mod
 
         // Green Magi Projectile
         npcdrv::npcTribes[475].catchCardItemId = 353;
+        npcdrv::npcTribes[NPC_GREEN_MAGIKOOPA_PROJ].partsList[0].defenses = npcdrv::npcTribes[NPC_MAGIKOOPA_PROJ].partsList[0].defenses;
 
         // White Magikoopa
         npcdrv::npcTribes[476].catchCardItemId = 352;
@@ -1721,6 +1988,7 @@ namespace mod
 
         // White Magi Projectile
         npcdrv::npcTribes[478].catchCardItemId = 352;
+        npcdrv::npcTribes[NPC_WHITE_MAGIKOOPA_PROJ].partsList[0].defenses = npcdrv::npcTribes[NPC_MAGIKOOPA_PROJ].partsList[0].defenses;
 
         // Red Magikoopa
         npcdrv::npcTribes[479].catchCardItemId = 351;
@@ -1753,11 +2021,10 @@ namespace mod
 
         // Red Magi Projectile, ATK 6
         npcdrv::npcTribes[481].catchCardItemId = 351;
+        npcdrv::npcTribes[NPC_RED_MAGIKOOPA_PROJ].partsList[0].defenses = npcdrv::npcTribes[NPC_MAGIKOOPA_PROJ].partsList[0].defenses;
 
         // Bleepboxer, ATK 3
         npcdrv::npcTribes[504].catchCardItemId = 384;
-        npcdrv::npcTribes[505].catchCardItemId = 384; // Projectile
-        item_data::itemDataTable[384].tribe = 504;    // Vanilla card data works fine
         npcdrv::npcTribes[504].catchCardDefense = 15;
         npcdrv::npcTribes[504].maxHp = 12;
         npcdrv::npcTribes[504].killXp = 500;
@@ -1768,6 +2035,9 @@ namespace mod
         npcdrv::npcTribes[504].attackStrength = 4;
         npcdrv::npcTribes[504].bounceEjection = 2;
         npcdrv::npcTribes[504].jumpEjection = 0;
+        npcdrv::npcTribes[505].catchCardItemId = 384; // Projectile
+        item_data::itemDataTable[384].tribe = 504;    // Vanilla card data works fine
+        npcdrv::npcTribes[NPC_GREEN_BOOMBOXER_PROJ].partsList[0].defenses = npcdrv::npcTribes[NPC_BOOMBOXER_PROJ].partsList[0].defenses;
 
         // Kilo Muth, ATK 2
         npcdrv::npcTribes[506].catchCardItemId = 427;
@@ -1965,6 +2235,33 @@ namespace mod
         item_data::itemDataTable[364].tribe = 101;
         item_data::itemDataTable[364].animPoseName = "e_sinemoh";
         item_data::itemDataTable[364].animName = "SIN_Z_1";
+        // Bullet William Blaster
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].partsList = npcdrv::npcTribes[NPC_BILL_BLASTER].partsList;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].maxHp = 30;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].height = 0x1e;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].width = 0x32;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].length = 0x14;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].attackStrength = 4;
+        npcdrv::npcEnemyTemplates[109].atkScript = npcdrv::npcEnemyTemplates[107].atkScript;
+        item_data::itemDataTable[416].tribe = NPC_BOMBSHELL_BILL_BLASTER;
+        item_data::itemDataTable[416].animPoseName = "e_killtai_g";
+        item_data::itemDataTable[416].animName = "KTA_Z_1";
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].catchCardItemId = 416;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL_BLASTER].killXp = 1500;
+
+        // Bullet William
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].partsList = npcdrv::npcTribes[NPC_BULLET_BILL].partsList;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].coinDropExtraMax = 0;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].height = 0x14;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].width = 0x14;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].length = 0x14;
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].attackStrength = 6;
+        npcdrv::npcEnemyTemplates[108].onSpawnScript = npcdrv::npcEnemyTemplates[106].onSpawnScript;
+        npcdrv::npcEnemyTemplates[108].deathScript = npcdrv::npcEnemyTemplates[106].deathScript;
+        item_data::itemDataTable[419].tribe = NPC_BOMBSHELL_BILL;
+        item_data::itemDataTable[419].animPoseName = "e_kilr_g";
+        item_data::itemDataTable[419].animName = "KIL_Z_1";
+        npcdrv::npcTribes[NPC_BOMBSHELL_BILL].catchCardItemId = 419;
 
         // Create Dark Lakitu (Template 30, Tribe 534)
         npcdrv::npcEnemyTemplates[30].tribeId = 534;
@@ -2191,9 +2488,72 @@ namespace mod
         item_data::itemDataTable[45].descMsg = mystBumpDescPtr;
     }
 
+    s32 npc_killtai_spawn_child(evtmgr::EvtEntry *evtEntry, bool firstCall)
+    {
+        npcdrv::MiscSetupDataV6 setupData;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 uw2 = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        npcdrv::NPCEntry *owner = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCEntry *child = nullptr;
+        if (firstCall)
+        {
+            wii::mtx::Vec3 pos = {owner->position.x, owner->position.y + 10.0f, owner->position.z};
+
+            if (owner->flippedTo3d == 0)
+            {
+                pos.x -= 50.0f;
+                pos.z += 1.0f;
+            }
+            else
+            {
+                pos.x -= 1.0f;
+                pos.z -= 50.0f;
+            }
+            msl::string::memset(&setupData, 0, sizeof(MiscSetupDataV6));
+            setupData.unknown_0x04 = 4000;
+            setupData.unknown_0x08 = 4000;
+            setupData.unknown_0x50 = owner->axisMovementUnit;
+            setupData.unknown_0x54 = owner->flippedTo3d;
+            setupData.unknown_0x58 = 4;
+            setupData.gravityRotation = owner->zAxisRotation;
+            s32 templateId = 106;
+            if (owner->tribeId == NPC_BOMBSHELL_BILL_BLASTER)
+                templateId = 108;
+            child = npcdrv::npcEntryFromSetupEnemy(0, &pos, templateId, &setupData);
+            evtEntry->tempU[0] = (u32)child;
+            owner->unitWork[4] = child->id;
+            child->unitWork[0] = 180; // speed
+            if (child->tribeId == NPC_BOMBSHELL_BILL)
+                child->unitWork[0] = 300;
+            child->unitWork[1] = owner->axisMovementUnit * 1000;
+            child->unitWork[2] = uw2;
+            evtEntry->tempU[1] = child->onSpawnEvtId;
+        }
+        child = (npcdrv::NPCEntry *)evtEntry->tempU[0];
+        if (evtEntry->tempU[1] != 0)
+        {
+            if (evtmgr::evtCheckID(evtEntry->tempU[1]) == false)
+                return 0;
+            evtEntry->tempU[1] = 0;
+        }
+        if (evtEntry->tempU[1] == 0)
+        {
+            const evtmgr::EvtScriptCode *moveScript = npcdrv::npcGetScript(child, 1);
+            evtmgr::EvtEntry *moveEvt = evtmgr::evtEntry(moveScript, 0, 0x20);
+            moveEvt->ownerNPC = (void *)child;
+            child->unkEvtId = moveEvt->id;
+            child->unknown_0x428 = 0;
+            child->unknown_0x42c = 0;
+            // Hardcode the call for inheriting neg/pos here since we can't hookFunction twice
+            npcInheritDanFlag(owner, child);
+            return 2;
+        }
+        return 0;
+    }
+
     s32 patch_tileoid_pu(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
-        npcdrv::NPCEntry *npc = evtEntry->ownerNPC;
+        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
         if (npc->tribeId == 167)
         {
             npc_tile::TileoidWork *tileWrk = (npc_tile::TileoidWork *)npc->unitWork[0];
@@ -2708,10 +3068,10 @@ namespace mod
             return 2;
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
         if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true) // If holo, increase coin output
-            coinCount = clamp((coinCount * 5), 10, 30);
+            coinCount = clamp((coinCount * 5), 8, 24);
         else // If NOT holo, check for Stellar and register a use if an item drops
         {
-            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR, nullptr);
+            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
             if (itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00 && itemType != ITEM_ID_NULL && vState == V_ACTIVE)
                 VoucherCallAction(VOUCHER_STELLAR);
         }
@@ -3289,7 +3649,7 @@ namespace mod
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         customwin::CWSelectItemDesc *ArtifactDefs = (customwin::CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(customwin::CWSelectItemDesc) * 6);
-        RFCItemData *RFC_SpecialItems = RFCSpecialGetPtr();
+        RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
         for (s32 i = 0; i < 6; i += 1)
         {
             s32 itemId = i + ARTIFACT_SOUL;
@@ -3981,9 +4341,9 @@ namespace mod
     IF_LARGE_EQUAL(LW(0), (s32)VOUCHER_CAKE)
     IF_SMALL_EQUAL(LW(0), (s32)VOUCHER_BLACK)
     SET(GSWF(1606), 1)
-    USER_FUNC(ActiveEffectsToggleIconB, 1)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)(TPLPATCH_ICON(ICON_B)))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(voucherIntro), 0, 0)
-    USER_FUNC(ActiveEffectsToggleIconB, 0)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)icondrv::ICON_BTN_1)
     END_IF()
     END_IF()
     END_IF()
@@ -3998,24 +4358,11 @@ namespace mod
     RETURN()
     EVT_END()
 
-    EVT_BEGIN(new_dan_chest_interact_evt)
-    LBL(99)
-    USER_FUNC(RFCGetRarity, 0, LW(0))
-    USER_FUNC(RFCGetChestKeyParams, LW(1), LW(2))
-    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(chestText), 0, 0, LW(0), LW(1), LW(2))
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(chestOptions))
-    SWITCH(LW(0))
-    CASE_EQUAL(0) // Open it!
-    USER_FUNC(evt_msg::evt_msg_continue)
-    USER_FUNC(DebugModeGetStatus, LW(3))
-    IF_EQUAL(LW(3), 1)
-    RETURN()
-    END_IF()
-    IF_SMALL(LW(2), LW(1))
-    USER_FUNC(evt_sub::evt_sub_random, 3, LW(3))
-    ADD(LW(3), 2)
-    MUL(LW(3), 1000)
-    WAIT_MSEC(LW(3))
+    EVT_BEGIN(dan_chest_poor_on_keys_evt)
+    USER_FUNC(evt_sub::evt_sub_random, 3, LW(5))
+    ADD(LW(5), 2)
+    MUL(LW(5), 1000)
+    WAIT_MSEC(LW(5))
     MARIO_SPAWN_QUESTION_MARK()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_10"), 0)
     WAIT_MSEC(1500)
@@ -4025,10 +4372,30 @@ namespace mod
     USER_FUNC(evt_eff::evt_eff, 0, PTR("spm_explosion"), 0, LW(0), LW(1), LW(2), FLOAT(1.5), 0, 0, 0, 0, 0, 0, 0)
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR(rfcChestName))
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    ELSE()
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(new_dan_chest_interact_evt)
+    LBL(99)
+    USER_FUNC(RFCGetRarity, 0, LW(0))
+    USER_FUNC(RFCGetChestKeyParams, LW(1), LW(2), LW(3)) // Cost to open, chest keys owned, cost to reroll
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)(TPLPATCH_ICON(ICON_CHEST_KEY)))
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(chestText), 0, 0, LW(0), LW(2), LW(1), LW(3))
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(chestOptions))
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)icondrv::ICON_BTN_1)
+    SWITCH(LW(0))
+    CASE_EQUAL(0) // Open it!
+    USER_FUNC(evt_msg::evt_msg_continue)
+    USER_FUNC(DebugModeGetStatus, LW(4))
+    IF_EQUAL(LW(4), 1)
+    RETURN()
+    END_IF()
+    IF_SMALL(LW(2), LW(1))
+    RUN_CHILD_EVT(dan_chest_poor_on_keys_evt)
+    RETURN()
+    END_IF()
     SUB(LW(2), LW(1))
     USER_FUNC(RFCSetChestKeys, LW(2))
-    END_IF()
     CASE_EQUAL(1) // Close
     USER_FUNC(evt_msg::evt_msg_continue)
     RUN_CHILD_EVT(dan_chest_close_evt)
@@ -4036,6 +4403,12 @@ namespace mod
     USER_FUNC(evt_mario::evt_mario_key_on)
     CASE_EQUAL(2) // Reroll
     USER_FUNC(evt_msg::evt_msg_continue)
+    IF_SMALL(LW(2), LW(3))
+    RUN_CHILD_EVT(dan_chest_poor_on_keys_evt)
+    RETURN()
+    END_IF()
+    SUB(LW(2), LW(3))
+    USER_FUNC(RFCSetChestKeys, LW(2))
     WAIT_MSEC(1000)
     RUN_CHILD_EVT(dan_chest_close_evt)
     USER_FUNC(RFCReroll)
@@ -4393,6 +4766,7 @@ namespace mod
     USER_FUNC(EvtCWSelectAddListing, PTR("Music"), PTR(noMusicName), PTR(noMusicDesc), icondrv::ICON_CATCH_CARD_SP, 0, 0, 0)
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Music"), PTR(musicSelectBgCols), 4)
+    // USER_FUNC(EvtCWSelectSetPointerIcon, PTR("Music"), icondrv::ICON_FORGET_ME_NOT_CARD_BLECK, FLOAT(0.3))
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
     IF_NOT_EQUAL(LW(0), -1)
     SET(GSW(1621), LW(0))
@@ -5145,7 +5519,7 @@ namespace mod
     s32 kami_bomb(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        npcdrv::NPCEntry *npc = evtEntry->ownerNPC;
+        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
         npcdrv::NPCPart *part = npcdrv::npcGetPartById(npc, 1);
         mario::MarioWork *mario = mario::marioGetPtr();
         f32 dist = PSVECSquareDistance(&npc->position, &mario->position);
@@ -5335,9 +5709,9 @@ namespace mod
     EVT_BEGIN(dlak_skyblue_2)
     USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(1))
     IF_EQUAL(LW(1), 34)
-    USER_FUNC(temp_unk::lakitu_spawn_spiny, 59)
+    USER_FUNC(temp_unk::npc_jugemu_toss_spiny, 59)
     ELSE()
-    USER_FUNC(temp_unk::lakitu_spawn_spiny, 336)
+    USER_FUNC(temp_unk::npc_jugemu_toss_spiny, 336)
     END_IF()
     RETURN_FROM_CALL()
 
@@ -5377,6 +5751,26 @@ namespace mod
     //  USER_FUNC(setHitboxSize, 0, FLOAT(27), FLOAT(27), FLOAT(27))
     USER_FUNC(evt_npc::evt_npc_set_scale, PTR("me"), FLOAT(1.1287), FLOAT(1.1287), FLOAT(1.1287))
     END_IF()
+    END_IF()
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(william_blaster_new_onspawn)
+    USER_FUNC(evt_npc::evt_npc_agb_async, PTR("e_kilr_g"), EVT_NULLPTR)
+    USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 4)
+    USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 4)
+    USER_FUNC(evt_npc::evt_npc_get_unitwork, PTR("me"), 2, LW(0))
+    IF_SMALL_EQUAL(LW(0), 0)
+    USER_FUNC(evt_npc::evt_npc_set_unitwork, PTR("me"), 2, 1000)
+    END_IF()
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(william_new_atk)
+    USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(0))
+    IF_EQUAL(LW(0), (s32)NPC_BULLET_BILL)
+    USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 2)
+    ELSE()
+    USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 6)
     END_IF()
     RETURN_FROM_CALL()
 
@@ -5466,6 +5860,11 @@ namespace mod
         evtpatch::hookEvtReplace(goombaStats, 2, heiho_stats);
         evtpatch::hookEvtReplaceBlock(temp_unk::goomba_unk2_child, 12, heiho_g_panic, 16);
 
+        // Bullet William
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[106].onSpawnScript, 1, william_new_atk);
+        evtpatch::hookEvt(npcdrv::npcEnemyTemplates[109].onSpawnScript, 1, william_blaster_new_onspawn);
+        patch::hookFunction(temp_unk::func_80203608, npc_killtai_spawn_child);
+
         // Ninjoe patched to only bomb 10% of the time, thanks Lily!
         writeWord(&npc_ninja::ninjoe_bomb_calc_chance, 0xDC, 0x2C03000A);
 
@@ -5546,6 +5945,7 @@ namespace mod
         rewrite_main();
         RFCDRVPatches();
         miscLambdas();
+        hookNpcChildrenFromParentSpawnFuncs();
         danOverwrite();
         pluswinWhackaBump();
         danDontFuckingCrash();

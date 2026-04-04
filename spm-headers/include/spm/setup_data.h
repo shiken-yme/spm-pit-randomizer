@@ -18,9 +18,13 @@ USING(wii::mtx::Vec3)
 typedef struct
 {
 /* 0x00 */ s32 instanceId; // ignored if 0
-/* 0x04 */ u8 unknown_0x4[0x10 - 0x4];
+/* 0x04 */ Unk unknown_0x04;
+/* 0x08 */ Unk unknown_0x08;
+/* 0x0C */ Unk unknown_0x0c;
 /* 0x10 */ s32 unitWork[16];
-/* 0x50 */ u8 unknown_0x50[0x5c - 0x50];
+/* 0x50 */ Unk unknown_0x50;
+/* 0x54 */ Unk unknown_0x54;
+/* 0x58 */ Unk unknown_0x58;
 /* 0x5C */ f32 gravityRotation; // degrees anti-clockwise about the z-axis
 } MiscSetupDataV6;
 SIZE_ASSERT(MiscSetupDataV6, 0x60)

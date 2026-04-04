@@ -32,7 +32,11 @@ SIZE_ASSERT(GXRenderModeObj, 0x3c)
 
 typedef struct
 {
-/* 0x0 */ u8 unknown_0x0[0x20 - 0x0];
+/* 0x00 */ u8 unknown_0x0[0x10 - 0x0];
+/* 0x10 */ s32 stage;
+/* 0x14 */ s32 map;
+/* 0x18 */ s32 coord;
+/* 0x1C */ u8 unknown_0x1c[0x20 - 0x1c];
 } GXTexObj;
 SIZE_ASSERT(GXTexObj, 0x20)
 
@@ -182,14 +186,14 @@ UNKNOWN_FUNCTION(__GXSetIndirectMask)
 UNKNOWN_FUNCTION(__GXFlushTextureState)
 void GXSetTevOp(u8 tevstage, u8 mode);
 void GXSetTevColorIn(u8 tevstage, u8 a, u8 b, u8 c, u8 d);
-UNKNOWN_FUNCTION(GXSetTevAlphaIn)
+void GXSetTevAlphaIn(u8 tevstage, u8 a, u8 b, u8 c, u8 d);
 void GXSetTevColorOp(u8 tevstage, u8 tevop, u8 bias, u8 scale, bool clamp, u8 out_reg);
-UNKNOWN_FUNCTION(GXSetTevAlphaOp)
+void GXSetTevAlphaOp(u8 tevstage, u8 tevop, u8 bias, u8 scale, bool clamp, u8 out_reg);
 void GXSetTevColor(s32 id, GXColor * color);
 UNKNOWN_FUNCTION(GXSetTevColorS10)
-UNKNOWN_FUNCTION(GXSetTevKColor)
-UNKNOWN_FUNCTION(GXSetTevKColorSel)
-UNKNOWN_FUNCTION(GXSetTevKAlphaSel)
+void GXSetTevKColor(u8 tevstage, const GXColor * col);
+void GXSetTevKColorSel(u8 tevstage, u8 sel);
+void GXSetTevKAlphaSel(u8 tevstage, u8 sel);
 void GXSetTevSwapMode(u8 tevstage, u8 ras_sel, u8 tex_sel);
 UNKNOWN_FUNCTION(GXSetTevSwapModeTable)
 void GXSetAlphaCompare(u8 comp0, u8 ref0, u8 aop, u8 comp1, u8 ref1);

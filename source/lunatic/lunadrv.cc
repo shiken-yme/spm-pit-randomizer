@@ -86,7 +86,7 @@
 
 namespace mod
 {
-    /* 
+    /*
         lunadrv contains most code for the Merluna-focused features, Disorders and Divine Judgement
         Now just how are Disorders related to Merluna?... That's a secret, hehehe~ :3
         Divine Judgement doesn't have code here yet because I yet to reimplement it. One day!!
@@ -185,19 +185,19 @@ namespace mod
         switch (difficulty)
         {
         case 0:
-            wp->dispInstantCoinLoss = 15;
+            wp->dispInstantCoinLoss = 10;
             wp->coinLossChance = 30;
             break;
         case 1:
-            wp->dispInstantCoinLoss = 20;
+            wp->dispInstantCoinLoss = 15;
             wp->coinLossChance = 50;
             break;
         case 2:
-            wp->dispInstantCoinLoss = 25;
+            wp->dispInstantCoinLoss = 20;
             wp->coinLossChance = 70;
             break;
         default:
-            wp->dispInstantCoinLoss = 30;
+            wp->dispInstantCoinLoss = 25;
             wp->coinLossChance = 100;
             break;
         }
@@ -250,12 +250,14 @@ namespace mod
         return;
     }
 
+    s32 indiffItems[] = {ITEM_ID_USE_OBAKE_KINOKO, ITEM_ID_USE_DOKU_KINOKO, ITEM_ID_USE_DOKU_KINOKO, ITEM_ID_COOK_NURU_ESSENCE, ITEM_ID_COOK_BOMB_EGG,
+                         ITEM_ID_COOK_BOMB_EGG, ITEM_ID_COOK_TRIAL_PAN, ITEM_ID_COOK_DANGEROUS_COOKING, ITEM_ID_COOK_NORMAL_CHOKO, ITEM_ID_COOK_NORMAL_CHOKO,
+                         ITEM_ID_COOK_GERORIN_FOOD, ITEM_ID_COOK_GERORIN_FOOD};
+
     s32 IndifferenceAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 indiffItems[] = {ITEM_ID_USE_OBAKE_KINOKO, ITEM_ID_USE_DOKU_KINOKO, ITEM_ID_COOK_NURU_ESSENCE, ITEM_ID_COOK_BOMB_EGG,
-                             ITEM_ID_COOK_TRIAL_PAN, ITEM_ID_COOK_DANGEROUS_COOKING, ITEM_ID_COOK_NORMAL_CHOKO, ITEM_ID_COOK_GERORIN_FOOD};
         s32 i, idx;
         s32 itemsSpawned = 0;
         mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
@@ -303,9 +305,7 @@ namespace mod
     // Floors rem can be 0 only if preId is non-zero.
     USER_FUNC(DisorderGetFloorsRem, LW(5))
     IF_EQUAL(LW(5), 0)
-    IF_EQUAL(LW(6), 0)
     RETURN()
-    END_IF()
     END_IF()
     USER_FUNC(IndifferenceAction, LW(1), LW(2), LW(3), LW(4), LW(5), LW(6), LW(7), LW(8))
     // Spawn items that don't have replacements
@@ -712,19 +712,19 @@ namespace mod
     WAIT_MSEC(700)
     IF_EQUAL(GSWF(1661), 0)
     SET(GSWF(1661), 1)
-    USER_FUNC(ActiveEffectsToggleIconB, 1)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)(TPLPATCH_ICON(ICON_B)))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(disorderIntro), 0, 0)
-    USER_FUNC(ActiveEffectsToggleIconB, 0)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)icondrv::ICON_BTN_1)
     WAIT_MSEC(300)
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     WAIT_MSEC(300)
-    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
-    USER_FUNC(evt_mario::evt_mario_key_on)
     USER_FUNC(DisorderGetId, LW(5))
     IF_EQUAL(LW(5), 4)
     RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
+    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
+    USER_FUNC(evt_mario::evt_mario_key_on)
     RETURN()
     EVT_END()
 

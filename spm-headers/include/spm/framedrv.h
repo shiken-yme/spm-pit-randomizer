@@ -27,7 +27,7 @@ USING(spm::camdrv::CameraId)
 #define FRAME_FLAG_0x800 0x800
 #define FRAME_OFFSCREEN_FUNC_RUNNING 0x1000
 
-enum FrameType
+enum FrameType : u16
 {
 /* 0x0 */ FRAME_TYPE_OFFSCREEN,
 /* 0x1 */ FRAME_TYPE_WIRE,
@@ -50,7 +50,7 @@ SIZE_ASSERT(FrameWireSub, 0x14)
 typedef struct
 {
 /* 0x000 */ u16 flags; // see defines above
-/* 0x002 */ u16 type; // see FrameType enum
+/* 0x002 */ FrameType type;
 /* 0x004 */ char instanceName[16];
 /* 0x014 */ s32 animPoseId;
 /* 0x018 */ char animPoseName[32];
@@ -104,8 +104,7 @@ void frameInit();
 void frameReInit();
 
 /*
-    Calls a display callback or draw function for each frame type, for all frame entries, every frame
-    todo: make that sentence less terrible
+    Runs a display callback or draw function for all frame entries
 */
 void frameMain();
 

@@ -637,7 +637,7 @@
 800D23A8:evt_snd_bgmon_f_d
 8012A644:marioCheck3d
 803FB538:npc_drop_item_evt
-801FE334:lakitu_spawn_spiny
+801FE334:npc_jugemu_toss_spiny
 8021F854:backCursyaHit
 8043EAD8:lakitu_onspawn_child
 8010B440:evt_npc_agb_async
@@ -748,3 +748,9 @@
 8056D298:spsbgmlist
 804F2270:spsnd_work
 8056C7C8:winmgr_wp
+80290958:GXSetTevAlphaIn
+80290918:GXSetTevColorIn
+801F7FA0:func_801f9294
+80201B48:func_80203608
+801BE77C:npcEntryFromSetupEnemy
+801BF3A4:npcGetScript

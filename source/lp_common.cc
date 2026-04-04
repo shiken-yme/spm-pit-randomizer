@@ -1,9 +1,11 @@
 #include <common.h>
+#include <spm/animdrv.h>
 #include <spm/item_data.h>
 #include <spm/mario_pouch.h>
 #include <spm/msgdrv.h>
 #include <spm/icondrv.h>
 #include <spm/npcdrv.h>
+#include <spm/rel/mi4.h>
 #include <tplpatch.h>
 #include <wii/os.h>
 
@@ -42,7 +44,7 @@ namespace mod
 
     void lpAddAtk(s32 atk)
     {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();    
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 preAtk = pouch->attack;
         pouch->attack += atk;
         Lunatic->Stats.DemiseATK += (pouch->attack - preAtk);
@@ -51,7 +53,7 @@ namespace mod
 
     void lpAddHp(s32 maxHp, s32 hp)
     {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();    
+        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
         s32 preHp = pouch->maxHp;
         pouch->maxHp += maxHp;
         Lunatic->Stats.DelightHP += (pouch->maxHp - preHp);
@@ -69,20 +71,53 @@ namespace mod
         return;
     }
 
+    void npcMakeHolo(npcdrv::NPCEntry *npc)
+    {
+        npcSetDanFlag(npc, DAN_NPC_HOLOGRAPHIC);
+        npc->maxHp *= 2;
+        npc->hp *= 2;
+        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, nullptr);
+        npcdrv::NPCPart *part = npc->parts;
+        while (part != nullptr)
+        {
+            if (part->m_Anim.m_nPoseId != -1)
+                animdrv::animPoseSetDispCallback2((part->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, nullptr);
+            part = part->nextPart;
+        }
+        return;
+    }
+
+    void npcMakeNegative(npcdrv::NPCEntry *npc)
+    {
+        npcSetDanFlag(npc, DAN_NPC_NEGATIVE);
+        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
+        npcdrv::NPCPart *part = npc->parts;
+        while (part != nullptr)
+        {
+            if (part->m_Anim.m_nPoseId != -1)
+                animdrv::animPoseSetDispCallback2((part->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
+            part = part->nextPart;
+        }
+        if (npc->maxHp >= 2)
+        {
+            npc->maxHp = round((f32)npc->maxHp / 3.0f);
+            npc->hp = npc->maxHp;
+        }
+        return;
+    }
+
     const char *npcTribeToName(s32 tribeId)
     {
         return msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcTribes[tribeId].catchCardItemId].nameMsg);
     }
 
-    s32 ActiveEffectsToggleIconB(evtmgr::EvtEntry *evtEntry, bool firstRun)
+    s32 MsgIconReplaceIdx(evtmgr::EvtEntry *evtEntry, bool firstRun)
     {
         (void)firstRun;
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        if (onOff > 0)
-            msgdrv::msgdrv_msgIcon[3].iconId = TPLPATCH_ICON(ICON_B);
-        else
-            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_BTN_1;
+        s32 idx = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        s32 iconId = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        msgdrv::msgdrv_msgIcon[idx].iconId = iconId;
         return 2;
     }
 

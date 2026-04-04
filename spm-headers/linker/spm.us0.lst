@@ -767,7 +767,7 @@
 1,1,c7e0:mi4MimiHolographicEffect
 8012A624:marioCheck3d
 803FA1D8:npc_drop_item_evt
-801FDCB4:lakitu_spawn_spiny
+801FDCB4:npc_jugemu_toss_spiny
 8021F1D4:backCursyaHit
 8043D688:lakitu_onspawn_child
 8010B420:evt_npc_agb_async
@@ -875,3 +875,9 @@
 8056DA38:spsbgmlist
 804F09E8:spsnd_work
 8056CF68:winmgr_wp
+8028FF2C:GXSetTevAlphaIn
+8028FEEC:GXSetTevColorIn
+801F7920:func_801f9294
+802014C8:func_80203608
+801BE720:npcEntryFromSetupEnemy
+801BF348:npcGetScript

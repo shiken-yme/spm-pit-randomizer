@@ -444,6 +444,29 @@ namespace mod::customwin
         return 2;
     }
 
+    /*
+        ** User Function **
+        Changes the cursor icon & allowsyou to set its scale
+        If not called, defaults to the regular pointer icon
+    */
+    s32 EvtCWSelectSetPointerIcon(evtmgr::EvtEntry *evtEntry, bool firstCall)
+    {
+        (void)firstCall;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char *key = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        s32 iconId = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        f32 scale = evtmgr_cmd::evtGetFloat(evtEntry, args[2]);
+        s32 id = CWSelectKeyToId(key);
+        if (id == -1)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetPointerIcon: Entry with key \'%s\' not found; aborting process.\n", key);
+            return 2;
+        }
+        GlobalCW->Select[id]->PointerIcon.id = iconId;
+        GlobalCW->Select[id]->PointerIcon.scale = scale;
+        return 2;
+    }
+
     s32 EvtCWSelectAddInfoPage(evtmgr::EvtEntry *evtEntry, bool firstCall)
     {
         (void)firstCall;
@@ -1130,7 +1153,7 @@ namespace mod::customwin
         // Assert default shop icon as spinning coin
         if (CW->type == CWSELECT_SHOP && CW->ShopIcon.id == 0)
         {
-            CW->ShopIcon.id = 0x97;
+            CW->ShopIcon.id = icondrv::ICON_COIN;
             CW->ShopIcon.scale = 0.3;
         }
         // Assert default shop icon as nothing if type is not shop
@@ -1188,7 +1211,12 @@ namespace mod::customwin
         }
         // Draw cursor
         wii::mtx::Vec3 cursorPos = {select->pos.x, select->pos.y, 1.0};
-        icondrv::iconDispGx(1.0, &cursorPos, 0x14, icondrv::ICON_FINGER_POINT_HORIZONTAL);
+        if (CW->PointerIcon.id == 0)
+        {
+            CW->PointerIcon.id = icondrv::ICON_FINGER_POINT_HORIZONTAL;
+            CW->PointerIcon.scale = 1.0;
+        }
+        icondrv::iconDispGx(CW->PointerIcon.scale, &cursorPos, 0x14, CW->PointerIcon.id);
         return;
     }
 

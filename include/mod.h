@@ -50,7 +50,6 @@ namespace mod
     enum LPIcon : s32
     {
         ICON_LP_LOGO,
-        ICON_LP_LOGO_SHADOW,
         ICON_SKULL_KEY,
         ICON_BUMP_GRAY,
         ICON_BUMP_BLUE,
@@ -98,7 +97,8 @@ namespace mod
         ICON_ARTIFACT_AEGIS,
         ICON_ARTIFACT_AUSPICE,
         ICON_ARTIFACT_DELIGHT,
-        ICON_ARTIFACT_DEMISE
+        ICON_ARTIFACT_DEMISE,
+        ICON_MAX
     };
 
     enum LPCustomItem : s32
@@ -256,6 +256,7 @@ namespace mod
     struct RestFloorChest
     {
         u32 rerolls;
+        u32 rerollCost;
         s32 chestKeys;
         s32 chestRarity;
         bool rfcSpecialObtained[LPCUSTOMITEM_MAX];
@@ -330,6 +331,8 @@ namespace mod
     bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
     void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
     void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
+
+    void DanEnemyNegativeDispCb(wii::gx::GXTexObj *texObj);
 
     EVT_DECLARE(fwd_mover_speech)
     EVT_DECLARE(custom_pit_music)

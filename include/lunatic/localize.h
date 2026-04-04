@@ -171,8 +171,8 @@ namespace mod
     const char chestText[] =
         "<system>"
         "Open the %s Chest?\n"
-        "<wait 300>Chest Keys required: %d\n"
-        "<wait 300>(You have %d!)\n"
+        "<wait 300>You have <icon PAD_1 0.67 0 1 3>%d.\n"
+        "<wait 300>Open: <icon PAD_1 0.67 0 1 3>%d    Reroll: <icon PAD_1 0.67 0 1 3>%d\n"
         "<dkey><wait 300></dkey><o>";
 
     const char chestOptions[] =
@@ -230,12 +230,12 @@ namespace mod
         "like to, but you can't reroll\n"
         "once the chest is open.\n"
         "<k>\n<p>\n"
-        "Rerolls themselves are free, but\n"
-        "each reroll will make the chest\n"
-        "more expensive to open!\n"
+        "Rerolls cost one chest key,\n"
+        "but each reroll will make the\n"
+        "next one more expensive!\n"
         "<k>\n<p>\n"
         "Oh, and just a warning...\n"
-        "<wait 500><dynamic 3>Please</dynamic> don't open chests if\n"
+        "<wait 500><dynamic 3>Please</dynamic> don't touch chests if\n"
         "you don't have the keys.\n"
         "<k>";
 
@@ -411,14 +411,14 @@ namespace mod
         "Judgement Voucher";
 
     const char stellarVDesc[] =
-        "Significantly increases item\n"
-        "drop rates from all enemies.\n"
+        "Increases item drop rates\n"
+        "from most enemies.\n"
         "<k>\n<p>\n"
-        "This effect intensifies with\n"
-        "your difficulty setting.\n"
+        "Common Chests will not\n"
+        "appear on rest floors.\n"
         "<k>\n<p>\n"
-        "Common-tier Chests will never\n"
-        "spawn on rest floors.\n"
+        "Chest reroll cost is\n"
+        "lowered from 1 to 0.\n"
         "<k>\n<p>\n"
         "%d%% chance to tear upon any\n"
         "activation.\n"
@@ -2333,6 +2333,38 @@ namespace mod
         "<k>";
 
     const char desc_spunia[] =
+        "Max HP: %d\n"
+        "Attack: %d\n"
+        "<k>\n<p>\n"
+        "Placeholder alert!\n"
+        "The dev is very lazy.";
+
+    const char tattle_bullet_william[] =
+        "<fairy><keyyon>It's a Bullet William...\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n"
+        "<k>\n<p>\n"
+        "This is placeholder text...\n"
+        "<wait 250>The developer doesn't want\n"
+        "to write much else...\n"
+        "<k>";
+
+    const char desc_bullet_william[] =
+        "Max HP: %d\n"
+        "Attack: %d\n"
+        "<k>\n<p>\n"
+        "Placeholder alert!\n"
+        "The dev is very lazy.";
+
+        const char tattle_william_blaster[] =
+        "<fairy><keyyon>It's a William Blaster...\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n"
+        "<k>\n<p>\n"
+        "This is placeholder text...\n"
+        "<wait 250>The developer doesn't want\n"
+        "to write much else...\n"
+        "<k>";
+
+    const char desc_william_blaster[] =
         "Max HP: %d\n"
         "Attack: %d\n"
         "<k>\n<p>\n"

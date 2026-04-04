@@ -27,7 +27,7 @@ namespace mod
 
     void VoucherCallAction(s32 itemId);
 
-    VoucherState VoucherGetStateById(s32 itemId, s32 *idx);
+    VoucherState VoucherGetStateById(s32 itemId);
     
     EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
     EVT_DECLARE_USER_FUNC(ThunderVoucherIncrementCtr, 1)
@@ -85,7 +85,7 @@ namespace mod
 
     EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)
     EVT_DECLARE_USER_FUNC(RFCGetRarity, 2)
-    EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 2)
+    EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 3)
     EVT_DECLARE_USER_FUNC(RFCSetChestKeys, 1)
     EVT_DECLARE_USER_FUNC(RFCBakudan, 0)
     EVT_DECLARE_USER_FUNC(RFCAnalyzeSpecial, 2)
