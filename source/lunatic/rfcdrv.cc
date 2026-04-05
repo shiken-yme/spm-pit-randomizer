@@ -190,7 +190,7 @@ namespace mod
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
-    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {8, 10, 10, 8, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {10, 15, 12, 10, 2, 2, 2, 2, 2, 2, 2, 2};
 
     VoucherWork *VoucherGetPtr(s32 idx)
     {
@@ -373,10 +373,10 @@ namespace mod
             baseChance *= 1.25f;
             break;
         case 2:
-            baseChance *= 1.5;
+            baseChance *= 1.5f;
             break;
         case 3:
-            baseChance *= 1.75f;
+            baseChance *= 2.0f;
             break;
         default:
             break;

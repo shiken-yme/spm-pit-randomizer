@@ -1086,12 +1086,12 @@ namespace mod
         {
             odds = system::rand() % 100;
             rarity = 0;
-            if (odds < 10) // 10% for Legendary
-                rarity = 3;
+            if (odds < 60) // 30% for Uncommon
+                rarity = 1;
             if (odds < 30) // 20% for Rare
                 rarity = 2;
-            if (odds < 60) // 30% Uncommon
-                rarity = 1;
+            if (odds < 10) // 10% for Legendary
+                rarity = 3;
         } while ((!onRoomLoad && rarity == Lunatic->RFC.chestRarity) || (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0)));
         // First rest floor should always have a common or uncommon chest
         if (swdrv::swByteGet(1) == 9)

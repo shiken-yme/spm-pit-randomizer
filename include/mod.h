@@ -11,12 +11,6 @@ namespace mod
 {
     #define MOD_VERSION "SPM Lunatic Pit beta v3.0"
 
-    enum NPCDanFlag : u32
-    {
-        DAN_NPC_HOLOGRAPHIC = 0x1,
-        DAN_NPC_NEGATIVE = 0x2
-    };
-
     enum BlessId : s32
     {
         /* 0x0 */ MERLUNA_NULL_BLESS,
@@ -327,10 +321,6 @@ namespace mod
     extern LunaticPitWork *Lunatic;
 
     extern bool DebugMode;
-
-    bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
-    void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
-    void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
 
     void DanEnemyNegativeDispCb(wii::gx::GXTexObj *texObj);
 

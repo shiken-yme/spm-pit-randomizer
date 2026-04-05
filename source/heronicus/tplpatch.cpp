@@ -64,7 +64,7 @@ namespace mod::tplpatch
   Have fun!!!!
   */
 
-  char *TPLPatchIconTPLName = nullptr;                  // This corresponds to the filename of your custom TPL!
+  const char *TPLPatchIconTPLName = nullptr;                  // This corresponds to the filename of your custom TPL!
   wii::tpl::TPLHeader *TPLPatchIconTPLHeader = nullptr; // Initializes the custom TPL pointer
 
   // Debug function to verify that the TPL isn't deallocated from memory for any reason
@@ -195,7 +195,7 @@ namespace mod::tplpatch
     return palette->imageTable + (id - (id / palette->imageCount) * palette->imageCount);
   }
 
-  void iconPatch(char *iconFileName)
+  void iconPatch(const char *iconFileName)
   {
     TPLPatchIconTPLName = iconFileName;
 

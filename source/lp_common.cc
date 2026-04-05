@@ -8,7 +8,7 @@
 #include <spm/rel/mi4.h>
 #include <tplpatch.h>
 #include <wii/os.h>
-
+#include <lp_common.h>
 #include <mod.h>
 
 namespace mod
@@ -71,12 +71,43 @@ namespace mod
         return;
     }
 
+    bool npcIsShellEnemy(npcdrv::NPCEntry *npc)
+    {
+        if (npc->templateKouraKickScript != nullptr)
+            return true;
+        return false;
+    }
+
+    bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        if (((u32)npc->unkShellSfx & flag) != 0)
+            return true;
+        return false;
+    }
+
+    void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        u32 f = (u32)npc->unkShellSfx;
+        f |= flag;
+        npc->unkShellSfx = (const char *)f;
+        return;
+    }
+
+    void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
+    {
+        u32 f = (u32)npc->unkShellSfx;
+        f &= ~flag;
+        npc->unkShellSfx = (const char *)f;
+        return;
+    }
+
     void npcMakeHolo(npcdrv::NPCEntry *npc)
     {
         npcSetDanFlag(npc, DAN_NPC_HOLOGRAPHIC);
         npc->maxHp *= 2;
         npc->hp *= 2;
-        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, nullptr);
+        if ((npc->m_Anim).m_nPoseId != -1)
+            animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, nullptr);
         npcdrv::NPCPart *part = npc->parts;
         while (part != nullptr)
         {
@@ -90,18 +121,19 @@ namespace mod
     void npcMakeNegative(npcdrv::NPCEntry *npc)
     {
         npcSetDanFlag(npc, DAN_NPC_NEGATIVE);
-        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
+        if (npc->maxHp >= 2)
+        {
+            npc->maxHp = round((f32)npc->maxHp / 3.0f);
+            npc->hp = npc->maxHp;
+        }
+        if ((npc->m_Anim).m_nPoseId != -1)
+            animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
         npcdrv::NPCPart *part = npc->parts;
         while (part != nullptr)
         {
             if (part->m_Anim.m_nPoseId != -1)
                 animdrv::animPoseSetDispCallback2((part->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
             part = part->nextPart;
-        }
-        if (npc->maxHp >= 2)
-        {
-            npc->maxHp = round((f32)npc->maxHp / 3.0f);
-            npc->hp = npc->maxHp;
         }
         return;
     }

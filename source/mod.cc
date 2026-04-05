@@ -309,36 +309,6 @@ namespace mod
 
     bool critActuate;
 
-    bool npcIsShellEnemy(npcdrv::NPCEntry *npc)
-    {
-        if (npc->templateKouraKickScript != nullptr)
-            return true;
-        return false;
-    }
-
-    bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
-    {
-        if (((u32)npc->unkShellSfx & flag) != 0)
-            return true;
-        return false;
-    }
-
-    void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
-    {
-        u32 f = (u32)npc->unkShellSfx;
-        f |= flag;
-        npc->unkShellSfx = (const char *)f;
-        return;
-    }
-
-    void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
-    {
-        u32 f = (u32)npc->unkShellSfx;
-        f &= ~flag;
-        npc->unkShellSfx = (const char *)f;
-        return;
-    }
-
     // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't override all defenses with damage reduction.
     // There are certainly a few in this array that can use DEFs, direct DR is just easier for me right now.
     s32 (*marioCalcDamageToEnemy)(s32 damageType, s32 tribeId);
@@ -730,6 +700,8 @@ namespace mod
 
     void npcInheritDanFlag(npcdrv::NPCEntry *parent, npcdrv::NPCEntry *child)
     {
+        if (child == nullptr)
+            return;
         if (npcCheckDanFlag(parent, DAN_NPC_HOLOGRAPHIC) == true)
             npcMakeHolo(child);
         if (npcCheckDanFlag(parent, DAN_NPC_NEGATIVE) == true)
@@ -1715,14 +1687,6 @@ namespace mod
                     (npc->m_Anim).blue = 127;
                     animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
                 }
-                // This block is useless because set_color isn't guaranteed to run for all enemies
-                /*else if (npc->master != nullptr)
-                {
-                    if (npcCheckDanFlag(npc->master, DAN_NPC_HOLOGRAPHIC) == true)
-                        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
-                    else if (npcCheckDanFlag(npc->master, DAN_NPC_NEGATIVE) == true)
-                        animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)DanEnemyNegativeDispCb, nullptr);
-                }*/
             }
             else
             {
@@ -5808,7 +5772,6 @@ namespace mod
         evtmgr_cmd::EvtScriptCode *kamiKuriAtk = npcdrv::npcEnemyTemplates[330].atkScript;
         evtmgr_cmd::EvtScriptCode *bombBooAtk = npcdrv::npcEnemyTemplates[366].atkScript;
         evtmgr_cmd::EvtScriptCode *dLakAtk = npcdrv::npcEnemyTemplates[30].atkScript;
-        evtmgr_cmd::EvtScriptCode *dLakStats = npcdrv::npcEnemyTemplates[30].onSpawnScript;
         evtmgr_cmd::EvtScriptCode *bawbAtk = npcdrv::npcEnemyTemplates[375].onSpawnScript;
         //    evtmgr_cmd::EvtScriptCode *kpStats = npcdrv::npcEnemyTemplates[7].onSpawnScript;
         evtmgr_cmd::EvtScriptCode *goombaStats = npcdrv::npcEnemyTemplates[2].onSpawnScript;
@@ -5927,7 +5890,8 @@ namespace mod
         msgpatch::msgpatchMain();
         customwin::CustomWinMain();
         evtpatch::evtmgrExtensionInit();
-        tplpatch::iconPatch("wicon2");
+        const char *wicon2 = "wicon2";
+        tplpatch::iconPatch(wicon2);
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
         // Add new BGM entries

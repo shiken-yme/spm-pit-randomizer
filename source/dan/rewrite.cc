@@ -275,7 +275,7 @@ namespace mod
             if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && difficulty > 0 && currentFloor > 149 && npc->tribeId != NPC_SHLORP && npc->tribeId != NPC_SHLURP)
             {
                 npcMakeHolo(npc);
-                danAssignSpecialEnemyItem(npc, round((f32)npc->maxHp / 1.5f), 8);
+                danAssignSpecialEnemyItem(npc, round((f32)npc->maxHp / 2.0f), 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 1);
             }
         }
@@ -285,7 +285,7 @@ namespace mod
             if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO)
             {
                 npcMakeNegative(npc);
-                danAssignSpecialEnemyItem(npc, npc->maxHp * 8, 10);
+                danAssignSpecialEnemyItem(npc, npc->maxHp * 5, 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
             }
         }
