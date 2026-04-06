@@ -11,7 +11,8 @@ namespace mod
     enum NPCDanFlag : u32
     {
         DAN_NPC_HOLOGRAPHIC = 0x1,
-        DAN_NPC_NEGATIVE = 0x2
+        DAN_NPC_NEGATIVE = 0x2,
+        DAN_NPC_CHILD = 0x4
     };
 
     s32 round(f32 in);
@@ -20,6 +21,7 @@ namespace mod
     void lpAddHp(s32 maxHp, s32 hp);
     void lpAddCrit(s32 rate, f32 mult);
     bool npcIsShellEnemy(npcdrv::NPCEntry *npc);
+    bool npcCheckHasKey(npcdrv::NPCEntry *npc, bool checkForChestKey, s32 itemIdToChk);
     bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
     void npcSetDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);
     void npcClearDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag);

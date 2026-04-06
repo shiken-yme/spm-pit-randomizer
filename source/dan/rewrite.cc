@@ -256,7 +256,7 @@ namespace mod
             if (sup < (remOdds - stellarDiff))
                 npc->dropItemId = 0;
         }
-        if (Lunatic->Luna.disorder == DISORDER_RED) // APATHY
+        if (Lunatic->Luna.disorder == DISORDER_RED && Lunatic->Luna.DW.floorsRem != 0) // APATHY
         {
             npc->maxHp = (u32)msl::math::floor((f32)npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
             npc->hp = npc->maxHp;
@@ -275,7 +275,7 @@ namespace mod
             if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && difficulty > 0 && currentFloor > 149 && npc->tribeId != NPC_SHLORP && npc->tribeId != NPC_SHLURP)
             {
                 npcMakeHolo(npc);
-                danAssignSpecialEnemyItem(npc, round((f32)npc->maxHp / 2.0f), 2);
+                danAssignSpecialEnemyItem(npc, (s32)msl::math::sqrt((f32)npc->maxHp), 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 1);
             }
         }
@@ -285,7 +285,7 @@ namespace mod
             if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO)
             {
                 npcMakeNegative(npc);
-                danAssignSpecialEnemyItem(npc, npc->maxHp * 5, 2);
+                danAssignSpecialEnemyItem(npc, npc->maxHp * 3, 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
             }
         }
@@ -339,7 +339,7 @@ namespace mod
             if (n > 50) // Failsafe
                 return 2;
             s32 random = system::rand() % enemyCount;
-            if (npcCheckDanFlag(enemies[random], (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
+            if (npcCheckDanFlag(enemies[random], (NPCDanFlag)(DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
                 goto buh;
             if (i == 0) // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;

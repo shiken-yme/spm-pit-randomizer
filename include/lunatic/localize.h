@@ -479,7 +479,7 @@ namespace mod
 
     const char auspice1Desc[] =
         "Increases Damage Reduction\n"
-        "by 15%.";
+        "by 20%.";
 
     const char auspice2Desc[] =
         "Increases Damage Reduction\n"
@@ -489,7 +489,7 @@ namespace mod
         "Increases Defense by 1.";
 
     const char aegis2Desc[] =
-        "Increases Defense by 2.";
+        "Increases Defense by 1.";
 
     const char soul1Get[] =
         "<system>\nYour Crit Rate has been\nincreased by 4%!\n<k>";
@@ -525,7 +525,7 @@ namespace mod
         "<system>\nYour Defense has been\nincreased by 1!\n<k>";
 
     const char aegis2Get[] =
-        "<system>\nYour Defense has been\nincreased by 2!\n<k>";
+        "<system>\nYour Defense has been\nincreased by 1!\n<k>";
 
     // Shadoo
     const char shadooIntro[] =

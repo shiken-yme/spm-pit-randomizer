@@ -131,16 +131,13 @@ namespace mod
         ITEM_ID_COOK_KINOKO_FRY,
         ITEM_ID_USE_BIG_EGG,
         ITEM_ID_USE_NANIGA_OKORUKANA,
+        ITEM_ID_USE_NANIGA_OKORUKANA,
         ITEM_ID_COOK_KARAKARA_COOK,
         ITEM_ID_COOK_HANAJIRU_SYRUP,
         ITEM_ID_USE_KINKYU_KINOKO,
         ITEM_ID_USE_KIRAKIRA_OTOSHI,
         ITEM_ID_USE_POWERFUL_MEET,
         ITEM_ID_USE_PRIMITIVENUT,
-        RFC_ITEM(VOUCHER_CAKE),
-        RFC_ITEM(VOUCHER_CAKE),
-        RFC_ITEM(VOUCHER_THUNDER),
-        RFC_ITEM(VOUCHER_THUNDER),
         RFC_ITEM(SPIRIT_2),
         RFC_ITEM(SPIRIT_2),
         RFC_ITEM(SOUL_2),
@@ -160,6 +157,10 @@ namespace mod
         ITEM_ID_COOK_MOUSSE_CAKE,
         ITEM_ID_COOK_CHOCOLA_CAKE,
         ITEM_ID_COOK_SUGER_HOUSE,
+        RFC_ITEM(VOUCHER_CAKE),
+        RFC_ITEM(VOUCHER_CAKE),
+        RFC_ITEM(VOUCHER_THUNDER),
+        RFC_ITEM(VOUCHER_THUNDER),
         RFC_ITEM(VOUCHER_STELLAR),
         RFC_ITEM(VOUCHER_STELLAR),
         RFC_ITEM(SPIRIT_3),
@@ -190,7 +191,7 @@ namespace mod
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
-    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {10, 15, 12, 10, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {10, 15, 20, 10, 2, 2, 2, 2, 2, 2, 2, 2};
 
     VoucherWork *VoucherGetPtr(s32 idx)
     {
@@ -569,7 +570,7 @@ namespace mod
 
     void AegisInvocationUse()
     {
-        Lunatic->Stats.AegisDef += 2;
+        Lunatic->Stats.AegisDef += 1;
         return;
     }
 

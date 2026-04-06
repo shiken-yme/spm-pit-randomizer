@@ -78,6 +78,18 @@ namespace mod
         return false;
     }
 
+    bool npcCheckHasKey(npcdrv::NPCEntry *npc, bool checkForChestKey, s32 itemIdToChk)
+    {
+        s32 item = itemIdToChk;
+        if (item == 0)
+            item = npc->dropItemId;
+        if (checkForChestKey && item == ITEM_ID_KEY_MAC_KEY_00)
+            return true;
+        if (item == ITEM_ID_KEY_DAN_KEY)
+            return true;
+        return false;
+    }
+
     bool npcCheckDanFlag(npcdrv::NPCEntry *npc, NPCDanFlag flag)
     {
         if (((u32)npc->unkShellSfx & flag) != 0)

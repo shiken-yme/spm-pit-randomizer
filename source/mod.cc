@@ -12,6 +12,7 @@
 #include <msgpatch.h>
 #include <effpatch.h>
 #include <sndpatch.h>
+#include <mempatch.h>
 #include <customwin.h>
 #include <ymetools.h>
 
@@ -547,6 +548,8 @@ namespace mod
                                                  s32 disorderId = Lunatic->Luna.disorder;
                                                  if (disorderId == DisorderId::DISORDER_ORANGE) // If Dread is active, disable XP
                                                      killXp = 0;
+                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_CHILD) == true) // If child npc, give 10% XP
+                                                     killXp /= 10;
                                                  if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, *invert* XP
                                                  {
                                                      f32 xp = (f32)Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct / 100.0f;
@@ -702,6 +705,7 @@ namespace mod
     {
         if (child == nullptr)
             return;
+        npcSetDanFlag(child, DAN_NPC_CHILD);
         if (npcCheckDanFlag(parent, DAN_NPC_HOLOGRAPHIC) == true)
             npcMakeHolo(child);
         if (npcCheckDanFlag(parent, DAN_NPC_NEGATIVE) == true)
@@ -2917,7 +2921,7 @@ namespace mod
         mario_pouch::pouchAddItem(222);
         mario_pouch::pouchAddItem(80);
         mario_pouch::pouchAddItem(80);
-        mario_pouch::pouchAddItem(114);
+        mario_pouch::pouchAddItem(167);
         mario_pouch::pouchAddItem(70);
         mario_pouch::pouchAddItem(118);
         mario_pouch::pouchSetPixlSelected(ITEM_ID_FAIRY_THROW);
@@ -2952,7 +2956,7 @@ namespace mod
         mario_pouch::pouchAddItem(228);
         // Use items
         mario_pouch::pouchAddItem(80);
-        mario_pouch::pouchAddItem(114);
+        mario_pouch::pouchAddItem(167);
         mario_pouch::pouchAddItem(118);
         mario_pouch::pouchAddItem(102);
         mario_pouch::pouchAddItem(113);
@@ -2996,7 +3000,7 @@ namespace mod
         mario_pouch::pouchAddItem(229);
         mario_pouch::pouchAddItem(230);
         mario_pouch::pouchAddItem(81);
-        mario_pouch::pouchAddItem(114);
+        mario_pouch::pouchAddItem(167);
         mario_pouch::pouchAddItem(118);
         mario_pouch::pouchAddItem(123);
         mario_pouch::pouchAddItem(68);
@@ -3027,16 +3031,18 @@ namespace mod
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 itemType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 coinCount = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key and Chest Key.
-        if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE && itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00)
-            return 2;
         npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
-        if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true) // If holo, increase coin output
-            coinCount = clamp((coinCount * 5), 8, 24);
-        else // If NOT holo, check for Stellar and register a use if an item drops
+        // If npc has a key already, just drop it
+        if (npcCheckHasKey(npc, true, itemType) == false)
         {
-            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
-            if (itemType != ITEM_ID_KEY_DAN_KEY && itemType != ITEM_ID_KEY_MAC_KEY_00 && itemType != ITEM_ID_NULL && vState == V_ACTIVE)
+            // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key and Chest Key.
+            if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE)
+                return 2;
+            else if (npcCheckDanFlag(npc, DAN_NPC_CHILD) == true) // If child npc, drop nothing
+                return 2;
+            else if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true) // If holo, increase coin output
+                coinCount = clamp((coinCount * 5), 8, 24);
+            else if (itemType != ITEM_ID_NULL) // If NOT holo, check for Stellar and register a use if an item drops
                 VoucherCallAction(VOUCHER_STELLAR);
         }
         npcmisc::npcDropItem(npc, itemType, coinCount);
@@ -5883,6 +5889,7 @@ namespace mod
     void main()
     {
         // Allocate memory for LunaticPitWork
+        // mempatch::memPatch();
         Lunatic = (LunaticPitWork *)memory::__memAlloc(0, sizeof(LunaticPitWork));
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
         // Heronicus library inits

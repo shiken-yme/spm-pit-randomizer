@@ -64,7 +64,7 @@ namespace mod::tplpatch
   Have fun!!!!
   */
 
-  const char *TPLPatchIconTPLName = nullptr;                  // This corresponds to the filename of your custom TPL!
+  const char *TPLPatchIconTPLName = nullptr;            // This corresponds to the filename of your custom TPL!
   wii::tpl::TPLHeader *TPLPatchIconTPLHeader = nullptr; // Initializes the custom TPL pointer
 
   // Debug function to verify that the TPL isn't deallocated from memory for any reason
@@ -73,7 +73,7 @@ namespace mod::tplpatch
     if (TPLPatchIconTPLHeader == nullptr)
       return;
     else
-      assert(TPLPatchIconTPLHeader->version == 0x20af30, "TPLPatch: Icon TPL was deallocated from heap 2.");
+      assert(TPLPatchIconTPLHeader->version == 0x20af30, "TPLPatch: Icon TPL has been deallocated!");
     return;
   }
 
@@ -95,13 +95,20 @@ namespace mod::tplpatch
                                            if (file != nullptr)
                                            {
                                              file = filemgr::fileAllocf(0, "./%s.tpl", TPLPatchIconTPLName);
-                                             wii::tpl::TPLHeader *tpl = (wii::tpl::TPLHeader *)memory::__memAlloc(memory::HEAP_MEM1_UNUSED, file->length);
+                                             memory::Heap heapId = memory::HEAP_MEM1_UNUSED;
+                                             u32 heapSize = ((u32)memory::memory_wp->heapEnd[heapId] - (u32)memory::memory_wp->heapStart[heapId]);
+                                             if (heapSize < file->length)
+                                             {
+                                              heapId = memory::HEAP_EFFECT;
+                                              heapSize = ((u32)memory::memory_wp->heapEnd[heapId] - (u32)memory::memory_wp->heapStart[heapId]);
+                                             }
+                                             assert(heapSize > file->length, "TPLPatch: Insufficient space in heaps 2 or 4.");
+                                             wii::tpl::TPLHeader *tpl = (wii::tpl::TPLHeader *)memory::__memAlloc(heapId, file->length);
                                              TPLPatchIconTPLHeader = tpl;
                                              msl::string::memcpy((void *)tpl, file->sp->data, file->length);
-                                             // wii::os::DCFlushRange(TPLPatchIconTPLHeader, file->length);
                                              filemgr::fileFree(file);
                                              wii::tpl::TPLBind(TPLPatchIconTPLHeader);
-                                             wii::os::OSReport("%s: TPLPatchIconTPLHeader has been allocated at %p\n", __FILE_NAME__, TPLPatchIconTPLHeader);
+                                             wii::os::OSReport("%s: TPLPatchIconTPLHeader has been allocated at %p in heap %d\n", __FILE_NAME__, TPLPatchIconTPLHeader, heapId);
                                            }
                                          }
                                          else

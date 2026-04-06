@@ -5,8 +5,11 @@
 #pragma once
 
 #include <common.h>
+#include <wii/os.h>
 
 CPP_WRAPPER(wii::mem)
+
+USING(wii::os::OSMutex)
 
 typedef struct _MEMAllocation
 {
@@ -47,14 +50,40 @@ typedef struct
 /* 0x0 */ MEMAllocatorFunc * func;
 /* 0x4 */ void * heap;
 /* 0x8 */ u32 heapP0;
-/* 0x8 */ u32 heapP1;
+/* 0xC */ u32 heapP1;
 } MEMAllocator;
 SIZE_ASSERT(MEMAllocator, 0x10)
+
+typedef struct {
+/* 0x0 */ void * prevObject;
+/* 0x4 */ void * nextObject;
+} MEMLink;
+SIZE_ASSERT(MEMLink, 0x8)
+
+typedef struct {
+/* 0x0 */ void * headObject;
+/* 0x4 */ void * tailObject;
+/* 0x8 */ u16 numObjects;
+/* 0xA */ u16 offset;
+} MEMList;
+SIZE_ASSERT(MEMList, 0xc)
+
+typedef struct
+{
+/* 0x00 */ u32 signature;
+/* 0x04 */ MEMLink link;
+/* 0x0C */ MEMList childList;
+/* 0x18 */ void * heapStart;
+/* 0x1C */ void * heapEnd;
+/* 0x20 */ OSMutex mutex;
+/* 0x38 */ u8 unknown_0x38[0x3c - 0x38];
+} MEMiHeapHead;
+SIZE_ASSERT(MEMiHeapHead, 0x3c)
 
 #define MEM_FLAG_FILL_0 (1 << 0) // initialise allocated memory as 0
 #define MEM_FLAG_THREAD_CONTROL (1 << 2) // use mutexes for access when handling heap
 
-typedef void * MEMHeapHandle;
+typedef MEMiHeapHead * MEMHeapHandle;
 
 UNKNOWN_FUNCTION(FindContainHeap_)
 UNKNOWN_FUNCTION(MEMiInitHeapHead)
