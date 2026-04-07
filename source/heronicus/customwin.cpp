@@ -422,6 +422,51 @@ namespace mod::customwin
 
     /*
         ** User Function **
+        Sets SFX names for Open, Close, and Decide respectively
+        Set to -1 to mute the sfx entirely, 0 or EVT_NULLPTR to leave as default
+        Defaults to vanilla SFX names
+    */
+    s32 EvtCWSelectModifySfx(evtmgr::EvtEntry *evtEntry, bool firstCall)
+    {
+        (void)firstCall;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char *key = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        const char *openSfxName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        const char *closeSfxName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[2]);
+        const char *decideSfxName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[3]);
+        s32 id = CWSelectKeyToId(key);
+        if (id == -1)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectModifySfx: Entry with key \'%s\' not found; aborting process.\n", key);
+            return 2;
+        }
+        CWSelect *Entry = GlobalCW->Select[id];
+        if ((s32)openSfxName == -1)
+            Entry->Sfx.muteOpenSfx = true;
+        else if (openSfxName != nullptr && (s32)openSfxName != EVT_NULLPTR)
+        {
+            msl::string::memset(Entry->Sfx.openSfx, 0, sizeof(Entry->Sfx.openSfx));
+            msl::string::memcpy(Entry->Sfx.openSfx, openSfxName, msl::string::strlen(openSfxName));
+        }
+        if ((s32)closeSfxName == -1)
+            Entry->Sfx.muteCloseSfx = true;
+        else if (closeSfxName != nullptr && (s32)closeSfxName != EVT_NULLPTR)
+        {
+            msl::string::memset(Entry->Sfx.closeSfx, 0, sizeof(Entry->Sfx.closeSfx));
+            msl::string::memcpy(Entry->Sfx.closeSfx, closeSfxName, msl::string::strlen(closeSfxName));
+        }
+        if ((s32)decideSfxName == -1)
+            Entry->Sfx.muteDecideSfx = true;
+        else if (decideSfxName != nullptr && (s32)decideSfxName != EVT_NULLPTR)
+        {
+            msl::string::memset(Entry->Sfx.decideSfx, 0, sizeof(Entry->Sfx.decideSfx));
+            msl::string::memcpy(Entry->Sfx.decideSfx, decideSfxName, msl::string::strlen(decideSfxName));
+        }
+        return 2;
+    }
+
+    /*
+        ** User Function **
         Makes an icon appear at the top-right of the CWSelect menu
         If select type is shop, this icon will default to a spinning coin if not specified
         If select type is not shop and shop icon *is* specified, it will appear
@@ -464,6 +509,29 @@ namespace mod::customwin
         }
         GlobalCW->Select[id]->PointerIcon.id = iconId;
         GlobalCW->Select[id]->PointerIcon.scale = scale;
+        return 2;
+    }
+
+    /*
+        ** User Function **
+        Tells a select entry to instantly open and/or close
+        Defaults to regular select menu behavior
+    */
+    s32 EvtCWSelectSetInstantOpenClose(evtmgr::EvtEntry *evtEntry, bool firstCall)
+    {
+        (void)firstCall;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char *key = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        bool instantOpen = (bool)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        bool instantClose = (bool)evtmgr_cmd::evtGetValue(evtEntry, args[2]);
+        s32 id = CWSelectKeyToId(key);
+        if (id == -1)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectSetInstantOpenClose: Entry with key \'%s\' not found; aborting process.\n", key);
+            return 2;
+        }
+        GlobalCW->Select[id]->instantOpen = instantOpen;
+        GlobalCW->Select[id]->instantClose = instantClose;
         return 2;
     }
 
@@ -639,6 +707,8 @@ namespace mod::customwin
         camdrv::CamEntry *cam;
         s32 selection;
         s32 listingIdx;
+        pausewin::PausewinEntry *pausewin;
+        winmgr::WinmgrEntry *winEnt;
 
         evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
         CWSelectCallback *callback = (CWSelectCallback *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
@@ -646,65 +716,64 @@ namespace mod::customwin
         {
             // Prepare the CWSelect entry
             const char *key = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-            s32 id = CWSelectKeyToId(key);
-            u32 blacklist[GlobalCW->Select[id]->num];
-            u32 i = 0, j = 0, itemId = 65, idx = 0, size = 0;
             CWSelectSetActive(key);
+            u32 blacklist[CWSelectGetActiveEntry()->num];
+            u32 i = 0, j = 0, itemId = 65, idx = 0, size = 0;
 
             // blacklist autogenning item ids that belong to items
             // CWDEBUG_OSREPORT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Beginning Item ID Blacklist Process\n");
-            for (i = 0; i < GlobalCW->Select[id]->num; i += 1)
+            for (i = 0; i < CWSelectGetActiveEntry()->num; i += 1)
             {
-                if (GlobalCW->Select[id]->Descs[i].itemId > 0)
+                if (CWSelectGetActiveEntry()->Descs[i].itemId > 0)
                 {
-                    blacklist[size] = GlobalCW->Select[id]->Descs[i].itemId;
+                    blacklist[size] = CWSelectGetActiveEntry()->Descs[i].itemId;
                     // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item ID %d has been reserved!\n", blacklist[size]);
                     size += 1;
                 }
             }
             // generate item ids, avoid anything in blacklist
-            for (i = 0; i < GlobalCW->Select[id]->num; i += 1)
+            for (i = 0; i < CWSelectGetActiveEntry()->num; i += 1)
             {
                 // For non-items, iterate through blacklist to ensure itemId isn't taken. if it is, increment itemId and reiterate
-                if (GlobalCW->Select[id]->Descs[i].itemId < 1)
+                if (CWSelectGetActiveEntry()->Descs[i].itemId < 1)
                 {
                     while (j < size)
                     {
                         if (itemId == blacklist[j])
                         {
-                            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) attempted to assign ID %d and encountered blacklisted ID %d. Incrementing ID...\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId, blacklist[j]);
+                            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) attempted to assign ID %d and encountered blacklisted ID %d. Incrementing ID...\n", CWSelectGetActiveEntry()->Descs[i].nameTxt, i, itemId, blacklist[j]);
                             itemId += 1;
                             j = 0;
                         }
                         else
                             j += 1;
                     }
-                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) has successfully assigned ID %d.\n", GlobalCW->Select[id]->Descs[i].nameTxt, i, itemId);
-                    GlobalCW->Select[id]->itemTable[i] = itemId;
-                    msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].nameMsg, GlobalCW->Select[id]->Descs[i].nameTxt, 1);
-                    msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].descMsg, GlobalCW->Select[id]->Descs[i].descTxt, 1);
+                    // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Listing \'%s\' (i = %d) has successfully assigned ID %d.\n", CWSelectGetActiveEntry()->Descs[i].nameTxt, i, itemId);
+                    CWSelectGetActiveEntry()->itemTable[i] = itemId;
+                    msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].nameMsg, CWSelectGetActiveEntry()->Descs[i].nameTxt, 1);
+                    msgpatch::msgpatchAddEntry(item_data::itemDataTable[itemId].descMsg, CWSelectGetActiveEntry()->Descs[i].descTxt, 1);
                     itemId += 1;
                 }
                 else
                 {
                     // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: !!! DEBUG !!! Item \'%s\' (i = %d) has successfully assigned ID %d.\n", msgdrv::msgSearch(item_data::itemDataTable[CWSelectGetActiveEntry()->Descs[i].itemId].nameMsg), i, blacklist[idx]);
-                    GlobalCW->Select[id]->itemTable[i] = blacklist[idx];
+                    CWSelectGetActiveEntry()->itemTable[i] = blacklist[idx];
                     idx += 1;
                 }
                 j = 0;
             }
-            GlobalCW->Select[id]->itemTable[i] = -1;
-            if (msl::string::strcmp("", GlobalCW->Select[id]->windowTitle) != 0)
-                msgpatch::msgpatchAddEntry(GlobalCW->selectWinTitleMsgId, GlobalCW->Select[id]->windowTitle, 1);
-            if (msl::string::strcmp("", GlobalCW->Select[id]->windowSelect) != 0)
-                msgpatch::msgpatchAddEntry(GlobalCW->selectWinSelectMsgId, GlobalCW->Select[id]->windowSelect, 1);
+            CWSelectGetActiveEntry()->itemTable[i] = -1;
+            if (msl::string::strcmp("", CWSelectGetActiveEntry()->windowTitle) != 0)
+                msgpatch::msgpatchAddEntry(GlobalCW->selectWinTitleMsgId, CWSelectGetActiveEntry()->windowTitle, 1);
+            if (msl::string::strcmp("", CWSelectGetActiveEntry()->windowSelect) != 0)
+                msgpatch::msgpatchAddEntry(GlobalCW->selectWinSelectMsgId, CWSelectGetActiveEntry()->windowSelect, 1);
             // Reset colorize timer just in case
-            GlobalCW->Select[id]->Colorize.timer = 0;
-            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: Select menu item table prepared; custom menu is ready to display. Item Table: %p\n", &GlobalCW->Select[id]->itemTable);
+            CWSelectGetActiveEntry()->Colorize.timer = 0;
+            // CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWSelectPrepare: Select menu item table prepared; custom menu is ready to display. Item Table: %p\n", &CWSelectGetActiveEntry()->itemTable);
 
             // Prepare the WinmgrSelect entry
             menu = winmgr::winMgrSelectEntry((s32)&CWSelectGetActiveEntry()->itemTable, 0, 1);
-            if (GlobalCW->Select[id]->type == CWSELECT_INFOGRAPHIC)
+            if (CWSelectGetActiveEntry()->type == CWSELECT_INFOGRAPHIC)
             {
                 winmgr::winmgr_wp->entries[menu->entryIds[0]].desc = &CWSelectWindowDescs_Info[0];
                 winmgr::winmgr_wp->entries[menu->entryIds[1]].desc = &CWSelectWindowDescs_Info[1];
@@ -721,7 +790,7 @@ namespace mod::customwin
             evtEntry->tempU[3] = (u32)mario->motionId;
 
             // Remove the white box from the pausewin entry (description box)
-            pausewin::PausewinEntry *pausewin = pausewin::pausewinGetEntry(menu->pausewinId);
+            pausewin = pausewin::pausewinGetEntry(menu->pausewinId);
             pausewin->boxOnly = 2;
             // Run callback if it exists
             if (callback != nullptr)
@@ -729,13 +798,31 @@ namespace mod::customwin
                 (callback)(menu);
             }
             // Init pre-menu appear effects
-            spmario_snd::spsndSFXOn("SFX_SYS_MENU_OPEN1");
+            if (!CWSelectGetActiveEntry()->Sfx.muteOpenSfx)
+            {
+                if (msl::string::strcmp(CWSelectGetActiveEntry()->Sfx.openSfx, "") == 0)
+                    spmario_snd::spsndSFXOn("SFX_SYS_MENU_OPEN1");
+                else
+                    spmario_snd::spsndSFXOn(CWSelectGetActiveEntry()->Sfx.openSfx);
+            }
             mario::marioKeyOff();
             if ((mario->miscFlags & MARIO_MISC_FLAG_SPACE_SWIM) == 0)
                 mario::marioChgPose("P_1");
             mario->dispFlags |= MARIO_DISP_FLAG_LOCK_POSE;
+
+            if (CWSelectGetActiveEntry()->instantOpen)
+            {
+                winEnt = &winmgr::winmgr_wp->entries[menu->entryIds[0]];
+                winEnt->rgba.a = 255;
+                winEnt->scalarScale = 1.0f;
+                pausewin->state = 12;        // STATE_NEUTRAL
+                pausewin->stateProgress = 0; // jic
+                pausewin->alpha = 255;
+            }
         }
         menu = (winmgr::WinmgrSelect *)evtEntry->tempU[0];
+        winEnt = &winmgr::winmgr_wp->entries[menu->entryIds[0]];
+        pausewin = pausewin::pausewinGetEntry(menu->pausewinId);
         cam = camdrv::camGetPtr(mario->camId);
         pos.x += (f32)(msl::math::cos(cam->targetAngle * 57.29578) * 50.0);
         pos.y = mario->position.y;
@@ -743,13 +830,24 @@ namespace mod::customwin
         switch (evtEntry->tempS[2])
         {
         case 0:
-            evtEntry->tempF[1] += 0.05;
-            if (1.0 < evtEntry->tempF[1])
-                evtEntry->tempF[1] = 1.0;
-            camdrv::func_800586c8(2.0, evtEntry->tempF[1], 0.2, 5, &pos);
-            selection = winmgr::winMgrSelect(menu);
-            if (selection != 0)
-                evtEntry->tempS[2] += 1;
+            if (!CWSelectGetActiveEntry()->instantOpen)
+            {
+                evtEntry->tempF[1] += 0.05;
+                if (1.0 < evtEntry->tempF[1])
+                    evtEntry->tempF[1] = 1.0;
+                camdrv::func_800586c8(2.0, evtEntry->tempF[1], 0.2, 5, &pos);
+            }
+            if (!CWSelectGetActiveEntry()->instantClose)
+            {
+                selection = winmgr::winMgrSelect(menu);
+                if (selection != 0)
+                    evtEntry->tempS[2] = 1;
+            }
+            else if (pausewin->alpha == 0 && pausewin->state == 21)
+            {
+                evtEntry->tempS[2] = 2;
+                goto case2;
+            }
             break;
         case 1:
             evtEntry->tempF[1] -= 0.05;
@@ -761,6 +859,7 @@ namespace mod::customwin
             camdrv::func_800586c8(2.0, evtEntry->tempF[1], 0.2, 5, &pos);
             break;
         case 2:
+        case2:
             selection = winmgr::winMgrSelect(menu);
             listingIdx = winmgr::winMgrSelectGetIndex(menu);
             mario::marioKeyOn();
@@ -1252,6 +1351,8 @@ namespace mod::customwin
         winmgr::winmgr_wp->entries[select->entryIds[1]].scale.y = win->desc->scale.y + ((u32)outlines[0] * 22);
         if (win->rgba.r == 0 && win->rgba.g == 0 && win->rgba.b == 0 && win->rgba.a == 0)
             return;
+        if (pausewin->alpha == 0 && CWSelectGetActiveEntry()->instantClose && pausewin->state == 21)
+            return;
         msl::string::memcpy(&col, &CWSelectGetActiveEntry()->Colorize.selectTxtColor, sizeof(col));
         if (col.r == 0 && col.g == 0 && col.b == 0 && col.a == 0)
             msl::string::memcpy(&col, &win->rgba, sizeof(win->rgba));
@@ -1284,6 +1385,8 @@ namespace mod::customwin
         if (id > -1)
         {
             pausewin::PausewinEntry *pause = pausewin::pausewinGetEntry(entry->select->pausewinId);
+            if (pause->alpha == 0 && CWSelectGetActiveEntry()->instantClose && pause->state == 21)
+                return;
             // Replace header color (expand functionality later)
             if (GlobalCW->Select[id]->Colorize.headerColor.a != 0)
             {
@@ -1448,6 +1551,7 @@ namespace mod::customwin
         u32 pressed = wpadmgr::wpadGetButtonsPressed(0);
         s32 i, ogSelIdx, item;
         winmgr::WinmgrEntry *curEnt;
+        pausewin::PausewinEntry *pausewin;
         CWSelect *Entry = CWSelectGetActiveEntry();
         switch (select->state)
         {
@@ -1457,8 +1561,17 @@ namespace mod::customwin
                 curEnt = &winmgr::winmgr_wp->entries[select->entryIds[i]];
                 if ((curEnt->flags & 1) != 0)
                 {
-                    curEnt->seqState = 10;
-                    curEnt->seqProgress = 0;
+                    if (!Entry->instantOpen)
+                    {
+                        curEnt->seqState = 10;
+                        curEnt->seqProgress = 0;
+                    }
+                    else
+                    {
+                        curEnt->seqState = 11;
+                        curEnt->seqProgress = 999;
+                        curEnt->flags |= 0x6;
+                    }
                 }
             }
             CWDEBUG_OSREPORT_FMT("CustomWin::CWSelect_Main: WinmgrSelect is located at %p\n", select);
@@ -1498,10 +1611,21 @@ namespace mod::customwin
                 if (select->itemCount == 0) // ??????????
                 {
                     select->flag4 |= 0x2000;
-                    spmario_snd::spsndSFXOn("SFX_SYS_SELECT_NG1");
+                    if (!CWSelectGetActiveEntry()->Sfx.muteCloseSfx)
+                    {
+                        if (msl::string::strcmp(CWSelectGetActiveEntry()->Sfx.closeSfx, "") == 0)
+                            spmario_snd::spsndSFXOn("SFX_SYS_SELECT_NG1");
+                        else
+                            spmario_snd::spsndSFXOn(CWSelectGetActiveEntry()->Sfx.closeSfx);
+                    }
                 }
-                else
-                    spmario_snd::spsndSFXOn("SFX_SYS_MENU_DESIDE1");
+                else if (!CWSelectGetActiveEntry()->Sfx.muteDecideSfx)
+                {
+                    if (msl::string::strcmp(CWSelectGetActiveEntry()->Sfx.decideSfx, "") == 0)
+                        spmario_snd::spsndSFXOn("SFX_SYS_MENU_DESIDE1");
+                    else
+                        spmario_snd::spsndSFXOn(CWSelectGetActiveEntry()->Sfx.decideSfx);
+                }
                 select->state += 1;
             }
             else if ((pressed & WPAD_BTN_1) != 0 && ((select->flag0 & 1) != 0))
@@ -1515,7 +1639,7 @@ namespace mod::customwin
                     select->scrollIdx += 1;
                 else if ((ogSelIdx > select->selectedItemIdx) && (2 > (select->selectedItemIdx - select->scrollIdx)) && (select->scrollIdx > 0))
                     select->scrollIdx -= 1;
-                pausewin::PausewinEntry *pausewin = pausewin::pausewinGetEntry(select->pausewinId);
+                pausewin = pausewin::pausewinGetEntry(select->pausewinId);
                 item = Entry->Descs[select->selectedItemIdx].itemId;
                 if (item > 0) // Is item
                 {
@@ -1535,15 +1659,37 @@ namespace mod::customwin
             select->pos.y += (f32)((-((f32)(select->selectedItemIdx - select->scrollIdx) * 25.0 - (f32)((win->pos.y - 54))) - select->pos.y) / 6.0);
             break;
         case 2:
-            if ((select->flag4 & 0x2000) != 0)
-                spmario_snd::spsndSFXOn("SFX_SYS_MENU_CLOSE1");
+            if ((select->flag4 & 0x2000) != 0 && !CWSelectGetActiveEntry()->Sfx.muteCloseSfx)
+            {
+                if (msl::string::strcmp(CWSelectGetActiveEntry()->Sfx.closeSfx, "") == 0)
+                    spmario_snd::spsndSFXOn("SFX_SYS_MENU_CLOSE1");
+                else
+                    spmario_snd::spsndSFXOn(CWSelectGetActiveEntry()->Sfx.closeSfx);
+            }
             for (i = 0; i < select->entryCount; i += 1)
             {
                 curEnt = &winmgr::winmgr_wp->entries[select->entryIds[i]];
                 if ((curEnt->flags & 1) != 0)
                 {
-                    curEnt->seqState = 20;
-                    curEnt->seqProgress = 0;
+                    if (!Entry->instantClose)
+                    {
+                        curEnt->seqState = 20;
+                        curEnt->seqProgress = 0;
+                    }
+                    else
+                    {
+                        curEnt->seqState = 21;
+                        curEnt->seqProgress = 999;
+                        curEnt->flags &= ~0x6;
+                        pausewin = pausewin::pausewinGetEntry(select->pausewinId);
+                        pausewin->alpha = 0;
+                        pausewin->state = 21; // STATE_SHRINK
+                        pausewin->stateProgress = 999;
+                        pausewin->flags |= 0x1;
+                        // wii::os::OSReport("pausewin located @ %p\n", pausewin);
+                        pausewin::_pausewinDelete(pausewin->id);
+                        break;
+                    }
                 }
             }
             pausewin::pausewinDelete(select->pausewinId);

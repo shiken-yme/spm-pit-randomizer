@@ -193,6 +193,8 @@ namespace mod
 
     s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {10, 15, 20, 10, 2, 2, 2, 2, 2, 2, 2, 2};
 
+    s32 VoucherGuaranteeTrigs[VOUCHER_BLACK - VOUCHER_CAKE] = {4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+
     VoucherWork *VoucherGetPtr(s32 idx)
     {
         return Lunatic->Voucher.Work[idx];
@@ -451,7 +453,7 @@ namespace mod
         Voucher->tearFunc = CakeVoucherTear;
         Voucher->actionFunc = CakeVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 4;
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_CAKE];
         return;
     }
 
@@ -488,7 +490,7 @@ namespace mod
         Voucher->tearFunc = ThunderVoucherTear;
         Voucher->actionFunc = ThunderVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 3;
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_THUNDER];
         return;
     }
 
@@ -533,7 +535,7 @@ namespace mod
         Voucher->tearFunc = StellarVoucherTear;
         Voucher->actionFunc = StellarVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 2;
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_STELLAR];
         return;
     }
 
@@ -558,7 +560,7 @@ namespace mod
         Voucher->tearFunc = JudgementVoucherTear;
         Voucher->actionFunc = JudgementVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
-        Voucher->guaranteeTrig = 0;
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_JUDGEMENT];
         return;
     }
 

@@ -373,10 +373,10 @@ namespace mod
                                                          {
                                                              dmg -= 3;
                                                          }
-                                                         // Blue Shy Guy, DEF 0 --> 2
+                                                         // Blue Shy Guy, DEF 0 --> 3
                                                          else if (tribeId == 531)
                                                          {
-                                                             dmg -= 2;
+                                                             dmg -= 3;
                                                          }
                                                          // Dark Koopatrol, DEF 8 --> 5
                                                          else if (tribeId == 19)
@@ -2466,16 +2466,16 @@ namespace mod
         if (firstCall)
         {
             wii::mtx::Vec3 pos = {owner->position.x, owner->position.y + 10.0f, owner->position.z};
-
+            f32 dir_adj = (f32)(((s32)owner->axisMovementUnit << 5) * 1.5f); // -48, 48
             if (owner->flippedTo3d == 0)
             {
-                pos.x -= 50.0f;
+                pos.x += dir_adj;
                 pos.z += 1.0f;
             }
             else
             {
                 pos.x -= 1.0f;
-                pos.z -= 50.0f;
+                pos.z += dir_adj;
             }
             msl::string::memset(&setupData, 0, sizeof(MiscSetupDataV6));
             setupData.unknown_0x04 = 4000;
@@ -4163,81 +4163,85 @@ namespace mod
 
     EVT_BEGIN(boodin_speech)
     IF_EQUAL(LW(7), 0)
-    USER_FUNC(evt_mario::evt_mario_key_off, 0)
-    SET(LW(6), 0)
-    USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
-    USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
-    USER_FUNC(EvtCWSelectSetBGColor, PTR("Cards"), PTR(boodinSelectBgCols), 4)
-    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
+        USER_FUNC(evt_mario::evt_mario_key_off, 0)
+        SET(LW(6), 0)
+        USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
+        USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
+        USER_FUNC(EvtCWSelectSetBGColor, PTR("Cards"), PTR(boodinSelectBgCols), 4)
+        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Cards"), 0, LW(2)) // LW(4) item ID, LW(5) item name, LW(1) buy price
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     IF_NOT_EQUAL(LW(2), -1)
-    USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
-    USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
-    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
-    USER_FUNC(EvtCWSelectReset)
-    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-    USER_FUNC(evt_msg::evt_msg_continue)
-    IF_EQUAL(LW(0), 0)
-    USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
-    IF_SMALL(LW(3), LW(1))
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
+        USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
+        USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
+        USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+        USER_FUNC(EvtCWSelectReset)
+        USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
+        USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+        USER_FUNC(evt_msg::evt_msg_continue)
+        IF_EQUAL(LW(0), 0)
+            USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
+            IF_SMALL(LW(3), LW(1))
+                USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
+            ELSE()
+                IF_NOT_EQUAL(LW(2), (s32)item_data::ITEM_ID_USE_SUPER_BLANK_KUN)
+                    GOTO(81)
+                END_IF()
+                USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
+                IF_EQUAL(LW(3), 0)
+                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
+                ELSE()
+                    LBL(81)
+                    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+                    WAIT_MSEC(500)
+                    MUL(LW(1), -1)
+                    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
+                    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
+                    WAIT_MSEC(500)
+                    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
+                    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
+                    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
+                    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+                    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+                    IF_LARGE(LW(2), 0)
+                        USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+                        USER_FUNC(dan_boodin_backup_descs)
+                    END_IF()
+                    // BUY ANOTHER?
+                    SET(LW(6), 1)
+                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
+                    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+                    USER_FUNC(evt_msg::evt_msg_continue)
+                    IF_EQUAL(LW(0), 0)
+                        SET(LW(7), 1)
+                        RUN_CHILD_EVT(boodin_speech)
+                        RETURN()
+                    ELSE()
+                        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
+                    END_IF()
+                END_IF()
+            END_IF()
+        ELSE()
+            USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+        END_IF()
     ELSE()
-    USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
-    IF_EQUAL(LW(3), 0)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
-    ELSE()
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-    WAIT_MSEC(500)
-    MUL(LW(1), -1)
-    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
-    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
-    WAIT_MSEC(500)
-    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
-    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
-    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
-    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
-    IF_LARGE(LW(2), 0)
-    USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
-    USER_FUNC(dan_boodin_backup_descs)
+        USER_FUNC(EvtCWSelectReset)
+        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
     END_IF()
-    // BUY ANOTHER?
-    SET(LW(6), 1)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-    USER_FUNC(evt_msg::evt_msg_continue)
-    IF_EQUAL(LW(0), 0)
-    SET(LW(7), 1)
-    RUN_CHILD_EVT(boodin_speech)
-    RETURN()
-    ELSE()
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
-    END_IF()
-    END_IF()
-    END_IF()
-    ELSE()
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
-    END_IF()
-    ELSE()
-    USER_FUNC(EvtCWSelectReset)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
-    END_IF()
-    USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
-    USER_FUNC(evt_mario::evt_mario_key_on)
+        USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
+        USER_FUNC(evt_mario::evt_mario_key_on)
     INLINE_EVT()
     IF_EQUAL(LW(6), 1)
-    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
-    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
-    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
+        USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
+        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     ELSE()
-    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 24, 1)
-    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
-    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 24, 1)
+        USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
+        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     END_IF()
     END_INLINE()
     RETURN()
@@ -4737,6 +4741,8 @@ namespace mod
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Music"), PTR(&MusicHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Music"), PTR(musicSelectBgCols), 4)
     // USER_FUNC(EvtCWSelectSetPointerIcon, PTR("Music"), icondrv::ICON_FORGET_ME_NOT_CARD_BLECK, FLOAT(0.3))
+    // USER_FUNC(EvtCWSelectSetInstantOpenClose, PTR("Music"), 0, 1)
+    // USER_FUNC(EvtCWSelectModifySfx, PTR("Music"), PTR("SFX_E_CRUSH1"), 0, -1)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Music"), 0, LW(0))
     IF_NOT_EQUAL(LW(0), -1)
     SET(GSW(1621), LW(0))
@@ -4758,10 +4764,13 @@ namespace mod
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(indolenceName), PTR(indolenceDesc), TPLPATCH_ICON(ICON_DISORDER_INDOLENCE), 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(melancholyName), PTR(melancholyDesc), TPLPATCH_ICON(ICON_DISORDER_MELANCHOLY), 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(ruinName), PTR(ruinDesc), TPLPATCH_ICON(ICON_DISORDER_RUIN), 0, 0, 0)
+    // USER_FUNC(EvtCWSelectSetInstantOpenClose, PTR("Disorder"), 1, 0)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Disorder"), 0, LW(0))
     IF_NOT_EQUAL(LW(0), -1)
     ADD(LW(0), 1)
     SET(GSW(1660), LW(0))
+    ELSE()
+    SET(GSW(1660), 255)
     END_IF()
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Disorder"))
@@ -5725,6 +5734,11 @@ namespace mod
     RETURN_FROM_CALL()
 
     EVT_BEGIN(william_blaster_new_onspawn)
+    USER_FUNC(evt_npc::evt_npc_get_position, PTR("me"), LW(0), 0, 0)
+    USER_FUNC(evt_mario::evt_mario_get_pos, LW(1), 0, 0)
+    IF_LARGE(LW(1), LW(0))
+    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 1)
+    END_IF()
     USER_FUNC(evt_npc::evt_npc_agb_async, PTR("e_kilr_g"), EVT_NULLPTR)
     USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 1, 4)
     USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), 2, 4)
@@ -5912,6 +5926,7 @@ namespace mod
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_D", 1383, 127, 64, 0, 0);
         wii::os::OSReport("BGM slots taken: %d\n", spmario_snd::spsnd_work.bgmCount);
         // Mod functions
+        danYouSuck();
         guiOverrides();
         rewrite_main();
         RFCDRVPatches();

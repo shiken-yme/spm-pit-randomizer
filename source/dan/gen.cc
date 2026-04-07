@@ -2853,7 +2853,7 @@ namespace mod
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        // dan::dan_wp->dungeons[0].enemies[1].name = (NPC_BOMBSHELL_BILL_BLASTER + 1);
+         dan::dan_wp->dungeons[0].enemies[1].name = (NPC_BOMBSHELL_BILL_BLASTER + 1);
         // dan::dan_wp->dungeons[0].enemies[1].num = 1;
         //  dan::dan_wp->dungeons[0].enemies[2].name = 99;
         //  dan::dan_wp->dungeons[0].enemies[2].num = 10;

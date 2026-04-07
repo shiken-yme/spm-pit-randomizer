@@ -978,6 +978,7 @@
 80185110:pausewinDisappear
 80185148:pausewinDelete
 80185220:pausewinCheckVisible
+80185274:_pausewinDelete
 801853cc:pausewinPauseGame
 80185510:pausewinUnpauseGame
 8018824c:pausewinMsgBoxDisp

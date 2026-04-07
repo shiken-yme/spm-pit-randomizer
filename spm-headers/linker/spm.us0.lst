@@ -907,3 +907,4 @@
 8026D290:OSGetMEM1ArenaLo
 80292EE0:MEMCreateExpHeapEx
 80292F90:MEMDestroyExpHeap
+80184588:_pausewinDelete

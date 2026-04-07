@@ -114,7 +114,7 @@ namespace mod
     using namespace spm;
     using namespace customwin;
 
-    void LPGUIDrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
+    static void LPGUIDrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
     {
         if (alpha > 0)
             fontmgr::FontDrawStart_alpha(alpha);
@@ -384,35 +384,35 @@ namespace mod
             {
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
-                msl::string::memset(Lunatic->Luna.DW.descBuf, 0, sizeof(Lunatic->Luna.DW.descBuf));
+                msl::string::memset(Lunatic->Interface.aeDescBuf, 0, sizeof(Lunatic->Interface.aeDescBuf));
                 LeyLineDisorder *Disorders = (LeyLineDisorder *)DisorderDataGetPtr();
                 switch (Lunatic->Luna.disorder)
                 {
                 case DISORDER_RED:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
                     break;
                 case DISORDER_ORANGE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
                     break;
                 case DISORDER_YELLOW:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
                     break;
                 case DISORDER_GREEN:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
                     break;
                 case DISORDER_CYAN:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
                     break;
                 case DISORDER_BLUE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
                     break;
                 case DISORDER_PURPLE:
-                    msl::stdio::sprintf(Lunatic->Luna.DW.descBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
                     break;
                 default:
                     break;
                 }
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Luna.DW.descBuf);
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Interface.aeDescBuf);
                 evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&Lunatic->Luna.Disorder->textDrawCol);
             }
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.disorder);
@@ -420,14 +420,15 @@ namespace mod
         case 3: // Voucher
             RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
             s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-            if (Lunatic->Voucher.Work[i] != nullptr)
+            VoucherWork *Voucher = Lunatic->Voucher.Work[i];
+            if (Voucher != nullptr)
             {
-                s32 itemId = Lunatic->Voucher.Work[i]->itemId;
-                evtmgr_cmd::evtSetValue(evtEntry, args[2], TPLPATCH_ICON((s32)Lunatic->Voucher.Work[i]->iconId));
+                s32 itemId = Voucher->itemId;
+                evtmgr_cmd::evtSetValue(evtEntry, args[2], TPLPATCH_ICON((s32)Voucher->iconId));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[itemId].name);
-                Lunatic->Voucher.Work[i]->aeDescBuf = (char *)memory::__memAlloc(1, 300);
-                msl::stdio::sprintf(Lunatic->Voucher.Work[i]->aeDescBuf, RFC_SpecialItems[itemId].description, VoucherGetTearChance(VoucherTearChances[itemId]));
-                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Voucher.Work[i]->aeDescBuf);
+                msl::string::memset(Lunatic->Interface.aeDescBuf, 0, sizeof(Lunatic->Interface.aeDescBuf));
+                msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, RFC_SpecialItems[itemId].description, VoucherGetTearChance(VoucherTearChances[itemId]), VoucherGuaranteeTrigs[itemId]);
+                evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Interface.aeDescBuf);
                 evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[itemId].textDrawCol);
                 break;
             }

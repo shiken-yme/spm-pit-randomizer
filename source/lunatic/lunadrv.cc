@@ -779,7 +779,7 @@ namespace mod
     {
         // Check for debug mode first
         s32 debugDisorderId = swdrv::swByteGet(1660);
-        if (DebugMode && debugDisorderId > 0)
+        if (DebugMode && debugDisorderId != 255 && debugDisorderId > 0)
         {
             Lunatic->Luna.DW.preId = debugDisorderId;
             swdrv::swByteSet(1660, 0);

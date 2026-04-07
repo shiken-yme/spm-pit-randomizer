@@ -96,6 +96,16 @@ namespace mod::customwin
         f32 scale;
     };
 
+    struct CWSelectSfx
+    {
+        bool muteOpenSfx;
+        bool muteCloseSfx;
+        bool muteDecideSfx;
+        char openSfx[32];
+        char closeSfx[32];
+        char decideSfx[32];
+    };
+
     struct CWSelect
     {
         CWSelectType type;
@@ -106,7 +116,10 @@ namespace mod::customwin
         CWSelectInfographic Info;
         CWSelectIconDef ShopIcon; // icon at top-right of menu
         CWSelectIconDef PointerIcon; // hand icon that points at selected item
+        CWSelectSfx Sfx;
         bool hideDescWin;
+        bool instantOpen;
+        bool instantClose;
         s32 itemTable[CWSELECT_DESC_MAX];
         char windowTitle[CWSELECT_NAME_TXT_LENGTH];   // blue header, e.g. Items, Catch Cards
         char windowSelect[CWSELECT_DESC_TXT_LENGTH]; // box to the left, e.g. Select an Item, Select a Card, What do you want to sell?
@@ -142,6 +155,8 @@ namespace mod::customwin
     EVT_DECLARE_USER_FUNC(EvtCWSelectGetSelectionItemId, 2)
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetShopIcon, 3)
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetPointerIcon, 3)
+    EVT_DECLARE_USER_FUNC(EvtCWSelectSetInstantOpenClose, 3)
+    EVT_DECLARE_USER_FUNC(EvtCWSelectModifySfx, 4)
 
     extern CustomWinWork *GlobalCW;
     s32 CWSelectKeyToId(const char *key);

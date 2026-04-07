@@ -176,7 +176,7 @@ void pausewinDelete(s32 id);
 UNKNOWN_FUNCTION(pausewinGoNeutral)
 UNKNOWN_FUNCTION(pausewinHide)
 bool pausewinCheckVisible(s32 id);
-UNKNOWN_FUNCTION(_pausewinDelete)
+void _pausewinDelete(s32 id);
 void pausewinPauseGame();
 void pausewinUnpauseGame();
 UNKNOWN_FUNCTION(pausewinUpdate)

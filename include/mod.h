@@ -202,7 +202,6 @@ namespace mod
         s32 finalShakeTime;
         s32 tremorIntplFrmTimer; // for fading color between mainCol and severeCol
         s32 tremorIntplFrmMax;
-        char descBuf[300];
         union
         {
             ApathyWork *Apathy;
@@ -288,7 +287,6 @@ namespace mod
         } UW;
         Callback *tearFunc;
         Callback *actionFunc;
-        char *aeDescBuf;
     };
 
     struct MagicTrick
@@ -303,6 +301,7 @@ namespace mod
         bool critDispStartDisp;
         f32 critDispSlideOutAdj;
         s32 critDispProgress;
+        char aeDescBuf[300];
     };
 
     struct LunaticPitWork

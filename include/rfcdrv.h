@@ -58,6 +58,7 @@ namespace mod
     s32 VoucherGetTearChance(s32 baseChance);
 
     extern s32 VoucherTearChances[];
+    extern s32 VoucherGuaranteeTrigs[];
 
     /*
         RFC Driver
