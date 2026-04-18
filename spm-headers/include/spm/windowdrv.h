@@ -67,6 +67,12 @@ SIZE_ASSERT(WindowEntry, 0x48)
 DECOMP_STATIC(WindowEntry * windowdrv_wp) // array of WINDOW_MAX
 
 /*
+    Used by windowDispGX_System to animate the background
+*/
+extern u32 windowdrv_frm_ctr;
+extern f32 windowdrv_anim_time;
+
+/*
     Allocates & clears entries
 */
 void windowInit();
@@ -92,7 +98,7 @@ bool windowDeleteID(s32 id);
 */
 void windowMain();
 
-UNKNOWN_FUNCTION(func_80038b08)
+void func_80038b08();
 UNKNOWN_FUNCTION(func_80038cc0)
 UNKNOWN_FUNCTION(func_80038fb8)
 
@@ -101,7 +107,7 @@ UNKNOWN_FUNCTION(func_80038fb8)
 */
 void windowDispGX_Kanban(s32 type, GXColor * colour, f32 x, f32 y, f32 width, f32 height);
 
-UNKNOWN_FUNCTION(func_800393c8)
+void windowDispGX_System_LoadTex(f32 p1, f32 p2, f32 p3, f32 p4, f32 p5, u32 texId1, u32 texId2);
 
 /*
     Draws the background for a system message

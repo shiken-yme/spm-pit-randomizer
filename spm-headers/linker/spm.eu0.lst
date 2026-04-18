@@ -70,7 +70,14 @@
 // more
 
 // windowdrv.c
+80038b08:func_80038b08
 8003ab80:windowDispGX2_Waku_col
+800393c8:windowDispGX_System_LoadTex
+800396e0:windowDispGX_System
+80039188:windowDispGX_Kanban
+// bss
+805ae798:windowdrv_anim_time
+805ae79c:windowdrv_frm_ctr
 // more
 
 // winmgr.c
@@ -1012,6 +1019,14 @@
 80199d98:hudUpdateStats
 // data
 805ae100:hud_wp
+// more
+
+// sptexture.c
+8019c4ac:sptextureGet
+// data
+80513e38:sptexture_work
+805ae110:sptexture_wp
+805ae960:sptexture_image
 // more
 
 // system.c

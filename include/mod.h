@@ -9,7 +9,7 @@
 
 namespace mod
 {
-    #define MOD_VERSION "SPM Lunatic Pit beta v3.0"
+#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6"
 
     enum BlessId : s32
     {
@@ -44,6 +44,15 @@ namespace mod
     enum LPIcon : s32
     {
         ICON_LP_LOGO,
+        ICON_SYSTEX_R_BG,
+        ICON_SYSTEX_R_TL_COL,
+        ICON_SYSTEX_R_BL_COL,
+        ICON_SYSTEX_R_TR_COL,
+        ICON_SYSTEX_R_BR_COL,
+        ICON_SYSTEX_R_TL_CLR,
+        ICON_SYSTEX_R_BL_CLR,
+        ICON_SYSTEX_R_TR_CLR,
+        ICON_SYSTEX_R_BR_CLR,
         ICON_SKULL_KEY,
         ICON_BUMP_GRAY,
         ICON_BUMP_BLUE,
@@ -154,10 +163,10 @@ namespace mod
 
     struct Reaver
     {
-        s32 CritRate; // base value of 4 when initialized
-        f32 CritMult; // base value of 50.0 when initialized
+        s32 CritRate;  // base value of 4 when initialized
+        f32 CritMult;  // base value of 50.0 when initialized
         f32 AuspiceDR; // Damage taken is multiplied by (1 - (this number / 100))
-        s32 AegisDef; // Damage taken is subtracted by this #
+        s32 AegisDef;  // Damage taken is subtracted by this #
         s32 DelightHP; // True HP bonus in Pit; subtracted from max HP when exiting
         s32 DemiseATK; // True ATK bonus in Pit; subtracted from total ATK when exiting
     };
@@ -182,12 +191,12 @@ namespace mod
     {
         const char *name;
         const char *desc;
-        wii::gx::GXColor mainCol; // Default color
-        wii::gx::GXColor severeCol; // Fades to this when the screen randomly shakes, fades back when it's done
+        wii::gx::GXColor mainCol;     // Default color
+        wii::gx::GXColor severeCol;   // Fades to this when the screen randomly shakes, fades back when it's done
         wii::gx::GXColor textDrawCol; // Text displays as this color in menus
-        s32 shakeOdds; // Checks if a random int from 0-1000 is below this value every second to determine if the screen should shake
-        f32 shakeStrength; // Shakes the screen on the x/y axes at this intensity maximum, half this much minimum
-        s32 shakeTime; // Shakes the screen for this many ms maximum, half this many minimum
+        s32 shakeOdds;                // Checks if a random int from 0-1000 is below this value every second to determine if the screen should shake
+        f32 shakeStrength;            // Shakes the screen on the x/y axes at this intensity maximum, half this much minimum
+        s32 shakeTime;                // Shakes the screen for this many ms maximum, half this many minimum
         Callback *SetFunc;
         Callback *ClearFunc;
     };

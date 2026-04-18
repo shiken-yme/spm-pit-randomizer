@@ -5,6 +5,7 @@
 #include <spm/winmgr.h>
 #include <wii/gx.h>
 #include <wii/os.h>
+#include <wii/tpl.h>
 
 namespace mod::customwin
 {
@@ -27,6 +28,8 @@ namespace mod::customwin
     #define CWSELECT_DESC_MAX 300
     #define CWSELECT_PAGE_MAX 16
     #define CWSELECT_PAGE_DESC_MAX 50
+
+    #define CWMSG_ENTRY_MAX 10
 
     typedef bool(CWSelectCallback)(winmgr::WinmgrSelect *select);
 
@@ -125,13 +128,42 @@ namespace mod::customwin
         char windowSelect[CWSELECT_DESC_TXT_LENGTH]; // box to the left, e.g. Select an Item, Select a Card, What do you want to sell?
     };
 
+    struct CWMsgGX_Tile
+    {
+        s32 texBG;
+        s32 texTL_Color;
+        s32 texTR_Color;
+        s32 texBL_Color;
+        s32 texBR_Color;
+        s32 texTL_Clear;
+        s32 texTR_Clear;
+        s32 texBL_Clear;
+        s32 texBR_Clear;
+    };
+    
+    struct CWMsgGX
+    {
+        wii::tpl::TPLHeader *tpl;
+        bool animate;
+        s32 type;
+        union
+        {
+            CWMsgGX_Tile Tile;
+        } Type;
+    };
+
     struct CustomWinWork
     {
+        // Select
         CWSelect *Select[CWSELECT_ENTRY_MAX];
         CWKey SelectKeys[CWSELECT_ENTRY_MAX];
-        s32 activeSelect; // 0-3
+        s32 activeSelect;
         const char *selectWinTitleMsgId;
         const char *selectWinSelectMsgId;
+        // Msg
+        CWMsgGX *MsgGX[CWMSG_ENTRY_MAX];
+        CWKey MsgKeys[CWMSG_ENTRY_MAX];
+        s32 activeMsgGX;
     };
 
     CWSelect *CWSelectGetActiveEntry();
@@ -157,6 +189,11 @@ namespace mod::customwin
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetPointerIcon, 3)
     EVT_DECLARE_USER_FUNC(EvtCWSelectSetInstantOpenClose, 3)
     EVT_DECLARE_USER_FUNC(EvtCWSelectModifySfx, 4)
+
+    CWMsgGX *CWMsgEntry(const char *key, s32 type, wii::tpl::TPLHeader *tpl, bool animate, bool setActive);
+    void CWMsgGX_Tile_SetTplIndices(CWMsgGX *Entry, u32 bg, u32 tlCol, u32 blCol, u32 trCol, u32 brCol, u32 tlClear, u32 blClear, u32 trClear, u32 brClear);
+
+    EVT_DECLARE_USER_FUNC(EvtCWMsgPrint, 5)
 
     extern CustomWinWork *GlobalCW;
     s32 CWSelectKeyToId(const char *key);

@@ -1,13 +1,16 @@
 #include <common.h>
 #include <spm/animdrv.h>
+#include <spm/filemgr.h>
 #include <spm/item_data.h>
 #include <spm/mario_pouch.h>
+#include <spm/memory.h>
 #include <spm/msgdrv.h>
 #include <spm/icondrv.h>
 #include <spm/npcdrv.h>
 #include <spm/rel/mi4.h>
 #include <tplpatch.h>
 #include <wii/os.h>
+#include <wii/tpl.h>
 #include <lp_common.h>
 #include <mod.h>
 
@@ -40,6 +43,28 @@ namespace mod
             return max;
         else
             return input;
+    }
+
+    wii::tpl::TPLHeader *allocTPL(const char *fileName, const char *folderName, memory::Heap heap, bool bind)
+    {
+        filemgr::FileEntry *file = nullptr;
+        if (folderName != nullptr)
+            file = filemgr::fileAllocf(0, "./%s/%s", folderName, fileName);
+        else
+            file = filemgr::fileAllocf(0, "./%s", fileName);
+        u32 heapSize = ((u32)memory::memory_wp->heapEnd[heap] - (u32)memory::memory_wp->heapStart[heap]);
+        if (heap == memory::HEAP_MEM1_UNUSED && heapSize < file->length)
+        {
+            heap = memory::HEAP_EFFECT;
+            heapSize = ((u32)memory::memory_wp->heapEnd[heap] - (u32)memory::memory_wp->heapStart[heap]);
+        }
+        assertf(file->length < heapSize, "Heap %d Overflow!! [%s] (0x%x > 0x%x)", heap, fileName, file->length, heapSize);
+        wii::tpl::TPLHeader *tpl = (wii::tpl::TPLHeader *)memory::__memAlloc(heap, file->length);
+        msl::string::memcpy(tpl, file->sp->data, file->length);
+        filemgr::fileFree(file);
+        if (bind)
+            wii::tpl::TPLBind(tpl);
+        return tpl;
     }
 
     void lpAddAtk(s32 atk)

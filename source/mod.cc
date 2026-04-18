@@ -14,6 +14,7 @@
 #include <sndpatch.h>
 #include <mempatch.h>
 #include <customwin.h>
+#include <berobero.h>
 #include <ymetools.h>
 
 #include "lunatic/localize.h"
@@ -1010,6 +1011,8 @@ namespace mod
         return 2;
     }
 
+    const char *danTexMapNames[] = {"dan_44_zaku.tpl", "dan_44_blank.tpl", "dan_64_zaku_insp.tpl"};
+
     // Gigantic shoutouts to L and Seeky for helping me get this function to work!!!!!!
     static void loadNewDanTex()
     {
@@ -1039,16 +1042,15 @@ namespace mod
             }
             if (overwriteMap)
             {
-                const char *danTexMapNames[] = {"dan_44_zaku", "dan_44_blank", "dan_64_zaku_insp"};
-                const char *danTexMapName = danTexMapNames[danTexNum];
-                const char *dvdRoot = system::getSpmarioDVDRoot();
+                wii::tpl::TPLHeader *bossRoomTpl = allocTPL(danTexMapNames[danTexNum], "map", memory::HEAP_MAP, true);
+                /*const char *danTexMapName = danTexMapNames[danTexNum];
                 filemgr::FileEntry *bossRoomFile = filemgr::fileAllocf(0, "%s/map/%s.tpl", dvdRoot, danTexMapName);
                 s32 tplSize = bossRoomFile->length;
                 wii::tpl::TPLHeader *bossRoomTpl = (wii::tpl::TPLHeader *)memory::__memAlloc(memory::Heap::HEAP_MAP, tplSize);
                 msl::string::memcpy(bossRoomTpl, bossRoomFile->sp->data, tplSize);
                 filemgr::fileFree(bossRoomFile);
-                wii::tpl::TPLBind(bossRoomTpl); // Initializes custom TPL in memory
-                mapEntry->tpl = bossRoomTpl;    // Replaces normal tpl for map with the boss room TPL
+                wii::tpl::TPLBind(bossRoomTpl); // Initializes custom TPL in memory*/
+                mapEntry->tpl = bossRoomTpl; // Replaces normal tpl for map with the boss room TPL
             }
             else
             {
@@ -3341,7 +3343,7 @@ namespace mod
     EVT_DECLARE_USER_FUNC(explain_judgement, 4)*/
 
     static evt_door::DokanDesc new_dan_70_dokan_desc = {
-        0, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
+        evt_door::IN_DOWN, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
 
     npcdrv::NPCTribeAnimDef merlunaAnims[] = {
         {0, "n_stg2_mistS_1"},      // Idle
@@ -4163,85 +4165,85 @@ namespace mod
 
     EVT_BEGIN(boodin_speech)
     IF_EQUAL(LW(7), 0)
-        USER_FUNC(evt_mario::evt_mario_key_off, 0)
-        SET(LW(6), 0)
-        USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
-        USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
-        USER_FUNC(EvtCWSelectSetBGColor, PTR("Cards"), PTR(boodinSelectBgCols), 4)
-        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
-        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
+    USER_FUNC(evt_mario::evt_mario_key_off, 0)
+    SET(LW(6), 0)
+    USER_FUNC(dan_boodin_get_descs, LW(10), LW(11))
+    USER_FUNC(EvtCWSelectEntry, PTR("Cards"), CWSELECT_SHOP, PTR(msgdrv::msgSearch("msg_window_title_4")), PTR(msgdrv::msgSearch("msg_window_select_4")), LW(10), LW(11))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Cards"), PTR(boodinSelectBgCols), 4)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinIntro), 0, PTR("dan_card"))
     END_IF()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Cards"), 0, LW(2)) // LW(4) item ID, LW(5) item name, LW(1) buy price
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     IF_NOT_EQUAL(LW(2), -1)
-        USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
-        USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
-        USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
-        USER_FUNC(EvtCWSelectReset)
-        USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
-        USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-        USER_FUNC(evt_msg::evt_msg_continue)
-        IF_EQUAL(LW(0), 0)
-            USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
-            IF_SMALL(LW(3), LW(1))
-                USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
-            ELSE()
-                IF_NOT_EQUAL(LW(2), (s32)item_data::ITEM_ID_USE_SUPER_BLANK_KUN)
-                    GOTO(81)
-                END_IF()
-                USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
-                IF_EQUAL(LW(3), 0)
-                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
-                ELSE()
-                    LBL(81)
-                    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
-                    WAIT_MSEC(500)
-                    MUL(LW(1), -1)
-                    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
-                    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
-                    WAIT_MSEC(500)
-                    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
-                    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
-                    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
-                    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
-                    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
-                    IF_LARGE(LW(2), 0)
-                        USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
-                        USER_FUNC(dan_boodin_backup_descs)
-                    END_IF()
-                    // BUY ANOTHER?
-                    SET(LW(6), 1)
-                    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
-                    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
-                    USER_FUNC(evt_msg::evt_msg_continue)
-                    IF_EQUAL(LW(0), 0)
-                        SET(LW(7), 1)
-                        RUN_CHILD_EVT(boodin_speech)
-                        RETURN()
-                    ELSE()
-                        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
-                    END_IF()
-                END_IF()
-            END_IF()
-        ELSE()
-            USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
-        END_IF()
+    USER_FUNC(EvtCWSelectGetSelectionCost, LW(2), LW(1))
+    USER_FUNC(EvtCWSelectGetSelectionName, LW(2), LW(5))
+    USER_FUNC(EvtCWSelectGetSelectionItemId, LW(2), LW(4))
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(boodinItemSelected), 0, PTR("dan_card"), LW(5), LW(1))
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+    USER_FUNC(evt_msg::evt_msg_continue)
+    IF_EQUAL(LW(0), 0)
+    USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
+    IF_SMALL(LW(3), LW(1))
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinClassism), 0, PTR("dan_card"))
     ELSE()
-        USER_FUNC(EvtCWSelectReset)
-        USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+    IF_NOT_EQUAL(LW(2), (s32)item_data::ITEM_ID_USE_SUPER_BLANK_KUN)
+    GOTO(81)
     END_IF()
-        USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
-        USER_FUNC(evt_mario::evt_mario_key_on)
+    USER_FUNC(evt_pouch::evt_pouch_check_free_use_item, LW(3))
+    IF_EQUAL(LW(3), 0)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinNoSpace), 0, PTR("dan_card"))
+    ELSE()
+    LBL(81)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+    WAIT_MSEC(500)
+    MUL(LW(1), -1)
+    USER_FUNC(evt_pouch::evt_pouch_add_coins, LW(1))
+    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
+    WAIT_MSEC(500)
+    USER_FUNC(evt_item::evt_item_entry, PTR("card_item"), LW(4), 0, 0, -1000, 0, 0, 0, 0, 0)
+    USER_FUNC(evt_item::evt_item_flag_onoff, 1, PTR("card_item"), 8)
+    USER_FUNC(evt_item::evt_item_wait_collected, PTR("card_item"))
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    IF_LARGE(LW(2), 0)
+    USER_FUNC(EvtCWSelectRemoveListing, PTR("Cards"), LW(2))
+    USER_FUNC(dan_boodin_backup_descs)
+    END_IF()
+    // BUY ANOTHER?
+    SET(LW(6), 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinWantMore), 0, PTR("dan_card"))
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(boodinSelect))
+    USER_FUNC(evt_msg::evt_msg_continue)
+    IF_EQUAL(LW(0), 0)
+    SET(LW(7), 1)
+    RUN_CHILD_EVT(boodin_speech)
+    RETURN()
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinSatisfied), 0, PTR("dan_card"))
+    END_IF()
+    END_IF()
+    END_IF()
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+    END_IF()
+    ELSE()
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(boodinDecline), 0, PTR("dan_card"))
+    END_IF()
+    USER_FUNC(EvtCWSelectDelete, PTR("Cards"))
+    USER_FUNC(evt_mario::evt_mario_key_on)
     INLINE_EVT()
     IF_EQUAL(LW(6), 1)
-        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
-        USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
-        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 25, 1)
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     ELSE()
-        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 24, 1)
-        USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
-        USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 24, 1)
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("dan_card"), 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("dan_card"), 0, 1)
     END_IF()
     END_INLINE()
     RETURN()
@@ -5915,6 +5917,10 @@ namespace mod
         tplpatch::iconPatch(wicon2);
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
+        bero::beroberoInit();
+        // Bero test
+        bero::beroDokanEntry("dokan_test", "mac_02", "aa1_02", "dokan_test", 0, 0, 0, 1.0f, evt_door::IN_DOWN, "MOBJ_dokan_g", nullptr, 0x0);
+        bero::beroDokanEntry("dokan_test", "aa1_02", "mac_02", "dokan_test", 0, 0, 0, 1.0f, evt_door::IN_DOWN, "MOBJ_dokan_g", nullptr, 0x0);
         // Add new BGM entries
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100F8BIT", 1385, 50, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FSYNTH", 1378, 127, 64, 0, 0);

@@ -495,7 +495,9 @@ namespace mod
     IF_EQUAL(GSWF(1603), 0)
     SET(GSWF(1603), 1)
     USER_FUNC(evt_mario::evt_mario_key_off, 1)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(hardDifficultyFirst), 0, 0)
+    // Customwin msg test
+    USER_FUNC(customwin::EvtCWMsgPrint, PTR("Test"), 1, PTR(hardDifficultyFirst), 0, 0)
+    // USER_FUNC(evt_msg::evt_msg_print, 1, PTR(hardDifficultyFirst), 0, 0)
     USER_FUNC(evt_mario::evt_mario_key_on)
     END_IF()
     END_IF()

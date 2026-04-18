@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <spm/camdrv.h>
+#include <spm/evt_msg.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
 #include <spm/fontmgr.h>
@@ -21,9 +22,11 @@
 #include <spm/pausewin.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
+#include <spm/sptexture.h>
 #include <spm/wpadmgr.h>
 #include <wii/os.h>
 #include <wii/mem.h>
+#include <wii/tpl.h>
 #include <wii/wpad.h>
 #include <msl/math.h>
 #include <msl/stdio.h>
@@ -116,10 +119,13 @@ namespace mod::customwin
         msl::string::memset(GlobalCW, 0, sizeof(*GlobalCW));
         wii::os::OSReport("CustomWin::CWInit: GlobalCW has been allocated; GlobalCW is located at %p\n", GlobalCW);
 
-        // Define important data
+        // Select
         GlobalCW->selectWinTitleMsgId = "msg_window_title_1";
         GlobalCW->selectWinSelectMsgId = "msg_window_select_1";
         GlobalCW->activeSelect = -1;
+
+        // Msg
+        GlobalCW->activeMsgGX = -1;
         return;
     }
 
@@ -215,6 +221,8 @@ namespace mod::customwin
     */
     CWSelect *CWSelectGetActiveEntry()
     {
+        if (GlobalCW->activeSelect == -1)
+            return nullptr;
         return GlobalCW->Select[GlobalCW->activeSelect];
     }
 
@@ -1863,10 +1871,224 @@ namespace mod::customwin
 
      -------------------------------------------------------------------------------------- */
 
+    /* --------------------------------------------------------------------------------------
+
+                                            CWMsg
+
+    -------------------------------------------------------------------------------------- */
+
+    CWMsgGX *CWMsgGetActiveEntry()
+    {
+        if (GlobalCW->activeMsgGX == -1)
+            return nullptr;
+        return GlobalCW->MsgGX[GlobalCW->activeMsgGX];
+    }
+
+    s32 CWMsgKeyToId(const char *key)
+    {
+        for (u32 i = 0; i < CWMSG_ENTRY_MAX; i += 1)
+        {
+            if (msl::string::strcmp("", GlobalCW->MsgKeys[i].name) != 0)
+            {
+                if (msl::string::strcmp(GlobalCW->MsgKeys[i].name, key) == 0)
+                    return i;
+            }
+        }
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWMsgKeyToId: Could not find msg entry with key name \'%s\'.\n", key);
+        return -1;
+    }
+
+    CWMsgGX *CWMsgEntry(const char *key, s32 type, wii::tpl::TPLHeader *tpl, bool animate, bool setActive)
+    {
+        if (msl::string::strlen(key) > CWKEY_NAME_LENGTH)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::CWMsgEntry: Key \'%s\' is longer than CWKEY_NAME_LENGTH (%d). Failed to create select entry.\n", key, CWKEY_NAME_LENGTH);
+            return nullptr;
+        }
+        for (u32 i = 0; i < CWMSG_ENTRY_MAX; i += 1)
+        {
+            if (GlobalCW->MsgGX[i] == nullptr)
+            {
+                GlobalCW->MsgGX[i] = (CWMsgGX *)memory::__memAlloc(0, sizeof(CWMsgGX));
+                CWDebug_GetMainHeapFreeSpace(true);
+                msl::string::memset(GlobalCW->MsgGX[i], 0, sizeof(CWMsgGX));
+                GlobalCW->MsgKeys[i].id = i;
+                GlobalCW->MsgGX[i]->type = type;
+                GlobalCW->MsgGX[i]->tpl = tpl;
+                GlobalCW->MsgGX[i]->animate = animate;
+                msl::string::memset(GlobalCW->MsgKeys[i].name, 0, sizeof(GlobalCW->MsgKeys[i].name));
+                msl::string::memcpy(GlobalCW->MsgKeys[i].name, key, msl::string::strlen(key));
+                if (setActive)
+                {
+                    GlobalCW->activeMsgGX = i;
+                    CWDEBUG_OSREPORT_FMT("CustomWin::CWMsgEntry: New msg entry with key \'%s\' (GlobalCW->MsgGX[%d]) created. Set as active msg entry.\n", key, i);
+                }
+                else
+                    CWDEBUG_OSREPORT_FMT("CustomWin::CWMsgEntry: New msg entry with key \'%s\' (GlobalCW->MsgGX[%d]) created.\n", key, i);
+                return GlobalCW->MsgGX[i];
+            }
+        }
+        CWDEBUG_OSREPORT_FMT("CustomWin::CWMsgEntry: Msg entries maxed out at CWMSG_ENTRY_MAX (%d), cannot create new entry.\n", CWMSG_ENTRY_MAX);
+        return nullptr;
+    }
+
+    void CWMsgGX_Tile_SetTplIndices(CWMsgGX *Entry, u32 bg, u32 tlCol, u32 blCol, u32 trCol, u32 brCol, u32 tlClear, u32 blClear, u32 trClear, u32 brClear)
+    {
+        Entry->Type.Tile.texBG = bg;
+        Entry->Type.Tile.texTL_Color = tlCol;
+        Entry->Type.Tile.texBL_Color = blCol;
+        Entry->Type.Tile.texTR_Color = trCol;
+        Entry->Type.Tile.texBR_Color = brCol;
+        Entry->Type.Tile.texTL_Clear = tlClear;
+        Entry->Type.Tile.texBL_Clear = blClear;
+        Entry->Type.Tile.texTR_Clear = trClear;
+        Entry->Type.Tile.texBR_Clear = brClear;
+        return;
+    }
+
+    /*
+        ** User Function **
+        Activates a CWMsg entry, then prints a msg
+    */
+    s32 EvtCWMsgPrint(evtmgr::EvtEntry *evtEntry, bool firstCall)
+    {
+        (void)firstCall;
+        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char *key = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        s32 flags = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        const char *msg = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[2]);
+        void *mainFunc = (void *)evtmgr_cmd::evtGetValue(evtEntry, args[3]);
+        char *speaker = (char *)evtmgr_cmd::evtGetValue(evtEntry, args[4]);
+        s32 id = CWMsgKeyToId(key);
+        if (id == -1)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWMsgPrint: Entry with key \'%s\' not found; aborting process.\n", key);
+            return 2;
+        }
+        GlobalCW->activeMsgGX = id;
+        s32 ret = evt_msg::_evt_msg_print(evtEntry, firstCall, flags, msg, mainFunc, speaker);
+        if (ret == 2)
+        {
+            CWDEBUG_OSREPORT_FMT("CustomWin::EvtCWMsgPrint: Printed CWMsg with key \'%s\'.\n", key);
+            GlobalCW->activeMsgGX = -1;
+        }
+        return ret;
+    }
+
+    bool sptexCWMode = false;
+
+    void CWMsgGX_SptextureGetNew(u32 id, wii::gx::GXTexObj *dest)
+    {
+        CWMsgGX *Entry = CWMsgGetActiveEntry();
+        if (id == 255)
+        {
+            if (Entry == nullptr)
+                id = 6;
+            else
+                id = Entry->Type.Tile.texBG;
+        }
+        if (Entry != nullptr && sptexCWMode)
+        {
+            wii::tpl::TPLGetGXTexObjFromPalette(Entry->tpl, dest, id);
+            return;
+        }
+        if (sptexture::sptexture_wp->loaded)
+        {
+            wii::tpl::TPLGetGXTexObjFromPalette((wii::tpl::TPLHeader *)sptexture::sptexture_wp->tpl->sp->data, dest, id);
+            return;
+        }
+        wii::gx::GXInitTexObj(dest, &sptexture::sptexture_image, 1, 1, 0, 0, 0, 0);
+    }
+
+    // System text-style "tiled texture" textbox
+    void CWMsgGX_Tile_Main(s32 type, u8 alpha, f32 x, f32 y, f32 p3, f32 p4)
+    {
+        u32 tlIdx_Col = 62, blIdx_Col = 63, trIdx_Col = 64, brIdx_Col = 65, tlIdx_Clear = 66, blIdx_Clear = 67, trIdx_Clear = 68, brIdx_Clear = 69;
+        f32 animOffset = 0.0f;
+        wii::mtx::Mtx34 pos;
+        camdrv::CamEntry *cam = camdrv::camGetCurPtr();
+        CWMsgGX *Entry = CWMsgGetActiveEntry();
+
+        if (windowdrv::windowdrv_frm_ctr != spmario::gp->frameCounter)
+            windowdrv::windowdrv_anim_time += 0.005f;
+        windowdrv::windowdrv_frm_ctr = spmario::gp->frameCounter;
+        if (windowdrv::windowdrv_anim_time > 10.0f)
+            windowdrv::windowdrv_anim_time -= 10.0f;
+        windowdrv::func_80038b08();
+        wii::gx::GXColor col = {255, 255, 255, alpha};
+        wii::gx::GXSetTevColor(1, &col);
+        wii::gx::GXSetNumTevStages(4);
+        wii::gx::GXSetTevOrder(0, 0, 0, 255);
+        wii::gx::GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevColorIn(0, 15, 15, 15, 8);
+        wii::gx::GXSetTevAlphaIn(0, 7, 7, 7, 4);
+        wii::gx::GXSetTevSwapMode(0, 0, 0);
+        wii::gx::GXSetTevOrder(1, 1, 1, 255);
+        wii::gx::GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevColorIn(1, 15, 15, 15, 0);
+        wii::gx::GXSetTevAlphaIn(1, 7, 0, 4, 7);
+        wii::gx::GXSetTevSwapMode(1, 0, 0);
+        wii::gx::GXSetTevOrder(2, 1, 2, 255);
+        wii::gx::GXSetTevColorOp(2, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevAlphaOp(2, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevColorIn(2, 0, 8, 9, 15);
+        wii::gx::GXSetTevAlphaIn(2, 7, 7, 7, 0);
+        wii::gx::GXSetTevSwapMode(2, 0, 0);
+        wii::gx::GXSetTevOrder(3, 255, 255, 255);
+        wii::gx::GXSetTevColorOp(3, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevAlphaOp(3, 0, 0, 0, 1, 0);
+        wii::gx::GXSetTevColorIn(3, 15, 0, 2, 15);
+        wii::gx::GXSetTevAlphaIn(3, 7, 0, 1, 7);
+        wii::gx::GXSetTevSwapMode(3, 0, 0);
+        wii::mtx::PSMTXTrans(pos, x, y, 0.0f);
+        wii::mtx::PSMTXConcat(cam->viewMtx, pos, pos);
+        wii::gx::GXLoadPosMtxImm(pos, 0);
+        wii::gx::GXSetCurrentMtx(0);
+        if (Entry != nullptr)
+        {
+            if (Entry->animate)
+                animOffset = windowdrv::windowdrv_anim_time;
+            tlIdx_Col = Entry->Type.Tile.texTL_Color;
+            blIdx_Col = Entry->Type.Tile.texBL_Color;
+            trIdx_Col = Entry->Type.Tile.texTR_Color;
+            brIdx_Col = Entry->Type.Tile.texBR_Color;
+            tlIdx_Clear = Entry->Type.Tile.texTL_Clear;
+            blIdx_Clear = Entry->Type.Tile.texBL_Clear;
+            trIdx_Clear = Entry->Type.Tile.texTR_Clear;
+            brIdx_Clear = Entry->Type.Tile.texBR_Clear;
+        }
+        else if (type != 13)
+        {
+            animOffset = windowdrv::windowdrv_anim_time;
+            tlIdx_Col = 42;
+            blIdx_Col = 43;
+            trIdx_Col = 44;
+            brIdx_Col = 45;
+            tlIdx_Clear = 46;
+            blIdx_Clear = 47;
+            trIdx_Clear = 48;
+            brIdx_Clear = 49;
+        }
+        sptexCWMode = true;
+        windowdrv::windowDispGX_System_LoadTex(0, 0, (p3 - 32.0f), (p4 - 32.0f), animOffset, tlIdx_Col, tlIdx_Clear);
+        windowdrv::windowDispGX_System_LoadTex(0, -(p4 - 32.0f), (p3 - 32.0f), 32.0f, animOffset, blIdx_Col, blIdx_Clear);
+        windowdrv::windowDispGX_System_LoadTex((p3 - 32.0f), 0, 32.0f, (p4 - 32.0f), animOffset, trIdx_Col, trIdx_Clear);
+        windowdrv::windowDispGX_System_LoadTex((p3 - 32.0f), -(p4 - 32.0f), 32.0f, 32.0f, animOffset, brIdx_Col, brIdx_Clear);
+        sptexCWMode = false;
+        return;
+    }
+
     void CustomWinMain()
     {
         CWInit();
+        // Select
         patch::hookFunction(winmgr::winMgrDisp, CWWinMgrDisp);
         CWPauseWinMsgBoxDisp_SetLambda();
+        // Msg
+        patch::hookFunction(windowdrv::windowDispGX_System, CWMsgGX_Tile_Main);
+        patch::hookFunction(sptexture::sptextureGet, CWMsgGX_SptextureGetNew);
+        writeWord(windowdrv::windowDispGX_System_LoadTex, 0x6C, 0x386000FF);
     }
 }

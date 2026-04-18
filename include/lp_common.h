@@ -1,8 +1,10 @@
 #pragma once
 #include <common.h>
 #include <evt_cmd.h>
+#include <spm/memory.h>
 #include <spm/npcdrv.h>
 #include <wii/os.h>
+#include <wii/tpl.h>
 
 namespace mod
 {
@@ -17,6 +19,7 @@ namespace mod
 
     s32 round(f32 in);
     s32 clamp(s32 input, s32 min, s32 max);
+    wii::tpl::TPLHeader *allocTPL(const char *fileName, const char *folderName, memory::Heap heap, bool bind);
     void lpAddAtk(s32 atk);
     void lpAddHp(s32 maxHp, s32 hp);
     void lpAddCrit(s32 rate, f32 mult);

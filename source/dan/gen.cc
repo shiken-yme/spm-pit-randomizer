@@ -2845,6 +2845,9 @@ namespace mod
 
         if (currentFloor == 0)
         {
+            // Customwin msg gx test
+            customwin::CWMsgGX *Entry = customwin::CWMsgEntry("Test", 0, tplpatch::TPLPatchIconTPLHeader, true, false);
+            customwin::CWMsgGX_Tile_SetTplIndices(Entry, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             for (s32 roomGens = 0; roomGens < 200; roomGens += 1)
                 DanGen_Enemies(roomGens, false);
         }
