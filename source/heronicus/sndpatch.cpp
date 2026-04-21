@@ -23,8 +23,8 @@ namespace mod::sndpatch
         /*
             Patch checks that cause BGMOn to stop iterating after 150 entries
         */
-        writeWord(spsndBGMOn_f_d, 0xB8, (u32)(0x2C1D0000 + SNDPATCH_BGM_MAX));
-        writeWord(spsndBGMOn_f_d, 0xC0, (u32)(0x2C1D0000 + SNDPATCH_BGM_MAX));
+        writeWord(spsndBGMOn_f_d, 0xB8, CMPWI(29, SNDPATCH_BGM_MAX));
+        writeWord(spsndBGMOn_f_d, 0xC0, CMPWI(29, SNDPATCH_BGM_MAX));
         /*
             Reallocate spsbgmlist to a larger block
         */

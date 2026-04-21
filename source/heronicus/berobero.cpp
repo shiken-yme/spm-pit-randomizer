@@ -209,11 +209,6 @@ namespace mod::bero
         return beroName;
     }
 
-    /*s32 beroHookDescNum()
-    {
-        return evt_door::evt_door_wp->dokan_desc_num;
-    }*/
-
     /*
     // Currently deprecated, will eventually reprogram
     s32 evt_bero_dokan(evtmgr::EvtEntry *evtEntry, bool isFirstCall)
@@ -243,7 +238,6 @@ namespace mod::bero
     void beroberoInit()
     {
         writeBranchLink(evt_door::evt_door_handle_spawn, 0x28, beroEmplaceCustomDokans);
-        // writeBranchLink(evt_door::evt_door_set_dokan_descs, 0x34, beroHookDescNum);
         return;
     }
 }

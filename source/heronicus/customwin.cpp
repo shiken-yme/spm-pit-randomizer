@@ -2089,6 +2089,6 @@ namespace mod::customwin
         // Msg
         patch::hookFunction(windowdrv::windowDispGX_System, CWMsgGX_Tile_Main);
         patch::hookFunction(sptexture::sptextureGet, CWMsgGX_SptextureGetNew);
-        writeWord(windowdrv::windowDispGX_System_LoadTex, 0x6C, 0x386000FF);
+        writeWord(windowdrv::windowDispGX_System_LoadTex, 0x6C, LI(25, 0x10000));
     }
 }

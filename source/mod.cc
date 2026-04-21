@@ -1423,7 +1423,9 @@ namespace mod
         writeWord(npcdrv::func_801cdb84, 0xB6C, NOP); // remove the call to play unkShellSfx
         writeWord(evt_npc::evt_npc_set_unk_shell_sfx, 0x58, NOP);
         // Patch shell enemies to not despawn within the Pit (distance check goes from 500 to 1000)
-        writeWord(npcdrv::func_801c8d70, 0x954, 0xFC01E040);
+        writeWord(npcdrv::func_801c8d70, 0x954, FCMPO(0, 1, 28));
+        // DEBUG
+        writeWord(npcdrv::func_801c8d70, 0x994, LWZ(3, 0x720, 29));
     }
 
     static void danDontFuckingCrash()
@@ -5851,7 +5853,7 @@ namespace mod
         patch::hookFunction(temp_unk::func_80203608, npc_killtai_spawn_child);
 
         // Ninjoe patched to only bomb 10% of the time, thanks Lily!
-        writeWord(&npc_ninja::ninjoe_bomb_calc_chance, 0xDC, 0x2C03000A);
+        writeWord(&npc_ninja::ninjoe_bomb_calc_chance, 0xDC, CMPWI(3, 10));
 
         // Shadoo
         evtpatch::hookEvtReplace(dan::dan_start_shadoo_evt, 1, fwd_new_shadoo_evt);
@@ -5888,7 +5890,7 @@ namespace mod
         // Custom NPCs
         evtpatch::hookEvtReplaceBlock(dan::dan_chest_room_init_evt, 65, merluna_setup, 84);
         evtpatch::hookEvtReplace(map_data::mapDataPtr("mac_05")->initScript, 79, patch_mac_05);
-        writeWord(&evt_shop::evt_shop_build_flimm_pit_item_tables, 0xB8, 0x2C000001); // Patch Pit Flimm's double pricing in the Flopside Pit
+        writeWord(&evt_shop::evt_shop_build_flimm_pit_item_tables, 0xB8, CMPWI(0, 1)); // Patch Pit Flimm's double pricing in the Flopside Pit
         evtpatch::hookEvt(temp_unk::default_item_use_evt, 4, bump_item_use_hook);
 
         // Blessings/Curses
@@ -5896,7 +5898,7 @@ namespace mod
         evtpatch::hookEvt(evt_door::door_init_evt, 1, run_global_operations);
 
         // Flipside Pit 3D Thoreau Lock patch
-        writeWord(&mario_motion::marioCalcFramesToTerminalVel, 0x164, 0x60000000);
+        writeWord(&mario_motion::marioCalcFramesToTerminalVel, 0x164, NOP);
 
         // Holo coin patch
         evtpatch::hookEvtReplace(temp_unk::npc_drop_item_evt, 3, npc_drop_item_patch);

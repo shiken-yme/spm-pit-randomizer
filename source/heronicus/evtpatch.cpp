@@ -119,11 +119,11 @@ void evt_patch_make_jump_table(EvtEntry* parentEntry, EvtScriptCode* childScript
 }
 
 static void evtmgrCmdExtensionPatch() {
-    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7B8, 0x7f63db78); // mr r3, r27
+    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7B8, MR(3, 27)); // mr r3, r27
     writeBranchLink(spm::evtmgr_cmd::evtmgrCmd, 0x7BC, evtmgrCmdExtraCases);
-    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C0, 0x7c7c1b78); // mr r28, r3
-    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C4, 0x4800000c); // blt 0xc -> b 0xc, bypassing 0x77 max opcode check
-    writeWord(spm::evtmgr::make_jump_table, 0xe0, 0x48000020); // blt 0x20 -> b 0x20, bypassing 0x77 max opcode check
+    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C0, MR(28, 3)); // mr r28, r3
+    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C4, B(-0xC)); // blt 0xc -> b 0xc, bypassing 0x77 max opcode check
+    writeWord(spm::evtmgr::make_jump_table, 0xe0, B(0x20)); // blt 0x20 -> b 0x20, bypassing 0x77 max opcode check
 }
 
 static void (*evtDeleteReal)(EvtEntry*);
