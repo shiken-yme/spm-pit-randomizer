@@ -498,19 +498,17 @@ namespace mod
     {
         mario::MarioWork *mario = mario::marioGetPtr();
         // Handle opening the config menu
+        if (((mario->buttonsPressed & WPAD_BTN_B) == WPAD_BTN_B) && ((mario->buttonsHeld & WPAD_BTN_Z) != WPAD_BTN_Z)) // B pressed, Z not held
         {
-            if (((mario->buttonsPressed & WPAD_BTN_B) == WPAD_BTN_B) && ((mario->buttonsHeld & WPAD_BTN_Z) != WPAD_BTN_Z)) // B pressed, Z not held
+            bool canPause = mario_motion::func_80146f0c();
+            bool keyOff = mario::marioKeyOffChk();
+            bool ctrlOff = mario::marioCtrlOffChk();
+            bool noFade = fadedrv::fadeIsFinish();
+            if (noFade && !keyOff && !ctrlOff && canPause && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
             {
-                bool canPause = mario_motion::func_80146f0c();
-                bool keyOff = mario::marioKeyOffChk();
-                bool ctrlOff = mario::marioCtrlOffChk();
-                bool noFade = fadedrv::fadeIsFinish();
-                if (noFade && !keyOff && !ctrlOff && canPause && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
-                {
-                    pausewin::pausewinPauseGame();
-                    hud::hudHide();
-                    evtmgr::evtEntryType(LPGUIActiveEffects, 0, 0, 0);
-                }
+                pausewin::pausewinPauseGame();
+                hud::hudHide();
+                evtmgr::evtEntryType(LPGUIActiveEffects, 0, 0, 0);
             }
         }
     }

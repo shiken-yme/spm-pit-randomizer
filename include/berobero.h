@@ -6,6 +6,7 @@
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
 #include <spm/evt_door.h>
+#include <spm/mobjdrv.h>
 
 namespace mod::bero
 {
@@ -21,16 +22,18 @@ namespace mod::bero
     {
         evt_door::DokanDesc Desc;
         wii::mtx::Vec3 pos;
-        f32 scale;
-        const char *modelName;
-        // const char *tailName;
+        f32 baseObjHeight;
+        const char *headModelName;
+        const char *baseModelName;
         DokanSpawnChkCb *spawnCheck;
+        mobjdrv::MobjEntry *headMobj;
+        mobjdrv::MobjEntry *baseMobj;
     } Dokan;
 
     extern Dokan *Dokans[BERO_DOKAN_MAX];
 
     Dokan *beroDokanEntry(const char *name, const char *mapName, const char *destMapName, const char *destBeroName, f32 x, f32 y, f32 z,
-                          f32 scale, evt_door::DokanScriptNum orientation, const char *modelName, DokanSpawnChkCb *spawnChk, u16 dokanFlags);
+                          f32 baseObjHeight, evt_door::DokanScriptNum orientation, const char *headModelName, const char *baseModelName, DokanSpawnChkCb *spawnChk, u16 dokanFlags);
 
     // void beroCreateDokan(Dokan *entry);
 

@@ -1613,7 +1613,7 @@ namespace mod
 
     const char hardDifficultyFirst[] =
         "<system>\n"
-        /*"On Hard Difficulty, shells\n"
+        "On Hard Difficulty, shells\n"
         "will no longer deal damage\n"
         "to enemies in the Pit.\n"
         "<k>\n<p>\n"
@@ -1622,9 +1622,7 @@ namespace mod
         "vulnerable to shell damage.\n"
         "<k>\n<p>\n"
         "<wave>G<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>d<wait 600> l<wait 300>u<wait 300>c<wait 300>k<wait 300>!\n"
-        "</wave><k>";*/
-        "\n<col c00000ff><center>Save file deleted.</center>\n"
-        "</col><k>";
+        "</wave><k>";
 
     // Tattles and Catch Cards :(
 

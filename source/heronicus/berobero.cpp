@@ -72,10 +72,10 @@ namespace mod::bero
     /*
         Persistent in memory; will automatically spawn the pipe and add to dokan descs on specified map entry
     */
-    Dokan *beroDokanEntry(const char *name, const char *mapName, const char *destMapName, const char *destBeroName, f32 x, f32 y, f32 z, f32 scale, evt_door::DokanScriptNum orientation, const char *modelName, DokanSpawnChkCb *spawnChk, u16 dokanFlags)
+    Dokan *beroDokanEntry(const char *name, const char *mapName, const char *destMapName, const char *destBeroName, f32 x, f32 y, f32 z, f32 baseObjHeight, evt_door::DokanScriptNum orientation, const char *headModelName, const char *baseModelName, DokanSpawnChkCb *spawnChk, u16 dokanFlags)
     {
         s32 i;
-        Dokan dokan = {{orientation, dokanFlags, 0, name, mapName, nullptr, nullptr, destMapName, destBeroName}, {x, y, z}, scale, modelName, spawnChk};
+        Dokan dokan = {{orientation, dokanFlags, 0, name, mapName, nullptr, nullptr, destMapName, destBeroName}, {x, y, z}, baseObjHeight, headModelName, baseModelName, spawnChk};
         for (i = 0; i < BERO_DOKAN_MAX; i += 1)
         {
             if (Dokans[i] == nullptr)
@@ -90,23 +90,11 @@ namespace mod::bero
     void beroCreateDokan(Dokan *entry)
     {
         // Create the MOBJ entries for the head and the tail
-        mobjdrv::mobjEntry(entry->Desc.name, entry->modelName);
-        //    mobjdrv::mobjEntry(tailName, mobjDokanTails[color]);
+        mobjdrv::mobjEntry(entry->Desc.name, entry->headModelName);
         mobjdrv::MobjEntry *dokan = mobjdrv::mobjNameToPtr(entry->Desc.name);
-        //    mobjdrv::MobjEntry *tail = mobjdrv::mobjNameToPtr(tailName);
-        // Init tail position @ given coords, calc position for head, and normalize mtx for all collision
-        //    mobjdrv::mobjSetPosition(tailName, x, y, z);
-        //    tail->scale.y = scale;
-        //    mobjdrv::mobjCalcMtx(tail);
-        //    dokan->pos.y = (y + tail->objSize.y);
-        // DEBUG
-        dokan->scale.x = 1.6;
-        dokan->scale.y = 1.2;
-        dokan->scale.z = 1.6;
-        dokan->pos.x = entry->pos.x;
-        dokan->pos.y = entry->pos.y;
-        dokan->pos.z = entry->pos.z;
-        switch (entry->Desc.scriptNumber)
+        entry->headMobj = dokan;
+        dokan->pos = entry->pos;
+        /*switch (entry->Desc.scriptNumber)
         {
         case evt_door::IN_DOWN:
             dokan->pos.y = entry->pos.y - 13.0f;
@@ -120,8 +108,7 @@ namespace mod::bero
         default:
             dokan->pos.x = entry->pos.x - 15.0f;
             break;
-        }
-        // END DEBUG
+        }*/
         // Assign rotation
         switch (entry->Desc.scriptNumber)
         {
@@ -138,13 +125,54 @@ namespace mod::bero
             dokan->rotation.z = 90.0;
             break;
         }
+        if (entry->baseModelName != nullptr && entry->baseObjHeight > 0.0f)
+        {
+            char buf[16];
+            msl::stdio::sprintf(buf, "%st", entry->Desc.name);
+            const char *baseName = buf;
+            mobjdrv::mobjEntry(baseName, entry->baseModelName);
+            mobjdrv::MobjEntry *base = mobjdrv::mobjNameToPtr(baseName);
+            entry->baseMobj = base;
+            base->scale.y = (entry->baseObjHeight / base->objSize.y);
+            base->pos = dokan->pos;
+            switch (entry->Desc.scriptNumber)
+            {
+            case evt_door::IN_DOWN:
+                dokan->pos.y += entry->baseObjHeight;
+                dokan->flag0 |= 0x2; // disables shadow
+                break;
+            case evt_door::IN_UP:
+                base->rotation.z = 180.0;
+                dokan->pos.y -= entry->baseObjHeight;
+                dokan->flag0 |= 0x2; // disables shadow
+                base->flag0 |= 0x2; // disables shadow
+                break;
+            case evt_door::IN_LEFT:
+                base->rotation.z = 270.0;
+                dokan->pos.x += entry->baseObjHeight;
+                dokan->pos.y += dokan->objSize.x / 2.0f;
+                base->pos.y += base->objSize.x / 2.0f;
+                break;
+            default:
+                base->rotation.z = 90.0;
+                dokan->pos.x -= entry->baseObjHeight;
+                dokan->pos.y += dokan->objSize.x / 2.0f;
+                base->pos.y += base->objSize.x / 2.0f;
+                break;
+            }
+            animdrv::animPoseSetAnim(base->animPoseId, "S_1", 1);
+            mobjdrv::mobjCalcMtx(base);
+        }
         // Finalize: create dokan desc & copy to allocated evtBeroDokans memory, then create case entries
         entry->Desc.hitName2d = dokan->joints[1].name;
         entry->Desc.hitName3d = dokan->joints[0].name;
-        animdrv::animPoseSetAnim(dokan->animPoseId, "W_1", 1);
+        animdrv::animPoseSetAnim(dokan->animPoseId, "S_1", 1);
+        // test
+        // wii::os::OSReport("Entry objSize... X = %.4f, Y = %.4f, Z = %.4f\n", dokan->objSize.x, dokan->objSize.y, dokan->objSize.z);
+        // end test
         mobjdrv::mobjCalcMtx(dokan);
         // DEBUG
-        switch (entry->Desc.scriptNumber)
+        /*switch (entry->Desc.scriptNumber)
         {
         case evt_door::IN_DOWN:
             dokan->pos.y -= 15.0f;
@@ -158,7 +186,7 @@ namespace mod::bero
         default:
             dokan->pos.x += 15.0f;
             break;
-        }
+        }*/
         // END DEBUG
         return;
     }
@@ -238,6 +266,11 @@ namespace mod::bero
     void beroberoInit()
     {
         writeBranchLink(evt_door::evt_door_handle_spawn, 0x28, beroEmplaceCustomDokans);
+        // Test objects
+        bero::beroDokanEntry("dokan_test", "mac_02", "an2_01", "magic", 0.0f, 230.0f, 0.0f, 100.0f, evt_door::IN_UP, "MOBJ_dokan_g", "MOBJ_dokan_gt", nullptr, 0x0);
+        bero::beroDokanEntry("dokan_test2", "mac_02", "mac_02", "dokan_test", 100.0f, 0.0f, -30.0f, 12.0f, evt_door::IN_DOWN, "MOBJ_dokan_g", "MOBJ_dokan_gt", nullptr, 0x0);
+        bero::beroDokanEntry("dokan_test3", "mac_02", "mac_02", "dokan_test4", -350.0f, 0.0f, -60.0f, 30.0f, evt_door::IN_LEFT, "MOBJ_dokan_g", "MOBJ_dokan_gt", nullptr, 0x0);
+        bero::beroDokanEntry("dokan_test4", "mac_02", "mac_02", "dokan_test3", 300.0f, 0.0f, -90.0f, 60.0f, evt_door::IN_RIGHT, "MOBJ_dokan_g", "MOBJ_dokan_gt", nullptr, 0x0);
         return;
     }
 }

@@ -1980,7 +1980,7 @@ namespace mod::customwin
     void CWMsgGX_SptextureGetNew(u32 id, wii::gx::GXTexObj *dest)
     {
         CWMsgGX *Entry = CWMsgGetActiveEntry();
-        if (id == 255)
+        if (id == 0x7777)
         {
             if (Entry == nullptr)
                 id = 6;
@@ -2089,6 +2089,6 @@ namespace mod::customwin
         // Msg
         patch::hookFunction(windowdrv::windowDispGX_System, CWMsgGX_Tile_Main);
         patch::hookFunction(sptexture::sptextureGet, CWMsgGX_SptextureGetNew);
-        writeWord(windowdrv::windowDispGX_System_LoadTex, 0x6C, LI(25, 0x10000));
+        writeWord(windowdrv::windowDispGX_System_LoadTex, 0x6C, LI(3, 0x7777));
     }
 }

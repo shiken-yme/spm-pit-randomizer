@@ -1207,6 +1207,7 @@ namespace mod
         return;
     }
 
+    // thanks lily :D
     f32 cudgeFloat = 0.5f;
     u32 npcTakeDamageRetLocation = (u32)(&spm::npcdrv::npcTakeDamage) + 0x1E0;
     void setCudgeFloat()
@@ -1227,7 +1228,7 @@ namespace mod
 
     static void OnDanCountdown()
     {
-        hud::hud_wp->countdownTimer = hud::hud_wp->countdownTimer - 1;
+        hud::hud_wp->countdownTimer -= 1;
         s32 disorderId = (s32)Lunatic->Luna.disorder;
         // Handle random Disorder tremors
         if (disorderId > 0)
@@ -5904,6 +5905,25 @@ namespace mod
         evtpatch::hookEvtReplace(temp_unk::npc_drop_item_evt, 3, npc_drop_item_patch);
     }
 
+    void rotateCustomDokans()
+    {
+        mario::MarioWork *mario = mario::marioGetPtr();
+        if (((mario->buttonsPressed & WPAD_BTN_C) == WPAD_BTN_C))
+        {
+            for (u16 i = 0; i < BERO_DOKAN_MAX; i += 1)
+            {
+                if (bero::Dokans[i] == nullptr)
+                    return;
+                if (msl::string::strcmp(bero::Dokans[i]->Desc.mapName, spmario::gp->mapName) == 0 && bero::Dokans[i]->baseMobj != nullptr)
+                {
+                    mobjdrv::mobjCalcMtx(bero::Dokans[i]->headMobj);
+                    mobjdrv::mobjCalcMtx(bero::Dokans[i]->baseMobj);
+                }
+            }
+        }
+        return;
+    }
+
     void main()
     {
         // Allocate memory for LunaticPitWork
@@ -5920,9 +5940,7 @@ namespace mod
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
         bero::beroberoInit();
-        // Bero test
-        bero::beroDokanEntry("dokan_test", "mac_02", "aa1_02", "dokan_test", 0, 0, 0, 1.0f, evt_door::IN_DOWN, "MOBJ_dokan_g", nullptr, 0x0);
-        bero::beroDokanEntry("dokan_test", "aa1_02", "mac_02", "dokan_test", 0, 0, 0, 1.0f, evt_door::IN_DOWN, "MOBJ_dokan_g", nullptr, 0x0);
+        globalop::globalopAddEntry((void *)rotateCustomDokans, nullptr);
         // Add new BGM entries
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100F8BIT", 1385, 50, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FSYNTH", 1378, 127, 64, 0, 0);

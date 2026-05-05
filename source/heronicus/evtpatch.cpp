@@ -122,7 +122,7 @@ static void evtmgrCmdExtensionPatch() {
     writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7B8, MR(3, 27)); // mr r3, r27
     writeBranchLink(spm::evtmgr_cmd::evtmgrCmd, 0x7BC, evtmgrCmdExtraCases);
     writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C0, MR(28, 3)); // mr r28, r3
-    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C4, B(-0xC)); // blt 0xc -> b 0xc, bypassing 0x77 max opcode check
+    writeWord(spm::evtmgr_cmd::evtmgrCmd, 0x7C4, B(0xC)); // blt 0xc -> b 0xc, bypassing 0x77 max opcode check
     writeWord(spm::evtmgr::make_jump_table, 0xe0, B(0x20)); // blt 0x20 -> b 0x20, bypassing 0x77 max opcode check
 }
 
