@@ -21,6 +21,8 @@ namespace mod::patch
 #define BLR 0x4E800020
 #define LI(reg, val) \
     ((0x38000000 | (val & 0xFFFF)) + (0x1000000 * (reg / 8)) + (0x200000 * (reg % 8)))
+#define ADDI(destReg, srcReg, val) \
+    ((0x38000000 | (val & 0xFFFF)) + (0x1000000 * (destReg / 8)) + (0x200000 * (destReg % 8)) + (0x10000 * srcReg))
 #define MR(destReg, srcReg) \
     (0x7C000378 + (0x1000000 * (srcReg / 8)) + ((0x10000 * destReg) + (0x200000 * (srcReg % 8))) + (0x100 * (srcReg * 8)))
 #define B(offset) \

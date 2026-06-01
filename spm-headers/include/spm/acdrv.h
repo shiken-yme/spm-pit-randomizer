@@ -37,7 +37,7 @@ typedef struct _AcEntry
 /* 0x28 */ s32 state;
 /* 0x2C */ AcFunc * initFunc;
 /* 0x30 */ AcFunc * mainFunc;
-/* 0x34 */ AcFunc * deleteFUnc;
+/* 0x34 */ AcFunc * deleteFunc;
 /* 0x38 */ AcDispFunc * dispFunc;
 /* 0x3C */ u8 unknown_0x3c[0x40 - 0x3c];
 } AcEntry;

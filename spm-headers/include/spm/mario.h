@@ -415,8 +415,8 @@ typedef struct
     /*
         0 is main model
         1 is back model (Mario only)
-        6 is paper pose
-        8 is slim flip model
+        5 is paper pose
+        7 is slim flip model
         Others unknown
     */
 /* 0x024C */ s32 animPoseIds[8];
@@ -442,6 +442,7 @@ typedef struct
     /*
         Variables used by many motion ID functions
         None of them have specific data types or use cases
+        Known as "MultiVal" in TTYD
     */
 /* 0x0368 */ union
              {

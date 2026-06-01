@@ -1,50 +1,52 @@
 #include "mod.h"
-#include <common.h>
-#include <lp_common.h>
-#include <evtpatch.h>
-#include <tplpatch.h>
-#include <evt_cmd.h>
-#include "patch.h"
-#include <util.h>
 #include "exception.h"
+#include "patch.h"
 #include "romfontexpand.h"
-#include <globalop.h>
-#include <msgpatch.h>
-#include <effpatch.h>
-#include <sndpatch.h>
-#include <mempatch.h>
-#include <customwin.h>
 #include <berobero.h>
+#include <common.h>
+#include <customwin.h>
+#include <effpatch.h>
+#include <evt_cmd.h>
+#include <evtpatch.h>
+#include <globalop.h>
+#include <lp_common.h>
+#include <acpatch.h>
+#include <mempatch.h>
+#include <msgpatch.h>
+#include <sndpatch.h>
+#include <tplpatch.h>
+#include <util.h>
 #include <ymetools.h>
 
 #include "lunatic/localize.h"
 #include <gen.h>
-#include <rewrite.h>
-#include <lunadrv.h>
 #include <interface.h>
+#include <lunadrv.h>
+#include <rewrite.h>
 #include <rfcdrv.h>
 
+#include <cstdint>
+#include <cstdio>
 #include <cutscene_helpers.h>
-#include <spm/rel/aa1_01.h>
-#include <spm/rel/mi4.h>
-#include <spm/rel/relocatable_module.h>
-#include <spm/temp_unk.h>
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
-#include <spm/npc_ninja.h>
+#include <spm/eff/eff_damage_star.h>
 #include <spm/eff/eff_fire.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_zunbaba.h>
-#include <spm/eff/eff_spm_recovery.h>
-#include <spm/eff/eff_damage_star.h>
-#include <spm/eff/eff_spm_spindash.h>
 #include <spm/eff/eff_spm_hit.h>
+#include <spm/eff/eff_spm_recovery.h>
+#include <spm/eff/eff_spm_spindash.h>
+#include <spm/eff/eff_zunbaba.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_env.h>
 #include <spm/evt_fade.h>
@@ -56,81 +58,80 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/levelupwindow.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
+#include <spm/npc_ninja.h>
 #include <spm/npc_tile.h>
 #include <spm/npcdrv.h>
 #include <spm/npcmisc.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/aa1_01.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
+#include <spm/rel/mi4.h>
+#include <spm/rel/relocatable_module.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
 #include <spm/wpadmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
-#include <cstdio>
-#include <cstdint>
 
-namespace mod
-{
+namespace mod {
     /*
         Main file for Lunatic Pit code
-        This is by far the messiest file, as it has a lot of the oldest code & a lot of artifacts from earlier development
-        Not everything I'd like to move out of this file has been moved out, reorganized, or refactored, but I promise I tried
+        This is by far the messiest file, as it has a lot of the oldest code & a lot of artifacts from earlier
+       development Not everything I'd like to move out of this file has been moved out, reorganized, or refactored, but
+       I promise I tried
     */
 
     using namespace spm;
     using namespace customwin;
 
-    LunaticPitWork *Lunatic = nullptr;
+    LunaticPitWork * Lunatic = nullptr;
 
     bool DebugMode = false;
 
@@ -157,38 +158,21 @@ namespace mod
     s16 frameB = 0;
     s16 frameColPhase = 0;
 
-    npcdrv::NPCTribeAnimDef luigiAnims[] = {
-        {0, "luigi_S_1"},
-        {1, "luigi_W_1"},
-        {2, "luigi_R_2"},
-        {3, "luigi_T_1"},
-        {4, "luigi_D_7"},
-        {6, "luigi_D_7"},
-        {7, "luigi_D_7"},
-        {8, "luigi_D_7"},
-        {9, "luigi_K_1"},
-        {10, "luigi_Y_1"},
-        {11, "luigi_Y_1"},
-        {12, "luigi_K_1"},
-        {13, "luigi_K_1"},
-        {14, "luigi_E_2"},
-        {15, "luigi_Y_1"},
-        {25, "luigi_J_1B"},
-        {26, "luigi_T_3A"},
-        {27, "luigi_J_1C"},
-        {28, "luigi_I_1"},
-        {29, "luigi_S_3"},
-        {30, "luigi_D_4"},
-        {-1, "luigi_Z_1"}};
+    npcdrv::NPCTribeAnimDef luigiAnims[] = {{0, "luigi_S_1"},  {1, "luigi_W_1"},  {2, "luigi_R_2"},  {3, "luigi_T_1"},   {4, "luigi_D_7"},   {6, "luigi_D_7"},
+                                            {7, "luigi_D_7"},  {8, "luigi_D_7"},  {9, "luigi_K_1"},  {10, "luigi_Y_1"},  {11, "luigi_Y_1"},  {12, "luigi_K_1"},
+                                            {13, "luigi_K_1"}, {14, "luigi_E_2"}, {15, "luigi_Y_1"}, {25, "luigi_J_1B"}, {26, "luigi_T_3A"}, {27, "luigi_J_1C"},
+                                            {28, "luigi_I_1"}, {29, "luigi_S_3"}, {30, "luigi_D_4"}, {-1, "luigi_Z_1"}};
 
     npcdrv::NPCPartDef sbParts[2] = {npcdrv::npcTribes[38].partsList[0], npcdrv::npcTribes[38].partsList[1]};
 
     npcdrv::NPCPartDef gcParts[7] = {npcdrv::npcTribes[124].partsList[0], npcdrv::npcTribes[124].partsList[1], npcdrv::npcTribes[124].partsList[2],
-                                     npcdrv::npcTribes[124].partsList[3], npcdrv::npcTribes[124].partsList[4], npcdrv::npcTribes[124].partsList[5], npcdrv::npcTribes[124].partsList[6]};
+                                     npcdrv::npcTribes[124].partsList[3], npcdrv::npcTribes[124].partsList[4], npcdrv::npcTribes[124].partsList[5],
+                                     npcdrv::npcTribes[124].partsList[6]};
 
     npcdrv::NPCPartDef bbParts[10] = {npcdrv::npcTribes[171].partsList[0], npcdrv::npcTribes[171].partsList[1], npcdrv::npcTribes[171].partsList[2],
-                                      npcdrv::npcTribes[171].partsList[3], npcdrv::npcTribes[171].partsList[4], npcdrv::npcTribes[171].partsList[5], npcdrv::npcTribes[171].partsList[6],
-                                      npcdrv::npcTribes[171].partsList[7], npcdrv::npcTribes[171].partsList[8], npcdrv::npcTribes[171].partsList[9]};
+                                      npcdrv::npcTribes[171].partsList[3], npcdrv::npcTribes[171].partsList[4], npcdrv::npcTribes[171].partsList[5],
+                                      npcdrv::npcTribes[171].partsList[6], npcdrv::npcTribes[171].partsList[7], npcdrv::npcTribes[171].partsList[8],
+                                      npcdrv::npcTribes[171].partsList[9]};
 
     // Shy Guy anim defs
     npcdrv::NPCTribeAnimDef heihoAnims[] = { // Copied from Goombas, then R_2 thrown in lol
@@ -279,8 +263,7 @@ namespace mod
     RETURN_FROM_CALL()
 
     // Define enemy defenses
-    npcdrv::NPCDefense createDef(int type, s32 defense, s32 flags)
-    {
+    npcdrv::NPCDefense createDef(int type, s32 defense, s32 flags) {
         npcdrv::NPCDefense def;
         def.type = type;
         def.defense = defense;
@@ -311,161 +294,129 @@ namespace mod
 
     bool critActuate;
 
-    // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't override all defenses with damage reduction.
-    // There are certainly a few in this array that can use DEFs, direct DR is just easier for me right now.
+    // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't
+    // override all defenses with damage reduction. There are certainly a few in this array that can use DEFs, direct DR
+    // is just easier for me right now.
     s32 (*marioCalcDamageToEnemy)(s32 damageType, s32 tribeId);
-    void (*marioTakeDamage)(wii::mtx::Vec3 *position, u32 flags, s32 damage);
-    s32 (*npcDamageMario)(npcdrv::NPCEntry *npcEntry, npcdrv::NPCPart *part, wii::mtx::Vec3 *position, u32 status, s32 damage, u32 flags);
-    s32 (*npcHandleHitXp)(mario::MarioWork *marioWork, npcdrv::NPCEntry *npcEntry, s32 killXp, s32 unk_variant);
-    s32 (*npcTakeDamage)(npcdrv::NPCEntry *npc, npcdrv::NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
-    effdrv::EffEntry *(*effDamageStarEntry)(f32 x, f32 y, f32 z, s32 variant, s32 damage);
+    void (*marioTakeDamage)(wii::mtx::Vec3 * position, u32 flags, s32 damage);
+    s32 (*npcDamageMario)(npcdrv::NPCEntry * npcEntry, npcdrv::NPCPart * part, wii::mtx::Vec3 * position, u32 status, s32 damage, u32 flags);
+    s32 (*npcHandleHitXp)(mario::MarioWork * marioWork, npcdrv::NPCEntry * npcEntry, s32 killXp, s32 unk_variant);
+    s32 (*npcTakeDamage)(npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
+    effdrv::EffEntry * (*effDamageStarEntry)(f32 x, f32 y, f32 z, s32 variant, s32 damage);
     void (*camShakeInit)(f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration);
     void (*marioChgMotSub)(s32 motionId, s32 p2);
-    void patchMarioDamage()
-    {
-        marioCalcDamageToEnemy = patch::hookFunction(mario::marioCalcDamageToEnemy,
-                                                     [](s32 damageType, s32 tribeId)
-                                                     {
-                                                         // handle enemy damage reduction
-                                                         s32 dmg = marioCalcDamageToEnemy(damageType, tribeId);
-                                                         s32 paramitaTimer = swdrv::swByteGet(1610);
-                                                         s32 floor = swdrv::swByteGet(1);
-                                                         if (paramitaTimer > 20)
-                                                         {
-                                                             if (floor < 150)
-                                                             {
-                                                                 dmg = (dmg * 2);
-                                                             }
-                                                             else if (floor < 175)
-                                                             {
-                                                                 dmg = (dmg * 3);
-                                                             }
-                                                             else
-                                                             {
-                                                                 dmg = (dmg * 4);
-                                                             }
-                                                         }
-                                                         s32 disorderId = Lunatic->Luna.disorder;
-                                                         if (disorderId == DISORDER_RED)
-                                                             dmg -= Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease;
-                                                         // Kilo Muth, DEF 3 -> 1
-                                                         // Ice Bro, DEF 3 --> 1
-                                                         // Red Spike Top, DEF 6 --> 4
-                                                         // Sky-Blue Spiny, DEF 6 --> 4
-                                                         if (tribeId == 506 || tribeId == 61 || tribeId == 29 || tribeId == 38)
-                                                         {
-                                                             dmg += 2;
-                                                         }
-                                                         // Spunia, DEF 0 --> 1
-                                                         // Green Shy Guy, DEF 0 --> 1
-                                                         else if (tribeId == 496 || tribeId == 530)
-                                                         {
-                                                             dmg -= 1;
-                                                         }
-                                                         // Shady Bros, DEF 3 --> 2
-                                                         // Red Chomp & Skellobytes, DEF 4? --> 1 less
-                                                         if (tribeId == 61 || tribeId == 55 || tribeId == 49 || tribeId == 225 || tribeId == 228 || tribeId == 123)
-                                                         {
-                                                             dmg += 1;
-                                                         }
-                                                         // Green (Broom) Magikoopa, DEF 0 --> 3
-                                                         // (Flip) Shady Koopa, DEF 0 --> 3
-                                                         else if (tribeId == 473 || tribeId == 474 || tribeId == 465 || tribeId == 466)
-                                                         {
-                                                             dmg -= 3;
-                                                         }
-                                                         // Blue Shy Guy, DEF 0 --> 3
-                                                         else if (tribeId == 531)
-                                                         {
-                                                             dmg -= 3;
-                                                         }
-                                                         // Dark Koopatrol, DEF 8 --> 5
-                                                         else if (tribeId == 19)
-                                                         {
-                                                             dmg += 3;
-                                                         }
-                                                         // Gold Chomp, DEF 10 --> 6
-                                                         else if (tribeId == 124)
-                                                         {
-                                                             dmg += 4;
-                                                         }
-                                                         if (disorderId == DISORDER_YELLOW)
-                                                         {
-                                                             if (mario_pouch::pouchGetPtr()->coins < Lunatic->Luna.DW.UW.Prejudice->coinThreshold)
-                                                                 dmg = (s32)(dmg / 2);
-                                                         }
-                                                         if (dmg < 0)
-                                                         {
-                                                             dmg = 0;
-                                                         }
-                                                         return dmg;
-                                                     });
+    void patchMarioDamage() {
+        marioCalcDamageToEnemy = patch::hookFunction(mario::marioCalcDamageToEnemy, [](s32 damageType, s32 tribeId) {
+            // handle enemy damage reduction
+            s32 dmg = marioCalcDamageToEnemy(damageType, tribeId);
+            s32 paramitaTimer = swdrv::swByteGet(1610);
+            s32 floor = swdrv::swByteGet(1);
+            if (paramitaTimer > 20) {
+                if (floor < 150) {
+                    dmg = (dmg * 2);
+                } else if (floor < 175) {
+                    dmg = (dmg * 3);
+                } else {
+                    dmg = (dmg * 4);
+                }
+            }
+            s32 disorderId = Lunatic->Luna.disorder;
+            if (disorderId == DISORDER_RED)
+                dmg -= Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease;
+            // Kilo Muth, DEF 3 -> 1
+            // Ice Bro, DEF 3 --> 1
+            // Red Spike Top, DEF 6 --> 4
+            // Sky-Blue Spiny, DEF 6 --> 4
+            if (tribeId == 506 || tribeId == 61 || tribeId == 29 || tribeId == 38) {
+                dmg += 2;
+            }
+            // Spunia, DEF 0 --> 1
+            // Green Shy Guy, DEF 0 --> 1
+            else if (tribeId == 496 || tribeId == 530) {
+                dmg -= 1;
+            }
+            // Shady Bros, DEF 3 --> 2
+            // Red Chomp & Skellobytes, DEF 4? --> 1 less
+            if (tribeId == 61 || tribeId == 55 || tribeId == 49 || tribeId == 225 || tribeId == 228 || tribeId == 123) {
+                dmg += 1;
+            }
+            // Green (Broom) Magikoopa, DEF 0 --> 3
+            // (Flip) Shady Koopa, DEF 0 --> 3
+            else if (tribeId == 473 || tribeId == 474 || tribeId == 465 || tribeId == 466) {
+                dmg -= 3;
+            }
+            // Blue Shy Guy, DEF 0 --> 3
+            else if (tribeId == 531) {
+                dmg -= 3;
+            }
+            // Dark Koopatrol, DEF 8 --> 5
+            else if (tribeId == 19) {
+                dmg += 3;
+            }
+            // Gold Chomp, DEF 10 --> 6
+            else if (tribeId == 124) {
+                dmg += 4;
+            }
+            if (disorderId == DISORDER_YELLOW) {
+                if (mario_pouch::pouchGetPtr()->coins < Lunatic->Luna.DW.UW.Prejudice->coinThreshold)
+                    dmg = (s32)(dmg / 2);
+            }
+            if (dmg < 0) {
+                dmg = 0;
+            }
+            return dmg;
+        });
 
-        marioTakeDamage = patch::hookFunction(mario::marioTakeDamage,
-                                              [](wii::mtx::Vec3 *position, u32 flags, s32 damage)
-                                              {
-                                                  s32 odds;
-                                                  // Vulnerability Hex
-                                                  s32 curse = swdrv::swByteGet(1601);
-                                                  if (curse == CurseId::MERLUNA_HEX)
-                                                  {
-                                                      s32 floor = swdrv::swByteGet(1);
-                                                      if (floor < 49)
-                                                      {
-                                                          damage = damage + 1;
-                                                      }
-                                                      else if (floor < 174)
-                                                      {
-                                                          damage = damage + 2;
-                                                      }
-                                                      else
-                                                      {
-                                                          damage = damage + 3;
-                                                      }
-                                                      if (damage < 0)
-                                                      {
-                                                          damage = 0;
-                                                      }
-                                                  }
-                                                  // Migraine
-                                                  if (curse == CurseId::MERLUNA_MIGRAINE)
-                                                  {
-                                                      odds = system::rand() % 100;
-                                                      if (odds < 40) // 40%
-                                                      {
-                                                          mario_status::marioStatusApplyStatuses(STATUS_FLIPPED_CONTROLS, 2);
-                                                          swdrv::swSet(1670);
-                                                      }
-                                                      else if (odds < 60) // 20%
-                                                      {
-                                                          mario_status::marioStatusApplyStatuses(STATUS_NO_SKILLS, 2);
-                                                          swdrv::swSet(1670);
-                                                      }
-                                                      else if (odds < 70) // 10%
-                                                      {
-                                                          mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
-                                                          swdrv::swSet(1670);
-                                                      }
-                                                      else if (odds < 75) // 5%, otherwise no status.
-                                                      {
-                                                          mario_status::marioStatusApplyStatuses(STATUS_NO_JUMP, 2);
-                                                          swdrv::swSet(1670);
-                                                      }
-                                                  }
-                                                  marioTakeDamage(position, flags, damage);
-                                              });
+        marioTakeDamage = patch::hookFunction(mario::marioTakeDamage, [](wii::mtx::Vec3 * position, u32 flags, s32 damage) {
+            s32 odds;
+            // Vulnerability Hex
+            s32 curse = swdrv::swByteGet(1601);
+            if (curse == CurseId::MERLUNA_HEX) {
+                s32 floor = swdrv::swByteGet(1);
+                if (floor < 49) {
+                    damage = damage + 1;
+                } else if (floor < 174) {
+                    damage = damage + 2;
+                } else {
+                    damage = damage + 3;
+                }
+                if (damage < 0) {
+                    damage = 0;
+                }
+            }
+            // Migraine
+            if (curse == CurseId::MERLUNA_MIGRAINE) {
+                odds = system::rand() % 100;
+                if (odds < 40) // 40%
+                {
+                    mario_status::marioStatusApplyStatuses(STATUS_FLIPPED_CONTROLS, 2);
+                    swdrv::swSet(1670);
+                } else if (odds < 60) // 20%
+                {
+                    mario_status::marioStatusApplyStatuses(STATUS_NO_SKILLS, 2);
+                    swdrv::swSet(1670);
+                } else if (odds < 70) // 10%
+                {
+                    mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
+                    swdrv::swSet(1670);
+                } else if (odds < 75) // 5%, otherwise no status.
+                {
+                    mario_status::marioStatusApplyStatuses(STATUS_NO_JUMP, 2);
+                    swdrv::swSet(1670);
+                }
+            }
+            marioTakeDamage(position, flags, damage);
+        });
 
         npcDamageMario = patch::hookFunction(npcdrv::npcDamageMario,
-                                             [](npcdrv::NPCEntry *npcEntry, npcdrv::NPCPart *part, wii::mtx::Vec3 *position, u32 status, s32 damage, u32 flags)
-                                             {
+                                             [](npcdrv::NPCEntry * npcEntry, npcdrv::NPCPart * part, wii::mtx::Vec3 * position, u32 status, s32 damage, u32 flags) {
                                                  f32 fDmg;
                                                  if (npcEntry == nullptr) // Patches a crash that occurs when npcDamageMario is called with no npcEntry pointer
                                                  {
                                                      if (part == nullptr && status == 0 && damage == 20 && flags == 4) // Dark Bowser's fire meets these conditions
                                                      {
                                                          s32 difficulty = swdrv::swByteGet(1620);
-                                                         switch (difficulty)
-                                                         {
+                                                         switch (difficulty) {
                                                          case 0:
                                                              damage = damage / 2;
                                                              break;
@@ -490,23 +441,18 @@ namespace mod
                                                  if (disorderId == DISORDER_RED)
                                                      damage += Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease;
                                                  // Indolence
-                                                 if (disorderId == DISORDER_PURPLE)
-                                                 {
+                                                 if (disorderId == DISORDER_PURPLE) {
                                                      s32 odds = system::rand() % 100;
-                                                     if (odds < Lunatic->Luna.DW.UW.Indolence->attackEffectChance)
-                                                     {
+                                                     if (odds < Lunatic->Luna.DW.UW.Indolence->attackEffectChance) {
                                                          odds = system::rand() % 100;
                                                          if (odds < 34) // Freeze
                                                          {
                                                              status |= 0x2000;
-                                                         }
-                                                         else if (odds < 66) // Damage bonus
+                                                         } else if (odds < 66) // Damage bonus
                                                          {
                                                              fDmg = (f32)damage * ((f32)Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus / 100) + 1.0;
                                                              damage = (s32)fDmg;
-                                                         }
-                                                         else
-                                                         {
+                                                         } else {
                                                              mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
                                                              swdrv::swSet(1670);
                                                          }
@@ -519,8 +465,7 @@ namespace mod
                                                  if (npcEntry->tribeId <= 333 && npcEntry->tribeId >= 330) // Patch Shadoo damage
                                                  {
                                                      s32 difficulty = swdrv::swByteGet(1620);
-                                                     switch (difficulty)
-                                                     {
+                                                     switch (difficulty) {
                                                      case 0:
                                                          damage = damage / 2;
                                                          break;
@@ -530,8 +475,7 @@ namespace mod
                                                      }
                                                  }
                                                  // Auspice and Aegis
-                                                 if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
-                                                 {
+                                                 if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
                                                      // Aegis flat damage reduction
                                                      damage -= Lunatic->Stats.AegisDef;
                                                      // Auspice damage% reduction
@@ -543,167 +487,145 @@ namespace mod
                                                  return npcDamageMario(npcEntry, part, position, status, damage, flags);
                                              });
 
-        npcHandleHitXp = patch::hookFunction(temp_unk::npcHandleHitXp,
-                                             [](mario::MarioWork *marioWork, npcdrv::NPCEntry *npcEntry, s32 killXp, s32 unk_variant)
-                                             {
-                                                 s32 disorderId = Lunatic->Luna.disorder;
-                                                 if (disorderId == DisorderId::DISORDER_ORANGE) // If Dread is active, disable XP
-                                                     killXp = 0;
-                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_CHILD) == true) // If child npc, give 10% XP
-                                                     killXp /= 10;
-                                                 if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, *invert* XP
-                                                 {
-                                                     f32 xp = (f32)Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct / 100.0f;
-                                                     killXp *= (s32)-xp;
-                                                 }
-                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_HOLOGRAPHIC) == true)
-                                                     killXp *= 2; //  Holographic enemies in the Pit will give 2x score
-                                                 if (npcCheckDanFlag(npcEntry, DAN_NPC_NEGATIVE) == true)
-                                                     killXp *= -1; //  Negative enemies give negative score
-                                                 return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
-                                             });
+        npcHandleHitXp = patch::hookFunction(temp_unk::npcHandleHitXp, [](mario::MarioWork * marioWork, npcdrv::NPCEntry * npcEntry, s32 killXp, s32 unk_variant) {
+            s32 disorderId = Lunatic->Luna.disorder;
+            if (disorderId == DisorderId::DISORDER_ORANGE) // If Dread is active, disable XP
+                killXp = 0;
+            if (npcCheckDanFlag(npcEntry, DAN_NPC_CHILD) == true) // If child npc, give 10% XP
+                killXp /= 10;
+            if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0) // If Recalcitrance is active, *invert* XP
+            {
+                f32 xp = (f32)Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct / 100.0f;
+                killXp *= (s32)-xp;
+            }
+            if (npcCheckDanFlag(npcEntry, DAN_NPC_HOLOGRAPHIC) == true)
+                killXp *= 2; //  Holographic enemies in the Pit will give 2x score
+            if (npcCheckDanFlag(npcEntry, DAN_NPC_NEGATIVE) == true)
+                killXp *= -1; //  Negative enemies give negative score
+            return npcHandleHitXp(marioWork, npcEntry, killXp, unk_variant);
+        });
 
-        npcTakeDamage = patch::hookFunction(npcdrv::npcTakeDamage,
-                                            [](npcdrv::NPCEntry *npc, npcdrv::NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6)
-                                            {
-                                                s32 difficulty = swdrv::swByteGet(1620);
-                                                // wii::os::OSReport("npcTakeDamage: %s dealt damage of type %d to %s.\n", npcTribeToName(npcPart->owner->tribeId), defenseType, npcTribeToName(npc->tribeId));
-                                                if (defenseType == 5 && difficulty >= 2)
-                                                {
-                                                    // No damage is dealt from shells unless both enemies are spinning
-                                                    if (npc->moveMode == NPC_MOVE_SPIN && npcPart->owner->moveMode == NPC_MOVE_SPIN)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
-                                                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
-                                                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
-                                                        npcTakeDamage(npcPart->owner, &npc->parts[0], defenseType, power, flags, param_6);
-                                                        return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
-                                                    }
-                                                    else if ((u32)npcPart->owner == (u32)mario::marioGetPtr()->caught.npc)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
-                                                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
-                                                        return npcTakeDamage(npc, npcPart, 6, power, flags, param_6);
-                                                    }
-                                                    else
-                                                    {
-                                                        return npcTakeDamage(0, 0, defenseType, 0, 0, param_6);
-                                                    }
-                                                }
-                                                if (defenseType == 5 || defenseType == 29) // Hit by Koopa shell or Barried projectile
-                                                // POTENTIAL TODO: Rework this *somehow* to make barried projectiles not play this stuff every frame...? It's vanilla behavior... but it sucks.
-                                                {
-                                                    if (npcPart != 0)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
-                                                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
-                                                    }
-                                                    else if (npc != 0)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
-                                                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
-                                                    }
-                                                }
-                                                else if (defenseType == 6) // Thoreau collision
-                                                {
-                                                    if (npcPart != 0)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
-                                                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
-                                                    }
-                                                    if (npc != 0)
-                                                    {
-                                                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
-                                                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
-                                                    }
-                                                }
-                                                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_HOLOGRAPHIC) == true)
-                                                    power -= 2;
-                                                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_NEGATIVE) == true && !((defenseType == 6 || defenseType == 4) && npcCheckDanFlag(npc, DAN_NPC_NEGATIVE) == true) && power >= 3) // Negative enemies should be vulnerable to Thoreau damage ONLY when colliding with another negative enemy
-                                                    power = round((f32)power / 3.0f);
-                                                s32 odds;
-                                                s32 disorderId = Lunatic->Luna.disorder;
-                                                if (disorderId == DISORDER_ORANGE && power > 0)
-                                                {
-                                                    odds = system::irand(100);
-                                                    if (odds < Lunatic->Luna.DW.UW.Dread->dispBlockChance)
-                                                    {
-                                                        npcPart->owner->hp += (s32)(msl::math::sqrt(power));
-                                                        if (npcPart->owner->hp > npcPart->owner->maxHp)
-                                                            npcPart->owner->hp = npcPart->owner->maxHp;
-                                                        // effdrv::EffEntry *recovery = eff_spm_recovery::effSpmRecoveryEntry(npcPart->owner->position.x, npcPart->owner->position.y, npcPart->owner->position.z, (power / 2));
-                                                        // eff_spm_recovery::func_80091794(recovery, -1, npcPart->owner->name);
-                                                        power = 0;
-                                                    }
-                                                }
-                                                else // Crits should be mutually exclusive from forced dodges
-                                                {
-                                                    // Calculate critical strikes
-                                                    f32 critOdds = system::rand() % 100;
-                                                    if (Lunatic->Stats.CritRate > critOdds)
-                                                    {
-                                                        f32 fDmg = (f32)power;
-                                                        fDmg *= (Lunatic->Stats.CritMult / 100 + 1);
-                                                        power = (s32)msl::math::floor(fDmg) + 1;
-                                                        critActuate = true;
-                                                    }
-                                                }
-                                                // Check if crit should actually occur
-                                                u32 hp = npcPart->owner->hp;
-                                                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
-                                                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33 || defenseType == 37)
-                                                    critActuate = false;
-                                                // wii::os::OSReport("%d damage dealt of type %d.\n", power, defenseType);
-                                                if (disorderId == DISORDER_CYAN && defenseType == 2) // Damage Mario AFTER damaging npc if damage type is stomp
-                                                {
-                                                    odds = system::irand(100);
-                                                    if (odds < Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage)
-                                                    {
-                                                        s32 marioDmg = (s32)(hp - npcPart->owner->hp);
-                                                        if (marioDmg > Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg)
-                                                            marioDmg = Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg;
-                                                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 0x10000000);
-                                                    }
-                                                }
-                                                return ret;
-                                            });
+        npcTakeDamage =
+            patch::hookFunction(npcdrv::npcTakeDamage, [](npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6) {
+                s32 difficulty = swdrv::swByteGet(1620);
+                // wii::os::OSReport("npcTakeDamage: %s dealt damage of type %d to %s.\n",
+                // npcTribeToName(npcPart->owner->tribeId), defenseType, npcTribeToName(npc->tribeId));
+                if (defenseType == 5 && difficulty >= 2) {
+                    // No damage is dealt from shells unless both enemies are spinning
+                    if (npc->moveMode == NPC_MOVE_SPIN && npcPart->owner->moveMode == NPC_MOVE_SPIN) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
+                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
+                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
+                        npcTakeDamage(npcPart->owner, &npc->parts[0], defenseType, power, flags, param_6);
+                        return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                    } else if ((u32)npcPart->owner == (u32)mario::marioGetPtr()->caught.npc) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
+                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
+                        return npcTakeDamage(npc, npcPart, 6, power, flags, param_6);
+                    } else {
+                        return npcTakeDamage(0, 0, defenseType, 0, 0, param_6);
+                    }
+                }
+                if (defenseType == 5 || defenseType == 29) // Hit by Koopa shell or Barried projectile
+                // POTENTIAL TODO: Rework this *somehow* to make barried projectiles not play this stuff every frame...?
+                // It's vanilla behavior... but it sucks.
+                {
+                    if (npcPart != 0) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
+                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
+                    } else if (npc != 0) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
+                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
+                    }
+                } else if (defenseType == 6) // Thoreau collision
+                {
+                    if (npcPart != 0) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
+                        eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
+                    }
+                    if (npc != 0) {
+                        spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
+                        eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
+                    }
+                }
+                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_HOLOGRAPHIC) == true)
+                    power -= 2;
+                if (npcCheckDanFlag(npcPart->owner, DAN_NPC_NEGATIVE) == true &&
+                    !((defenseType == 6 || defenseType == 4) && npcCheckDanFlag(npc, DAN_NPC_NEGATIVE) == true) &&
+                    power >= 3) // Negative enemies should be vulnerable to Thoreau damage ONLY when colliding with another
+                                // negative enemy
+                    power = round((f32)power / 3.0f);
+                s32 odds;
+                s32 disorderId = Lunatic->Luna.disorder;
+                if (disorderId == DISORDER_ORANGE && power > 0) {
+                    odds = system::irand(100);
+                    if (odds < Lunatic->Luna.DW.UW.Dread->dispBlockChance) {
+                        npcPart->owner->hp += (s32)(msl::math::sqrt(power));
+                        if (npcPart->owner->hp > npcPart->owner->maxHp)
+                            npcPart->owner->hp = npcPart->owner->maxHp;
+                        // effdrv::EffEntry *recovery = eff_spm_recovery::effSpmRecoveryEntry(npcPart->owner->position.x,
+                        // npcPart->owner->position.y, npcPart->owner->position.z, (power / 2));
+                        // eff_spm_recovery::func_80091794(recovery, -1, npcPart->owner->name);
+                        power = 0;
+                    }
+                } else // Crits should be mutually exclusive from forced dodges
+                {
+                    // Calculate critical strikes
+                    f32 critOdds = system::rand() % 100;
+                    if (Lunatic->Stats.CritRate > critOdds) {
+                        f32 fDmg = (f32)power;
+                        fDmg *= (Lunatic->Stats.CritMult / 100 + 1);
+                        power = (s32)msl::math::floor(fDmg) + 1;
+                        critActuate = true;
+                    }
+                }
+                // Check if crit should actually occur
+                u32 hp = npcPart->owner->hp;
+                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33 || defenseType == 37)
+                    critActuate = false;
+                // wii::os::OSReport("%d damage dealt of type %d.\n", power, defenseType);
+                if (disorderId == DISORDER_CYAN && defenseType == 2) // Damage Mario AFTER damaging npc if damage type is stomp
+                {
+                    odds = system::irand(100);
+                    if (odds < Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage) {
+                        s32 marioDmg = (s32)(hp - npcPart->owner->hp);
+                        if (marioDmg > Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg)
+                            marioDmg = Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg;
+                        npcdrv::npcDamageMario(npcPart->owner, npcPart, &npcPart->owner->position, 0, marioDmg, 0x10000000);
+                    }
+                }
+                return ret;
+            });
 
-        effDamageStarEntry = patch::hookFunction(eff_damage_star::effDamageStarEntry,
-                                                 [](f32 x, f32 y, f32 z, s32 variant, s32 damage)
-                                                 {
-                                                     effdrv::EffEntry *eff = effDamageStarEntry(x, y, z, variant, damage);
-                                                     if (critActuate)
-                                                     {
-                                                         wii::gx::GXColor CritPurple = {150, 70, 200, 255};
-                                                         wii::gx::GXColor CritPurple2 = {70, 35, 150, 255};
-                                                         effpatch::effpatchColorMaskEntry(eff, CritPurple, CritPurple2, nullptr);
-                                                         spmario_snd::spsndSFXOn_3D("SFX_P_ACROBAT_RENZOKU3", &mario::marioGetPtr()->position);
-                                                         critActuate = false;
-                                                     }
-                                                     return eff;
-                                                 });
+        effDamageStarEntry = patch::hookFunction(eff_damage_star::effDamageStarEntry, [](f32 x, f32 y, f32 z, s32 variant, s32 damage) {
+            effdrv::EffEntry * eff = effDamageStarEntry(x, y, z, variant, damage);
+            if (critActuate) {
+                wii::gx::GXColor CritPurple = {150, 70, 200, 255};
+                wii::gx::GXColor CritPurple2 = {70, 35, 150, 255};
+                effpatch::effpatchColorMaskEntry(eff, CritPurple, CritPurple2, nullptr);
+                spmario_snd::spsndSFXOn_3D("SFX_P_ACROBAT_RENZOKU3", &mario::marioGetPtr()->position);
+                critActuate = false;
+            }
+            return eff;
+        });
 
-        camShakeInit = patch::hookFunction(camdrv::camShakeInit,
-                                           [](f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration)
-                                           {
-                                               // wii::os::OSReport("camShakeInit Call: tremorState == %d.\n", Lunatic->Luna.DW.tremorState);
-                                               if (Lunatic->Luna.DW.tremorState > 0)
-                                                   return;
-                                               camShakeInit(x, y, z, camId, duration);
-                                           });
-        marioChgMotSub = patch::hookFunction(mario_motion::marioChgMotSub,
-                                             [](s32 mot, s32 p2)
-                                             {
-                                                 // Patch double damage glitch and Recalcitrance not allowing mot_hit
-                                                 if (mot == MOT_BOUNCE && mario::marioGetPtr()->motionId == MOT_HIT)
-                                                     return;
-                                                 marioChgMotSub(mot, p2);
-                                             });
+        camShakeInit = patch::hookFunction(camdrv::camShakeInit, [](f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration) {
+            // wii::os::OSReport("camShakeInit Call: tremorState == %d.\n", Lunatic->Luna.DW.tremorState);
+            if (Lunatic->Luna.DW.tremorState > 0)
+                return;
+            camShakeInit(x, y, z, camId, duration);
+        });
+        marioChgMotSub = patch::hookFunction(mario_motion::marioChgMotSub, [](s32 mot, s32 p2) {
+            // Patch double damage glitch and Recalcitrance not allowing mot_hit
+            if (mot == MOT_BOUNCE && mario::marioGetPtr()->motionId == MOT_HIT)
+                return;
+            marioChgMotSub(mot, p2);
+        });
     }
 
-    void npcInheritDanFlag(npcdrv::NPCEntry *parent, npcdrv::NPCEntry *child)
-    {
+    void npcInheritDanFlag(npcdrv::NPCEntry * parent, npcdrv::NPCEntry * child) {
         if (child == nullptr)
             return;
         npcSetDanFlag(child, DAN_NPC_CHILD);
@@ -714,253 +636,204 @@ namespace mod
         return;
     }
 
-    s32 (*func_801f9294)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801f9cfc)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801fa3d0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80202ea8)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80200f5c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_802052fc)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_8022e008)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80206a84)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_802232c0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80221cf4)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801d9a88)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_802355f8)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801d8d94)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_802259f0)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801f6514)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_8021eaac)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_8021e8ac)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80234368)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80234d3c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_80234fd4)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_8021259c)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_8024b198)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*func_801f8220)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    s32 (*npc_jugemu_toss_spiny)(evtmgr::EvtEntry *evtEntry, bool firstRun);
-    static void hookNpcChildrenFromParentSpawnFuncs()
-    {
+    s32 (*func_801f9294)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801f9cfc)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801fa3d0)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80202ea8)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80200f5c)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_802052fc)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_8022e008)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80206a84)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_802232c0)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80221cf4)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801d9a88)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_802355f8)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801d8d94)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_802259f0)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801f6514)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_8021eaac)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_8021e8ac)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80234368)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80234d3c)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_80234fd4)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_8021259c)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_8024b198)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*func_801f8220)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    s32 (*npc_jugemu_toss_spiny)(evtmgr::EvtEntry * evtEntry, bool firstRun);
+    static void hookNpcChildrenFromParentSpawnFuncs() {
         // Hammer Bros
-        func_801f9294 = patch::hookFunction(temp_unk::func_801f9294,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801f9294(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801f9294 = patch::hookFunction(temp_unk::func_801f9294, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801f9294(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Boomerang Bros
-        func_801f9cfc = patch::hookFunction(temp_unk::func_801f9cfc,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801f9cfc(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801f9cfc = patch::hookFunction(temp_unk::func_801f9cfc, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801f9cfc(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Fire Bros
-        func_801fa3d0 = patch::hookFunction(temp_unk::func_801fa3d0,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801fa3d0(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801fa3d0 = patch::hookFunction(temp_unk::func_801fa3d0, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801fa3d0(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Dull Bones
-        func_80202ea8 = patch::hookFunction(temp_unk::func_80202ea8,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80202ea8(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80202ea8 = patch::hookFunction(temp_unk::func_80202ea8, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80202ea8(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Magikoopas
-        func_80200f5c = patch::hookFunction(temp_unk::func_80200f5c,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80200f5c(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80200f5c = patch::hookFunction(temp_unk::func_80200f5c, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80200f5c(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Koopa Strikers
-        func_802052fc = patch::hookFunction(temp_unk::func_802052fc,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_802052fc(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_802052fc = patch::hookFunction(temp_unk::func_802052fc, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_802052fc(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Pokeys
-        func_8022e008 = patch::hookFunction(temp_unk::func_8022e008,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_8022e008(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_8022e008 = patch::hookFunction(temp_unk::func_8022e008, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_8022e008(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Ruff Puffs
-        func_80206a84 = patch::hookFunction(temp_unk::func_80206a84,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80206a84(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80206a84 = patch::hookFunction(temp_unk::func_80206a84, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80206a84(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Dayzees
-        func_802232c0 = patch::hookFunction(temp_unk::func_802232c0,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_802232c0(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_802232c0 = patch::hookFunction(temp_unk::func_802232c0, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_802232c0(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Squigs
-        func_80221cf4 = patch::hookFunction(temp_unk::func_80221cf4,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80221cf4(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80221cf4 = patch::hookFunction(temp_unk::func_80221cf4, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80221cf4(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Boomboxers
-        func_801d9a88 = patch::hookFunction(temp_unk::func_801d9a88,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801d9a88(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801d9a88 = patch::hookFunction(temp_unk::func_801d9a88, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801d9a88(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Sproing-Oings
-        func_802355f8 = patch::hookFunction(temp_unk::func_802355f8,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_802355f8(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_802355f8 = patch::hookFunction(temp_unk::func_802355f8, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_802355f8(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Mr. Is
-        func_801d8d94 = patch::hookFunction(temp_unk::func_801d8d94,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801d8d94(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801d8d94 = patch::hookFunction(temp_unk::func_801d8d94, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801d8d94(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Foton
-        func_802259f0 = patch::hookFunction(temp_unk::func_802259f0,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_802259f0(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_802259f0 = patch::hookFunction(temp_unk::func_802259f0, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_802259f0(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Eel/Hooligons
-        func_801f6514 = patch::hookFunction(temp_unk::func_801f6514,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801f6514(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801f6514 = patch::hookFunction(temp_unk::func_801f6514, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801f6514(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Ninjoes (Bombs)
-        func_8021eaac = patch::hookFunction(temp_unk::func_8021eaac,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_8021eaac(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_8021eaac = patch::hookFunction(temp_unk::func_8021eaac, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_8021eaac(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Ninjoes (Shurikens)
-        func_8021e8ac = patch::hookFunction(temp_unk::func_8021e8ac,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_8021e8ac(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_8021e8ac = patch::hookFunction(temp_unk::func_8021e8ac, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_8021e8ac(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Skellobomber (Head-Type)
-        func_80234368 = patch::hookFunction(temp_unk::func_80234368,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80234368(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80234368 = patch::hookFunction(temp_unk::func_80234368, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80234368(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Skellobomber (Bait-Type)
-        func_80234d3c = patch::hookFunction(temp_unk::func_80234d3c,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80234d3c(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80234d3c = patch::hookFunction(temp_unk::func_80234d3c, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80234d3c(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Skellobait (Breath)
-        func_80234fd4 = patch::hookFunction(temp_unk::func_80234fd4,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_80234fd4(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_80234fd4 = patch::hookFunction(temp_unk::func_80234fd4, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_80234fd4(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Magiblots
-        func_8021259c = patch::hookFunction(temp_unk::func_8021259c,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_8021259c(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_8021259c = patch::hookFunction(temp_unk::func_8021259c, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_8021259c(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Cherbils
-        func_8024b198 = patch::hookFunction(temp_unk::func_8024b198,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_8024b198(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_8024b198 = patch::hookFunction(temp_unk::func_8024b198, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_8024b198(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Growmebas
-        func_801f8220 = patch::hookFunction(temp_unk::func_801f8220,
-                                            [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                            {
-                                                s32 ret = func_801f8220(evtEntry, firstRun);
-                                                if (ret == 2)
-                                                    npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                return ret;
-                                            });
+        func_801f8220 = patch::hookFunction(temp_unk::func_801f8220, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = func_801f8220(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
         // Lakitus
-        npc_jugemu_toss_spiny = patch::hookFunction(temp_unk::npc_jugemu_toss_spiny,
-                                                    [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                                                    {
-                                                        s32 ret = npc_jugemu_toss_spiny(evtEntry, firstRun);
-                                                        if (ret == 2)
-                                                            npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
-                                                        return ret;
-                                                    });
+        npc_jugemu_toss_spiny = patch::hookFunction(temp_unk::npc_jugemu_toss_spiny, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
+            s32 ret = npc_jugemu_toss_spiny(evtEntry, firstRun);
+            if (ret == 2)
+                npcInheritDanFlag((npcdrv::NPCEntry *)evtEntry->ownerNPC, (npcdrv::NPCEntry *)evtEntry->tempU[0]);
+            return ret;
+        });
     }
 
-    // Called to remove default segments and their shadows from the map (Top 7 are the hitobjs, followed by mapobjs for visible segment and dropshadow)
-    s32 danClearMapParts()
-    {
+    // Called to remove default segments and their shadows from the map (Top 7 are the hitobjs, followed by mapobjs for
+    // visible segment and dropshadow)
+    s32 danClearMapParts() {
         // Hitobjs for default segs
         hitdrv::hitGrpFlagOn(0, "pCube11_q00009", 1);
         hitdrv::hitGrpFlagOn(0, "pCube12_q00010", 1);
@@ -1011,62 +884,48 @@ namespace mod
         return 2;
     }
 
-    const char *danTexMapNames[] = {"dan_44_zaku.tpl", "dan_44_blank.tpl", "dan_64_zaku_insp.tpl"};
+    const char * danTexMapNames[] = {"dan_44_zaku.tpl", "dan_44_blank.tpl", "dan_64_zaku_insp.tpl"};
 
     // Gigantic shoutouts to L and Seeky for helping me get this function to work!!!!!!
-    static void loadNewDanTex()
-    {
-        const char *loadMap = seq_mapchange::seq_mapchange_wp->mapName;
-        mapdrv::MapWorkGroup *mapWork = mapdrv::mapGetWork(); // Gets MapWorkGroup, which should contain the MapEntry for the current map
-        mapdrv::MapEntry *mapEntry = &mapWork->entries[0];    // The MapEntry for current map
+    static void loadNewDanTex() {
+        const char * loadMap = seq_mapchange::seq_mapchange_wp->mapName;
+        mapdrv::MapWorkGroup * mapWork = mapdrv::mapGetWork(); // Gets MapWorkGroup, which should contain the MapEntry for the current map
+        mapdrv::MapEntry * mapEntry = &mapWork->entries[0];    // The MapEntry for current map
         s32 seq = seqdrv::seqGetSeq();
-        if (msl::string::strstr(loadMap, "dan") != nullptr && msl::string::strstr(loadMap, "dan_70") == nullptr && seq != 4 && seq != 1)
-        {
+        if (msl::string::strstr(loadMap, "dan") != nullptr && msl::string::strstr(loadMap, "dan_70") == nullptr && seq != 4 && seq != 1) {
             s32 currentFloor = swdrv::swByteGet(1);
             bool overwriteMap = false;
             s32 danTexNum = -1;
-            if (currentFloor >= 189 && msl::string::strstr(loadMap, "dan_44") != nullptr)
-            {
+            if (currentFloor >= 189 && msl::string::strstr(loadMap, "dan_44") != nullptr) {
                 danTexNum = 1;
                 overwriteMap = true;
-            }
-            else if (currentFloor >= 179 && msl::string::strstr(loadMap, "dan_44") != nullptr)
-            {
+            } else if (currentFloor >= 179 && msl::string::strstr(loadMap, "dan_44") != nullptr) {
                 danTexNum = 0;
                 overwriteMap = true;
-            }
-            else if (currentFloor >= 188 && currentFloor <= 190 && msl::string::strstr(loadMap, "dan_64") != nullptr)
-            {
+            } else if (currentFloor >= 188 && currentFloor <= 190 && msl::string::strstr(loadMap, "dan_64") != nullptr) {
                 danTexNum = 2;
                 overwriteMap = true;
             }
-            if (overwriteMap)
-            {
-                wii::tpl::TPLHeader *bossRoomTpl = allocTPL(danTexMapNames[danTexNum], "map", memory::HEAP_MAP, true);
+            if (overwriteMap) {
+                wii::tpl::TPLHeader * bossRoomTpl = allocTPL(danTexMapNames[danTexNum], "map", memory::HEAP_MAP, true);
                 /*const char *danTexMapName = danTexMapNames[danTexNum];
                 filemgr::FileEntry *bossRoomFile = filemgr::fileAllocf(0, "%s/map/%s.tpl", dvdRoot, danTexMapName);
                 s32 tplSize = bossRoomFile->length;
-                wii::tpl::TPLHeader *bossRoomTpl = (wii::tpl::TPLHeader *)memory::__memAlloc(memory::Heap::HEAP_MAP, tplSize);
-                msl::string::memcpy(bossRoomTpl, bossRoomFile->sp->data, tplSize);
+                wii::tpl::TPLHeader *bossRoomTpl = (wii::tpl::TPLHeader *)memory::__memAlloc(memory::Heap::HEAP_MAP,
+                tplSize); msl::string::memcpy(bossRoomTpl, bossRoomFile->sp->data, tplSize);
                 filemgr::fileFree(bossRoomFile);
                 wii::tpl::TPLBind(bossRoomTpl); // Initializes custom TPL in memory*/
                 mapEntry->tpl = bossRoomTpl; // Replaces normal tpl for map with the boss room TPL
-            }
-            else
-            {
+            } else {
                 wii::tpl::TPLBind(mapEntry->tpl);
             }
-        }
-        else
-        {
+        } else {
             wii::tpl::TPLBind(mapEntry->tpl);
         }
     }
 
-    static const char *getNextDanMapnameNew(s32 dungeonNo)
-    {
-        switch (dungeonNo)
-        {
+    static const char * getNextDanMapnameNew(s32 dungeonNo) {
+        switch (dungeonNo) {
         // Rest Floors
         case 9:
             return "dan_21"; // Ch1
@@ -1130,14 +989,11 @@ namespace mod
         return nullptr;
     }
 
-    static void debugModeGayFrame()
-    {
-        if (DebugMode)
-        {
-            framedrv::FrameEntry *frame = framedrv::framedrv_wp->entries;
+    static void debugModeGayFrame() {
+        if (DebugMode) {
+            framedrv::FrameEntry * frame = framedrv::framedrv_wp->entries;
             s32 cur = 0;
-            for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1)
-            {
+            for (cur = 0; cur < framedrv::framedrv_wp->num; cur = cur + 1) {
                 frame->color = {(u8)frameR, (u8)frameG, (u8)frameB, 255};
                 frame = frame + 1;
             }
@@ -1145,8 +1001,7 @@ namespace mod
         msl::string::strncmp(spmario::gp->mapName, "ls", 2);
     }
 
-    static s32 patchBackCursya()
-    {
+    static s32 patchBackCursya() {
         if (msl::string::strstr(spmario::gp->mapName, "dan") == 0)
             seqdrv::seqSetSeq(seqdrv::SEQ_MAPCHANGE, "mac_02", "dokan_3");
         else
@@ -1154,19 +1009,14 @@ namespace mod
         return 0;
     }
 
-    static void neutralize()
-    {
-        return;
-    }
+    static void neutralize() { return; }
 
-    static void handleHouraiDoll()
-    {
+    static void handleHouraiDoll() {
         s32 blessing = swdrv::swByteGet(1600);
         houraiActivation = swdrv::swGet(1671);
-        if (blessing == BlessId::MERLUNA_HOURAI && !houraiActivation)
-        {
+        if (blessing == BlessId::MERLUNA_HOURAI && !houraiActivation) {
             mario_motion::marioChgMot(MOT_DAMAGE);
-            mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+            mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
             mario::marioKeyOff();
             swdrv::swSet(1671);
             houraiStoredAtk = pouch->attack;
@@ -1174,25 +1024,18 @@ namespace mod
             if ((halvedAtk * 2) < pouch->attack) // Workaround since ceil just doesn't seem to exist in SPM
             {
                 pouch->attack = (halvedAtk + 1); // i.e. if original ATK is 5, desired result is 3. Floors to 2. 4 < 5, so 2 + 1 = 3.
-            }
-            else
-            {
+            } else {
                 pouch->attack = halvedAtk; // i.e. if original ATK is 4, desired result is 2. Floors to 2. 4 !< 4, so remains 2.
             }
-            if (pouch->maxHp != 999)
-            {
+            if (pouch->maxHp != 999) {
                 pouch->maxHp = (pouch->maxHp + 10);
-            }
-            else
-            {
+            } else {
                 hpMaxed = true;
             }
             pouch->hp = pouch->maxHp;
             swdrv::swSet(1672);
             return;
-        }
-        else
-        {
+        } else {
             swdrv::swByteSet(1600, 0);
             swdrv::swByteSet(1601, 0);
             swdrv::swByteSet(1602, 0);
@@ -1200,9 +1043,8 @@ namespace mod
         }
     }
 
-    void levelUpHalveHPBonus()
-    {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+    void levelUpHalveHPBonus() {
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         mario_pouch::pouchSetHp(pouch->hp + round((f32)pouch->maxHp / 2.0f));
         return;
     }
@@ -1210,13 +1052,11 @@ namespace mod
     // thanks lily :D
     f32 cudgeFloat = 0.5f;
     u32 npcTakeDamageRetLocation = (u32)(&spm::npcdrv::npcTakeDamage) + 0x1E0;
-    void setCudgeFloat()
-    {
+    void setCudgeFloat() {
         uintptr_t addr_float = (uintptr_t)&cudgeFloat;
         uintptr_t addr_ret = (uintptr_t)&npcTakeDamageRetLocation;
 
-        asm(
-            "lfs 0, 0(%1)\n" // Load the float into f0
+        asm("lfs 0, 0(%1)\n" // Load the float into f0
 
             "lwz 12, 0(%0)\n" // Load Cudge
             "mtctr 12\n"      // Move to ctr
@@ -1226,8 +1066,7 @@ namespace mod
             : "r12", "memory");
     }
 
-    static void OnDanCountdown()
-    {
+    static void OnDanCountdown() {
         hud::hud_wp->countdownTimer -= 1;
         s32 disorderId = (s32)Lunatic->Luna.disorder;
         // Handle random Disorder tremors
@@ -1239,21 +1078,17 @@ namespace mod
         return;
     }
 
-    s32 handleBlessingWearOff(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 handleBlessingWearOff(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         houraiActivation = swdrv::swGet(1671);
-        if (houraiActivation)
-        {
+        if (houraiActivation) {
             swdrv::swClear(1671);
-            mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+            mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
             pouch->attack = houraiStoredAtk;
             s32 currentHp = pouch->hp;
-            if (!hpMaxed)
-            {
+            if (!hpMaxed) {
                 pouch->maxHp = (pouch->maxHp - 10);
             }
-            if (currentHp > pouch->maxHp)
-            {
+            if (currentHp > pouch->maxHp) {
                 pouch->hp = pouch->maxHp;
             }
         }
@@ -1261,8 +1096,7 @@ namespace mod
     }
 
     // Returns true to cancel sfx, returns false to play sfx
-    bool sndMuteLowHpSfx(const char *sfxName)
-    {
+    bool sndMuteLowHpSfx(const char * sfxName) {
         if (swdrv::swGet(1621) == true)
             return false;
         if (msl::string::strcmp(sfxName, "SFX_SYS_PINCH1") == 0 || msl::string::strcmp(sfxName, "SFX_SYS_DANGER1") == 0)
@@ -1270,139 +1104,115 @@ namespace mod
         return false;
     }
 
-    const char *models[] = {"e_heiho", "e_buross_h", "e_buross_b", "e_burosu_i",
-                            "e_cheririn_a", "e_chorobon_g", "e_gabow", "e_jugemu_d", "e_jyama_b", "e_card_jyama_b", "e_k_kuribo", "e_k_shoote4",
-                            "e_kamek_g", "e_kamek_r", "e_kamek_w", "e_kames", "e_karon_d", "e_kmond", "e_kuribo_h",
-                            "e_mer", "e_nin_d", "e_nokoteki_d", "e_ntl_p", "e_sinemoh", "e_tesita_bt", "e_tesita_sb",
-                            "e_togenokd", "e_togezb", "e_touginoko", "e_wanwan_g", "e_teresa_b", "MOBJ_dan_u_big",
-                            "MOBJ_dan_r_big", "MOBJ_dan_l_big", "terminator"};
+    const char * models[] = {"e_heiho",      "e_buross_h", "e_buross_b",     "e_burosu_i",     "e_cheririn_a",   "e_chorobon_g",   "e_gabow",
+                             "e_jugemu_d",   "e_jyama_b",  "e_card_jyama_b", "e_k_kuribo",     "e_k_shoote4",    "e_kamek_g",      "e_kamek_r",
+                             "e_kamek_w",    "e_kames",    "e_karon_d",      "e_kmond",        "e_kuribo_h",     "e_mer",          "e_nin_d",
+                             "e_nokoteki_d", "e_ntl_p",    "e_sinemoh",      "e_tesita_bt",    "e_tesita_sb",    "e_togenokd",     "e_togezb",
+                             "e_touginoko",  "e_wanwan_g", "e_teresa_b",     "MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big", "terminator"};
 
-    static const char *(*searchGetNpcMsgReal)(npcdrv::NPCEntry *npc);
+    static const char * (*searchGetNpcMsgReal)(npcdrv::NPCEntry * npc);
     //   void (*pausewinSetMessageCardReal)(pausewin::PausewinEntry *entry, s32 itemId);
-    u32 (*animGroupBaseAsyncReal)(const char *animPoseName, s32 param_2, void *readDoneCb);
-    void (*spsndSFXOnReal)(const char *name);
-    void (*spsndSFXOnVolReal)(const char *name, u8 volume);
-    itemdrv::ItemEntry *(*itemEntryReal)(const char *name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode *pickupScript, evtmgr::EvtVar switchNumber);
-    s32 (*itemCollectPouchItemReal)(itemdrv::ItemEntry *item);
-    void (*TPLBindReal)(wii::tpl::TPLHeader *tpl);
+    u32 (*animGroupBaseAsyncReal)(const char * animPoseName, s32 param_2, void * readDoneCb);
+    void (*spsndSFXOnReal)(const char * name);
+    void (*spsndSFXOnVolReal)(const char * name, u8 volume);
+    itemdrv::ItemEntry * (*itemEntryReal)(const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode * pickupScript,
+                                          evtmgr::EvtVar switchNumber);
+    s32 (*itemCollectPouchItemReal)(itemdrv::ItemEntry * item);
+    void (*TPLBindReal)(wii::tpl::TPLHeader * tpl);
     void (*spsndBGMSetVolReal)(s32 player, s32 volume, u32 fadeMsec);
-    static void miscLambdas()
-    {
-        searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg,
-                                                  [](npcdrv::NPCEntry *npc)
-                                                  {
-                                                      // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
-                                                      const char *tattle = msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
-                                                      if (tattle == nullptr)
-                                                      {
-                                                          return searchGetNpcMsgReal(npc);
-                                                      }
-                                                      else if (msl::string::strcmp(tattle, "") == 0)
-                                                      {
-                                                          return searchGetNpcMsgReal(npc);
-                                                      }
-                                                      else
-                                                      {
-                                                          return tattle;
-                                                      }
-                                                  });
+    static void miscLambdas() {
+        searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg, [](npcdrv::NPCEntry * npc) {
+            // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
+            const char * tattle = msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
+            if (tattle == nullptr) {
+                return searchGetNpcMsgReal(npc);
+            } else if (msl::string::strcmp(tattle, "") == 0) {
+                return searchGetNpcMsgReal(npc);
+            } else {
+                return tattle;
+            }
+        });
 
-        animGroupBaseAsyncReal = patch::hookFunction(animdrv::animGroupBaseAsync,
-                                                     [](const char *animPoseName, s32 param_2, void *readDoneCb)
-                                                     {
-                                                         // Patch functions that rely on ag2tg to fileAsyncf custom textures
-                                                         for (s32 idx = 0; msl::string::strcmp(models[idx], "terminator") != 0; idx = idx + 1)
-                                                         {
-                                                             if (msl::string::strcmp(animPoseName, models[idx]) == 0)
-                                                             {
-                                                                 filemgr::FileEntry *texture = filemgr::fileAsyncf(4, 0, "%s/%s-", "a", animPoseName);
-                                                                 return (-(s32)texture | (u32)texture) >> 0x1f;
-                                                             }
-                                                         }
-                                                         return animGroupBaseAsyncReal(animPoseName, param_2, readDoneCb);
-                                                     });
+        animGroupBaseAsyncReal = patch::hookFunction(animdrv::animGroupBaseAsync, [](const char * animPoseName, s32 param_2, void * readDoneCb) {
+            // Patch functions that rely on ag2tg to fileAsyncf custom textures
+            for (s32 idx = 0; msl::string::strcmp(models[idx], "terminator") != 0; idx = idx + 1) {
+                if (msl::string::strcmp(animPoseName, models[idx]) == 0) {
+                    filemgr::FileEntry * texture = filemgr::fileAsyncf(4, 0, "%s/%s-", "a", animPoseName);
+                    return (-(s32)texture | (u32)texture) >> 0x1f;
+                }
+            }
+            return animGroupBaseAsyncReal(animPoseName, param_2, readDoneCb);
+        });
 
-        spsndSFXOnReal = patch::hookFunction(spmario_snd::spsndSFXOn,
-                                             [](const char *name)
-                                             {
-                                                 if (sndMuteLowHpSfx(name) == false)
-                                                     spmario_snd::__spsndSFXOn(name, -1, 255, 0, 0, 0);
-                                                 return;
-                                             });
+        spsndSFXOnReal = patch::hookFunction(spmario_snd::spsndSFXOn, [](const char * name) {
+            if (sndMuteLowHpSfx(name) == false)
+                spmario_snd::__spsndSFXOn(name, -1, 255, 0, 0, 0);
+            return;
+        });
 
-        spsndSFXOnVolReal = patch::hookFunction(spmario_snd::spsndSFXOnVol,
-                                                [](const char *name, u8 volume)
-                                                {
-                                                    if (sndMuteLowHpSfx(name) == false)
-                                                        spmario_snd::__spsndSFXOn(name, volume, 255, 0, 0, 0);
-                                                    return;
-                                                });
+        spsndSFXOnVolReal = patch::hookFunction(spmario_snd::spsndSFXOnVol, [](const char * name, u8 volume) {
+            if (sndMuteLowHpSfx(name) == false)
+                spmario_snd::__spsndSFXOn(name, volume, 255, 0, 0, 0);
+            return;
+        });
 
-        itemEntryReal = patch::hookFunction(itemdrv::itemEntry,
-                                            [](const char *name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode *pickupScript, evtmgr::EvtVar switchNumber)
-                                            {
-                                                if (type == ITEM_ID_KEY_MAC_KEY_00) // Chest keys no longer fly away
-                                                    behaviour = 1;
-                                                itemdrv::ItemEntry *item = itemEntryReal(name, type, behaviour, x, y, z, pickupScript, switchNumber);
-                                                if (type == 1 && switchNumber == 0 && behaviour != 0) // Coins dropped by enemies are no longer searchable
-                                                    item->flags |= 0x4000000;
-                                                if (type == ITEM_ID_KEY_MAC_KEY_00) // Chest keys no longer disappear when dropped & drop confetti
-                                                {
-                                                    spmario_snd::spsndSFXOnVol("SFX_I_STAR_MEDAL1", 100);
-                                                    item->flags &= ~0x200;
-                                                    eff_small_star::effSmallStarEntry(x, y, z, 0, -1.0, 0, 4, 8);
-                                                    //    effpatch::effpatchColorMaskEntry(star, {0, 0, 0, 255}, {255, 255, 255, 255}, nullptr);
-                                                }
-                                                if (type == ITEM_ID_KEY_DAN_KEY)
-                                                    spmario_snd::spsndSFXOnVol("SFX_I_BRUNK_APPEAR1", 73);
-                                                return item;
-                                            });
+        itemEntryReal = patch::hookFunction(
+            itemdrv::itemEntry, [](const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode * pickupScript, evtmgr::EvtVar switchNumber) {
+                if (type == ITEM_ID_KEY_MAC_KEY_00) // Chest keys no longer fly away
+                    behaviour = 1;
+                itemdrv::ItemEntry * item = itemEntryReal(name, type, behaviour, x, y, z, pickupScript, switchNumber);
+                if (type == 1 && switchNumber == 0 && behaviour != 0) // Coins dropped by enemies are no longer searchable
+                    item->flags |= 0x4000000;
+                if (type == ITEM_ID_KEY_MAC_KEY_00) // Chest keys no longer disappear when dropped & drop confetti
+                {
+                    spmario_snd::spsndSFXOnVol("SFX_I_STAR_MEDAL1", 100);
+                    item->flags &= ~0x200;
+                    eff_small_star::effSmallStarEntry(x, y, z, 0, -1.0, 0, 4, 8);
+                    //    effpatch::effpatchColorMaskEntry(star, {0, 0, 0, 255}, {255, 255, 255, 255}, nullptr);
+                }
+                if (type == ITEM_ID_KEY_DAN_KEY)
+                    spmario_snd::spsndSFXOnVol("SFX_I_BRUNK_APPEAR1", 73);
+                return item;
+            });
 
-        itemCollectPouchItemReal = patch::hookFunction(itemdrv::itemCollectPouchItem,
-                                                       [](itemdrv::ItemEntry *item)
-                                                       {
-                                                           s32 ret = itemCollectPouchItemReal(item);
-                                                           if (item->type == ITEM_ID_KEY_MAC_KEY_00 && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
-                                                           {
-                                                               if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_MAC_KEY_00) == true)
-                                                               {
-                                                                   Lunatic->RFC.chestKeysOwned += 1;
-                                                                   mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
-                                                                   wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
-                                                               }
-                                                           }
-                                                           return ret;
-                                                       });
+        itemCollectPouchItemReal = patch::hookFunction(itemdrv::itemCollectPouchItem, [](itemdrv::ItemEntry * item) {
+            s32 ret = itemCollectPouchItemReal(item);
+            if (item->type == ITEM_ID_KEY_MAC_KEY_00 && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
+                if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_MAC_KEY_00) == true) {
+                    Lunatic->RFC.chestKeysOwned += 1;
+                    mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
+                    wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
+                }
+            }
+            return ret;
+        });
 
-        TPLBindReal = patch::hookFunction(wii::tpl::TPLBind,
-                                          [](wii::tpl::TPLHeader *tpl)
-                                          {
-                                              TPLBindReal(tpl);
-                                              if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0 && seqdrv::seqGetSeq() != 1)
-                                                  return;
-                                              if (tpl->imageTable->image->height == 184 && tpl->imageTable->image->width == 360 && tpl->imageTable->image->format == 5)
-                                                  tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
-                                              return;
-                                          });
+        TPLBindReal = patch::hookFunction(wii::tpl::TPLBind, [](wii::tpl::TPLHeader * tpl) {
+            TPLBindReal(tpl);
+            if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0 && seqdrv::seqGetSeq() != 1)
+                return;
+            if (tpl->imageTable->image->height == 184 && tpl->imageTable->image->width == 360 && tpl->imageTable->image->format == 5)
+                tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
+            return;
+        });
 
         /*spsndBGMSetVolReal = patch::hookFunction(spmario_snd::spsndBGMSetVol,
                                                  [](s32 player, s32 volume, u32 fadeMsec)
                                                  {
                                                     // Get brsar idx of the current bgm player
-                                                     s16 brsarIdx = spmario_snd::spsndBgmPlayers[player].bgmEntry->brsarIdx;
-                                                     // If brsar idx does not match a Lunatic track, it shouldn't be prevented
-                                                     if (brsarIdx < 1380 || brsarIdx > 1383)
-                                                        spsndBGMSetVolReal(player, volume, fadeMsec);
-                                                     // Check for fadeMsec "keys" called exclusively in the mod and allow all calls made using those parameters
-                                                     if (fadeMsec == 737 || fadeMsec == 1)
-                                                         spsndBGMSetVolReal(player, volume, fadeMsec);
+                                                     s16 brsarIdx =
+           spmario_snd::spsndBgmPlayers[player].bgmEntry->brsarIdx;
+                                                     // If brsar idx does not match a Lunatic track, it shouldn't be
+           prevented if (brsarIdx < 1380 || brsarIdx > 1383) spsndBGMSetVolReal(player, volume, fadeMsec);
+                                                     // Check for fadeMsec "keys" called exclusively in the mod and
+           allow all calls made using those parameters if (fadeMsec == 737 || fadeMsec == 1) spsndBGMSetVolReal(player,
+           volume, fadeMsec);
                                                      // Check for fadeMsec/volume
                                                      return;
                                                  });*/
     }
 
-    static void danOverwrite()
-    {
+    static void danOverwrite() {
         patch::hookFunction(dan::evt_dan_read_data, evt_dan_read_data_new);
         patch::hookFunction(seq_title::getNextDanMapname, getNextDanMapnameNew);
         writeBranchLink(mapdrv::mapLoad, 0x3B8, loadNewDanTex);
@@ -1429,62 +1239,51 @@ namespace mod
         writeWord(npcdrv::func_801c8d70, 0x994, LWZ(3, 0x720, 29));
     }
 
-    static void danDontFuckingCrash()
-    {
-        patch::hookFunction(dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new);
-    }
+    static void danDontFuckingCrash() { patch::hookFunction(dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new); }
 
-    s32 updateDebugFrameColor(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 updateDebugFrameColor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // Every frame, progress color(s) by 4 units.
         // PHASE 0    PHASE 1      PHASE 2    PHASE 3      PHASE 4    PHASE 5      PHASE 0
         // 255,0,0 -> 255,255,0 -> 0,255,0 -> 0,255,255 -> 0,0,255 -> 255,0,255 -> 255,0,0
-        switch (frameColPhase)
-        {
+        switch (frameColPhase) {
         case 0:
             frameG = frameG + 16;
-            if (frameG > 255)
-            {
+            if (frameG > 255) {
                 frameG = 255;
                 frameColPhase = 1;
             }
             break;
         case 1:
             frameR = frameR - 16;
-            if (frameR < 0)
-            {
+            if (frameR < 0) {
                 frameR = 0;
                 frameColPhase = 2;
             }
             break;
         case 2:
             frameB = frameB + 16;
-            if (frameB > 255)
-            {
+            if (frameB > 255) {
                 frameB = 255;
                 frameColPhase = 3;
             }
             break;
         case 3:
             frameG = frameG - 16;
-            if (frameG < 0)
-            {
+            if (frameG < 0) {
                 frameG = 0;
                 frameColPhase = 4;
             }
             break;
         case 4:
             frameR = frameR + 16;
-            if (frameR > 255)
-            {
+            if (frameR > 255) {
                 frameR = 255;
                 frameColPhase = 5;
             }
             break;
         case 5:
             frameB = frameB - 16;
-            if (frameB < 0)
-            {
+            if (frameB < 0) {
                 frameB = 0;
                 frameColPhase = 0;
             }
@@ -1494,26 +1293,23 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(updateDebugFrameColor, 0)
 
-    s32 bump_use_selected(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 bump_use_selected(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         pausewin::pausewin_pluswinWp->selectedItemId = 45;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(bump_use_selected, 0)
 
-    s32 DebugModeGetStatus(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DebugModeGetStatus(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)DebugMode);
         return 2;
     }
 
-    s32 animPoseSetMaterialEvtColorWrapper(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 animPoseSetMaterialEvtColorWrapper(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 blueToggle = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        mario::MarioWork *mario = mario::marioGetPtr();
+        mario::MarioWork * mario = mario::marioGetPtr();
         s32 marioRemoved = swdrv::swGet(1612);
         s32 i;
         /*    // DEBUG
@@ -1523,13 +1319,10 @@ namespace mod
                 wii::os::OSReport("AnimPose[0] GXColor: %d, %d, %d, %d\n", col.r, col.g, col.b, col.a);
             } */
         // END DEBUG
-        if (mario->character == 0 && marioRemoved == 1)
-        {
+        if (mario->character == 0 && marioRemoved == 1) {
             static wii::gx::GXColor marioIfHeWereInvisible = {255, 255, 255, 0};
-            for (i = 0; i < 8; ++i)
-            {
-                if (mario->animPoseIds[i] != -1)
-                {
+            for (i = 0; i < 8; ++i) {
+                if (mario->animPoseIds[i] != -1) {
                     animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWereInvisible);
                     animdrv::animPoseSetMaterialFlagOn(mario->animPoseIds[i], 0x2000);
                 }
@@ -1538,26 +1331,18 @@ namespace mod
             {
                 mario->effectFlags = mario->effectFlags & ~0x2;
             }
-        }
-        else if (blueToggle == 1)
-        {
+        } else if (blueToggle == 1) {
             static wii::gx::GXColor marioIfHeWereBlue = {60, 100, 255, 255};
-            for (i = 0; i < 8; ++i)
-            {
-                if (mario->animPoseIds[i] != -1)
-                {
+            for (i = 0; i < 8; ++i) {
+                if (mario->animPoseIds[i] != -1) {
                     animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWereBlue);
                     animdrv::animPoseSetMaterialFlagOn(mario->animPoseIds[i], 0x2000);
                 }
             }
-        }
-        else
-        {
+        } else {
             static wii::gx::GXColor marioIfHeWerentBlue = {255, 255, 255, 255};
-            for (i = 0; i < 8; ++i)
-            {
-                if (mario->animPoseIds[i] != -1)
-                {
+            for (i = 0; i < 8; ++i) {
+                if (mario->animPoseIds[i] != -1) {
                     animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWerentBlue);
                     animdrv::animPoseSetMaterialFlagOff(mario->animPoseIds[i], 0x2000);
                 }
@@ -1567,15 +1352,11 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(animPoseSetMaterialEvtColorWrapper, 1)
 
-    s32 update_bump_tex(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 update_bump_tex(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // Whacka Bump
-        if (swdrv::swGet(1643) == 0)
-        {
+        if (swdrv::swGet(1643) == 0) {
             item_data::itemDataTable[45].iconId = TPLPATCH_ICON(ICON_BUMP_GRAY); // Icon/Item ID of the unused peach in vanilla
-        }
-        else
-        {
+        } else {
             item_data::itemDataTable[45].iconId = TPLPATCH_ICON(ICON_BUMP_BLUE); // Icon of unused "negative" gray key in vanilla
         }
         return 2;
@@ -1650,11 +1431,9 @@ namespace mod
     END_IF()
     RETURN_FROM_CALL()
 
-    static mario_pouch::MarioPouchWork *pluswinWhackaBumpFunc()
-    {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        if (pouch->keyItem[pausewin::pausewin_pluswinWp->submenuSelectedButton] == 45)
-        {
+    static mario_pouch::MarioPouchWork * pluswinWhackaBumpFunc() {
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
+        if (pouch->keyItem[pausewin::pausewin_pluswinWp->submenuSelectedButton] == 45) {
             spmario_snd::spsndSFXOn("SFX_SYS_MENU_DESIDE1");
             pausewin::pausewin_pluswinWp->keyItemEvt = evtmgr::evtEntryType((evtmgr::EvtScriptCode *)bump_use_evt, 0, 0, 0);
             pausewin::pausewin_pluswinWp->keyItemEvtId = pausewin::pausewin_pluswinWp->keyItemEvt->id;
@@ -1662,13 +1441,9 @@ namespace mod
         return pouch;
     }
 
-    static void pluswinWhackaBump()
-    {
-        writeBranchLink(pausewin::pluswinKeyItemMain, 0x5E4, pluswinWhackaBumpFunc);
-    }
+    static void pluswinWhackaBump() { writeBranchLink(pausewin::pluswinKeyItemMain, 0x5E4, pluswinWhackaBumpFunc); }
 
-    void DanEnemyNegativeDispCb(wii::gx::GXTexObj *texObj)
-    {
+    void DanEnemyNegativeDispCb(wii::gx::GXTexObj * texObj) {
         wii::gx::GXSetTevOrder(texObj->stage, 255, 255, 255);
         wii::gx::GXSetBlendMode(2, 2, 2, 12);
         wii::gx::GXSetAlphaUpdate(1);
@@ -1679,26 +1454,20 @@ namespace mod
         return;
     }
 
-    static void patchNpcRgbaFuncs()
-    {
-        patch::hookFunction(evt_npc::evt_npc_set_color, [](evtmgr::EvtEntry *evtEntry, bool firstRun)
-                            {
+    static void patchNpcRgbaFuncs() {
+        patch::hookFunction(evt_npc::evt_npc_set_color, [](evtmgr::EvtEntry * evtEntry, bool firstRun) {
             // Patch all NPCs with Tribe IDs to ignore this function, except for Shadoo.
-            evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-            const char *name = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+            evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+            const char * name = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
             npcdrv::NPCEntry * npc = evt_npc::evtNpcNameToPtr(evtEntry, name);
-            if (npc->tribeId > 0)
-            {
-                if (npc->tribeId <= 333 && npc->tribeId >= 330)
-                {
+            if (npc->tribeId > 0) {
+                if (npc->tribeId <= 333 && npc->tribeId >= 330) {
                     (npc->m_Anim).red = 127;
                     (npc->m_Anim).green = 127;
                     (npc->m_Anim).blue = 127;
                     animdrv::animPoseSetDispCallback2((npc->m_Anim).m_nPoseId, (void *)mi4::mi4MimiHolographicEffect, evtEntry);
                 }
-            }
-            else
-            {
+            } else {
                 s32 red = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
                 s32 green = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
                 s32 blue = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
@@ -1708,22 +1477,22 @@ namespace mod
                 (npc->m_Anim).green = (u8)clamp(green, 0, 255);
                 (npc->m_Anim).alpha = (u8)clamp(alpha, 0, 255);
             }
-            return 2; });
+            return 2;
+        });
 
-        patch::hookFunction(evt_npc::evt_npc_set_part_color, [](evtmgr::EvtEntry *entry, bool isFirstCall)
-                            {
+        patch::hookFunction(evt_npc::evt_npc_set_part_color, [](evtmgr::EvtEntry * entry, bool isFirstCall) {
             (void)entry;
             (void)isFirstCall;
-            return 2; });
-        patch::hookFunction(evt_npc::evt_npc_set_all_part_color, [](evtmgr::EvtEntry *entry, bool isFirstCall)
-                            {
+            return 2;
+        });
+        patch::hookFunction(evt_npc::evt_npc_set_all_part_color, [](evtmgr::EvtEntry * entry, bool isFirstCall) {
             (void)entry;
             (void)isFirstCall;
-            return 2; });
+            return 2;
+        });
     }
 
-    static void danPatchPitEnemies()
-    {
+    static void danPatchPitEnemies() {
         // Define default animposes for new enemies
         npcdrv::npcTribes[5].animPoseName = "e_kuribo_y";     // Unused Spiked Goomba --> Spiked Gloomba
         npcdrv::npcTribes[2].animPoseName = "e_kuribo_h";     // Dark Goomba --> Hyper Goomba
@@ -1810,8 +1579,7 @@ namespace mod
 
         // Patch Dark Enemies from appearing as all-black on their Cards.
         s32 id = 0;
-        for (id = 282; id < 537; ++id)
-        {
+        for (id = 282; id < 537; ++id) {
             item_data::itemDataTable[id].dispFlags = 0;
         }
 
@@ -2461,24 +2229,19 @@ namespace mod
         item_data::itemDataTable[45].descMsg = mystBumpDescPtr;
     }
 
-    s32 npc_killtai_spawn_child(evtmgr::EvtEntry *evtEntry, bool firstCall)
-    {
+    s32 npc_killtai_spawn_child(evtmgr::EvtEntry * evtEntry, bool firstCall) {
         npcdrv::MiscSetupDataV6 setupData;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 uw2 = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        npcdrv::NPCEntry *owner = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
-        npcdrv::NPCEntry *child = nullptr;
-        if (firstCall)
-        {
+        npcdrv::NPCEntry * owner = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCEntry * child = nullptr;
+        if (firstCall) {
             wii::mtx::Vec3 pos = {owner->position.x, owner->position.y + 10.0f, owner->position.z};
             f32 dir_adj = (f32)(((s32)owner->axisMovementUnit << 5) * 1.5f); // -48, 48
-            if (owner->flippedTo3d == 0)
-            {
+            if (owner->flippedTo3d == 0) {
                 pos.x += dir_adj;
                 pos.z += 1.0f;
-            }
-            else
-            {
+            } else {
                 pos.x -= 1.0f;
                 pos.z += dir_adj;
             }
@@ -2503,16 +2266,14 @@ namespace mod
             evtEntry->tempU[1] = child->onSpawnEvtId;
         }
         child = (npcdrv::NPCEntry *)evtEntry->tempU[0];
-        if (evtEntry->tempU[1] != 0)
-        {
+        if (evtEntry->tempU[1] != 0) {
             if (evtmgr::evtCheckID(evtEntry->tempU[1]) == false)
                 return 0;
             evtEntry->tempU[1] = 0;
         }
-        if (evtEntry->tempU[1] == 0)
-        {
-            const evtmgr::EvtScriptCode *moveScript = npcdrv::npcGetScript(child, 1);
-            evtmgr::EvtEntry *moveEvt = evtmgr::evtEntry(moveScript, 0, 0x20);
+        if (evtEntry->tempU[1] == 0) {
+            const evtmgr::EvtScriptCode * moveScript = npcdrv::npcGetScript(child, 1);
+            evtmgr::EvtEntry * moveEvt = evtmgr::evtEntry(moveScript, 0, 0x20);
             moveEvt->ownerNPC = (void *)child;
             child->unkEvtId = moveEvt->id;
             child->unknown_0x428 = 0;
@@ -2524,23 +2285,20 @@ namespace mod
         return 0;
     }
 
-    s32 patch_tileoid_pu(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
-        if (npc->tribeId == 167)
-        {
-            npc_tile::TileoidWork *tileWrk = (npc_tile::TileoidWork *)npc->unitWork[0];
+    s32 patch_tileoid_pu(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        npcdrv::NPCEntry * npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        if (npc->tribeId == 167) {
+            npc_tile::TileoidWork * tileWrk = (npc_tile::TileoidWork *)npc->unitWork[0];
             tileWrk->rotationSpeedScale = 3.5;
         }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(patch_tileoid_pu, 0)
 
-    s32 setHitFlags(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 setHitFlags(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 flagVal = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        npcdrv::NPCEntry *ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCEntry * ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
         ownerNpc->parts[0].hitFlags = flagVal;
         ownerNpc->parts[1].hitFlags = flagVal;
         ownerNpc->parts[2].hitFlags = flagVal;
@@ -2554,25 +2312,23 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(setHitFlags, 1)
 
-    s32 setFlag2c(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 setFlag2c(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 partId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 flagVal = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        npcdrv::NPCEntry *ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCEntry * ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
         ownerNpc->parts[partId].flag2c = flagVal;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(setFlag2c, 2)
 
-    s32 setHitboxSize(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 setHitboxSize(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 partId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         f32 xVal = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 yVal = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
         f32 zVal = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
-        npcdrv::NPCEntry *ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCEntry * ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
         ownerNpc->parts[partId].hitboxSize.x = xVal;
         ownerNpc->parts[partId].hitboxSize.y = yVal;
         ownerNpc->parts[partId].hitboxSize.z = zVal;
@@ -2580,17 +2336,15 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(setHitboxSize, 4)
 
-    s32 declare_shadoo_stats(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+    s32 declare_shadoo_stats(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         marioMaxHp = pouch->maxHp;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        npcdrv::NPCEntry * npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
 
         // Shadoo HP = Mario max HP at minimum.
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             npc->maxHp = marioMaxHp;
             npc->hp = npc->maxHp;
@@ -2611,16 +2365,14 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(declare_shadoo_stats, 1)
 
-    s32 get_mover_rng(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 get_mover_rng(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Mover.moverRNG);
         return 2;
     }
 
-    s32 set_mover_rng(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 set_mover_rng(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         Lunatic->Mover.moverRNG = system::rand() % 1000;
@@ -2635,8 +2387,7 @@ namespace mod
         return 2;
     }
 
-    s32 evt_dan_init_lunatic(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_dan_init_lunatic(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
@@ -2660,11 +2411,10 @@ namespace mod
         return 2;
     }
 
-    s32 evt_dan_reset_lunatic(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_dan_reset_lunatic(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         pouch->attack -= Lunatic->Stats.DemiseATK;
         pouch->maxHp -= Lunatic->Stats.DelightHP;
         if (pouch->hp > pouch->maxHp)
@@ -2677,21 +2427,19 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_dan_reset_lunatic, 0)
 
-    s32 rand100(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 rand100(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 rand100Num = system::rand() % 100;
         wii::os::OSReport("rand100Num: %d.\n", rand100Num);
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], rand100Num);
         return 2;
     }
 
-    s32 osReportFloat(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 osReportFloat(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // arg1 is like PTR("Variable name:"), arg2 is actual value to pass through
         // You can also just use one variable if you only want to pass a ptr string or float on its own
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        const char *introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char * introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         f32 printFloat = evtmgr_cmd::evtGetFloat(evtEntry, args[1]);
         if (introStr == nullptr || introStr == 0)
             wii::os::OSReport("%f\n", printFloat);
@@ -2701,10 +2449,9 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(osReportFloat, 2)
 
-    s32 osReportInt(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        const char *introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+    s32 osReportInt(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char * introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 printInt = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         if (introStr == nullptr)
             wii::os::OSReport("%d\n", printInt);
@@ -2714,32 +2461,29 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(osReportInt, 2)
 
-    s32 evt_mario_motion_chg_mot(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 evt_mario_motion_chg_mot(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         motId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         mario_motion::marioChgMot(motId);
-        mario::MarioWork *mario = mario::marioGetPtr();
+        mario::MarioWork * mario = mario::marioGetPtr();
         mario->flags &= ~(0x10000000);
         mario->invincibilityTimer = 60;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_mario_motion_chg_mot, 1)
 
-    s32 evt_mario_chk_key(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_mario_chk_key(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 marioKey = mario::marioChkKey(); // "is mario allowed to move?" returns true if so
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], marioKey);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_mario_chk_key, 1)
 
-    s32 evtCompareStrings(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        const char *mapName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        const char *comparison = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+    s32 evtCompareStrings(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char * mapName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        const char * comparison = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         s32 compstrReturn = 0;
         // wii::os::OSReport("p1: %s; p2: %s\n", mapName, comparison);
         if (msl::string::strstr(mapName, comparison) != nullptr)
@@ -2749,18 +2493,13 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evtCompareStrings, 3)
 
-    s32 migraineShortenCurseTimers(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        mario::MarioWork *mario = mario::marioGetPtr();
+    s32 migraineShortenCurseTimers(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        mario::MarioWork * mario = mario::marioGetPtr();
         s32 yesRand;
-        for (mario::MarioStatus *yes = mario->firstStatus; yes != 0; yes = yes->next)
-        {
-            if (Lunatic->Luna.disorder == DISORDER_PURPLE && yes->type == STATUS_SLOW)
-            {
+        for (mario::MarioStatus * yes = mario->firstStatus; yes != 0; yes = yes->next) {
+            if (Lunatic->Luna.disorder == DISORDER_PURPLE && yes->type == STATUS_SLOW) {
                 yes->timer = (Lunatic->Luna.DW.UW.Indolence->slowDuration * 60) - 30;
-            }
-            else if (yes->type == STATUS_FLIPPED_CONTROLS || yes->type == STATUS_NO_SKILLS || yes->type == STATUS_NO_JUMP || yes->type == STATUS_SLOW)
-            {
+            } else if (yes->type == STATUS_FLIPPED_CONTROLS || yes->type == STATUS_NO_SKILLS || yes->type == STATUS_NO_JUMP || yes->type == STATUS_SLOW) {
                 // WAIT_MSEC(500) precedes this user func, so it starts with .5s
                 // Thus, status conditions may last anywhere from 1-10s
                 yesRand = system::rand() % 540 + 30;
@@ -2771,9 +2510,8 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(migraineShortenCurseTimers, 0)
 
-    s32 evt_eff_spm_spindash(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 evt_eff_spm_spindash(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         f32 x = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         f32 y = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 z = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
@@ -2784,14 +2522,12 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_eff_spm_spindash, 5)
 
-    s32 spectreFloor(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 spectreFloor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         double hp = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 floor = swdrv::swByteGet(1);
         s32 hpReturn = 0;
-        if (hp <= 1)
-        {
+        if (hp <= 1) {
             hpReturn = 0;
             evtmgr_cmd::evtSetValue(evtEntry, args[1], hpReturn);
             return 2;
@@ -2799,22 +2535,18 @@ namespace mod
         if (floor <= 24) // Lv1
         {
             hp = (hp / 10);
-        }
-        else if (floor <= 48) // Lv2
+        } else if (floor <= 48) // Lv2
         {
             hp = (hp / 6.667);
-        }
-        else if (floor <= 174) // Lv3
+        } else if (floor <= 174) // Lv3
         {
             hp = (hp / 5);
-        }
-        else // Lv4
+        } else // Lv4
         {
             hp = (hp / 4);
         }
         hpReturn = msl::math::floor(hp);
-        if (hpReturn == 0)
-        {
+        if (hpReturn == 0) {
             hpReturn = 1;
         }
         evtmgr_cmd::evtSetValue(evtEntry, args[1], hpReturn);
@@ -2822,96 +2554,79 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(spectreFloor, 2)
 
-    s32 paramitaFloor(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
-        if (pouch->hp >= 1)
-        {
+    s32 paramitaFloor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
+        if (pouch->hp >= 1) {
             f32 hp = (f32)(pouch->hp * 0.2);
             s32 hpReturn = msl::math::floor(hp);
             evtmgr_cmd::evtSetValue(evtEntry, args[0], hpReturn);
-        }
-        else
-        {
+        } else {
             evtmgr_cmd::evtSetValue(evtEntry, args[0], 0);
         }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(paramitaFloor, 1)
 
-    s32 generate_mover_prices(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 generate_mover_prices(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // Change Mover prices based on Pit Level
         s32 floor = swdrv::swByteGet(1);
         if (floor <= 24) // Lv1
         {
             moverDown2Price = 20;
             moverDown5Price = 60;
-        }
-        else if (floor <= 48) // Lv2
+        } else if (floor <= 48) // Lv2
         {
             moverDown2Price = 25;
             moverDown5Price = 75;
-        }
-        else if (floor <= 174) // Lv3
+        } else if (floor <= 174) // Lv3
         {
             moverDown2Price = 30;
             moverDown5Price = 90;
-        }
-        else // Lv4
+        } else // Lv4
         {
             moverDown2Price = 40;
             moverDown5Price = 120;
         }
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], moverDown2Price);
         evtmgr_cmd::evtSetValue(evtEntry, args[1], moverDown5Price);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(generate_mover_prices, 2)
 
-    s32 mover_down_2(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 mover_down_2(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 floor = swdrv::swByteGet(1);
         floor = floor + 1;
         swdrv::swByteSet(1, floor);
-        const char *destMap = getNextDanMapnameNew(floor);
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char * destMap = getNextDanMapnameNew(floor);
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)destMap);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(mover_down_2, 1)
 
-    s32 mover_down_5(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 mover_down_5(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 floor = swdrv::swByteGet(1);
-        if (DebugMode)
-        {
-            if ((wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2))
-            {
+        if (DebugMode) {
+            if ((wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2)) {
                 floor += 8;
-            }
-            else if ((wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_A) != 0)
-            {
+            } else if ((wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_A) != 0) {
                 floor += 198;
-            }
-            else
+            } else
                 floor += 4;
-        }
-        else
+        } else
             floor += 4;
         //  // DEBUG
         swdrv::swByteSet(1, floor);
-        const char *destMap = getNextDanMapnameNew(floor);
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        const char * destMap = getNextDanMapnameNew(floor);
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)destMap);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(mover_down_5, 1)
 
-    s32 start_from_21(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 start_from_21(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         mario_pouch::pouchSetMaxHp(20);
@@ -2934,8 +2649,7 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(start_from_21, 0)
 
-    s32 start_from_61(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 start_from_61(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         // Stats
@@ -2979,8 +2693,7 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(start_from_61, 0)
 
-    s32 start_from_eg(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 start_from_eg(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         mario_pouch::pouchSetMaxHp(40);
@@ -3031,15 +2744,13 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(start_from_eg, 0)
 
-    s32 evt_npc_drop_item_new(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 evt_npc_drop_item_new(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 itemType = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 coinCount = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        npcdrv::NPCEntry *npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
+        npcdrv::NPCEntry * npc = evt_npc::evtNpcNameToPtr(evtEntry, "me");
         // If npc has a key already, just drop it
-        if (npcCheckHasKey(npc, true, itemType) == false)
-        {
+        if (npcCheckHasKey(npc, true, itemType) == false) {
             // If Disorder: Dread is active, disable all item and coin drops except for the Pit Key and Chest Key.
             if (Lunatic->Luna.disorder == DisorderId::DISORDER_ORANGE)
                 return 2;
@@ -3055,18 +2766,14 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(evt_npc_drop_item_new, 2)
 
-    s32 cwselectSettingsIcons(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 cwselectSettingsIcons(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        if (onOff > 0)
-        {
+        if (onOff > 0) {
             msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_CATCH_CARD;
             msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_CATCH_CARD_SP;
-        }
-        else
-        {
+        } else {
             msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_BTN_1;
             msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_BTN_2;
         }
@@ -3076,17 +2783,14 @@ namespace mod
 
     s32 boodinShopItemPool[] = {
         // Custom Pit Rando enemies
-        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342,
-        344, 350, 351, 352, 353, 356, 359, 364, 381, 384, 388, 402, 427, 434, 438, 439, 535, 512,
+        283, 284, 286, 289, 290, 293, 294, 297, 300, 304, 306, 309, 314, 315, 316, 318, 322, 324, 330, 333, 336, 342, 344, 350, 351, 352, 353, 356, 359, 364, 381, 384,
+        388, 402, 427, 434, 438, 439, 535, 512,
         // Vanilla enemies
-        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323,
-        328, 329, 331, 332, 334, 335, 338, 341, 343, 345, 346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366,
-        372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398, 399, 400,
-        401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442,
-        444, 446, 447, 448, 528, 529, 530, 531};
+        283, 285, 287, 288, 291, 292, 296, 298, 299, 301, 302, 303, 305, 307, 308, 310, 311, 312, 313, 317, 319, 323, 328, 329, 331, 332, 334, 335, 338, 341, 343, 345,
+        346, 347, 348, 349, 354, 355, 358, 360, 362, 363, 365, 366, 372, 373, 374, 375, 377, 378, 379, 380, 382, 383, 385, 386, 387, 389, 392, 393, 394, 395, 396, 398,
+        399, 400, 401, 403, 408, 409, 412, 414, 415, 420, 421, 423, 424, 426, 428, 429, 431, 432, 433, 436, 437, 440, 441, 442, 444, 446, 447, 448, 528, 529, 530, 531};
 
-    s32 dan_boodin_setup_cards(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 dan_boodin_setup_cards(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         Lunatic->Boodin.Cards[0].itemId = (s32)item_data::ItemType::ITEM_ID_USE_SUPER_BLANK_KUN;
         Lunatic->Boodin.Cards[0].iconId = -1;
@@ -3095,9 +2799,8 @@ namespace mod
         s32 cardNum = system::rand() % 9 + 5; // 5-13
         Lunatic->Boodin.cardNum = cardNum + 1;
         s32 poolCard;
-        for (i = 1; i <= cardNum; i += 1)
-        {
-            CWSelectItemDesc *Card = &Lunatic->Boodin.Cards[i];
+        for (i = 1; i <= cardNum; i += 1) {
+            CWSelectItemDesc * Card = &Lunatic->Boodin.Cards[i];
             poolCard = system::rand() % (sizeof(boodinShopItemPool) / 8);
             Card->itemId = boodinShopItemPool[poolCard];
             Card->iconId = -1;
@@ -3107,18 +2810,16 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_setup_cards, 0)
 
-    s32 dan_boodin_get_descs(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 dan_boodin_get_descs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], s32(&Lunatic->Boodin.Cards));
         evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->Boodin.cardNum);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_get_descs, 2)
 
-    s32 dan_boodin_backup_descs(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 dan_boodin_backup_descs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         s32 id = customwin::CWSelectKeyToId("Cards");
@@ -3345,49 +3046,45 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(explain_judgement, 4)*/
 
-    static evt_door::DokanDesc new_dan_70_dokan_desc = {
-        evt_door::IN_DOWN, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
+    static evt_door::DokanDesc new_dan_70_dokan_desc = {evt_door::IN_DOWN, 0, 0, "dokan", "dan_70", "A2D_dokan_1", "A3D_dokan_1", "mac_05", "dokan_1"};
 
-    npcdrv::NPCTribeAnimDef merlunaAnims[] = {
-        {0, "n_stg2_mistS_1"},      // Idle
-        {1, "n_stg2_mistW_1"},      // Walking
-        {2, "n_stg2_mistR_1"},      // Running
-        {3, "n_stg2_mistT_1"},      // Talking (Idle)
-        {10, "n_stg2_mistM_1a"},    // Raise your glowsticks~
-        {11, "n_stg2_mistM_1b"},    // Wave them around~
-        {12, "n_stg2_mistM_1c"},    // Bakudaaaan~
-        {13, "n_stg2_mistM_1d"},    // Phew!
-        {25, "n_stg2_mistA_1"},     // ):<
-        {26, "n_stg2_mistA_2"},     // D:<
-        {27, "n_stg2_mistO_1"},     // O_O
-        {28, "n_stg2_mistTW_1_a"},  // KEK
-        {29, "n_stg2_mistTW_1_b"},  // LMAOOOOOO
-        {30, "n_stg2_mistTW_1_c"},  // lol
-        {31, "n_stg2_mistTOB_1_a"}, // >_<
-        {32, "n_stg2_mistTOB_1_b"}, // @_@
-        {33, "n_stg2_mistTOB_1_c"}, // Back to normal
-        {34, "n_stg2_mistHi_1"},    // :3
-        {35, "n_stg2_mistS_2"},     // Idle (demure)
-        {36, "n_stg2_mistJ_1_a"},   // Jump
-        {37, "n_stg2_mistJ_1_b"},   // Land
-        {-1, "n_stg2_mistZ_1"}};
+    npcdrv::NPCTribeAnimDef merlunaAnims[] = {{0, "n_stg2_mistS_1"},      // Idle
+                                              {1, "n_stg2_mistW_1"},      // Walking
+                                              {2, "n_stg2_mistR_1"},      // Running
+                                              {3, "n_stg2_mistT_1"},      // Talking (Idle)
+                                              {10, "n_stg2_mistM_1a"},    // Raise your glowsticks~
+                                              {11, "n_stg2_mistM_1b"},    // Wave them around~
+                                              {12, "n_stg2_mistM_1c"},    // Bakudaaaan~
+                                              {13, "n_stg2_mistM_1d"},    // Phew!
+                                              {25, "n_stg2_mistA_1"},     // ):<
+                                              {26, "n_stg2_mistA_2"},     // D:<
+                                              {27, "n_stg2_mistO_1"},     // O_O
+                                              {28, "n_stg2_mistTW_1_a"},  // KEK
+                                              {29, "n_stg2_mistTW_1_b"},  // LMAOOOOOO
+                                              {30, "n_stg2_mistTW_1_c"},  // lol
+                                              {31, "n_stg2_mistTOB_1_a"}, // >_<
+                                              {32, "n_stg2_mistTOB_1_b"}, // @_@
+                                              {33, "n_stg2_mistTOB_1_c"}, // Back to normal
+                                              {34, "n_stg2_mistHi_1"},    // :3
+                                              {35, "n_stg2_mistS_2"},     // Idle (demure)
+                                              {36, "n_stg2_mistJ_1_a"},   // Jump
+                                              {37, "n_stg2_mistJ_1_b"},   // Land
+                                              {-1, "n_stg2_mistZ_1"}};
 
-    npcdrv::NPCTribeAnimDef moverAnims[] = {
-        {0, "stg2_syuuzin_b_S_1"}, // Idle
-        {1, "stg2_syuuzin_b_W_1"}, // Walking
-        {2, "stg2_syuuzin_b_R_1"}, // Running
-        {3, "stg2_syuuzin_b_T_1"}, // Talking (Idle)
-        {-1, "stg2_syuuzin_b_Z_1"}};
+    npcdrv::NPCTribeAnimDef moverAnims[] = {{0, "stg2_syuuzin_b_S_1"}, // Idle
+                                            {1, "stg2_syuuzin_b_W_1"}, // Walking
+                                            {2, "stg2_syuuzin_b_R_1"}, // Running
+                                            {3, "stg2_syuuzin_b_T_1"}, // Talking (Idle)
+                                            {-1, "stg2_syuuzin_b_Z_1"}};
 
-    npcdrv::NPCTribeAnimDef boodinAnims[] = {
-        {0, "S_1"},  // Idle
-        {1, "W_1"},  // Walking
-        {2, "R_1"},  // Running
-        {3, "T_1"},  // Talking
-        {24, "T_2"}, // One bow goodbye
-        {25, "T_3"}, // Three small bows goodbye (unused)
-        {26, "O_1"}, // WHAT
-        {-1, "Z_1"}};
+    npcdrv::NPCTribeAnimDef boodinAnims[] = {{0, "S_1"},  // Idle
+                                             {1, "W_1"},  // Walking
+                                             {2, "R_1"},  // Running
+                                             {3, "T_1"},  // Talking
+                                             {24, "T_2"}, // One bow goodbye
+                                             {25, "T_3"}, // Three small bows goodbye (unused)
+                                             {26, "O_1"}, // WHAT
+                                             {-1, "Z_1"}};
 
     /* static evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
          0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
@@ -3588,7 +3285,8 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_sfxon_npc, PTR("SFX_P_MARIO_LAND1"), LW(10))
     USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, 0, 75, 484, 0, 75, -16, 800, 11)
     WAIT_MSEC(800)
-    USER_FUNC(evt_snd::evt_snd_sfxon_3d_player_character, PTR("SFX_P_V_MARIO_BIKKURI1"), PTR("SFX_P_V_PEACH_ATTACK4"), PTR("SFX_P_V_KOOPA_BIKKURI1"), PTR("SFX_P_V_LUIGI_BIKKURI1"))
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d_player_character, PTR("SFX_P_V_MARIO_BIKKURI1"), PTR("SFX_P_V_PEACH_ATTACK4"), PTR("SFX_P_V_KOOPA_BIKKURI1"),
+              PTR("SFX_P_V_LUIGI_BIKKURI1"))
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("E_5"), 0)
     USER_FUNC(evt_mario::evt_mario_wait_anim)
     USER_FUNC(evt_mario::evt_mario_get_character, LW(0))
@@ -3608,25 +3306,22 @@ namespace mod
     RETURN()
     EVT_END()
 
-    customwin::CWSelectColorDef rainbowSelectBgCols[] =
-        {
-            {{255, 160, 160, 160}, {255, 200, 160, 160}, 80, 0}, // Red-Orange
-            {{255, 160, 255, 160}, {255, 160, 160, 160}, 80, 0}, // Magenta-Red
-            {{200, 160, 255, 160}, {255, 160, 255, 160}, 80, 0}, // Purple-Magenta
-            {{160, 160, 255, 160}, {200, 160, 255, 160}, 80, 0}, // Blue-Purple
-            {{160, 255, 255, 160}, {160, 160, 255, 160}, 80, 0}, // Cyan-Blue
-            {{160, 255, 160, 160}, {160, 255, 255, 160}, 80, 0}, // Green-Cyan
-            {{255, 255, 160, 160}, {160, 255, 160, 160}, 80, 0}, // Yellow-Green
-            {{255, 200, 160, 160}, {255, 255, 160, 160}, 80, 0}  // Orange-Yellow
+    customwin::CWSelectColorDef rainbowSelectBgCols[] = {
+        {{255, 160, 160, 160}, {255, 200, 160, 160}, 80, 0}, // Red-Orange
+        {{255, 160, 255, 160}, {255, 160, 160, 160}, 80, 0}, // Magenta-Red
+        {{200, 160, 255, 160}, {255, 160, 255, 160}, 80, 0}, // Purple-Magenta
+        {{160, 160, 255, 160}, {200, 160, 255, 160}, 80, 0}, // Blue-Purple
+        {{160, 255, 255, 160}, {160, 160, 255, 160}, 80, 0}, // Cyan-Blue
+        {{160, 255, 160, 160}, {160, 255, 255, 160}, 80, 0}, // Green-Cyan
+        {{255, 255, 160, 160}, {160, 255, 160, 160}, 80, 0}, // Yellow-Green
+        {{255, 200, 160, 160}, {255, 255, 160, 160}, 80, 0}  // Orange-Yellow
     };
 
-    s32 dan_70_generate_artifact_defs(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        customwin::CWSelectItemDesc *ArtifactDefs = (customwin::CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(customwin::CWSelectItemDesc) * 6);
-        RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
-        for (s32 i = 0; i < 6; i += 1)
-        {
+    s32 dan_70_generate_artifact_defs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        customwin::CWSelectItemDesc * ArtifactDefs = (customwin::CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(customwin::CWSelectItemDesc) * 6);
+        RFCItemData * RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
+        for (s32 i = 0; i < 6; i += 1) {
             s32 itemId = i + ARTIFACT_SOUL;
             msl::string::memcpy(ArtifactDefs[i].nameTxt, RFC_SpecialItems[itemId].name, msl::string::strlen(RFC_SpecialItems[itemId].name));
             msl::string::memcpy(ArtifactDefs[i].descTxt, RFC_SpecialItems[itemId].description, msl::string::strlen(RFC_SpecialItems[itemId].description));
@@ -3641,7 +3336,8 @@ namespace mod
     EVT_BEGIN(artifactReward)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
     USER_FUNC(dan_70_generate_artifact_defs, LW(0))
-    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), LW(0), 6) // todo: b less bad
+    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), LW(0),
+              6) // todo: b less bad
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Artifact"), PTR(&RFCArtiHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Artifact"), PTR(rainbowSelectBgCols), 8)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Artifact"), 0, LW(0))
@@ -3713,10 +3409,9 @@ namespace mod
     RUN_EVT(new_shadoo_evt)
     RETURN_FROM_CALL()
 
-    s32 dan_70_determine_artifact_spawn(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 dan_70_determine_artifact_spawn(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 difficulty = swdrv::swByteGet(1620);
         bool beatenThisDifficulty = swdrv::swGet(1650 + difficulty);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)beatenThisDifficulty);
@@ -4158,12 +3853,11 @@ namespace mod
     RETURN()
     EVT_END()
 
-    customwin::CWSelectColorDef boodinSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{185, 200, 240, 255}, {185, 200, 240, 255}, 120, 120}, // Blue
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{185, 240, 240, 255}, {185, 240, 240, 255}, 120, 120}, // Cyan
+    customwin::CWSelectColorDef boodinSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{185, 200, 240, 255}, {185, 200, 240, 255}, 120, 120}, // Blue
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{185, 240, 240, 255}, {185, 240, 240, 255}, 120, 120}, // Cyan
     };
 
     EVT_BEGIN(boodin_speech)
@@ -4257,8 +3951,7 @@ namespace mod
     RETURN()
     EVT_END()
 
-    s32 evt_dan_patch_dokan(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_dan_patch_dokan(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         dan::dan_chestRoomDokanDesc.destMapName = "mac_05";
@@ -4276,12 +3969,11 @@ namespace mod
     RETURN()
     EVT_END()
 
-    customwin::CWSelectColorDef rfcSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{255, 220, 180, 255}, {255, 220, 180, 255}, 120, 120}, // Orange
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{255, 250, 200, 255}, {255, 250, 200, 255}, 120, 120}, // Yellow
+    customwin::CWSelectColorDef rfcSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{255, 220, 180, 255}, {255, 220, 180, 255}, 120, 120}, // Orange
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{255, 250, 200, 255}, {255, 250, 200, 255}, 120, 120}, // Yellow
     };
 
     EVT_BEGIN(new_dan_chest_open_evt)
@@ -4444,7 +4136,8 @@ namespace mod
     SWITCH(LW(0))
     CASE_EQUAL(0)
     IF_EQUAL(LW(1), 1)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(tippiHitWhacka), 0, PTR("__guide__")) // I don't think being extra blue makes you invincible...
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(tippiHitWhacka), 0,
+              PTR("__guide__")) // I don't think being extra blue makes you invincible...
     END_IF()
     CASE_EQUAL(1)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(peachHitWhacka), 0, PTR("__mario__"))
@@ -4726,12 +4419,11 @@ namespace mod
     USER_FUNC(evt_dan_patch_dokan)
     RETURN_FROM_CALL()
 
-    customwin::CWSelectColorDef musicSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{215, 195, 255, 255}, {215, 195, 255, 255}, 120, 120}, // Purple
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{245, 195, 255, 255}, {245, 195, 255, 255}, 120, 120}, // Magenta
+    customwin::CWSelectColorDef musicSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{215, 195, 255, 255}, {215, 195, 255, 255}, 120, 120}, // Purple
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{245, 195, 255, 255}, {245, 195, 255, 255}, 120, 120}, // Magenta
     };
 
     EVT_BEGIN(cwselect_music)
@@ -4895,9 +4587,8 @@ namespace mod
     USER_FUNC(declare_shadoo_stats, LW(10))
     RETURN_FROM_CALL()
 
-    s32 ToggleGSWF(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 ToggleGSWF(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 gswfId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 gswfVal = swdrv::swGet(gswfId);
         if (gswfVal == 0)
@@ -4910,8 +4601,7 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(ToggleGSWF, 1)
 
-    s32 clear_disorder(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 clear_disorder(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         if (Lunatic->Luna.disorder != DISORDER_NULL)
@@ -4920,41 +4610,36 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(clear_disorder, 0)
 
-    s32 marioChgModelName(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 marioChgModelName(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 targetChar = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        const char *poseName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        const char * poseName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         mario::marioCharPoseNames[targetChar][0] = poseName;
         // Refresh model
         mario_motion::_marioChangeCharacter(mario::marioGetPtr()->character);
-        //  wii::os::OSReport("marioChgModelName: targetChar == %d, poseName == %p (%s)\n", targetChar, poseName, poseName);
+        //  wii::os::OSReport("marioChgModelName: targetChar == %d, poseName == %p (%s)\n", targetChar, poseName,
+        //  poseName);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(marioChgModelName, 2)
 
     s32 JimboGSWFBase = 0;
 
-    s32 JimboSetGSWFBase(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 JimboSetGSWFBase(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         JimboGSWFBase = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(JimboSetGSWFBase, 1)
 
-    bool JimboToggleOption(winmgr::WinmgrSelect *select)
-    {
+    bool JimboToggleOption(winmgr::WinmgrSelect * select) {
         s32 gswf = JimboGSWFBase + select->selectedItemIdx;
-        if (swdrv::swGet(gswf) == true)
-        {
+        if (swdrv::swGet(gswf) == true) {
             swdrv::swClear(gswf);
             spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_SET1");
-        }
-        else
-        {
+        } else {
             swdrv::swSet(gswf);
             spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_DELETE1");
         }
@@ -4962,28 +4647,25 @@ namespace mod
         return false;
     }
 
-    customwin::CWSelectColorDef featuresSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{250, 200, 200, 255}, {250, 200, 200, 255}, 120, 120}, // Red
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    customwin::CWSelectColorDef featuresSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{250, 200, 200, 255}, {250, 200, 200, 255}, 120, 120}, // Red
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
     };
 
-    customwin::CWSelectColorDef patchesSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{225, 255, 225, 255}, {225, 255, 225, 255}, 120, 120}, // Green
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    customwin::CWSelectColorDef patchesSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{225, 255, 225, 255}, {225, 255, 225, 255}, 120, 120}, // Green
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
     };
 
-    customwin::CWSelectColorDef accessSelectBgCols[] =
-        {
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{210, 220, 255, 255}, {210, 220, 255, 255}, 120, 120}, // Blue
-            {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
-            {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
+    customwin::CWSelectColorDef accessSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{210, 220, 255, 255}, {210, 220, 255, 255}, 120, 120}, // Blue
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{235, 235, 235, 255}, {235, 235, 235, 255}, 120, 120}, // Gray
     };
 
     EVT_BEGIN(cwselect_features)
@@ -5003,8 +4685,8 @@ namespace mod
     IF_EQUAL(LW(3), 1)
     SET(LW(1), 0x86)
     ADD(LW(1), GSWF(1613))
-    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR("GREEEEEEN!"), PTR("This Super Paper Mario Mod\nMakes You GREEN!"), LW(1), 0, 0, 0)
-    END_IF()
+    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR("GREEEEEEN!"), PTR("This Super Paper Mario Mod\nMakes You
+    GREEN!"), LW(1), 0, 0, 0) END_IF()
     // End debug, open select menu */
     USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Features"), PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Features"), PTR(featuresSelectBgCols), 4)
@@ -5500,21 +5182,20 @@ namespace mod
     USER_FUNC(evt_npc::evt_npc_set_unitwork, PTR("me"), 9, 0)
     RETURN_FROM_CALL()
 
-    s32 kami_bomb(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
-        npcdrv::NPCPart *part = npcdrv::npcGetPartById(npc, 1);
-        mario::MarioWork *mario = mario::marioGetPtr();
+    s32 kami_bomb(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        npcdrv::NPCEntry * npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npcdrv::NPCPart * part = npcdrv::npcGetPartById(npc, 1);
+        mario::MarioWork * mario = mario::marioGetPtr();
         f32 dist = PSVECSquareDistance(&npc->position, &mario->position);
         u8 marioIn3D = mario::marioCheck3d();
         u8 npcIn3D = npc->flippedTo3d;
         u8 failsIfOne = marioIn3D + npcIn3D;
         f32 distThreshold = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        if (dist < distThreshold && failsIfOne != 1)
-        {
-            if (mario->invincibilityTimer == 0 && mario->motionId != MOT_DAMAGE && mario->motionId != MOT_HIT && mario->motionId != MOT_FLIP && mario->motionId != MOT_FLIP_AIR && mario->motionId != MOT_BOTTOMLESS && mario->motionId != MOT_CHAR_CHANGE && mario->motionId != MOT_FAIRY_CHANGE && mario->motionId != MOT_LIFE_SHROOM)
-            {
+        if (dist < distThreshold && failsIfOne != 1) {
+            if (mario->invincibilityTimer == 0 && mario->motionId != MOT_DAMAGE && mario->motionId != MOT_HIT && mario->motionId != MOT_FLIP &&
+                mario->motionId != MOT_FLIP_AIR && mario->motionId != MOT_BOTTOMLESS && mario->motionId != MOT_CHAR_CHANGE && mario->motionId != MOT_FAIRY_CHANGE &&
+                mario->motionId != MOT_LIFE_SHROOM) {
                 npcdrv::npcDamageMario(npc, part, &part->position, 0, part->attackPower, 4);
             }
         }
@@ -5763,45 +5444,44 @@ namespace mod
     END_IF()
     RETURN_FROM_CALL()
 
-    static void evtPatches()
-    {
+    static void evtPatches() {
         // Render Flopside Pit pipe useless and patch Pit exit pipe
-        evtmgr_cmd::EvtScriptCode *disableFlopsidePitEntrance = map_data::mapDataPtr("mac_15")->initScript;
+        evtmgr_cmd::EvtScriptCode * disableFlopsidePitEntrance = map_data::mapDataPtr("mac_15")->initScript;
         evtpatch::hookEvt(disableFlopsidePitEntrance, 11, disable_flopside_pit_entrance);
         evtpatch::hookEvtReplace(dan::dan_70_init_evt, 8, patch_pit_exit);
 
         // Get enemy onSpawnScripts from templates
-        evtmgr_cmd::EvtScriptCode *dPuffDirAtk = npcdrv::npcEnemyTemplates[357].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *dPuffAtk = npcdrv::npcEnemyTemplates[358].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *iBroDirAtk = npcdrv::npcEnemyTemplates[341].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *iBroAtk = npcdrv::npcEnemyTemplates[344].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *hGoombaAtk = npcdrv::npcEnemyTemplates[329].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *hpGoombaAtk = npcdrv::npcEnemyTemplates[328].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *rMagiAtk = npcdrv::npcEnemyTemplates[324].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *pTileAtk = npcdrv::npcEnemyTemplates[379].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *pTileSpeed = npcdrv::npcEnemyTemplates[379].moveScript;
-        evtmgr_cmd::EvtScriptCode *kMuthAtk = npcdrv::npcEnemyTemplates[279].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *sGloombaAtk = npcdrv::npcEnemyTemplates[6].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *uranokoAtk = npcdrv::npcEnemyTemplates[10].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *fUranokoAtk = npcdrv::npcEnemyTemplates[13].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *bleepAtk = npcdrv::npcEnemyTemplates[277].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *wClubbaAtk = npcdrv::npcEnemyTemplates[350].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *sbbDirAtk = npcdrv::npcEnemyTemplates[340].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *sbbProjAtk = npcdrv::npcEnemyTemplates[343].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *sMagiProjSpeed = npcdrv::npcEnemyTemplates[347].moveScript;
-        evtmgr_cmd::EvtScriptCode *sMagiProjAtk = npcdrv::npcEnemyTemplates[347].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *wClubbaTriple = npcdrv::npcEnemyTemplates[350].atkScript;
-        evtmgr_cmd::EvtScriptCode *uranokoMvmt = npcdrv::npcEnemyTemplates[10].atkScript;
-        evtmgr_cmd::EvtScriptCode *uranokoBrain = npcdrv::npcEnemyTemplates[10].moveScript;
-        evtmgr_cmd::EvtScriptCode *uranokoOnDmgTaken = npcdrv::npcEnemyTemplates[10].onHitScript;
-        evtmgr_cmd::EvtScriptCode *kamiKuriAtk = npcdrv::npcEnemyTemplates[330].atkScript;
-        evtmgr_cmd::EvtScriptCode *bombBooAtk = npcdrv::npcEnemyTemplates[366].atkScript;
-        evtmgr_cmd::EvtScriptCode *dLakAtk = npcdrv::npcEnemyTemplates[30].atkScript;
-        evtmgr_cmd::EvtScriptCode *bawbAtk = npcdrv::npcEnemyTemplates[375].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * dPuffDirAtk = npcdrv::npcEnemyTemplates[357].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * dPuffAtk = npcdrv::npcEnemyTemplates[358].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * iBroDirAtk = npcdrv::npcEnemyTemplates[341].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * iBroAtk = npcdrv::npcEnemyTemplates[344].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * hGoombaAtk = npcdrv::npcEnemyTemplates[329].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * hpGoombaAtk = npcdrv::npcEnemyTemplates[328].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * rMagiAtk = npcdrv::npcEnemyTemplates[324].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * pTileAtk = npcdrv::npcEnemyTemplates[379].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * pTileSpeed = npcdrv::npcEnemyTemplates[379].moveScript;
+        evtmgr_cmd::EvtScriptCode * kMuthAtk = npcdrv::npcEnemyTemplates[279].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * sGloombaAtk = npcdrv::npcEnemyTemplates[6].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * uranokoAtk = npcdrv::npcEnemyTemplates[10].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * fUranokoAtk = npcdrv::npcEnemyTemplates[13].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * bleepAtk = npcdrv::npcEnemyTemplates[277].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * wClubbaAtk = npcdrv::npcEnemyTemplates[350].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * sbbDirAtk = npcdrv::npcEnemyTemplates[340].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * sbbProjAtk = npcdrv::npcEnemyTemplates[343].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * sMagiProjSpeed = npcdrv::npcEnemyTemplates[347].moveScript;
+        evtmgr_cmd::EvtScriptCode * sMagiProjAtk = npcdrv::npcEnemyTemplates[347].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * wClubbaTriple = npcdrv::npcEnemyTemplates[350].atkScript;
+        evtmgr_cmd::EvtScriptCode * uranokoMvmt = npcdrv::npcEnemyTemplates[10].atkScript;
+        evtmgr_cmd::EvtScriptCode * uranokoBrain = npcdrv::npcEnemyTemplates[10].moveScript;
+        evtmgr_cmd::EvtScriptCode * uranokoOnDmgTaken = npcdrv::npcEnemyTemplates[10].onHitScript;
+        evtmgr_cmd::EvtScriptCode * kamiKuriAtk = npcdrv::npcEnemyTemplates[330].atkScript;
+        evtmgr_cmd::EvtScriptCode * bombBooAtk = npcdrv::npcEnemyTemplates[366].atkScript;
+        evtmgr_cmd::EvtScriptCode * dLakAtk = npcdrv::npcEnemyTemplates[30].atkScript;
+        evtmgr_cmd::EvtScriptCode * bawbAtk = npcdrv::npcEnemyTemplates[375].onSpawnScript;
         //    evtmgr_cmd::EvtScriptCode *kpStats = npcdrv::npcEnemyTemplates[7].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *goombaStats = npcdrv::npcEnemyTemplates[2].onSpawnScript;
+        evtmgr_cmd::EvtScriptCode * goombaStats = npcdrv::npcEnemyTemplates[2].onSpawnScript;
         //    evtmgr_cmd::EvtScriptCode *skyblueAnimDefs = npcdrv::npcEnemyTemplates[336].onSpawnScript;
-        evtmgr_cmd::EvtScriptCode *commonDeathScript = npcdrv::npcEnemyTemplates[350].deathScript;
+        evtmgr_cmd::EvtScriptCode * commonDeathScript = npcdrv::npcEnemyTemplates[350].deathScript;
 
         // Enemy stat overwrite
         evtpatch::hookEvtReplace(dPuffDirAtk, 2, d_puff_dir_atk);
@@ -5905,27 +5585,23 @@ namespace mod
         evtpatch::hookEvtReplace(temp_unk::npc_drop_item_evt, 3, npc_drop_item_patch);
     }
 
-    void rotateCustomDokans()
-    {
-        mario::MarioWork *mario = mario::marioGetPtr();
-        if (((mario->buttonsPressed & WPAD_BTN_C) == WPAD_BTN_C))
-        {
-            for (u16 i = 0; i < BERO_DOKAN_MAX; i += 1)
-            {
+    void rotateCustomDokans() {
+        mario::MarioWork * mario = mario::marioGetPtr();
+        if (((mario->buttonsPressed & WPAD_BTN_C) == WPAD_BTN_C)) {
+            for (u16 i = 0; i < BERO_DOKAN_MAX; i += 1) {
                 if (bero::Dokans[i] == nullptr)
                     return;
-                if (msl::string::strcmp(bero::Dokans[i]->Desc.mapName, spmario::gp->mapName) == 0 && bero::Dokans[i]->baseMobj != nullptr)
-                {
+                if (msl::string::strcmp(bero::Dokans[i]->Desc.mapName, spmario::gp->mapName) == 0) {
                     mobjdrv::mobjCalcMtx(bero::Dokans[i]->headMobj);
-                    mobjdrv::mobjCalcMtx(bero::Dokans[i]->baseMobj);
+                    if (bero::Dokans[i]->baseMobj != nullptr)
+                        mobjdrv::mobjCalcMtx(bero::Dokans[i]->baseMobj);
                 }
             }
         }
         return;
     }
 
-    void main()
-    {
+    void main() {
         // Allocate memory for LunaticPitWork
         // mempatch::memPatch();
         Lunatic = (LunaticPitWork *)memory::__memAlloc(0, sizeof(LunaticPitWork));
@@ -5935,11 +5611,12 @@ namespace mod
         msgpatch::msgpatchMain();
         customwin::CustomWinMain();
         evtpatch::evtmgrExtensionInit();
-        const char *wicon2 = "wicon2";
+        const char * wicon2 = "wicon2";
         tplpatch::iconPatch(wicon2);
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
         bero::beroberoInit();
+        acpatch::acpatchInit();
         globalop::globalopAddEntry((void *)rotateCustomDokans, nullptr);
         // Add new BGM entries
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100F8BIT", 1385, 50, 64, 0, 0);

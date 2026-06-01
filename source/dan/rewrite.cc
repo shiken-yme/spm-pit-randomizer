@@ -15,6 +15,7 @@
 #include <spm/rel/aa1_01.h>
 #include <spm/rel/mi4.h>
 #include <spm/rel/relocatable_module.h>
+#include <spm/npc_zunbaba.h>
 #include <spm/temp_unk.h>
 #include <spm/animdrv.h>
 #include <spm/npcdrv.h>
@@ -581,11 +582,50 @@ namespace mod
         return 2;
     }
 
+    /*
+        Test to patch the Fracktail tree back into the game
+    */
+    s32 fracktailTreeVisCb(npcdrv::NPCEntry *npc, s32 grpIdx)
+    {
+        s32 idx = animdrv::animPoseGetGroupIdx(npc->m_Anim.m_nPoseId, "TREE");
+        animdrv::animdrv_wp->animPose[npc->m_Anim.m_nPoseId].visibilityGrps2[idx] = 1;
+        return 0;
+    }
+
+    s32 fracktailTreeVisCb2(npc_zunbaba::ZunbabaSegmentDef *segment, s32 grpIdx, wii::mtx::Mtx34 mtx)
+    {
+        // wii::mtx::Mtx34 mtx2;
+        if (grpIdx == segment->antennaLightGroupIdx)
+        {
+            //wii::mtx::PSMTXTrans(mtx2, -11.7, 20.9, 0.0);
+            //wii::mtx::PSMTXConcat(mtx, mtx2, mtx);
+            npc_zunbaba::zunbaba_wp->npcEntry->position = {mtx[0][3], mtx[1][3], mtx[2][3]};
+        }
+        s32 idx = animdrv::animPoseGetGroupIdx(segment->animPoseId, "TREE");
+        animdrv::animdrv_wp->animPose[segment->animPoseId].visibilityGrps2[idx] = 1;
+        npc_zunbaba::npcZunbabaSegmentDispCb(segment, grpIdx, mtx);
+        return 0;
+    }
+
+    EVT_BEGIN(fracktailTreeProcCb)
+    WAIT_FRM(5)
+    USER_FUNC(evt_npc::evt_npc_set_disp_callback, PTR("zun"), PTR(fracktailTreeVisCb))
+    SET(GW(7), 0)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(fracktailTreeVisEvt_1)
+    RUN_EVT(fracktailTreeProcCb)
+    RETURN_FROM_CALL()
+
     void rewrite_main()
     {
         // Enemy room init evt complete rewrite
         evtpatch::hookEvtReplace(dan::dan_enemy_room_init_evt, 1, dan_enemy_room_init_evt_new);
         patch::hookFunction(npc_dimeen_l::npc_dimen_determine_move_pos, dimen_determine_move_pos_new);
+        // Fracktail test
+        evtpatch::hookEvt(0x80d44cc0, 4, fracktailTreeVisEvt_1);
+        patch::hookFunction(npc_zunbaba::npcZunbabaHeadDispCb, fracktailTreeVisCb2);
     }
 
 }

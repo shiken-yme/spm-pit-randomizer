@@ -67,10 +67,20 @@ typedef struct
 /* 0x010 */ s32 animGroupId;
 /* 0x014 */ Unk curAnimIndex;
 /* 0x018 */ u8 unknown_0x18[0x020 - 0x018];
-/* 0x020 */ f32 frmCounter; // unconfirmed
-/* 0x024 */ u8 unknown_0x24[0xf0 - 0x024];
+/* 0x020 */ f32 frmCounter;
+/* 0x024 */ u8 unknown_0x24[0x050 - 0x024];
+/* 0x050 */ Unk * vtxPositions;
+/* 0x054 */ Unk * vtxPositionIndices;
+/* 0x058 */ Unk * vtxNormals;
+/* 0x05C */ Unk * vtxNormalIndices;
+/* 0x060 */ u8 * visibilityGrps;
+/* 0x064 */ u8 * visibilityGrps2;
+/* 0x068 */ Unk * grpTransformData;
+/* 0x06C */ Unk * bufferNode;
+/* 0x070 */ Unk * texCoordTransforms;
+/* 0x074 */ u8 unknown_0x74[0x0f0 - 0x074];
 /* 0x0F0 */ u32 materialFlag;
-/* 0x0F4 */ u8 unknown_0xf4[0xf8 - 0x0f4];
+/* 0x0F4 */ u8 unknown_0xf4[0x0f8 - 0x0f4];
 /* 0x0F8 */ u32 materialLightFlag;
 /* 0x0FC */ GXColor materialEvtColor;
 /* 0x100 */ GXColor materialEvtColor2;

@@ -65,7 +65,7 @@ typedef struct
 /* 0x2E0 */ s32 dokan_desc_num;
 /* 0x2E4 */ s32 dokan2dCaseIds[16];
 /* 0x324 */ s32 dokan3dCaseIds[16];
-/* 0x364 */ Unk unknown_0x364;
+/* 0x364 */ u32 dokanDescUnkBitmask; // some kind of bitmask, purpose unknown
 /* 0x368 */ Unk unknown_0x368;
 /* 0x36C */ MapDoorDesc * mapDoorDescs;
 /* 0x370 */ s32 map_door_desc_num;
@@ -74,6 +74,8 @@ typedef struct
 /* 0x4FC */ s32 mapDoor3dCaseIds[32];
 } EvtDoorWork;
 SIZE_ASSERT(EvtDoorWork, 0x57c)
+
+extern const char * dokanAnimFiles[4];
 
 UNKNOWN_FUNCTION(evtDoorInit)
 UNKNOWN_FUNCTION(evt_door_flag_onoff)
@@ -111,7 +113,7 @@ EVT_DECLARE_USER_FUNC(evt_door_enable_disable_door_desc, 2)
 UNKNOWN_FUNCTION(func_800e2b78)
 UNKNOWN_FUNCTION(func_800e3050)
 UNKNOWN_FUNCTION(func_800e32a0)
-UNKNOWN_FUNCTION(func_800e333c)
+EVT_DECLARE_USER_FUNC(evt_door_set_dokan_exit_anim, 1)
 UNKNOWN_FUNCTION(func_800e34f0)
 
 // evt_door_set_dokan_descs(DokanDesc * descs, s32 count)

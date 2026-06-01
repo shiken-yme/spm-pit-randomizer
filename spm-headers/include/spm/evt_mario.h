@@ -5,33 +5,40 @@
 
 CPP_WRAPPER(spm::evt_mario)
 
-UNKNOWN_FUNCTION(evt_mario_flag0_onoff)
-UNKNOWN_FUNCTION(evt_mario_flag4_onoff)
+// evt_mario_flag_onoff(bool onOff, u32 mask)
+EVT_DECLARE_USER_FUNC(evt_mario_flag_onoff, 2)
 
-// evt_mario_flag8_onoff(bool onOff, u32 mask)
-EVT_DECLARE_USER_FUNC(evt_mario_flag8_onoff, 2)
+// evt_mario_misc_flag_onoff(bool onOff, u32 mask)
+EVT_DECLARE_USER_FUNC(evt_mario_misc_flag_onoff, 2)
+
+// evt_mario_disp_flag_onoff(bool onOff, u32 mask)
+EVT_DECLARE_USER_FUNC(evt_mario_disp_flag_onoff, 2)
 
 // evt_mario_get_flags(s32 type, u32 flags)
 // type 0 is flags, 1 is misc flags, 2 is disp flags
 EVT_DECLARE_USER_FUNC(evt_mario_get_flags, 2)
 
-// evt_mario_ctrl_onoff(s32 ctrl)
-// 0 is ctrlOff, 1 is ctrlOn
+// evt_mario_ctrl_onoff(bool onOff)
 EVT_DECLARE_USER_FUNC(evt_mario_ctrl_onoff, 1)
 
 // evt_mario_key_on()
 EVT_DECLARE_USER_FUNC(evt_mario_key_on, 0)
 
-// evt_mario_key_off(int)
+// evt_mario_key_off(s32)
 EVT_DECLARE_USER_FUNC(evt_mario_key_off, 1)
 
-UNKNOWN_FUNCTION(evt_mario_key_off2)
-UNKNOWN_FUNCTION(func_800ef814)
-UNKNOWN_FUNCTION(func_800ef8c8)
+// evt_mario_key_off_immediate()
+EVT_DECLARE_USER_FUNC(evt_mario_key_off_immediate, 0)
+
+EVT_DECLARE_USER_FUNC(func_800ef814, 1)
+
+// evt_mario_bg_mode_onoff(bool onOff)
+EVT_DECLARE_USER_FUNC(evt_mario_bg_mode_onoff, 1)
 
 // evt_mario_get_character(s32& ret)
 EVT_DECLARE_USER_FUNC(evt_mario_get_character, 1)
 
+// evt_mario_set_character(s32 character)
 EVT_DECLARE_USER_FUNC(evt_mario_set_character, 1)
 
 // evt_mario_set_pos(f32 x, f32 y, f32 z)
@@ -40,52 +47,78 @@ EVT_DECLARE_USER_FUNC(evt_mario_set_pos, 3)
 // evt_mario_get_pos(f32& x, f32& y, f32& z)
 EVT_DECLARE_USER_FUNC(evt_mario_get_pos, 3)
 
-UNKNOWN_FUNCTION(func_800efac4)
-UNKNOWN_FUNCTION(func_800efb50)
-UNKNOWN_FUNCTION(func_800efbdc)
-UNKNOWN_FUNCTION(func_800efc54)
+EVT_DECLARE_USER_FUNC(func_800efac4, 3)
+
+// evt_mario_set_scale(f32 x, f32 y, f32 z)
+EVT_DECLARE_USER_FUNC(evt_mario_set_scale, 3)
+
+// evt_mario_get_scale(f32& x, f32& y, f32& z)
+EVT_DECLARE_USER_FUNC(evt_mario_get_scale, 3)
+
+// evt_mario_set_axis_rotation(f32 x, f32 y, f32 z)
+EVT_DECLARE_USER_FUNC(evt_mario_set_axis_rotation, 3)
 
 // evt_mario_get_height(f32& ret)
 EVT_DECLARE_USER_FUNC(evt_mario_get_height, 1)
 
-EVT_DECLARE_USER_FUNC(evt_mario_direction_reset, 0)
+// evt_mario_face_left()
+EVT_DECLARE_USER_FUNC(evt_mario_face_left, 0)
 
-UNKNOWN_FUNCTION(func_800efd58)
+// evt_mario_face_right()
+EVT_DECLARE_USER_FUNC(evt_mario_face_right, 0)
 
+// evt_mario_direction_face(f32 degrees, s32 time)
 EVT_DECLARE_USER_FUNC(evt_mario_direction_face, 2)
 
-UNKNOWN_FUNCTION(func_800eff6c)
+// evt_mario_get_direction_view(f32& ret)
+EVT_DECLARE_USER_FUNC(evt_mario_get_direction_view, 1)
 
 // evt_mario_face_npc(const char * name)
 EVT_DECLARE_USER_FUNC(evt_mario_face_npc, 1)
 
-// evt_mario_face_coords(float positionX, float PositionZ)
+// evt_mario_face_coords(f32 x, f32 z)
 EVT_DECLARE_USER_FUNC(evt_mario_face_coords, 2)
 
-UNKNOWN_FUNCTION(func_800f013c)
-UNKNOWN_FUNCTION(func_800f0160)
-UNKNOWN_FUNCTION(func_800f01ac)
-UNKNOWN_FUNCTION(func_800f0210)
-UNKNOWN_FUNCTION(evt_mario_face)
-UNKNOWN_FUNCTION(evt_mario_face_free)
+// evt_mario_adjust_move_dir()
+EVT_DECLARE_USER_FUNC(evt_mario_adjust_move_dir, 0)
 
-// x, z, duration in ms
+// evt_mario_face_away()
+EVT_DECLARE_USER_FUNC(evt_mario_face_away, 0)
+
+// evt_mario_set_disp_direction(f32 degrees)
+EVT_DECLARE_USER_FUNC(evt_mario_set_disp_direction, 1)
+
+// evt_mario_get_disp_direction(f32& degrees)
+EVT_DECLARE_USER_FUNC(evt_mario_get_disp_direction, 1)
+
+// evt_mario_face(f32 x, f32 y, f32 z)
+EVT_DECLARE_USER_FUNC(evt_mario_face, 3)
+
+// evt_mario_face_free()
+EVT_DECLARE_USER_FUNC(evt_mario_face_free, 0)
+
+// evt_mario_walk_to(f32 x, f32 z, s32 msec)
 EVT_DECLARE_USER_FUNC(evt_mario_walk_to, 3)
 
 EVT_DECLARE_USER_FUNC(evt_mario_pos_change, 3)
 
-EVT_UNKNOWN_USER_FUNC(func_800f05b0)
-UNKNOWN_FUNCTION(func_800f074c)
+// evt_mario_walk_to2(f32 x, f32 y, f32 z, f32 v)
+EVT_DECLARE_USER_FUNC(evt_mario_walk_to2, 4)
 
-EVT_DECLARE_USER_FUNC(evt_mario_walk_back_from_pos, 6)
+EVT_DECLARE_USER_FUNC(evt_mario_move_pos_look, 6)
 
-UNKNOWN_FUNCTION(func_800f0c28)
+EVT_DECLARE_USER_FUNC(evt_mario_move_pos_look2, 6)
 
-// evt_mario_jump_to(f32 x, f32 y, f32 z, f32 jumpHeight, f32 time_msec)
+bool evtMarioChkLandedFromJump(f32 jumpSpdY);
+
+// evt_mario_jump_to(f32 x, f32 y, f32 z, f32 jumpHeight, s32 msec)
 EVT_DECLARE_USER_FUNC(evt_mario_jump_to, 5)
 
-EVT_UNKNOWN_USER_FUNC(func_800f119c)
-EVT_UNKNOWN_USER_FUNC(func_800f1684)
+EVT_DECLARE_USER_FUNC(evt_mario_jump_to2, 5)
+
+// evt_mario_wait_grounded()
+EVT_DECLARE_USER_FUNC(evt_mario_wait_grounded, 0)
+
 UNKNOWN_FUNCTION(func_800f1778)
 UNKNOWN_FUNCTION(func_800f1810)
 UNKNOWN_FUNCTION(func_800f1858)

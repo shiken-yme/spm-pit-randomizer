@@ -300,7 +300,7 @@ UNKNOWN_FUNCTION(func_80109ca0)
 
 s32 oChunksNpcDispCb(void *param_1, s32 param_2);
 
-EVT_UNKNOWN_USER_FUNC(evt_npc_set_disp_callback)
+EVT_DECLARE_USER_FUNC(evt_npc_set_disp_callback, 2)
 
 UNKNOWN_FUNCTION(func_80109e18)
 UNKNOWN_FUNCTION(func_80109e94)

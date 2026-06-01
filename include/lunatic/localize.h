@@ -2,6 +2,7 @@
 #include <common.h>
 #include <spm/msgdrv.h>
 #include <spm/npcdrv.h>
+#include <spm/icondrv.h>
 #include <spm/pausewin.h>
 #include <spm/spmario.h>
 #include <spm/search.h>

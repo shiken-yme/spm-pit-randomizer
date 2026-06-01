@@ -114,7 +114,7 @@ typedef struct
 /* 0x04 */ s32 gw[32]; // Global Work variables
 /* 0x84 */ u32 gf[3]; // Global Flag variables
 /* 0x90 */ EvtEntry * entries; // Entry array
-/* 0x04 */ // Alignment padding 0x94-97
+/* 0x94 */ // Alignment padding 0x94-97
 /* 0xA0 */ OSTime time; // Time evtmgrMain last ran
 } EvtWork;
 SIZE_ASSERT(EvtWork, 0xa0)

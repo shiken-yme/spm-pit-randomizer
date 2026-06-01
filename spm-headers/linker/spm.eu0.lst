@@ -108,6 +108,8 @@
 8003f780:acNameToPtr
 8003f818:acMsgDisp
 80406ed8:acdrv_acDefs
+// data
+805adf50:acdrv_wp
 
 // animdrv.c
 80041a58:animGroupEntry
@@ -131,6 +133,7 @@
 8004c660:animPoseGetAnimPosePtr
 8004c910:animPoseGetCurrentAnim
 8004158c:animGetPtr
+8004de18:animPoseGetGroupIdx
 8004df54:animPoseGetGroupIdxSubname
 // data 
 805adf58:animdrv_wp
@@ -419,6 +422,7 @@
 800e11b0:evtDoorGetActiveDoorDesc
 800e11e0:evt_door_wait_flag
 800e2610:evt_door_set_door_descs
+800e333c:evt_door_set_dokan_exit_anim
 800e3588:evt_door_set_dokan_descs
 800e3804:evt_door_enable_disable_dokan_desc
 800e4118:evt_door_set_map_door_descs
@@ -429,6 +433,7 @@
 800e47a8:evt_door_handle_spawn
 // more
 // data
+80412ce8:dokanAnimFiles
 80412d18:evt_door_enter_dokan_down_evt
 804134c4:evt_door_enter_dokan_up_evt
 80413838:evt_door_enter_dokan_left_evt
@@ -540,7 +545,9 @@
 // more
 
 // evt_mario.c
-800ef4c0:evt_mario_flag8_onoff
+800ef3c8:evt_mario_flag_onoff
+800ef444:evt_mario_misc_flag_onoff
+800ef4c0:evt_mario_disp_flag_onoff
 800ef53c:evt_mario_get_flags
 800ef5ec:evt_mario_ctrl_onoff
 800ef62c:evt_mario_key_on
@@ -871,6 +878,8 @@
 // mario_sbr.c
 80146570:marioCheck2HeldFor2
 801502bc:marioAdjustMoveDir
+80150478:marioFaceLeft
+801504b0:marioFaceRight
 801504e8:revise360
 8015161c:marioCheck1HeldFor3
 80152900:marioSetDispCamId
@@ -1829,3 +1838,9 @@
 8026fae0:OSGetMEM1ArenaLo
 80295A5C:MEMCreateExpHeapEx
 80295B0C:MEMDestroyExpHeap
+
+801e26b0:npc_zunbaba_init_work
+801da3f0:npcZunbabaSegmentDispCb
+801da5a8:npcZunbabaHeadDispCb
+801e0678:func_801e0678
+805ae9f0:zunbaba_wp
