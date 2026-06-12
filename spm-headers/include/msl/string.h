@@ -17,6 +17,7 @@ int memcmp(const void * p1, const void * p2, size_t num);
 int strcmp(const char * s1, const char * s2);
 int strncmp(const char * s1, const char * s2, size_t num);
 const char * strchr(const char * str, char c);
+void strlwr(const char * str);
 size_t strlen(const char * str);
 const char * strstr(const char * str1, const char * str2);
 

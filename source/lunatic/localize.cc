@@ -1,33 +1,31 @@
 #include <common.h>
+#include <cutscene_helpers.h>
 #include <evt_cmd.h>
 #include <gen.h>
-#include <util.h>
-#include <cutscene_helpers.h>
-#include <tplpatch.h>
 #include <lunatic/localize.h>
-#include <msgpatch.h>
 #include <mod.h>
+#include <msgpatch.h>
+#include <tplpatch.h>
+#include <util.h>
 
-#include <spm/rel/aa1_01.h>
-#include <spm/rel/mi4.h>
-#include <spm/rel/relocatable_module.h>
-#include <spm/temp_unk.h>
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
-#include <spm/npcdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
-#include <spm/npc_ninja.h>
 #include <spm/eff/eff_fire.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_zunbaba.h>
+#include <spm/eff/eff_spm_hit.h>
 #include <spm/eff/eff_spm_recovery.h>
 #include <spm/eff/eff_spm_spindash.h>
-#include <spm/eff/eff_spm_hit.h>
+#include <spm/eff/eff_zunbaba.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
@@ -38,65 +36,66 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
+#include <spm/npc_ninja.h>
 #include <spm/npc_tile.h>
+#include <spm/npcdrv.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/aa1_01.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
+#include <spm/rel/mi4.h>
+#include <spm/rel/relocatable_module.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
 
-namespace mod
-{
+namespace mod {
     using namespace spm;
     using namespace npcdrv;
 
@@ -172,14 +171,12 @@ namespace mod
             {(NPCTribeId)-1, nullptr, nullptr, nullptr},
     };
 
-    char tattleMsgs[sizeof(data)/sizeof(NPCMessagePatchData)][15];
+    char tattleMsgs[sizeof(data) / sizeof(NPCMessagePatchData)][15];
 
-    void npcMessagePatches()
-    {
+    void npcMessagePatches() {
         // Overwrite all enemy tattles, card names, and card descriptions
-        for (s32 i = 0; data[i].tribeId != -1; i += 1)
-        {
-            npcdrv::NPCTribe *tribe = npcdrv::npcGetTribe(data[i].tribeId);
+        for (s32 i = 0; data[i].tribeId != -1; i += 1) {
+            npcdrv::NPCTribe * tribe = npcdrv::npcGetTribe(data[i].tribeId);
             msgpatch::msgpatchAddEntry(item_data::itemDataTable[tribe->catchCardItemId].nameMsg, data[i].nameMsg, true);
             msgpatch::msgpatchAddEntry(item_data::itemDataTable[tribe->catchCardItemId].descMsg, data[i].cardMsg, true);
             msl::stdio::sprintf(tattleMsgs[i], "anna_%s", item_data::itemDataTable[tribe->catchCardItemId].descMsg);
@@ -195,43 +192,30 @@ namespace mod
         return;
     }
 
-    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type)
-    {
-        if ((npc != nullptr || npc != 0) && type == Tribe2Tattle_Types::TATTLE)
-        {
-            if (msl::string::strstr(npc->name, "rebear") != nullptr)
-            {
-                msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattle_merluna);
-            }
-            else if (msl::string::strstr(npc->name, "dan_card") != nullptr)
-            {
-                msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", spm::msgdrv::msgSearch("mac_19_card"));
-            }
-            else if (msl::string::strstr(npc->name, "mover") != nullptr)
-            {
-                msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattle_mover);
-            }
-            else if (msl::string::strstr(npc->name, "dan_koburon") != nullptr)
-            {
-                msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattle_whacka);
-            }
-            else if (msl::string::strstr(npc->name, "jimbo") != nullptr)
-            {
-                msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattle_jimbo);
-            }
-            else
-                return nullptr;
-            const char *tattleMsg = spm::search::search_wp->msgBuf;
-            return tattleMsg;
-        }
-        return nullptr;
+    const char * msgSearchCustomNpc(spm::npcdrv::NPCEntry * npc) {
+        if (npc == nullptr)
+            return nullptr;
+        const char * tattle = nullptr;
+        if (msl::string::strstr(npc->name, "rebear") != nullptr) {
+            tattle = tattle_merluna;
+        } else if (msl::string::strstr(npc->name, "dan_card") != nullptr) {
+            tattle = spm::msgdrv::msgSearch("mac_19_card");
+        } else if (msl::string::strstr(npc->name, "mover") != nullptr) {
+            tattle = tattle_mover;
+        } else if (msl::string::strstr(npc->name, "dan_koburon") != nullptr) {
+            tattle = tattle_whacka;
+        } else if (msl::string::strstr(npc->name, "jimbo") != nullptr) {
+            tattle = tattle_jimbo;
+        } else
+            return nullptr;
+        msl::stdio::sprintf(spm::search::search_wp->msgBuf, "<gsearch>\n%s", tattle);
+        return spm::search::search_wp->msgBuf;
     }
 
-    const char *npcGetNameFromTribeId(s32 tribeId)
-    {
+    const char * npcGetNameFromTribeId(s32 tribeId) {
         if (tribeId < 0)
             return npcGetNameFromTribeIdError;
-        npcdrv::NPCTribe *tribe = npcdrv::npcGetTribe(tribeId);
+        npcdrv::NPCTribe * tribe = npcdrv::npcGetTribe(tribeId);
         return msgdrv::msgSearch(item_data::itemDataTable[tribe->catchCardItemId].nameMsg);
     }
 

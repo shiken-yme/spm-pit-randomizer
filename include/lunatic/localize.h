@@ -1,32 +1,29 @@
 #pragma once
 #include <common.h>
-#include <spm/msgdrv.h>
-#include <spm/npcdrv.h>
-#include <spm/icondrv.h>
-#include <spm/pausewin.h>
-#include <spm/spmario.h>
-#include <spm/search.h>
-#include <wii/sc.h>
 #include <msl/stdio.h>
 #include <msl/string.h>
+#include <spm/icondrv.h>
+#include <spm/msgdrv.h>
+#include <spm/npcdrv.h>
+#include <spm/pausewin.h>
+#include <spm/search.h>
+#include <spm/spmario.h>
+#include <wii/sc.h>
 
-namespace mod
-{
+namespace mod {
     using namespace spm;
 
-    enum Tribe2Tattle_Types
-    {
+    enum Tribe2Tattle_Types {
         /* 0x0 */ TATTLE,
         /* 0x1 */ CARD_NAME,
         /* 0x2 */ CARD_DESC
     };
 
-    struct NPCMessagePatchData
-    {
+    struct NPCMessagePatchData {
         npcdrv::NPCTribeId tribeId;
-        const char *nameMsg;
-        const char *cardMsg;
-        const char *tattleMsg;
+        const char * nameMsg;
+        const char * cardMsg;
+        const char * tattleMsg;
     };
 
     const char npcGetNameFromTribeIdError[] =
@@ -2356,7 +2353,7 @@ namespace mod
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
-        const char tattle_william_blaster[] =
+    const char tattle_william_blaster[] =
         "<fairy><keyyon>It's a William Blaster...\n"
         "<wait 250>Max HP is %d. Attack is %d.\n"
         "<k>\n<p>\n"
@@ -2554,7 +2551,7 @@ namespace mod
         "<k>";
 
     void npcMessagePatches();
-    const char *msgSearchTribeToTattle(spm::npcdrv::NPCEntry *npc, s32 tribeId, Tribe2Tattle_Types type);
-    const char *npcGetNameFromTribeId(s32 tribeId);
+    const char * msgSearchCustomNpc(spm::npcdrv::NPCEntry * npc);
+    const char * npcGetNameFromTribeId(s32 tribeId);
 
 }

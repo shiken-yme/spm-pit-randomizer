@@ -1,38 +1,36 @@
 #include <common.h>
-#include <evt_cmd.h>
-#include <gen.h>
-#include <util.h>
 #include <cutscene_helpers.h>
+#include <evt_cmd.h>
 #include <evtpatch.h>
-#include <tplpatch.h>
+#include <gen.h>
+#include <lp_common.h>
+#include <lunadrv.h>
 #include <lunatic/localize.h>
+#include <mod.h>
 #include <rewrite.h>
 #include <rfcdrv.h>
-#include <lunadrv.h>
-#include <lp_common.h>
-#include <mod.h>
+#include <tplpatch.h>
+#include <util.h>
 
-#include <spm/rel/aa1_01.h>
-#include <spm/rel/mi4.h>
-#include <spm/rel/relocatable_module.h>
-#include <spm/npc_zunbaba.h>
-#include <spm/temp_unk.h>
+#include <cstdio>
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
-#include <spm/npcdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
-#include <spm/npc_ninja.h>
 #include <spm/eff/eff_fire.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_zunbaba.h>
+#include <spm/eff/eff_spm_hit.h>
 #include <spm/eff/eff_spm_recovery.h>
 #include <spm/eff/eff_spm_spindash.h>
-#include <spm/eff/eff_spm_hit.h>
+#include <spm/eff/eff_zunbaba.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
@@ -43,66 +41,67 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
+#include <spm/npc_ninja.h>
 #include <spm/npc_tile.h>
+#include <spm/npc_zunbaba.h>
+#include <spm/npcdrv.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/aa1_01.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
+#include <spm/rel/mi4.h>
+#include <spm/rel/relocatable_module.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
-#include <cstdio>
 
-namespace mod
-{
+namespace mod {
     /*
         This file contains important EVT rewrites and proprietary user funcs for said EVTs
         I have yet to put a lot of stuff from mod.cc into here. I should do that one day
@@ -110,7 +109,7 @@ namespace mod
 
     using namespace spm;
 
-    const char *restFloorNpcNames[] = {"Null", "Flimm", "Merluna", "Boodin", "undetermined"};
+    const char * restFloorNpcNames[] = {"Null", "Flimm", "Merluna", "Boodin", "undetermined"};
 
     npcdrv::NPCTribeAnimDef _moverAnims[] = {
         {0, "stg2_syuuzin_b_S_1"}, // Idle
@@ -121,8 +120,7 @@ namespace mod
 
     using namespace spm::npcdrv;
 
-    s32 evt_dan_try_disorder(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_dan_try_disorder(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         // Clear disorder tremor effects on mapchange
@@ -134,38 +132,31 @@ namespace mod
         // Roll for Disorders, else decrement floorsRem
         s32 currentFloor = swdrv::swByteGet(1);
         s32 currentFloorLastDigit = currentFloor % 10;
-        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4)
-        {
+        if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4) {
             s32 difficulty = swdrv::swByteGet(1620);
             DecideDisorder(Lunatic->Mover.moverRNG, difficulty);
-        }
-        else if (Lunatic->Luna.DW.floorsRem > 0)
+        } else if (Lunatic->Luna.DW.floorsRem > 0)
             Lunatic->Luna.DW.floorsRem -= 1;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_dan_try_disorder, 0)
 
-    s32 evt_dan_disorder_set_or_clear(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 evt_dan_disorder_set_or_clear(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
-        if (Lunatic->Luna.DW.floorsRem == 0)
-        {
-            if (Lunatic->Luna.disorder > DISORDER_NULL)
-            {
+        if (Lunatic->Luna.DW.floorsRem == 0) {
+            if (Lunatic->Luna.disorder > DISORDER_NULL) {
                 ClearDisorder((s32)Lunatic->Luna.disorder);
-            }
-            else if (Lunatic->Luna.DW.preId > 0)
+            } else if (Lunatic->Luna.DW.preId > 0)
                 SetDisorder(Lunatic->Luna.DW.preId);
         }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_dan_disorder_set_or_clear, 0)
 
-    s32 LunaticForceBGMChange(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 LunaticForceBGMChange(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 variant = evtmgr_cmd::evtGetValue(evtEntry, args[0]); // 1-4
         spmario_snd::BgmEntry copy = *spmario_snd::spsndBgmPlayers[0].bgmEntry;
         copy.brsarIdx = variant + 1379;
@@ -178,30 +169,25 @@ namespace mod
     // Like so many other functions used in this mod, this was adapted heavily from decomp dan.c
     // Thank you Seeky! This mod and many others would not exist without your work.
     // You are greatly appreciated by all of us in the SPM modding and reverse engineering community.
-    s32 evt_dan_handle_key_failsafe_new(evtmgr::EvtEntry *entry, bool isFirstCall)
-    {
+    s32 evt_dan_handle_key_failsafe_new(evtmgr::EvtEntry * entry, bool isFirstCall) {
         (void)isFirstCall;
         // Check whether the key exists anywhere
         if (!dan::danCheckEnemyInMapBbox() && !dan::danCheckKeyInMapBbox() &&
             !mario_pouch::pouchCheckHaveItem(48) &&
-            !itemdrv::itemCheckForId(48))
-        {
+            !itemdrv::itemCheckForId(48)) {
             // Spawn the key at Mario's position if not
-            mario::MarioWork *mario = mario::marioGetPtr();
+            mario::MarioWork * mario = mario::marioGetPtr();
             itemdrv::itemEntry(NULL, 48, 1, mario->position.x, mario->position.y, mario->position.z, NULL, 0);
             return 2;
-        }
-        else
+        } else
             return 0;
     }
     EVT_DECLARE_USER_FUNC(evt_dan_handle_key_failsafe_new, 0)
 
-    void danAssignSpecialEnemyItem(npcdrv::NPCEntry *npc, s32 useItemDropChance, s32 chestKeyDropChance)
-    {
-        npcdrv::NPCDropItem *dropItems = npcdrv::npcGetTribe(npc->tribeId)->dropItemList;
+    void danAssignSpecialEnemyItem(npcdrv::NPCEntry * npc, s32 useItemDropChance, s32 chestKeyDropChance) {
+        npcdrv::NPCDropItem * dropItems = npcdrv::npcGetTribe(npc->tribeId)->dropItemList;
         s32 sup = system::rand() % 100;
-        if (sup < useItemDropChance)
-        {
+        if (sup < useItemDropChance) {
             if (npc->dropItemId == 0 && dropItems[0].itemId != 0) // If it doesn't already have an item, continue
             {
                 s32 itemId = -1;
@@ -209,41 +195,35 @@ namespace mod
                 // determines dropItems length
                 for (i = 0; itemId != 0; i += 1)
                     itemId = dropItems[i].itemId;
-                do
-                {
+                do {
                     itemId = system::rand() % i;
                     npc->dropItemId = dropItems[itemId].itemId;
-                    if (npc->dropItemId == ITEM_ID_USE_BLANK_KUN)
-                    {
+                    if (npc->dropItemId == ITEM_ID_USE_BLANK_KUN) {
                         s32 sup2 = system::rand() % 100;
                         if (sup2 < 60)
                             npc->dropItemId = ITEM_ID_USE_SHINABITA_KINOKO; // 60% chance to replace Catch Card drops with Dried Shrooms
                     }
                 } while (npc->dropItemId <= 0);
             }
-        }
-        else if (sup < (useItemDropChance + chestKeyDropChance) && npc->dropItemId == 0)
+        } else if (sup < (useItemDropChance + chestKeyDropChance) && npc->dropItemId == 0)
             npc->dropItemId = ITEM_ID_KEY_MAC_KEY_00;
         return;
     }
 
-    s32 evt_dan_modify_enemy(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+    s32 evt_dan_modify_enemy(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
-        npcdrv::NPCEntry *npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
+        npcdrv::NPCEntry * npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
         s32 sup = system::rand() % 100;
         s32 stellarDiff = 0, remOdds = 0;
         s32 currentFloor = swdrv::swByteGet(1);
         // Nerf all random item drops
         s32 difficulty = swdrv::swByteGet(1620);
-        if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00)
-        {
+        if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00) {
             VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
             if (vState == V_ACTIVE)
                 stellarDiff = 40;
-            switch (difficulty)
-            {
+            switch (difficulty) {
             case 0:
                 remOdds = 30;
                 break;
@@ -271,20 +251,15 @@ namespace mod
             Todo: maybe try and remove kick behavior from holo koopa-type enemies?
         */
         sup = system::rand() % 100;
-        if (sup < 8)
-        {
-            if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && difficulty > 0 && currentFloor > 149 && npc->tribeId != NPC_SHLORP && npc->tribeId != NPC_SHLURP)
-            {
+        if (sup < 8) {
+            if ((s32)npc != 0 && npc->templateKouraKickScript == 0 && difficulty > 0 && currentFloor > 149 && npc->tribeId != NPC_SHLORP && npc->tribeId != NPC_SHLURP) {
                 npcMakeHolo(npc);
                 danAssignSpecialEnemyItem(npc, (s32)msl::math::sqrt((f32)npc->maxHp), 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 1);
             }
-        }
-        else
-        {
+        } else {
             sup = system::rand() % 100;
-            if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO)
-            {
+            if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO) {
                 npcMakeNegative(npc);
                 danAssignSpecialEnemyItem(npc, npc->maxHp * 3, 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
@@ -295,26 +270,22 @@ namespace mod
     EVT_DECLARE_USER_FUNC(evt_dan_modify_enemy, 2)
 
     // heavily adapted from dan.c decomp, thanks again Seeky!
-    s32 evt_dan_distribute_keys(evtmgr::EvtEntry *entry, bool isFirstCall)
-    {
+    s32 evt_dan_distribute_keys(evtmgr::EvtEntry * entry, bool isFirstCall) {
         (void)isFirstCall;
         (void)entry;
         s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0, difficulty = swdrv::swByteGet(1620);
         bool assign = false, randomKeyAssigned = false;
-        npcdrv::NPCWork *npcWp = npcdrv::npcGetWorkPtr();
-        NPCEntry *curNpc = npcWp->entries;
+        npcdrv::NPCWork * npcWp = npcdrv::npcGetWorkPtr();
+        NPCEntry * curNpc = npcWp->entries;
         s32 enemyCount = 0;
-        NPCEntry *enemies[80];
-        if ((currentFloor % 10) == 0)
-        {
+        NPCEntry * enemies[80];
+        if ((currentFloor % 10) == 0) {
             msl::string::memset(&Lunatic->RFC.chestKeysToSpawn[0], 0xff, 4);
-            for (i = 0; i < 2; i += 1)
-            {
+            for (i = 0; i < 2; i += 1) {
             rerollFloor:
                 u8 rand = (u8)(system::rand() % 9);
                 assign = true;
-                for (j = 0; j < 4; j += 1)
-                {
+                for (j = 0; j < 4; j += 1) {
                     if (rand == Lunatic->RFC.chestKeysToSpawn[j])
                         assign = false;
                 }
@@ -326,14 +297,12 @@ namespace mod
             wii::os::OSReport("Guaranteed chest keys for this cycle @ rooms ending in %d, %d\n", Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1);
         }
         // Create list of enemies to give keys in the current room
-        for (i = 0; i < npcWp->num; curNpc++, i++)
-        {
+        for (i = 0; i < npcWp->num; curNpc++, i++) {
             if (CHECK_ANY_MASK(curNpc->flag8, 0x1) && !CHECK_ANY_MASK(curNpc->flag8, 0x40000))
                 enemies[enemyCount++] = curNpc;
         }
         // Give floor key on 1st run, maybe chest key on 2nd
-        for (i = 0; i < 2; ++i)
-        {
+        for (i = 0; i < 2; ++i) {
             n = 0;
         buh:
             n += 1;
@@ -342,15 +311,15 @@ namespace mod
             s32 random = system::rand() % enemyCount;
             if (npcCheckDanFlag(enemies[random], (NPCDanFlag)(DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
                 goto buh;
-            if (i == 0) // Distribute main floor key
+            if (i == 0) { // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
-            else // Distribute chest key
+                enemies[random]->zAxisRotation = 180.0f;
+            } else // Distribute chest key
             {
                 if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY || enemies[random]->dropItemId == item_data::ITEM_ID_KEY_MAC_KEY_00)
                     goto buh;
                 assign = false;
-                for (j = 0; j < 4; j += 1)
-                {
+                for (j = 0; j < 4; j += 1) {
                     if ((u8)(currentFloor % 10) == Lunatic->RFC.chestKeysToSpawn[j])
                         assign = true;
                 }
@@ -359,8 +328,7 @@ namespace mod
                 if (assign || Lunatic->Luna.disorder == DISORDER_BLUE)
                     return 2;
                 // Calculate enemiesInCycle
-                for (j = 0; j < 10; j += 1)
-                {
+                for (j = 0; j < 10; j += 1) {
                     phase = (currentFloor / 10) % 10;
                     currentFloor = (phase * 10) + j;
                     for (k = 0; k < Lunatic->Floor[currentFloor].enemyTypes; k += 1)
@@ -368,8 +336,7 @@ namespace mod
                 }
                 // wii::os::OSReport("Enemies in current cycle: %d\n", enemiesInCycle);
                 // If a floor does not have a guaranteed chest key, small chance for any enemy to be assigned one
-                for (j = 0; j < enemyCount; j += 1)
-                {
+                for (j = 0; j < enemyCount; j += 1) {
                     /*
                         If 100 enemies in a 10-floor phase,
                         2.0/1.5/1.0/0.5 in 100 chance for an enemy to drop a random key
@@ -528,10 +495,9 @@ namespace mod
     EVT_END()
 
     // Patches Dimentio to have a dynamic movement zone rather than being hardcoded for one room.
-    s32 dimen_determine_move_pos_new(evtmgr::EvtEntry *entry, bool isFirstCall)
-    {
-        mario::MarioWork *marioWork = mario::marioGetPtr();
-        npcdrv::NPCEntry *npc = (npcdrv::NPCEntry *)entry->ownerNPC;
+    s32 dimen_determine_move_pos_new(evtmgr::EvtEntry * entry, bool isFirstCall) {
+        mario::MarioWork * marioWork = mario::marioGetPtr();
+        npcdrv::NPCEntry * npc = (npcdrv::NPCEntry *)entry->ownerNPC;
         double destYPos = 0;
         f32 marioZ = ((marioWork->position).z);
         f32 destXPos = 0;
@@ -540,30 +506,23 @@ namespace mod
         wii::mtx::Vec3 max;
         hitdrv::hitGetMapEntryBbox(0, &min, &max);
         s32 i = 0;
-        do
-        {
-            while (true)
-            {
-                do
-                {
+        do {
+            while (true) {
+                do {
                     i = i + 1;
                     dimenMoveRand = system::irand(400);
                     destXPos = ((marioWork->position).x + (f32)dimenMoveRand - 200);
-                    if (i > 50)
-                    {
+                    if (i > 50) {
                         destXPos = npc->position.x;
                         goto outOfBounds;
                     }
                 } while ((destXPos <= (min.x + 25)) || ((max.x - 25) <= destXPos));
             outOfBounds:
                 u32 yMoveBehavior = system::irand(100);
-                if (yMoveBehavior < 67)
-                {
+                if (yMoveBehavior < 67) {
                     dimenMoveRand = system::irand(4);
                     destYPos = (10.0 * (f32)dimenMoveRand + 20.0);
-                }
-                else
-                {
+                } else {
                     dimenMoveRand = system::irand(3);
                     destYPos = (32.0 * (f32)dimenMoveRand + 40.0);
                 }
@@ -575,7 +534,7 @@ namespace mod
             destYPos = system::distABf(destXPos, marioZ, ((marioWork->position).x), marioZ);
         } while ((destYPos <= 120.0) && (destYPos <= 80.0));
     setFloats:
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)entry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)entry->pCurData;
         evtmgr_cmd::evtSetFloat(entry, args[0], destXPos);
         evtmgr_cmd::evtSetFloat(entry, args[1], destYPos);
         evtmgr_cmd::evtSetFloat(entry, args[2], marioZ);
@@ -585,20 +544,17 @@ namespace mod
     /*
         Test to patch the Fracktail tree back into the game
     */
-    s32 fracktailTreeVisCb(npcdrv::NPCEntry *npc, s32 grpIdx)
-    {
+    s32 fracktailTreeVisCb(npcdrv::NPCEntry * npc, s32 grpIdx) {
         s32 idx = animdrv::animPoseGetGroupIdx(npc->m_Anim.m_nPoseId, "TREE");
         animdrv::animdrv_wp->animPose[npc->m_Anim.m_nPoseId].visibilityGrps2[idx] = 1;
         return 0;
     }
 
-    s32 fracktailTreeVisCb2(npc_zunbaba::ZunbabaSegmentDef *segment, s32 grpIdx, wii::mtx::Mtx34 mtx)
-    {
+    s32 fracktailTreeVisCb2(npc_zunbaba::ZunbabaSegmentDef * segment, s32 grpIdx, wii::mtx::Mtx34 mtx) {
         // wii::mtx::Mtx34 mtx2;
-        if (grpIdx == segment->antennaLightGroupIdx)
-        {
-            //wii::mtx::PSMTXTrans(mtx2, -11.7, 20.9, 0.0);
-            //wii::mtx::PSMTXConcat(mtx, mtx2, mtx);
+        if (grpIdx == segment->antennaLightGroupIdx) {
+            // wii::mtx::PSMTXTrans(mtx2, -11.7, 20.9, 0.0);
+            // wii::mtx::PSMTXConcat(mtx, mtx2, mtx);
             npc_zunbaba::zunbaba_wp->npcEntry->position = {mtx[0][3], mtx[1][3], mtx[2][3]};
         }
         s32 idx = animdrv::animPoseGetGroupIdx(segment->animPoseId, "TREE");
@@ -618,8 +574,7 @@ namespace mod
     RUN_EVT(fracktailTreeProcCb)
     RETURN_FROM_CALL()
 
-    void rewrite_main()
-    {
+    void rewrite_main() {
         // Enemy room init evt complete rewrite
         evtpatch::hookEvtReplace(dan::dan_enemy_room_init_evt, 1, dan_enemy_room_init_evt_new);
         patch::hookFunction(npc_dimeen_l::npc_dimen_determine_move_pos, dimen_determine_move_pos_new);

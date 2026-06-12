@@ -1301,6 +1301,7 @@
 805ae1c0:search_wp
 
 // lz_embedded.c
+80358d88:ag2tg
 8036afc0:pitText
 // more
 
@@ -1329,6 +1330,7 @@
 8025ea78:strcmp
 8025eb94:strncmp
 8025ebd4:strchr
+80260bbc:strlwr
 80267018:strlen
 // more
 

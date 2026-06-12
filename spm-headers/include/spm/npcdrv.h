@@ -674,7 +674,7 @@ typedef struct _NPCEntry
 /* 0x584 */ u32 templateField0x64; // field 0x64 of spawning SetupEnemyTemplate
                                    // (unknown for non-templated NPCs)
 /* 0x588 */ u8 unknown_0x588[0x618 - 0x588];
-/* 0x618 */ f32 zAxisRotation; // degrees anti-clockwise about the z-axis, if MiscSetupDataV6.gravityRotation is to be believed
+/* 0x618 */ f32 gravRotation; // degrees anti-clockwise about the z-axis
 /* 0x588 */ u8 unknown_0x61c[0x624 - 0x61c];
 /* 0x624 */ f32 stunTime;
 /* 0x628 */ u8 unknown_0x628[0x6e0 - 0x628];

@@ -2,6 +2,7 @@
 #include "exception.h"
 #include "patch.h"
 #include "romfontexpand.h"
+#include <acpatch.h>
 #include <berobero.h>
 #include <common.h>
 #include <customwin.h>
@@ -10,7 +11,6 @@
 #include <evtpatch.h>
 #include <globalop.h>
 #include <lp_common.h>
-#include <acpatch.h>
 #include <mempatch.h>
 #include <msgpatch.h>
 #include <sndpatch.h>
@@ -158,10 +158,7 @@ namespace mod {
     s16 frameB = 0;
     s16 frameColPhase = 0;
 
-    npcdrv::NPCTribeAnimDef luigiAnims[] = {{0, "luigi_S_1"},  {1, "luigi_W_1"},  {2, "luigi_R_2"},  {3, "luigi_T_1"},   {4, "luigi_D_7"},   {6, "luigi_D_7"},
-                                            {7, "luigi_D_7"},  {8, "luigi_D_7"},  {9, "luigi_K_1"},  {10, "luigi_Y_1"},  {11, "luigi_Y_1"},  {12, "luigi_K_1"},
-                                            {13, "luigi_K_1"}, {14, "luigi_E_2"}, {15, "luigi_Y_1"}, {25, "luigi_J_1B"}, {26, "luigi_T_3A"}, {27, "luigi_J_1C"},
-                                            {28, "luigi_I_1"}, {29, "luigi_S_3"}, {30, "luigi_D_4"}, {-1, "luigi_Z_1"}};
+    npcdrv::NPCTribeAnimDef luigiAnims[] = {{0, "luigi_S_1"}, {1, "luigi_W_1"}, {2, "luigi_R_2"}, {3, "luigi_T_1"}, {4, "luigi_D_7"}, {6, "luigi_D_7"}, {7, "luigi_D_7"}, {8, "luigi_D_7"}, {9, "luigi_K_1"}, {10, "luigi_Y_1"}, {11, "luigi_Y_1"}, {12, "luigi_K_1"}, {13, "luigi_K_1"}, {14, "luigi_E_2"}, {15, "luigi_Y_1"}, {25, "luigi_J_1B"}, {26, "luigi_T_3A"}, {27, "luigi_J_1C"}, {28, "luigi_I_1"}, {29, "luigi_S_3"}, {30, "luigi_D_4"}, {-1, "luigi_Z_1"}};
 
     npcdrv::NPCPartDef sbParts[2] = {npcdrv::npcTribes[38].partsList[0], npcdrv::npcTribes[38].partsList[1]};
 
@@ -1104,26 +1101,49 @@ namespace mod {
         return false;
     }
 
-    const char * models[] = {"e_heiho",      "e_buross_h", "e_buross_b",     "e_burosu_i",     "e_cheririn_a",   "e_chorobon_g",   "e_gabow",
-                             "e_jugemu_d",   "e_jyama_b",  "e_card_jyama_b", "e_k_kuribo",     "e_k_shoote4",    "e_kamek_g",      "e_kamek_r",
-                             "e_kamek_w",    "e_kames",    "e_karon_d",      "e_kmond",        "e_kuribo_h",     "e_mer",          "e_nin_d",
-                             "e_nokoteki_d", "e_ntl_p",    "e_sinemoh",      "e_tesita_bt",    "e_tesita_sb",    "e_togenokd",     "e_togezb",
-                             "e_touginoko",  "e_wanwan_g", "e_teresa_b",     "MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big", "terminator"};
+    /*
+        Rewrite animGroupBaseAsync to utilize a failsafe instead of an assert
+        If an entry is not in ag2tg, it will assume the texture name and model name are identical
+    */
+    u32 animGroupBaseAsyncNew(const char * animPoseName, s32 param_2, void * readDoneCb) {
+        char curAnim[32], targetAnim[32];
+        u32 size = wii::cx::CXGetUncompressedSize(lz_embedded::ag2tg), i = 0;
+        const char * ag2tg = (const char *)animdrv::animdrv_wp->ag2tg->data;
+        filemgr::FileEntry * model = filemgr::fileAsyncf(5, readDoneCb, "a/%s", animPoseName);
+        filemgr::FileEntry * texture = nullptr;
+        msl::string::strcpy(targetAnim, animPoseName);
+        msl::string::strlwr(targetAnim);
+        for (; (msl::string::strcmp(curAnim, targetAnim) == 0) || ((i * 64) >= size); i += 1) {
+            msl::string::strcpy(curAnim, (ag2tg + (i * 64)));
+            msl::string::strlwr(curAnim);
+        }
+        if ((i * 32) >= size) {
+            texture = filemgr::fileAsyncf(4, nullptr, "a/%s-", animPoseName);
+        } else {
+            texture = filemgr::fileAsyncf(4, nullptr, "a/%s-", (ag2tg + (i * 64) + 32));
+        }
+        if ((s32)model == -1) {
+            size = 1;
+        } else if (model == nullptr) {
+            size = 0;
+        } else if ((s32)texture == -1) {
+            size = 1;
+        } else
+            size = (-(s32)texture | (u32)texture) >> 0x1f;
+        return size;
+    }
 
     static const char * (*searchGetNpcMsgReal)(npcdrv::NPCEntry * npc);
-    //   void (*pausewinSetMessageCardReal)(pausewin::PausewinEntry *entry, s32 itemId);
-    u32 (*animGroupBaseAsyncReal)(const char * animPoseName, s32 param_2, void * readDoneCb);
     void (*spsndSFXOnReal)(const char * name);
     void (*spsndSFXOnVolReal)(const char * name, u8 volume);
     itemdrv::ItemEntry * (*itemEntryReal)(const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode * pickupScript,
                                           evtmgr::EvtVar switchNumber);
     s32 (*itemCollectPouchItemReal)(itemdrv::ItemEntry * item);
     void (*TPLBindReal)(wii::tpl::TPLHeader * tpl);
-    void (*spsndBGMSetVolReal)(s32 player, s32 volume, u32 fadeMsec);
     static void miscLambdas() {
         searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg, [](npcdrv::NPCEntry * npc) {
             // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
-            const char * tattle = msgSearchTribeToTattle(npc, npc->tribeId, Tribe2Tattle_Types::TATTLE);
+            const char * tattle = msgSearchCustomNpc(npc);
             if (tattle == nullptr) {
                 return searchGetNpcMsgReal(npc);
             } else if (msl::string::strcmp(tattle, "") == 0) {
@@ -1131,17 +1151,6 @@ namespace mod {
             } else {
                 return tattle;
             }
-        });
-
-        animGroupBaseAsyncReal = patch::hookFunction(animdrv::animGroupBaseAsync, [](const char * animPoseName, s32 param_2, void * readDoneCb) {
-            // Patch functions that rely on ag2tg to fileAsyncf custom textures
-            for (s32 idx = 0; msl::string::strcmp(models[idx], "terminator") != 0; idx = idx + 1) {
-                if (msl::string::strcmp(animPoseName, models[idx]) == 0) {
-                    filemgr::FileEntry * texture = filemgr::fileAsyncf(4, 0, "%s/%s-", "a", animPoseName);
-                    return (-(s32)texture | (u32)texture) >> 0x1f;
-                }
-            }
-            return animGroupBaseAsyncReal(animPoseName, param_2, readDoneCb);
         });
 
         spsndSFXOnReal = patch::hookFunction(spmario_snd::spsndSFXOn, [](const char * name) {
@@ -1195,21 +1204,6 @@ namespace mod {
                 tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
             return;
         });
-
-        /*spsndBGMSetVolReal = patch::hookFunction(spmario_snd::spsndBGMSetVol,
-                                                 [](s32 player, s32 volume, u32 fadeMsec)
-                                                 {
-                                                    // Get brsar idx of the current bgm player
-                                                     s16 brsarIdx =
-           spmario_snd::spsndBgmPlayers[player].bgmEntry->brsarIdx;
-                                                     // If brsar idx does not match a Lunatic track, it shouldn't be
-           prevented if (brsarIdx < 1380 || brsarIdx > 1383) spsndBGMSetVolReal(player, volume, fadeMsec);
-                                                     // Check for fadeMsec "keys" called exclusively in the mod and
-           allow all calls made using those parameters if (fadeMsec == 737 || fadeMsec == 1) spsndBGMSetVolReal(player,
-           volume, fadeMsec);
-                                                     // Check for fadeMsec/volume
-                                                     return;
-                                                 });*/
     }
 
     static void danOverwrite() {
@@ -1228,6 +1222,8 @@ namespace mod {
         writeBranchLink(npcdrv::func_801b19e4, 0x494, neutralize);
         // lol why not
         writeBranchLink(framedrv::frameDisp, 0x3EC, debugModeGayFrame);
+        // patch AGB Async
+        patch::hookFunction(animdrv::animGroupBaseAsync, animGroupBaseAsyncNew);
         // cudge patch - thanks lily!
         writeBranch(spm::npcdrv::npcTakeDamage, 0x1DC, setCudgeFloat);
         // Remove anything that sets or reads npcentry->unkShellSfx
@@ -1235,8 +1231,6 @@ namespace mod {
         writeWord(evt_npc::evt_npc_set_unk_shell_sfx, 0x58, NOP);
         // Patch shell enemies to not despawn within the Pit (distance check goes from 500 to 1000)
         writeWord(npcdrv::func_801c8d70, 0x954, FCMPO(0, 1, 28));
-        // DEBUG
-        writeWord(npcdrv::func_801c8d70, 0x994, LWZ(3, 0x720, 29));
     }
 
     static void danDontFuckingCrash() { patch::hookFunction(dan::evt_dan_get_enemy_info, evt_dan_get_enemy_info_new); }
@@ -2617,7 +2611,6 @@ namespace mod {
                 floor += 4;
         } else
             floor += 4;
-        //  // DEBUG
         swdrv::swByteSet(1, floor);
         const char * destMap = getNextDanMapnameNew(floor);
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;

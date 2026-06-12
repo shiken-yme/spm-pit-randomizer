@@ -5,6 +5,7 @@
 #include <wii/mtx.h>
 #include <wii/gx.h>
 #include <spm/filemgr.h>
+#include <spm/memory.h>
 
 CPP_WRAPPER(spm::animdrv)
 
@@ -13,6 +14,7 @@ USING(wii::mtx::Mtx34)
 USING(wii::mtx::Vec3)
 USING(wii::gx::GXColor)
 USING(spm::filemgr::FileEntry)
+USING(spm::memory::SmartAllocation)
 
 typedef void (AnimPoseDisplayCb)(void * param, s32 animGroupIdx, s32 param_3);
 
@@ -97,7 +99,9 @@ typedef struct
 /* 0x00C */ s32 textureGroupNum;
 /* 0x010 */ AnimPose * animPose;
 /* 0x014 */ s32 animPoseNum;
-/* 0x018 */ u8 unknown_0x1c[0x110 - 0x018];
+/* 0x018 */ u8 unknown_0x18[0x100 - 0x018];
+/* 0x100 */ SmartAllocation * ag2tg;
+/* 0x104 */ u8 unknown_0x104[0x110 - 0x104];
 } AnimWork; // Uncertain size
 SIZE_ASSERT(AnimWork, 0x110)
 
