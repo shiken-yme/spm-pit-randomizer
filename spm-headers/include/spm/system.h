@@ -64,6 +64,7 @@ typedef f32 (IntplUserFunc)(s32, s32, f32, f32);
 
 #define RAND_MAX 0x7fff
 
+DECOMP_STATIC(s32 RANDOM_SEED);
 
 /*
     Initialises an unused mutex

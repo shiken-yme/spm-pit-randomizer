@@ -37,7 +37,7 @@ namespace mod {
         "Hard";
 
     const char difficultyText[] =
-        "<system>\n"
+        "<p><system>\n"
         "Choose your difficulty.\n"
         "<o>";
 
@@ -126,7 +126,7 @@ namespace mod {
 
     const char lockPatchesDesc[] =
         "Were you tired of selecting\n"
-        "a key every time? Me, too.";
+        "a key every time? I sure was.";
 
     const char hpPatchesName[] =
         "Mute Low HP Sounds";
@@ -177,7 +177,7 @@ namespace mod {
         "<select 0 -1 270 45>\n"
         "Open it!\n"
         "Leave it.\n"
-        "Reroll it...\n"
+        "Reroll rarity\n"
         "Huh? Whuh?";
 
     const char rfcChestName[] =
@@ -215,27 +215,32 @@ namespace mod {
         "drop from any enemy in any\n"
         "floor, <wait 200><wave>but they're rare!\n"
         "</wave><k>\n<p>\n"
-        "Up to 1 chest key can spawn\n"
-        "per floor, with 2 guaranteed\n"
-        "to spawn per 10 floors.\n"
-        // Consider a blurb discussing random keys
+        "Up to 1 chest key may spawn\n"
+        "randomly per floor, with 2+\n"
+        "guaranteed every 10 floors.\n"
         "<k>\n<p>\n"
         "Consider saving your chest\n"
         "keys for when you encounter\n"
         "a Rare or Legendary chest!\n"
         "<k>\n<p>\n"
-        "You can reroll chests if you'd\n"
-        "like to, but you can't reroll\n"
-        "once the chest is open.\n"
+        "You can reroll the chest\n"
+        "rarity, but only before you\n"
+        "open the chest.\n"
         "<k>\n<p>\n"
         "Rerolls cost one chest key,\n"
         "but each reroll will make the\n"
         "next one more expensive!\n"
         "<k>\n<p>\n"
         "Oh, and just a warning...\n"
-        "<wait 500><dynamic 3>Please</dynamic> don't touch chests if\n"
+        "<wait 500><dynamic 3>Please</dynamic> don't open chests if\n"
         "you don't have the keys.\n"
         "<k>";
+
+    const char smallChestCoins[] =
+        "<system>\nYou received %d coins!\n<k>";
+
+    const char smallChestHp[] =
+        "<system>\nYou received %d HP!\n<k>";
 
     const char voucherIntro[] =
         "<system>\n"
@@ -397,7 +402,7 @@ namespace mod {
         "for every 30 enemies defeated.\n"
         "<k>\n<p>\n"
         "You may get either +8%% Crit Mult,\n"
-        "+4%% Crit Rate, or +1 Attack.\n"
+        "+2%% Crit Rate, or +1 Attack.\n"
         "<k>\n<p>\n"
         "%d%% chance to tear after %d\n"
         "activations.\n"
@@ -1039,8 +1044,8 @@ namespace mod {
     const char quickstartText[] =
         "<system>"
         "Do you want to quickstart\n"
-        "the Pit Randomizer or\n"
-        "create a new save file?\n"
+        "the Lunatic Pit or create\n"
+        "a new save file?\n"
         "<o>";
 
     // Whacka
@@ -1052,7 +1057,7 @@ namespace mod {
         "<k>\n<p>\n"
         "It's soooo quiet in this room,\n"
         "<wait 200><wave>whack-a-hooo!</wave><wait 300> And this\n"
-        "is MY spot, whack-hoo!\n"
+        "is MY spot, whack-doo!\n"
         "<k>\n<p>\n"
         "It suuuuure looked dangerous\n"
         "in those other rooms!<wait 200> You\n"
@@ -1338,8 +1343,8 @@ namespace mod {
         "Increases damage taken by %d.\n"
         "Decreases damage dealt by %d.\n"
         "<k>\n<p>\n"
-        "Halves CRIT Rate.\n"
-        "Halves CRIT Mult.\n"
+        "Halves Crit Rate.\n"
+        "Halves Crit Mult.\n"
         "<k>\n<p>\n"
         "All stats are restored when\n"
         "the Disorder ends.";
@@ -1374,14 +1379,14 @@ namespace mod {
         "Disorder: Indifference\n"
         "\"What a waste of energy...\"\n"
         "<k>\n<p>\n"
-        "67%% chance to add a random\n"
-        "trash item to the inventory.\n"
+        "A random junk item is added\n"
+        "to the inventory in all rooms.\n"
         "<k>\n<p>\n"
         "If there is no space, a random\n"
         "item will be replaced.\n"
         "<k>\n<p>\n"
-        "This can repeat up to %d\n"
-        "times per room entry.\n"
+        "67%% chance to receive another\n"
+        "item %d time(s).\n"
         "<k>\n<p>\n"
         "Every room will have a\n"
         "complex layout.";
@@ -1390,14 +1395,11 @@ namespace mod {
         "Disorder: Recalcitrance\n"
         "\"I will make them pay tenfold...\"\n"
         "<k>\n<p>\n"
-        "XP gain from all sources is\n"
-        "modified by -%d%%.\n"
+        "Enemies defeated with jumps\n"
+        "will give %d%% XP.\n"
         "<k>\n<p>\n"
-        "%d%% chance for enemies to\n"
-        "return some damage from jumps.\n"
-        "<k>\n<p>\n"
-        "Up to %d damage can be taken\n"
-        "in this manner.";
+        "Instant healing items will be\n"
+        "%d%% less effective.\n";
 
     const char depravityDesc[] =
         "Disorder: Depravity\n"
@@ -1416,11 +1418,11 @@ namespace mod {
         "Disorder: Indolence\n"
         "\"Guess I'll just stay put...\"\n"
         "<k>\n<p>\n"
-        "When taking damage, %d%% chance\n"
-        "for one of the following effects:\n"
+        "Upon taking damage, %d%% chance\n"
+        "for one effect to occur:\n"
         "<k>\n<p>\n"
-        "Get frozen; take %d%% more damage;\n"
-        "become Slow for %d seconds.";
+        "Frozen; +%d%% more damage;\n"
+        "Slowed for %d seconds.";
 
     const char melancholyDesc[] =
         "Disorder: Melancholy\n"
@@ -1433,6 +1435,197 @@ namespace mod {
         "\"Please... turn the lights back on...\"\n"
         "<k>\n<p>\n"
         "Placeholder";
+
+    const char apathyIntro[] =
+        "A wave of uncertainty strikes\n"
+        "you,<wait 200> leading you to question\n"
+        "your every ability.\n"
+        "<k>\n<p>\n"
+        "As you doubt yourself,<wait 200> you\n"
+        "begin to forget why you\n"
+        "ever chose to be a Hero.\n"
+        "<k>\n<p>\n"
+        "Gradually,<wait 200> you find yourself\n"
+        "losing your motivation to\n"
+        "forge on.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>apathy.\n"
+        "</shake><k>\n<p>\n"
+        "Your HP, CM, and CR have\n"
+        "been decreased;<wait 200> enemy HP\n"
+        "has been raised.\n"
+        "<k>\n<p>\n"
+        "Damage taken is increased,\n"
+        "<wait 200>while damage dealt has been\n"
+        "decreased.\n"
+        "<k>";
+
+    const char apathyIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Apathy:</shake><wait 500> Stats and DMG dealt\n"
+        "are decreased; enemies have\n"
+        "more HP and deal more DMG.\n"
+        "<k>";
+
+    const char dreadIntro[] =
+        "A wave of terror strikes you,\n"
+        "<wait 200>slowly draining you of all\n"
+        "the hopes you ever had.\n"
+        "<k>\n<p>\n"
+        "Every step you take sends\n"
+        "unbearable chills down your\n"
+        "spine.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>dread.\n"
+        "</shake><k>\n<p>\n"
+        "Enemies will no longer drop\n"
+        "coins, items, or XP.\n"
+        "<k>\n<p>\n"
+        "Additionally, enemies may\n"
+        "silently heal instead of\n"
+        "taking damage.\n"
+        "<k>";
+
+    const char dreadIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Dread:</shake><wait 500> Enemies have no\n"
+        "loot and may heal instead\n"
+        "of taking DMG.\n"
+        "<k>";
+
+    const char prejudiceIntro[] =
+        "A wave of contempt strikes\n"
+        "you,<wait 200> making you wonder why\n"
+        "you're dealing with this.\n"
+        "<k>\n<p>\n"
+        "You bemoan the tedium of\n"
+        "this Pit and the inferior\n"
+        "enemies before you...\n"
+        "<k>\n<p>\n"
+        "...<wait 200>yet you sense that the\n"
+        "one watching you may feel\n"
+        "that very way towards you.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>prejudice.\n"
+        "</shake><k>\n<p>\n"
+        "Coins will be lost upon\n"
+        "entering a room and as\n"
+        "time passes.\n"
+        "<k>\n<p>\n"
+        "ATK will be nerfed if you\n"
+        "lose too many coins.\n"
+        "<k>";
+
+    const char prejudiceIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Prejudice:</shake><wait 500> Coins are drained\n"
+        "constantly; ATK decreases\n"
+        "if you lose too many.\n"
+        "<k>";
+
+    const char indifferenceIntro[] =
+        "A wave of numbness strikes\n"
+        "you,<wait 200> leaving your mind\n"
+        "entirely vacant.\n"
+        "<k>\n<p>\n"
+        "Suddenly,<wait 200> you feel detached\n"
+        "from everything and\n"
+        "everyone around you.\n"
+        "<k>\n<p>\n"
+        "You feel your energy being\n"
+        "sapped away as your grip on\n"
+        "reality rapidly fades.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>indifference.\n"
+        "</shake><k>\n<p>\n"
+        "Some junk items will be\n"
+        "forced into your inventory\n"
+        "in every room.\n"
+        "<k>\n<p>\n"
+        "If you don't have enough\n"
+        "space for all of the items,\n"
+        "<wait 200>space will be made.\n"
+        "<k>";
+
+    const char indifferenceIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Indifference:</shake><wait 500> Receive some\n"
+        "junk items in every room.\n"
+        "Make sure to have space!\n"
+        "<k>";
+
+    const char recalcitranceIntro[] =
+        "A wave of unease strikes\n"
+        "you,<wait 200> overwhelming you with\n"
+        "anxiety.\n"
+        "<k>\n<p>\n"
+        "You have become infinitely\n"
+        "more aware of how finite\n"
+        "this space is.\n"
+        "<k>\n<p>\n"
+        "A singular thought rings\n"
+        "repeatedly in your head:\n"
+        "<wait 500>\"find a way out of here.\"\n"
+        "<k>\n<p>\n"
+        "Rationally, you know that\n"
+        "isn't so hard,<wait 200> yet it bothers\n"
+        "you all the same.\n"
+        "<k>\n<p>\n"
+        "You feel an unquellable urge\n"
+        "to escape, no matter what\n"
+        "may try to stop you.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>recalcitrance.\n"
+        "</shake><k>\n<p>\n"
+        "XP gained from stomping\n"
+        "or kicking will reduce\n"
+        "your score.\n"
+        "<k>\n<p>\n"
+        "Additionally, instant healing\n"
+        "items are temporarily less\n"
+        "effective.\n"
+        "<k>";
+
+    const char recalcitranceIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Recalcitrance:</shake><wait 500> Reduced XP from\n"
+        "stomps/kicks. Healing items\n"
+        "are less effective.\n"
+        "<k>";
+
+    const char depravityIntro[] =
+        "A wave of perversion strikes\n"
+        "you,<wait 200> totally derailing your\n"
+        "train of thought.\n"
+        "<k>\n<p>\n"
+        "Numbness is now iniquity;\n"
+        "<wait 200>you've come to revel in\n"
+        "these trials.\n"
+        "<k>\n<p>\n"
+        "As if to grant your newfound\n"
+        "desire,<wait 200> countless foes have\n"
+        "come to block your path.\n"
+        "<k>\n<p>\n"
+        "The abyss stares back into\n"
+        "you,<wait 200> rotting your soul like\n"
+        "a terminal cancer.\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>depravity.\n"
+        "</shake><k>\n<p>\n"
+        "Enemy spawn rates have\n"
+        "significantly increased.\n"
+        "<k>\n<p>\n"
+        "Difficult enemies are now\n"
+        "guaranteed to spawn in\n"
+        "every floor.\n"
+        "<k>";
+
+    const char depravityIntro2[] =
+        "<se_on SFX_EVT_SHOCK1><shake>Depravity:</shake><wait 500> Increased enemy\n"
+        "spawn rates and difficult\n"
+        "enemies in every floor.\n"
+        "<k>";
 
     const char disorderIndifferenceItemNotif[] =
         "<system><center>Your inventory is full!</center>\n"

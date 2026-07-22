@@ -37,9 +37,8 @@ namespace mod
 
     struct RecalcitranceWork
     {
-        s32 maxRetPostDmg;
-        s32 dispXpPct;
-        s32 dispReturnPostage;
+        s32 dispXPMult;
+        s32 dispHealingNerf;
     };
 
     struct DepravityWork
@@ -78,6 +77,7 @@ namespace mod
 
     void PrejudiceAction();
     EVT_DECLARE_USER_FUNC(IndifferenceAction, 8)
+    EVT_DECLARE_USER_FUNC(RecalcitranceCalcHealing, 2)
     EVT_DECLARE_USER_FUNC(DepravityAction, 0)
     s32 DepravityGetAllLv4Threshold(s32 difficulty);
     bool DepravityCheckActive();

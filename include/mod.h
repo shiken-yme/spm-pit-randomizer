@@ -1,34 +1,30 @@
 #pragma once
 
 #include <common.h>
-#include <evt_cmd.h>
 #include <customwin.h>
+#include <evt_cmd.h>
+#include <gen.h>
 #include <lunadrv.h>
 #include <rfcdrv.h>
-#include <gen.h>
 
-namespace mod
-{
+namespace mod {
 #define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6"
 
-    enum BlessId : s32
-    {
+    enum BlessId : s32 {
         /* 0x0 */ MERLUNA_NULL_BLESS,
         /* 0x1 */ MERLUNA_SPECTRE,
         /* 0x2 */ MERLUNA_HOURAI,
         /* 0x3 */ MERLUNA_PARAMITA
     };
 
-    enum CurseId : s32
-    {
+    enum CurseId : s32 {
         /* 0x0 */ MERLUNA_NULL_CURSE,
         /* 0x1 */ MERLUNA_SHION,
         /* 0x2 */ MERLUNA_HEX,
         /* 0x3 */ MERLUNA_MIGRAINE
     };
 
-    enum DisorderId : s32
-    {
+    enum DisorderId : s32 {
         /* 0x0 */ DISORDER_NULL,
         /* 0x1 */ DISORDER_RED,
         /* 0x2 */ DISORDER_ORANGE,
@@ -41,18 +37,10 @@ namespace mod
         /* 0x9 */ DISORDER_BLACK
     };
 
-    enum LPIcon : s32
-    {
+    enum LPIcon : s32 {
         ICON_LP_LOGO,
-        ICON_SYSTEX_R_BG,
-        ICON_SYSTEX_R_TL_COL,
-        ICON_SYSTEX_R_BL_COL,
-        ICON_SYSTEX_R_TR_COL,
-        ICON_SYSTEX_R_BR_COL,
-        ICON_SYSTEX_R_TL_CLR,
-        ICON_SYSTEX_R_BL_CLR,
-        ICON_SYSTEX_R_TR_CLR,
-        ICON_SYSTEX_R_BR_CLR,
+        ICON_LP_STATS,
+        ICON_PERCENT,
         ICON_SKULL_KEY,
         ICON_BUMP_GRAY,
         ICON_BUMP_BLUE,
@@ -104,8 +92,7 @@ namespace mod
         ICON_MAX
     };
 
-    enum LPCustomItem : s32
-    {
+    enum LPCustomItem : s32 {
         VOUCHER_CAKE,
         VOUCHER_THUNDER,
         VOUCHER_STELLAR,
@@ -142,27 +129,24 @@ namespace mod
 
     typedef void(Callback)(void);
 
-    struct LPSessionMiscs
-    {
+    struct LPSessionMiscs {
         bool tearFuncActive;
         f64 boobies;
         u8 difficulty;
+        s32 savedCoins;
     };
 
-    struct BoodinBalls
-    {
+    struct BoodinBalls {
         customwin::CWSelectItemDesc Cards[15];
         s32 cardNum; // includes perma SP
     };
 
-    struct CooldownTimer
-    {
+    struct CooldownTimer {
         s32 frames;
         s32 floors;
     };
 
-    struct Reaver
-    {
+    struct Reaver {
         s32 CritRate;  // base value of 4 when initialized
         f32 CritMult;  // base value of 50.0 when initialized
         f32 AuspiceDR; // Damage taken is multiplied by (1 - (this number / 100))
@@ -171,38 +155,36 @@ namespace mod
         s32 DemiseATK; // True ATK bonus in Pit; subtracted from total ATK when exiting
     };
 
-    struct DivineJudgement
-    {
-        const char *name;
+    struct DivineJudgement {
+        const char * name;
         CooldownTimer CD;
         s32 activateThreshold;
-        Callback *SetFunc;
-        Callback *ClearFunc;
+        Callback * SetFunc;
+        Callback * ClearFunc;
     };
 
-    struct JudgementMiscs
-    {
+    struct JudgementMiscs {
         bool judgementRendered;
         BlessId preBlessId;
         CurseId preCurseId;
     };
 
-    struct LeyLineDisorder
-    {
-        const char *name;
-        const char *desc;
+    struct LeyLineDisorder {
+        const char * name;
+        const char * desc;
+        const char * introMsg;
+        const char * introMsg2;
         wii::gx::GXColor mainCol;     // Default color
         wii::gx::GXColor severeCol;   // Fades to this when the screen randomly shakes, fades back when it's done
         wii::gx::GXColor textDrawCol; // Text displays as this color in menus
         s32 shakeOdds;                // Checks if a random int from 0-1000 is below this value every second to determine if the screen should shake
         f32 shakeStrength;            // Shakes the screen on the x/y axes at this intensity maximum, half this much minimum
         s32 shakeTime;                // Shakes the screen for this many ms maximum, half this many minimum
-        Callback *SetFunc;
-        Callback *ClearFunc;
+        Callback * SetFunc;
+        Callback * ClearFunc;
     };
 
-    struct DisorderMiscs
-    {
+    struct DisorderMiscs {
         s32 floorsRem;
         s32 preId;
         s32 intplProgress; // for fading color between 0 and mainCol
@@ -211,71 +193,75 @@ namespace mod
         s32 finalShakeTime;
         s32 tremorIntplFrmTimer; // for fading color between mainCol and severeCol
         s32 tremorIntplFrmMax;
-        union
-        {
-            ApathyWork *Apathy;
-            DreadWork *Dread;
-            PrejudiceWork *Prejudice;
-            IndifferenceWork *Indifference;
-            RecalcitranceWork *Recalcitrance;
-            DepravityWork *Depravity;
-            IndolenceWork *Indolence;
-            MelancholyWork *Melancholy;
-            RuinWork *Ruin;
-            void *Any;
+        bool disorderTrig[8];
+        union {
+            ApathyWork Apathy;
+            DreadWork Dread;
+            PrejudiceWork Prejudice;
+            IndifferenceWork Indifference;
+            RecalcitranceWork Recalcitrance;
+            DepravityWork Depravity;
+            IndolenceWork Indolence;
+            MelancholyWork Melancholy;
+            RuinWork Ruin;
         } UW;
     };
 
-    struct InvisibleFullMoon
-    {
+    struct InvisibleFullMoon {
         BlessId blessing;
         CurseId curse;
         DisorderId disorder;
-        DivineJudgement *Blessing;
-        DivineJudgement *Curse;
-        LeyLineDisorder *Disorder;
+        DivineJudgement * Blessing;
+        DivineJudgement * Curse;
+        LeyLineDisorder * Disorder;
         JudgementMiscs JW;
         DisorderMiscs DW;
     };
 
-    struct RFCItemData
-    {
+    struct RFCItemData {
         LPIcon iconId;
-        const char *name;
-        const char *description;
-        const char *useMsg;
-        Callback *useFunc;
+        const char * name;
+        const char * description;
+        const char * useMsg;
+        Callback * useFunc;
         wii::gx::GXColor effCol;
         wii::gx::GXColor textDrawCol;
     };
 
-    struct RFCColorDef
-    {
+    struct RFCColorDef {
         wii::gx::GXColor textCol;
         wii::gx::GXColor chestCol;
     };
 
-    struct RestFloorChest
-    {
+    struct RestFloorChest {
         u32 rerolls;
         u32 rerollCost;
         s32 chestKeys;
         s32 chestRarity;
         bool rfcSpecialObtained[LPCUSTOMITEM_MAX];
-        RFCItemData *rfcItemData[3];
+        RFCItemData * rfcItemData[3];
         customwin::CWSelectItemDesc rfcItems[3];
         u8 chestKeysToSpawn[4];
         u8 chestKeysOwned;
         bool chestKeySpawned;
     };
 
-    struct MoverWork
-    {
+    enum RFNPCId : u8 {
+        NONE,
+        FLMM,
+        BDIN,
+        MLNA,
+        CHST,
+        MVER,
+        GBBI,
+        DMAN
+    };
+
+    struct MoverWork {
         s32 moverRNG;
     };
 
-    struct VoucherWork
-    {
+    struct VoucherWork {
         bool torn;
         bool isSpinning;
         s32 spinDeleteFuncIdx;
@@ -286,25 +272,22 @@ namespace mod
         s32 iconRotationTimer;
         LPCustomItem itemId;
         LPIcon iconId;
-        union
-        {
-            VCakeWork *Cake;
-            VThunderWork *Thunder;
-            VStellarWork *Stellar;
-            VJudgementWork *Judgement;
-            void *Any;
+        union {
+            VCakeWork * Cake;
+            VThunderWork * Thunder;
+            VStellarWork * Stellar;
+            VJudgementWork * Judgement;
+            void * Any;
         } UW;
-        Callback *tearFunc;
-        Callback *actionFunc;
+        Callback * tearFunc;
+        Callback * actionFunc;
     };
 
-    struct MagicTrick
-    {
-        VoucherWork *Work[8];
+    struct MagicTrick {
+        VoucherWork * Work[8];
     };
 
-    struct LPGUIGlobals
-    {
+    struct LPGUIGlobals {
         bool youSuck;
         bool critDisp;
         bool critDispStartDisp;
@@ -313,8 +296,7 @@ namespace mod
         char aeDescBuf[300];
     };
 
-    struct LunaticPitWork
-    {
+    struct LunaticPitWork {
         FloorData Floor[200];
         BoodinBalls Boodin;
         InvisibleFullMoon Luna;
@@ -326,14 +308,15 @@ namespace mod
         LPSessionMiscs Misc;
     };
 
-    extern LunaticPitWork *Lunatic;
+    extern LunaticPitWork * Lunatic;
 
     extern bool DebugMode;
 
-    void DanEnemyNegativeDispCb(wii::gx::GXTexObj *texObj);
+    void DanEnemyNegativeDispCb(wii::gx::GXTexObj * texObj);
 
     EVT_DECLARE(fwd_mover_speech)
     EVT_DECLARE(custom_pit_music)
+    EVT_DECLARE(new_dan_chest_open_evt)
 
     EVT_DECLARE_USER_FUNC(rand100, 1)
     EVT_DECLARE_USER_FUNC(handleBlessingWearOff, 0)

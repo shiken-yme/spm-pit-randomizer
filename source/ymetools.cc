@@ -74,7 +74,6 @@
 #include <spm/swdrv.h>
 #include <msl/math.h>
 #include <msl/stdio.h>
-#include <cstdio>
 
 namespace mod::yme
 {

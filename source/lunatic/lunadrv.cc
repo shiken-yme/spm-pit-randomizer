@@ -1,20 +1,24 @@
-#include "mod.h"
-#include <gen.h>
-#include <common.h>
-#include <lp_common.h>
-#include <evtpatch.h>
-#include <tplpatch.h>
-#include <evt_cmd.h>
-#include "patch.h"
-#include <util.h>
-#include <msgpatch.h>
-#include <customwin.h>
 #include "lunatic/localize.h"
+#include "mod.h"
+#include "patch.h"
+#include <common.h>
+#include <customwin.h>
+#include <evt_cmd.h>
+#include <evtpatch.h>
+#include <gen.h>
+#include <lp_common.h>
+#include <msgpatch.h>
+#include <tplpatch.h>
+#include <util.h>
 
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
 #include <spm/evt_cam.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
@@ -24,68 +28,62 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
-#include <spm/gxsub.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
+#include <spm/gxsub.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
 #include <spm/npc_tile.h>
 #include <spm/npcdrv.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
 #include <spm/winmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
-#include <cstdio>
 
-namespace mod
-{
+namespace mod {
     /*
         lunadrv contains most code for the Merluna-focused features, Disorders and Divine Judgement
         Now just how are Disorders related to Merluna?... That's a secret, hehehe~ :3
@@ -94,19 +92,16 @@ namespace mod
 
     using namespace spm;
 
-    void ApathySet()
-    {
-        ApathyWork *wp = (ApathyWork *)memory::__memAlloc(0, sizeof(ApathyWork));
+    void ApathySet() {
+        ApathyWork * wp = &Lunatic->Luna.DW.UW.Apathy;
         msl::string::memset(wp, 0, sizeof(ApathyWork));
         s32 difficulty = swdrv::swByteGet(1620);
-        Lunatic->Luna.DW.UW.Apathy = wp;
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->marioHpMult = 0.1;
             wp->enemyDamageIncrease = 1;
             wp->marioDamageDecrease = 0;
-            wp->enemyMaxHPMult = 1.0;
+            wp->enemyMaxHPMult = 1.25;
             wp->dispMaxHPDecrease = 10;
             wp->dispEnemyHPIncrease = 0;
             break;
@@ -114,7 +109,7 @@ namespace mod
             wp->marioHpMult = 0.2;
             wp->enemyDamageIncrease = 2;
             wp->marioDamageDecrease = 1;
-            wp->enemyMaxHPMult = 1.2;
+            wp->enemyMaxHPMult = 1.5;
             wp->dispMaxHPDecrease = 20;
             wp->dispEnemyHPIncrease = 20;
             break;
@@ -122,7 +117,7 @@ namespace mod
             wp->marioHpMult = 0.33;
             wp->enemyDamageIncrease = 2;
             wp->marioDamageDecrease = 1;
-            wp->enemyMaxHPMult = 1.5;
+            wp->enemyMaxHPMult = 1.75;
             wp->dispMaxHPDecrease = 33;
             wp->dispEnemyHPIncrease = 50;
             break;
@@ -143,22 +138,18 @@ namespace mod
         return;
     }
 
-    void ApathyClear()
-    {
-        ApathyWork *wp = Lunatic->Luna.DW.UW.Apathy;
+    void ApathyClear() {
+        ApathyWork * wp = &Lunatic->Luna.DW.UW.Apathy;
         lpAddHp(wp->storedHP, wp->storedHP);
         lpAddCrit(wp->storedCritRate, wp->storedCritMult);
         return;
     }
 
-    void DreadSet()
-    {
-        DreadWork *wp = (DreadWork *)memory::__memAlloc(0, sizeof(DreadWork));
+    void DreadSet() {
+        DreadWork * wp = &Lunatic->Luna.DW.UW.Dread;
         msl::string::memset(wp, 0, sizeof(DreadWork));
-        Lunatic->Luna.DW.UW.Dread = wp;
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->dispBlockChance = 10;
             break;
@@ -175,15 +166,12 @@ namespace mod
         return;
     }
 
-    void PrejudiceSet()
-    {
-        PrejudiceWork *wp = (PrejudiceWork *)memory::__memAlloc(0, sizeof(PrejudiceWork));
+    void PrejudiceSet() {
+        PrejudiceWork * wp = &Lunatic->Luna.DW.UW.Prejudice;
         msl::string::memset(wp, 0, sizeof(PrejudiceWork));
-        Lunatic->Luna.DW.UW.Prejudice = wp;
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->dispInstantCoinLoss = 10;
             wp->coinLossChance = 30;
@@ -205,46 +193,39 @@ namespace mod
         return;
     }
 
-    void PrejudiceAction()
-    {
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+    void PrejudiceAction() {
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         s32 coinsLost;
-        f32 mod = (f32)(system::rand() % 11 + (Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss - 5));
+        f32 mod = (f32)(system::rand() % 11 + (Lunatic->Luna.DW.UW.Prejudice.dispInstantCoinLoss - 5));
         mod /= 100;
         coinsLost = (s32)msl::math::floor(pouch->coins * mod);
-        if (hud::hud_wp->countdownTimer == 299)
-        {
+        if (hud::hud_wp->countdownTimer == 299) {
             if (pouch->coins > 0 && coinsLost != 0)
                 pouch->coins -= coinsLost;
-        }
-        else if (hud::hud_wp->countdownTimer < 295)
-        {
+        } else if (hud::hud_wp->countdownTimer < 295) {
             s32 odds = system::rand() % 100;
-            if (pouch->coins > 0 && odds < Lunatic->Luna.DW.UW.Prejudice->coinLossChance)
+            if (pouch->coins > 0 && odds < Lunatic->Luna.DW.UW.Prejudice.coinLossChance)
                 pouch->coins -= 1;
         }
         return;
     }
 
-    void IndifferenceSet()
-    {
-        IndifferenceWork *wp = (IndifferenceWork *)memory::__memAlloc(0, sizeof(IndifferenceWork));
+    void IndifferenceSet() {
+        IndifferenceWork * wp = &Lunatic->Luna.DW.UW.Indifference;
         msl::string::memset(wp, 0, sizeof(IndifferenceWork));
-        Lunatic->Luna.DW.UW.Indifference = wp;
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->repeat = 1;
             break;
         case 1:
-            wp->repeat = 2;
+            wp->repeat = 1;
             break;
         case 2:
-            wp->repeat = 3;
+            wp->repeat = 2;
             break;
         default:
-            wp->repeat = 4;
+            wp->repeat = 3;
             break;
         }
         return;
@@ -254,28 +235,22 @@ namespace mod
                          ITEM_ID_COOK_BOMB_EGG, ITEM_ID_COOK_TRIAL_PAN, ITEM_ID_COOK_DANGEROUS_COOKING, ITEM_ID_COOK_NORMAL_CHOKO, ITEM_ID_COOK_NORMAL_CHOKO,
                          ITEM_ID_COOK_GERORIN_FOOD, ITEM_ID_COOK_GERORIN_FOOD};
 
-    s32 IndifferenceAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 IndifferenceAction(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 i, idx;
         s32 itemsSpawned = 0;
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         for (i = 0; i < 8; i += 1)
             evtmgr_cmd::evtSetValue(evtEntry, args[i], 0);
-        for (i = 0; i < Lunatic->Luna.DW.UW.Indifference->repeat; i += 1)
-        {
+        for (i = 0; i < Lunatic->Luna.DW.UW.Indifference.repeat; i += 1) {
             s32 odds = system::rand() % 100;
-            if (odds < 67)
-            {
+            if (odds < 67 || i == 0) {
                 idx = system::rand() % (sizeof(indiffItems) / 4);
-                if ((mario_pouch::pouchCountUseItems() + itemsSpawned) < 10)
-                {
+                if ((mario_pouch::pouchCountUseItems() + itemsSpawned) < 10) {
                     itemsSpawned += 1;
                     evtmgr_cmd::evtSetValue(evtEntry, args[(i * 2)], indiffItems[idx]);
-                }
-                else
-                {
+                } else {
                     s32 invIdx = system::rand() % 10;
                     evtmgr_cmd::evtSetValue(evtEntry, args[(i * 2)], (s32)msgdrv::msgSearch(item_data::itemDataTable[pouch->useItem[invIdx]].nameMsg));
                     pouch->useItem[invIdx] = indiffItems[idx];
@@ -358,46 +333,45 @@ namespace mod
     RETURN()
     EVT_END()
 
-    void RecalcitranceSet()
-    {
-        RecalcitranceWork *wp = (RecalcitranceWork *)memory::__memAlloc(0, sizeof(RecalcitranceWork));
+    void RecalcitranceSet() {
+        RecalcitranceWork * wp = &Lunatic->Luna.DW.UW.Recalcitrance;
         msl::string::memset(wp, 0, sizeof(RecalcitranceWork));
-        Lunatic->Luna.DW.UW.Recalcitrance = wp;
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
-            wp->dispXpPct = 100;
-            wp->dispReturnPostage = 30;
-            wp->maxRetPostDmg = 2;
+            wp->dispXPMult = -50;
+            wp->dispHealingNerf = 10;
             break;
         case 1:
-            wp->dispXpPct = 150;
-            wp->dispReturnPostage = 50;
-            wp->maxRetPostDmg = 4;
+            wp->dispXPMult = -100;
+            wp->dispHealingNerf = 25;
             break;
         case 2:
-            wp->dispXpPct = 200;
-            wp->dispReturnPostage = 70;
-            wp->maxRetPostDmg = 8;
+            wp->dispXPMult = -200;
+            wp->dispHealingNerf = 50;
             break;
         default:
-            wp->dispXpPct = 300;
-            wp->dispReturnPostage = 100;
-            wp->maxRetPostDmg = 10;
+            wp->dispXPMult = -300;
+            wp->dispHealingNerf = 80;
             break;
         }
         return;
     }
 
-    void DepravitySet()
-    {
-        DepravityWork *wp = (DepravityWork *)memory::__memAlloc(0, sizeof(DepravityWork));
+    s32 RecalcitranceCalcHealing(evtmgr::EvtEntry *evtEntry, bool firstCall) {
+        (void)firstCall;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        f32 healing = (f32)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        healing -= (healing * ((f32)Lunatic->Luna.DW.UW.Recalcitrance.dispHealingNerf / 100.0f));
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], round(abs_value(healing)));
+        return 2;
+    }
+
+    void DepravitySet() {
+        DepravityWork * wp = &Lunatic->Luna.DW.UW.Depravity;
         msl::string::memset(wp, 0, sizeof(DepravityWork));
-        Lunatic->Luna.DW.UW.Depravity = wp;
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->allLv4FloorThreshold = 80;
             break;
@@ -408,20 +382,18 @@ namespace mod
             wp->allLv4FloorThreshold = 40;
             break;
         default:
-            wp->allLv4FloorThreshold = 20;
+            wp->allLv4FloorThreshold = 1;
             break;
         }
         return;
     }
 
-    s32 DepravityGetAllLv4Threshold(s32 difficulty)
-    {
+    s32 DepravityGetAllLv4Threshold(s32 difficulty) {
         // This can't be part of the DepravityWork struct because work is only initialized after the color takes effect
         // This variable is needed before the first room displays at all
         // Consider reworking disorder init to use preId when setting, then alloc work before display?
         s32 ret;
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             ret = 180;
             break;
@@ -438,15 +410,13 @@ namespace mod
         return ret;
     }
 
-    bool DepravityCheckActive()
-    {
+    bool DepravityCheckActive() {
         if ((Lunatic->Luna.disorder == DISORDER_BLUE && Lunatic->Luna.DW.floorsRem != 0) || Lunatic->Luna.DW.preId == 6)
             return true;
         return false;
     }
 
-    s32 DepravityAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DepravityAction(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         s32 currentFloor = swdrv::swByteGet(1);
@@ -458,14 +428,11 @@ namespace mod
         return 2;
     }
 
-    void IndolenceSet()
-    {
-        IndolenceWork *wp = (IndolenceWork *)memory::__memAlloc(0, sizeof(IndolenceWork));
+    void IndolenceSet() {
+        IndolenceWork * wp = &Lunatic->Luna.DW.UW.Indolence;
         msl::string::memset(wp, 0, sizeof(IndolenceWork));
-        Lunatic->Luna.DW.UW.Indolence = wp;
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             wp->attackEffectChance = 25;
             wp->dispDmgPctBonus = 50;
@@ -506,24 +473,22 @@ namespace mod
 
     LeyLineDisorder Disorders[DISORDER_BLACK] =
         {
-            {apathyName, apathyDesc, {255, 0, 0, 30}, {255, 0, 0, 50}, {60, 0, 0, 255}, 20, 0.7, 3000, ApathySet, ApathyClear},                       // APATHY
-            {dreadName, dreadDesc, {255, 128, 0, 30}, {255, 128, 0, 65}, {60, 30, 0, 255}, 40, 1.2, 5000, DreadSet, nullptr},                         // DREAD
-            {prejudiceName, prejudiceDesc, {255, 255, 0, 30}, {255, 255, 0, 50}, {60, 60, 0, 255}, 15, 0.7, 4000, PrejudiceSet, nullptr},             // PREJUDICE
-            {indifferenceName, indifferenceDesc, {0, 255, 0, 20}, {0, 255, 0, 40}, {0, 60, 0, 255}, 20, 1.0, 4500, IndifferenceSet, nullptr},         // INDIFFERENCE
-            {recalcitranceName, recalcitranceDesc, {0, 255, 255, 20}, {0, 255, 225, 40}, {0, 60, 60, 255}, 30, 1.2, 4200, RecalcitranceSet, nullptr}, // RECALCITRANCE
-            {depravityName, depravityDesc, {0, 0, 255, 30}, {0, 0, 255, 50}, {0, 0, 60, 255}, 50, 1.3, 6900, DepravitySet, nullptr},                  // DEPRAVITY
-            {indolenceName, indolenceDesc, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, nullptr},             // INDOLENCE
-            {melancholyName, melancholyDesc, {255, 255, 255, 30}, {255, 255, 255, 50}, {60, 60, 60, 255}, 20, 0.8, 3200, nullptr, nullptr},           // MELANCHOLY
-            {ruinName, ruinDesc, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                   // RUIN
+            {apathyName, apathyDesc, apathyIntro, apathyIntro2, {255, 0, 0, 30}, {255, 0, 0, 50}, {60, 0, 0, 255}, 20, 0.7, 3000, ApathySet, ApathyClear},                                     // APATHY
+            {dreadName, dreadDesc, dreadIntro, dreadIntro2, {255, 128, 0, 30}, {255, 128, 0, 65}, {60, 30, 0, 255}, 40, 1.2, 5000, DreadSet, nullptr},                                         // DREAD
+            {prejudiceName, prejudiceDesc, prejudiceIntro, prejudiceIntro2, {255, 255, 0, 30}, {255, 255, 0, 50}, {60, 60, 0, 255}, 15, 0.7, 4000, PrejudiceSet, nullptr},                     // PREJUDICE
+            {indifferenceName, indifferenceDesc, indifferenceIntro, indifferenceIntro2, {0, 255, 0, 20}, {0, 255, 0, 40}, {0, 60, 0, 255}, 20, 1.0, 4500, IndifferenceSet, nullptr},           // INDIFFERENCE
+            {recalcitranceName, recalcitranceDesc, recalcitranceIntro, recalcitranceIntro2, {0, 255, 255, 20}, {0, 255, 225, 40}, {0, 60, 60, 255}, 30, 1.2, 4200, RecalcitranceSet, nullptr}, // RECALCITRANCE
+            {depravityName, depravityDesc, depravityIntro, depravityIntro2, {0, 0, 255, 30}, {0, 0, 255, 50}, {0, 0, 60, 255}, 50, 1.3, 6900, DepravitySet, nullptr},                          // DEPRAVITY
+            {indolenceName, indolenceDesc, indolenceIntro, indolenceIntro2, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, nullptr},                     // INDOLENCE
+            {melancholyName, melancholyDesc, nullptr, nullptr, {255, 255, 255, 30}, {255, 255, 255, 50}, {60, 60, 60, 255}, 20, 0.8, 3200, nullptr, nullptr},                                  // MELANCHOLY
+            {ruinName, ruinDesc, nullptr, nullptr, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                                          // RUIN
     };
 
-    void *DisorderDataGetPtr()
-    {
+    void * DisorderDataGetPtr() {
         return &Disorders[0];
     }
 
-    void SetDisorderSub(DisorderId id)
-    {
+    void SetDisorderSub(DisorderId id) {
         Lunatic->Luna.disorder = id;
         Lunatic->Luna.DW.preId = 0;
         Lunatic->Luna.DW.floorsRem = 5;
@@ -533,45 +498,38 @@ namespace mod
         return;
     }
 
-    void ClearDisorderSub(s32 id)
-    {
+    void ClearDisorderSub(s32 id) {
         (void)id;
         if (Lunatic->Luna.Disorder->ClearFunc != nullptr)
             (Lunatic->Luna.Disorder->ClearFunc)();
-        if (Lunatic->Luna.DW.UW.Any != nullptr)
-            memory::__memFree(0, Lunatic->Luna.DW.UW.Any);
         Lunatic->Luna.disorder = DISORDER_NULL;
         Lunatic->Luna.Disorder = nullptr;
         return;
     }
 
-    s32 DisorderGetId(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DisorderGetId(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.disorder);
         //    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.DW.preId);
         return 2;
     }
 
-    s32 DisorderGetPreId(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DisorderGetPreId(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->Luna.DW.preId);
         return 2;
     }
 
-    s32 DisorderGetFloorsRem(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DisorderGetFloorsRem(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Luna.DW.floorsRem);
         return 2;
     }
 
-    s32 DisorderDraw(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DisorderDraw(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         if (Lunatic->Luna.disorder == DISORDER_NULL)
@@ -581,8 +539,7 @@ namespace mod
         u8 green = Disorders[Lunatic->Luna.disorder - 1].mainCol.g;
         u8 blue = Disorders[Lunatic->Luna.disorder - 1].mainCol.b;
         u8 alpha = Disorders[Lunatic->Luna.disorder - 1].mainCol.a;
-        switch (Lunatic->Luna.DW.tremorState)
-        {
+        switch (Lunatic->Luna.DW.tremorState) {
         case 1:                                          // Tremor fadein
             if (Lunatic->Luna.DW.tremorIntplFrmMax == 0) // Init variables
             {
@@ -597,8 +554,7 @@ namespace mod
             alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a, (f32)Disorders[Lunatic->Luna.disorder - 1].severeCol.a, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             Lunatic->Luna.DW.tremorIntplFrmTimer += 1;
             Lunatic->Luna.DW.intplProgress += 1;
-            if (Lunatic->Luna.DW.tremorIntplFrmTimer >= 60)
-            {
+            if (Lunatic->Luna.DW.tremorIntplFrmTimer >= 60) {
                 Lunatic->Luna.DW.intplProgress = 0;
                 Lunatic->Luna.DW.tremorState = 2;
             }
@@ -623,8 +579,7 @@ namespace mod
             alpha = Disorders[Lunatic->Luna.disorder - 1].severeCol.a - alpha + (f32)Disorders[Lunatic->Luna.disorder - 1].mainCol.a;
             Lunatic->Luna.DW.intplProgress += 1;
             Lunatic->Luna.DW.tremorIntplFrmTimer += 1;
-            if (Lunatic->Luna.DW.tremorIntplFrmTimer == Lunatic->Luna.DW.tremorIntplFrmMax)
-            {
+            if (Lunatic->Luna.DW.tremorIntplFrmTimer == Lunatic->Luna.DW.tremorIntplFrmMax) {
                 Lunatic->Luna.DW.tremorIntplFrmMax = 0;
                 Lunatic->Luna.DW.tremorIntplFrmTimer = 0;
                 Lunatic->Luna.DW.tremorState = 0;
@@ -637,25 +592,21 @@ namespace mod
         return 0;
     }
 
-    s32 DisorderSetColor(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 DisorderSetColor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 id = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 clear = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 red, green, blue, alpha;
-        if (Lunatic->Luna.DW.intplProgressMax == 0)
-        {
+        if (Lunatic->Luna.DW.intplProgressMax == 0) {
             Lunatic->Luna.DW.intplProgressMax = 100;
         }
-        if (Lunatic->Luna.DW.intplProgress < Lunatic->Luna.DW.intplProgressMax)
-        {
+        if (Lunatic->Luna.DW.intplProgress < Lunatic->Luna.DW.intplProgressMax) {
             red = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.r, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             green = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.g, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             blue = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.b, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
             alpha = system::intplGetValue(system::INTPL_MODE_LINEAR, 0.0f, (f32)Disorders[id - 1].mainCol.a, Lunatic->Luna.DW.intplProgress, Lunatic->Luna.DW.intplProgressMax);
-            if (clear == 1)
-            {
+            if (clear == 1) {
                 red = -(red - Disorders[id - 1].mainCol.r);
                 green = -(green - Disorders[id - 1].mainCol.g);
                 blue = -(blue - Disorders[id - 1].mainCol.b);
@@ -668,31 +619,36 @@ namespace mod
             if (Lunatic->Luna.DW.intplProgress == 99)
                 Lunatic->Luna.disorder = DISORDER_NULL;
             return 0;
-        }
-        else
-        {
+        } else {
             Lunatic->Luna.DW.intplProgressMax = 0;
             Lunatic->Luna.DW.intplProgress = 0;
-            if (clear == 0)
-            {
+            if (clear == 0) {
                 SetDisorderSub((DisorderId)id);
-            }
-            else
+            } else
                 ClearDisorderSub(id);
             return 2;
         }
     }
     EVT_DECLARE_USER_FUNC(DisorderSetColor, 2)
 
+    s32 DisorderChkTutorialText(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 id = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(DisorderChkTutorialText, 2)
+
     EVT_BEGIN(EvtDisorderInitOrClear)
     USER_FUNC(evt_door::evt_door_wait_flag, 0x100)
-    DO(0)
+    /*DO(0)
     USER_FUNC(evt_mario::evt_mario_get_flags, 0, LW(0))
     IF_NOT_FLAG(LW(0), 0x8)
     DO_BREAK()
     END_IF()
     WAIT_FRM(1)
-    WHILE()
+    WHILE()*/
     USER_FUNC(evt_mario::evt_mario_key_off, 1)
     USER_FUNC(evt_npc::evt_npc_freeze_all)
     WAIT_MSEC(300)
@@ -710,6 +666,11 @@ namespace mod
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_7"), 0)
     WAIT_MSEC(700)
+    USER_FUNC(DisorderGetId, LW(5))
+    USER_FUNC(DisorderChkTutorialText, LW(5), LW(6))
+    IF_NOT_EQUAL(LW(6), 0)
+    USER_FUNC(evt_msg::evt_msg_print, 1, LW(6), 0, 0)
+    END_IF()
     IF_EQUAL(GSWF(1661), 0)
     SET(GSWF(1661), 1)
     USER_FUNC(MsgIconReplaceIdx, 3, (s32)(TPLPATCH_ICON(ICON_B)))
@@ -719,7 +680,6 @@ namespace mod
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     WAIT_MSEC(300)
-    USER_FUNC(DisorderGetId, LW(5))
     IF_EQUAL(LW(5), 4)
     RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
@@ -728,12 +688,11 @@ namespace mod
     RETURN()
     EVT_END()
 
-    s32 EvtDisorderReleaseTremor(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 EvtDisorderReleaseTremor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         f32 intensity = evtmgr_cmd::evtGetFloat(evtEntry, args[0]);
-        camdrv::CamEntry *cam = camdrv::camPtrTbl[camdrv::CAM_ID_3D];
+        camdrv::CamEntry * cam = camdrv::camPtrTbl[camdrv::CAM_ID_3D];
         if (cam->shakeIntensity.x == intensity && cam->shakeIntensity.y == intensity && cam->shakeDuration >= 1900.0f) // Rough check to ensure shake params are correct
         {
             Lunatic->Luna.DW.tremorState = 1;
@@ -757,38 +716,33 @@ namespace mod
     RETURN()
     EVT_END()
 
-    void SetDisorder(s32 id)
-    {
-        evtmgr::EvtEntry *evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
+    void SetDisorder(s32 id) {
+        evtmgr::EvtEntry * evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
         evt->lw[10] = (s32)id;
         evt->lw[11] = 0;
         evt->lw[12] = FLOAT(1.2);
         return;
     }
 
-    void ClearDisorder(s32 id)
-    {
-        evtmgr::EvtEntry *evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
+    void ClearDisorder(s32 id) {
+        evtmgr::EvtEntry * evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
         evt->lw[10] = (s32)id;
         evt->lw[11] = 1;
         evt->lw[12] = FLOAT(0.6);
         return;
     }
 
-    void DecideDisorder(s32 num, s32 difficulty)
-    {
+    void DecideDisorder(s32 num, s32 difficulty) {
         // Check for debug mode first
         s32 debugDisorderId = swdrv::swByteGet(1660);
-        if (DebugMode && debugDisorderId != 255 && debugDisorderId > 0)
-        {
+        if (DebugMode && debugDisorderId != 255 && debugDisorderId > 0) {
             Lunatic->Luna.DW.preId = debugDisorderId;
             swdrv::swByteSet(1660, 0);
             return;
         }
         // Roll through each difficulty to decide whether or not to set a disorder
         s32 compare;
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 0:
             compare = 30;
             break;
@@ -804,24 +758,24 @@ namespace mod
         }
         if (num == 999)
             num = system::irand(999);
-        if (num < compare)
-        {
-            s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
-            Lunatic->Luna.DW.preId = disorderRNG;
+        if (num < compare) {
+            for (s32 n = 0; n < 100 && Lunatic->Luna.DW.preId == 0; n += 1) {
+                s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
+                if (Lunatic->Luna.DW.disorderTrig[disorderRNG - 1] == false) // Prevent disorders from reoccurring in a run
+                    Lunatic->Luna.DW.preId = disorderRNG;
+            }
         }
         return;
     }
 
-    void DisorderHandleTremors()
-    {
+    void DisorderHandleTremors() {
         s32 odds = system::rand() % 1000;
-        if (odds < Lunatic->Luna.Disorder->shakeOdds && Lunatic->Luna.DW.tremorState == 0)
-        {
+        if (odds < Lunatic->Luna.Disorder->shakeOdds && Lunatic->Luna.DW.tremorState == 0) {
             s32 time = (Lunatic->Luna.Disorder->shakeTime - ((s32)msl::math::floor(system::rand() % (Lunatic->Luna.Disorder->shakeTime / 2))));
             if (time < 2000)
                 time = 2000;
             Lunatic->Luna.DW.finalShakeTime = time;
-            evtmgr::EvtEntry *evt = evtmgr::evtEntryType(EvtDisorderTremor, 0, 0, 0);
+            evtmgr::EvtEntry * evt = evtmgr::evtEntryType(EvtDisorderTremor, 0, 0, 0);
             evt->lw[10] = time;
             evt->lw[12] = FLOAT(Lunatic->Luna.Disorder->shakeStrength);
         }

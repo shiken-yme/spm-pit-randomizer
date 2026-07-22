@@ -592,6 +592,7 @@
 800f3c98:evt_mobj_set_rotation
 800f36b0:evt_mobj_hit_onoff
 800f3da0:evt_mobj_set_anim
+800f5608:mobj_zyo
 800f5ad8:evt_mobj_zyo
 800f52a4:evt_mobj_jumpstand
 800f5c78:mobj_thako
@@ -848,6 +849,7 @@
 8014d458:pouchGetHp
 8014d468:pouchAddHp
 8014d4b4:pouchSetMaxHp
+8014d4e8:pouchGetMaxHp
 8014d4f8:pouchGetXp
 8014d508:pouchAddXp
 8014d3c8:pouchGetAttack
@@ -943,6 +945,10 @@
 8017af98:_unload
 //sdata
 805ae0a8:seq_mapchange_wp
+// more
+
+// seq_gameover.c
+80178b68:seq_gameOverMain
 // more
 
 // seq_title.c
@@ -1047,6 +1053,8 @@
 8019c508:getSpmarioDVDRoot
 8019c62c:reviseAngle
 8019dc94:intplGetValue
+// data
+805ae11c:RANDOM_SEED
 // more
 
 // debug.c

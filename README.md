@@ -1,4 +1,4 @@
-# SPM Flipside Pit Randomizer Mod
+# SPM Lunatic Pit / Pit Randomizer Mod
 This mod randomizes the contents of the Flipside Pit of 100 Trials and adds a multitude of new features and balance changes.
 
 You may install this mod as you would any other Riivolution mod on console or Dolphin; the download can be found [here.](https://github.com/shiken-yme/spm-pit-randomizer/releases)

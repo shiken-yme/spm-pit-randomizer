@@ -166,7 +166,7 @@ UNKNOWN_FUNCTION(mobj_hunmer_blk)
 //              EvtScriptCode * interactScript, EvtVar inactive)
 EVT_DECLARE_USER_FUNC(evt_mobj_hunmer_blk, 7)
 
-UNKNOWN_FUNCTION(mobj_zyo)
+s32 mobj_zyo(MobjEntry *entry);
 UNKNOWN_FUNCTION(func_800f5a48)
 
 // evt_mobj_zyo(const char * name, s32 lockItemId, f32 x, f32 y, f32 z, f32 yRotation,

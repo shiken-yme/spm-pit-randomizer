@@ -908,3 +908,4 @@
 802939AC:MEMCreateExpHeapEx
 80293A5C:MEMDestroyExpHeap
 801849F4:_pausewinDelete
+800f564c:mobj_zyo

@@ -27,6 +27,8 @@ namespace mod::patch
     (0x7C000378 + (0x1000000 * (srcReg / 8)) + ((0x10000 * destReg) + (0x200000 * (srcReg % 8))) + (0x100 * (srcReg * 8)))
 #define B(offset) \
     (0x48000000 | (offset & 0x3FFFFFC))
+#define BNE(offset) \
+    (0x40820000 | (offset & 0xFFFC))
 #define BL(offset) \
     (0x48000001 | (offset & 0x3FFFFFC))
 #define RLWINM(destReg, srcReg, shift, maskBegin, maskEnd) \

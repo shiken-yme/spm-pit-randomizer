@@ -1,17 +1,17 @@
 #include "mod.h"
-#include <common.h>
-#include <lp_common.h>
-#include <evtpatch.h>
-#include <tplpatch.h>
-#include <evt_cmd.h>
 #include "patch.h"
-#include <util.h>
-#include <msgpatch.h>
+#include <common.h>
 #include <customwin.h>
+#include <evt_cmd.h>
+#include <evtpatch.h>
 #include <globalop.h>
-#include <rfcdrv.h>
-#include <lunadrv.h>
 #include <interface.h>
+#include <lp_common.h>
+#include <lunadrv.h>
+#include <msgpatch.h>
+#include <rfcdrv.h>
+#include <tplpatch.h>
+#include <util.h>
 #include <ymetools.h>
 
 #include "lunatic/localize.h"
@@ -19,25 +19,24 @@
 #include <rewrite.h>
 
 #include <cutscene_helpers.h>
-#include <spm/rel/aa1_01.h>
-#include <spm/rel/mi4.h>
-#include <spm/rel/relocatable_module.h>
-#include <spm/temp_unk.h>
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
-#include <spm/npc_ninja.h>
 #include <spm/eff/eff_fire.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_zunbaba.h>
+#include <spm/eff/eff_spm_hit.h>
 #include <spm/eff/eff_spm_recovery.h>
 #include <spm/eff/eff_spm_spindash.h>
-#include <spm/eff/eff_spm_hit.h>
+#include <spm/eff/eff_zunbaba.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
@@ -48,74 +47,72 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
 #include <spm/fadedrv.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
+#include <spm/npc_ninja.h>
 #include <spm/npc_tile.h>
 #include <spm/npcdrv.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/aa1_01.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
+#include <spm/rel/mi4.h>
+#include <spm/rel/relocatable_module.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
 #include <spm/wpadmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
-#include <cstdio>
 
-namespace mod
-{
+namespace mod {
     using namespace spm;
     using namespace customwin;
 
-    static void LPGUIDrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char *msg)
-    {
+    static void LPGUIDrawText(f32 x, f32 y, f32 scale, u8 alpha, wii::gx::GXColor color, bool rainbow, const char * msg) {
         if (alpha > 0)
             fontmgr::FontDrawStart_alpha(alpha);
         else
@@ -132,38 +129,33 @@ namespace mod
         return;
     }
 
-    void youSuckDisplay(f32 offset)
-    {
+    void youSuckDisplay(f32 offset) {
         if (!Lunatic->Interface.youSuck)
             return;
-        const char *youSuckText = "YOU SUCK";
+        const char * youSuckText = "YOU SUCK";
         f32 scale = 3.69f;
         LPGUIDrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (0.0f + (offset * 2)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
     }
 
-    void new_dan_gameover()
-    {
+    void new_dan_gameover() {
         Lunatic->Interface.youSuck = true;
     }
 
-    void disorderDisplay(f32 offset)
-    {
+    void disorderDisplay(f32 offset) {
         f32 x = -385.0f;
         s32 disorderNum = (s32)Lunatic->Luna.disorder;
-        if (disorderNum > 0)
-        {
+        if (disorderNum > 0) {
             wii::mtx::Vec3 position = {x, (-230.0f - (offset / 1.5f)), 0.0f};
             s32 mainIconId = (disorderNum - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
             icondrv::iconDispGxAlpha(0.64f, &position, 0x10, mainIconId, 200);
             icondrv::iconDispGxAlpha(0.64f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 225);
         }
         s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
-        if (disorderRooms > 0)
-        {
+        if (disorderRooms > 0) {
             wii::gx::GXColor funnyColor = {Lunatic->Luna.Disorder->mainCol.r, Lunatic->Luna.Disorder->mainCol.g, Lunatic->Luna.Disorder->mainCol.b, 255};
             char buffer[4];
             msl::stdio::sprintf(buffer, "%d", disorderRooms);
-            const char *msg = buffer;
+            const char * msg = buffer;
             x -= 4.0f;
             if (disorderRooms == 1)
                 x += 1.0f;
@@ -171,32 +163,27 @@ namespace mod
         }
     }
 
-    void voucherDisplay(f32 offset)
-    {
+    void voucherDisplay(f32 offset) {
         f32 y = -230.0f;
-        f32 x = 385.0f + offset;
+        f32 x = 380.0f + offset;
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
-        {
-            if (Lunatic->Voucher.Work[i] != nullptr)
-            {
-                if (Lunatic->Voucher.Work[i]->iconId != 0)
-                {
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1) {
+            if (Lunatic->Voucher.Work[i] != nullptr) {
+                if (Lunatic->Voucher.Work[i]->iconId != 0) {
                     // TODO: For Z axis rotation, look into PSVECNormalize
                     wii::mtx::PSMTXTrans(mtxPos, x, y, 0.0f);
-                    wii::mtx::PSMTXScale(mtxScale, 0.73f, 0.73f, 0.73f);
+                    wii::mtx::PSMTXScale(mtxScale, 1.0f, 1.0f, 1.0f);
                     wii::mtx::PSMTXRotRad((Lunatic->Voucher.Work[i]->iconRotation * PI / 180.0f), mtxRot, 0x79); // 'y'
                     wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
                     wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
                     icondrv::iconDispGxCol(mtxPos, 0x10, TPLPATCH_ICON(Lunatic->Voucher.Work[i]->iconId), {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
-                    y += 32.0f;
+                    y += 44.0f;
                 }
             }
         }
     }
 
-    void chestKeyDisplay(f32 offset)
-    {
+    void chestKeyDisplay(f32 offset) {
         f32 y = 100.0f + offset;
         if ((swdrv::swByteGet(1) % 10) == 0) // I guess this is because GSW(1) updates immediately after room entry
             y += 15.0f;
@@ -208,28 +195,22 @@ namespace mod
         icondrv::iconDispGxCol(mtxPos, 0x10, TPLPATCH_ICON(ICON_CHEST_KEY), {255, 255, 255, 255});
         char buffer[4];
         msl::stdio::sprintf(buffer, "%d", Lunatic->RFC.chestKeysOwned);
-        const char *msg = buffer;
+        const char * msg = buffer;
         LPGUIDrawText((x + 16.0f), (y + 24.0f), 0.8f, 0, {255, 135, 75, 255}, false, msg);
     }
 
-    void critDisplay()
-    {
+    void critDisplay() {
         f32 slide = -100.0f;
-        if (Lunatic->Interface.critDispStartDisp)
-        {
-            if (!Lunatic->Interface.critDisp)
-            {
+        if (Lunatic->Interface.critDispStartDisp) {
+            if (!Lunatic->Interface.critDisp) {
                 Lunatic->Interface.critDisp = true;
                 Lunatic->Interface.critDispProgress = 0;
             }
             slide += system::intplGetValue(system::INTPL_MODE_QUADRATIC_OUT, 0.0f, 200.0f, Lunatic->Interface.critDispProgress, 30);
             if (Lunatic->Interface.critDispProgress < 30)
                 Lunatic->Interface.critDispProgress += 1;
-        }
-        else
-        {
-            if (Lunatic->Interface.critDisp)
-            {
+        } else {
+            if (Lunatic->Interface.critDisp) {
                 Lunatic->Interface.critDisp = false;
                 Lunatic->Interface.critDispProgress = 0;
                 Lunatic->Interface.critDispSlideOutAdj = 200.0f;
@@ -241,53 +222,60 @@ namespace mod
             else
                 Lunatic->Interface.critDispSlideOutAdj = 0.0f;
         }
-
-        f32 x = -480.0f + slide;
-        f32 y = 30.0f;
-        const char *fmt = "%s: %d%%";
-
-        const char *interfaceCM[2] = {interfaceCM1, interfaceCM2};
-        const char *interfaceCR[2] = {interfaceCR1, interfaceCR2};
-        const char *interfaceDEF[2] = {interfaceDEF1, interfaceDEF2};
-        const char *interfaceDR[2] = {interfaceDR1, interfaceDR2};
-
-        // Mult
-        wii::mtx::Vec3 position = {x, y, 0.0f};
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SPIRIT_2), 200);
-        char multBuf[24];
-        msl::stdio::sprintf(multBuf, fmt, interfaceCM[(s32)swdrv::swGet(1631)], (s32)Lunatic->Stats.CritMult);
-        const char *multMsg = multBuf;
-        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {58, 158, 255, 255}, false, multMsg);
-
-        // Rate
-        position.y -= 25.0f;
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_SOUL_2), 225);
-        char rateBuf[24];
-        msl::stdio::sprintf(rateBuf, fmt, interfaceCR[(s32)swdrv::swGet(1631)], Lunatic->Stats.CritRate);
-        const char *rateMsg = rateBuf;
-        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {251, 211, 0, 255}, false, rateMsg);
-
-        // Defense
-        position.y -= 25.0f;
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AEGIS_2), 225);
-        char defBuf[24];
-        msl::stdio::sprintf(defBuf, "%s: %d", interfaceDEF[(s32)swdrv::swGet(1631)], Lunatic->Stats.AegisDef);
-        const char *defMsg = defBuf;
-        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {96, 100, 196, 255}, false, defMsg);
-
-        // Damage Reduction
-        position.y -= 25.0f;
-        icondrv::iconDispGxAlpha(0.6f, &position, 0x10, TPLPATCH_ICON(ICON_AUSPICE_2), 225);
-        char drBuf[24];
-        msl::stdio::sprintf(drBuf, fmt, interfaceDR[(s32)swdrv::swGet(1631)], round(Lunatic->Stats.AuspiceDR));
-        const char *drMsg = drBuf;
-        LPGUIDrawText((x + 15.0f), (position.y + 20.0f), 0.7f, 0, {232, 67, 122, 255}, false, drMsg);
+        f32 x = -440.0f + slide;
+        f32 y = -20.0f;
+        Vec3 pos = {x, y, 0.0f};
+        icondrv::iconDispGxAlpha(0.8f, &pos, 0x10, TPLPATCH_ICON(ICON_LP_STATS), 255);
+        // Draw text icons
+        s32 cmDisp[4] = {0, 0, 0, 0}; // remove this initialization sometime
+        s32 crDisp[4] = {0, 0, 0, 0};
+        s32 defDisp[4] = {0, 0, 0, 0};
+        s32 drDisp[4] = {0, 0, 0, 0};
+        s32 cmNumDigits = split((s32)Lunatic->Stats.CritMult, cmDisp);
+        s32 crNumDigits = split(Lunatic->Stats.CritRate, crDisp);
+        s32 defNumDigits = split(Lunatic->Stats.AegisDef, defDisp);
+        s32 drNumDigits = split((s32)Lunatic->Stats.AuspiceDR, drDisp);
+        pos.x += 13.0f;
+        pos.y += 6.5f;
+        f32 cmnX = pos.x;
+        for (s32 i = 0; i < drNumDigits; i += 1) {
+            icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(icondrv::ICON_0_BIG + (drDisp[i] * 2)), 255);
+            pos.x += 14.5f;
+            if (drDisp[i] == 1)
+                pos.x -= 1.0f;
+        }
+        icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(TPLPATCH_ICON(ICON_PERCENT)), 255);
+        pos.y += 40.0f;
+        pos.x = cmnX;
+        for (s32 i = 0; i < defNumDigits; i += 1) {
+            icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(icondrv::ICON_0_BIG + (defDisp[i] * 2)), 255);
+            pos.x += 14.5f;
+            if (defDisp[i] == 1)
+                pos.x -= 1.0f;
+        }
+        pos.y += 42.0f;
+        pos.x = cmnX;
+        for (s32 i = 0; i < crNumDigits; i += 1) {
+            icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(icondrv::ICON_0_BIG + (crDisp[i] * 2)), 255);
+            pos.x += 14.5f;
+            if (crDisp[i] == 1)
+                pos.x -= 1.0f;
+        }
+        icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(TPLPATCH_ICON(ICON_PERCENT)), 255);
+        pos.y += 42.0f;
+        pos.x = cmnX;
+        for (s32 i = 0; i < cmNumDigits; i += 1) {
+            icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(icondrv::ICON_0_BIG + (cmDisp[i] * 2)), 255);
+            pos.x += 14.5f;
+            if (cmDisp[i] == 1)
+                pos.x -= 1.0f;
+        }
+        icondrv::iconDispGxAlpha(0.7f, &pos, 0x10, (s32)(TPLPATCH_ICON(ICON_PERCENT)), 255);
+        return;
     }
 
-    mario::MarioWork *danDisplay()
-    {
-        if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
-        {
+    mario::MarioWork * danDisplay() {
+        if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
             f32 offset = hud::hud_wp->basePos.y;
             disorderDisplay(offset);
             voucherDisplay(offset);
@@ -298,28 +286,23 @@ namespace mod
         return mario::marioGetPtr();
     }
 
-    static seqdef::SeqFunc *seq_titleMainReal;
-    void seq_titleMainOverride(seqdrv::SeqWork *wp)
-    {
-        const char *msg = MOD_VERSION;
-        const char *debugMsg = "LP Debug Mode activated! ^w^";
+    static seqdef::SeqFunc * seq_titleMainReal;
+    void seq_titleMainOverride(seqdrv::SeqWork * wp) {
+        const char * msg = MOD_VERSION;
+        const char * debugMsg = "LP Debug Mode activated! ^w^";
         wii::gx::GXColor notgreen = {230, 116, 216, 255};
         f32 scale = 0.8f;
         f32 y = 200.0f;
         f32 x;
-        if (!DebugMode)
-        {
+        if (!DebugMode) {
             x = -((fontmgr::FontGetMessageWidth(msg) * scale) / 2);
             LPGUIDrawText(x, y, scale, 0, notgreen, false, msg);
-        }
-        else
-        {
+        } else {
             x = -((fontmgr::FontGetMessageWidth(debugMsg) * scale) / 2);
             LPGUIDrawText(x, y, scale, 0, notgreen, true, debugMsg);
         }
         // Hotkey to enable debug mode
-        if (!DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_Z) != 0 && (wpadmgr::wpadGetButtonsPressed(0) & WPAD_BTN_B) != 0)
-        {
+        if (!DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_Z) != 0 && (wpadmgr::wpadGetButtonsPressed(0) & WPAD_BTN_B) != 0) {
             DebugMode = true;
             spmario_snd::spsndSFXOn("SFX_I_BRUNK_APPEAR1");
             // Debug tools
@@ -328,38 +311,24 @@ namespace mod
         seq_titleMainReal(wp);
     }
 
-    void danYouSuck()
-    {
+    void danYouSuck() {
         patch::hookFunction(dan::danCountdownDone, new_dan_gameover);
     }
 
-    s32 LPGUIShowHideStats(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 LPGUIShowHideStats(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 showHide = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         showHide == 1 ? Lunatic->Interface.critDispStartDisp = true : Lunatic->Interface.critDispStartDisp = false;
         return 2;
     }
 
-    /*EVT_BEGIN(LPGUIShowStats)
-    USER_FUNC(LPGUIShowHideStats, 1)
-    RETURN()
-    EVT_END()
-
-    EVT_BEGIN(LPGUIHideStats)
-    USER_FUNC(LPGUIShowHideStats, 0)
-    RETURN()
-    EVT_END()*/
-
-    bool DoNothing(winmgr::WinmgrSelect *sel)
-    {
+    bool DoNothing(winmgr::WinmgrSelect * sel) {
         (void)sel;
         return false;
     }
 
-    s32 LPGUIUnpause(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 LPGUIUnpause(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
         pausewin::pausewinUnpauseGame();
@@ -368,46 +337,48 @@ namespace mod
     }
     EVT_DECLARE_USER_FUNC(LPGUIUnpause, 0)
 
-    s32 GetEffectInfo(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 GetEffectInfo(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 type = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        switch (type)
-        {
+        switch (type) {
         case 0: // Blessing
             break;
         case 1: // Curse
             break;
         case 2: // Disorder
-            if (Lunatic->Luna.disorder > 0)
-            {
+            if (Lunatic->Luna.disorder > 0) {
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)Lunatic->Luna.disorder - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)Lunatic->Luna.Disorder->name);
                 msl::string::memset(Lunatic->Interface.aeDescBuf, 0, sizeof(Lunatic->Interface.aeDescBuf));
-                LeyLineDisorder *Disorders = (LeyLineDisorder *)DisorderDataGetPtr();
-                switch (Lunatic->Luna.disorder)
-                {
+                LeyLineDisorder * Disorders = (LeyLineDisorder *)DisorderDataGetPtr();
+                switch (Lunatic->Luna.disorder) {
                 case DISORDER_RED:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy->dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy->dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy->enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy->marioDamageDecrease);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[0].desc, Lunatic->Luna.DW.UW.Apathy.dispMaxHPDecrease, Lunatic->Luna.DW.UW.Apathy.dispEnemyHPIncrease, Lunatic->Luna.DW.UW.Apathy.enemyDamageIncrease, Lunatic->Luna.DW.UW.Apathy.marioDamageDecrease);
                     break;
                 case DISORDER_ORANGE:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread->dispBlockChance);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[1].desc, Lunatic->Luna.DW.UW.Dread.dispBlockChance);
                     break;
                 case DISORDER_YELLOW:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice->dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice->coinLossChance, Lunatic->Luna.DW.UW.Prejudice->coinThreshold);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[2].desc, Lunatic->Luna.DW.UW.Prejudice.dispInstantCoinLoss, Lunatic->Luna.DW.UW.Prejudice.coinLossChance, Lunatic->Luna.DW.UW.Prejudice.coinThreshold);
                     break;
                 case DISORDER_GREEN:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference->repeat);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[3].desc, Lunatic->Luna.DW.UW.Indifference.repeat);
                     break;
                 case DISORDER_CYAN:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance->dispXpPct, Lunatic->Luna.DW.UW.Recalcitrance->dispReturnPostage, Lunatic->Luna.DW.UW.Recalcitrance->maxRetPostDmg);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[4].desc, Lunatic->Luna.DW.UW.Recalcitrance.dispXPMult, Lunatic->Luna.DW.UW.Recalcitrance.dispHealingNerf);
                     break;
                 case DISORDER_BLUE:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity->allLv4FloorThreshold);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity.allLv4FloorThreshold);
                     break;
                 case DISORDER_PURPLE:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence->attackEffectChance, Lunatic->Luna.DW.UW.Indolence->dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence->slowDuration);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence.attackEffectChance, Lunatic->Luna.DW.UW.Indolence.dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence.slowDuration);
+                    break;
+                case DISORDER_WHITE:
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[7].desc);
+                    break;
+                case DISORDER_BLACK:
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[8].desc);
                     break;
                 default:
                     break;
@@ -418,11 +389,10 @@ namespace mod
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)Lunatic->Luna.disorder);
             break;
         case 3: // Voucher
-            RFCItemData *RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
+            RFCItemData * RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
             s32 i = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-            VoucherWork *Voucher = Lunatic->Voucher.Work[i];
-            if (Voucher != nullptr)
-            {
+            VoucherWork * Voucher = Lunatic->Voucher.Work[i];
+            if (Voucher != nullptr) {
                 s32 itemId = Voucher->itemId;
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], TPLPATCH_ICON((s32)Voucher->iconId));
                 evtmgr_cmd::evtSetValue(evtEntry, args[3], (s32)RFC_SpecialItems[itemId].name);
@@ -431,8 +401,7 @@ namespace mod
                 evtmgr_cmd::evtSetValue(evtEntry, args[4], (s32)Lunatic->Interface.aeDescBuf);
                 evtmgr_cmd::evtSetValue(evtEntry, args[5], (s32)&RFC_SpecialItems[itemId].textDrawCol);
                 break;
-            }
-            else
+            } else
                 evtmgr_cmd::evtSetValue(evtEntry, args[2], 0);
             break;
         }
@@ -494,9 +463,8 @@ namespace mod
     RETURN()
     EVT_END()
 
-    void danInterfaceMain()
-    {
-        mario::MarioWork *mario = mario::marioGetPtr();
+    void danInterfaceMain() {
+        mario::MarioWork * mario = mario::marioGetPtr();
         // Handle opening the config menu
         if (((mario->buttonsPressed & WPAD_BTN_B) == WPAD_BTN_B) && ((mario->buttonsHeld & WPAD_BTN_Z) != WPAD_BTN_Z)) // B pressed, Z not held
         {
@@ -504,8 +472,7 @@ namespace mod
             bool keyOff = mario::marioKeyOffChk();
             bool ctrlOff = mario::marioCtrlOffChk();
             bool noFade = fadedrv::fadeIsFinish();
-            if (noFade && !keyOff && !ctrlOff && canPause && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr)
-            {
+            if (noFade && !keyOff && !ctrlOff && canPause && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
                 pausewin::pausewinPauseGame();
                 hud::hudHide();
                 evtmgr::evtEntryType(LPGUIActiveEffects, 0, 0, 0);
@@ -513,8 +480,7 @@ namespace mod
         }
     }
 
-    void guiOverrides()
-    {
+    void guiOverrides() {
         seq_titleMainReal = seqdef::seq_data[seqdrv::SEQ_TITLE].main;
         seqdef::seq_data[seqdrv::SEQ_TITLE].main = &seq_titleMainOverride;
         writeBranchLink(hud::hudDisp, 0x54, danDisplay);

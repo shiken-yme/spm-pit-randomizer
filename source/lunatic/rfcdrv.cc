@@ -1,36 +1,34 @@
 #include <common.h>
-#include <lp_common.h>
-#include <evt_cmd.h>
-#include <rfcdrv.h>
-#include <mod.h>
-#include <util.h>
 #include <cutscene_helpers.h>
+#include <evt_cmd.h>
 #include <evtpatch.h>
+#include <lp_common.h>
+#include <mod.h>
+#include <rfcdrv.h>
 #include <tplpatch.h>
+#include <util.h>
 
-#include "globalop.h"
 #include "effpatch.h"
+#include "globalop.h"
 
-#include <spm/rel/aa1_01.h>
-#include <spm/rel/mi4.h>
-#include <spm/rel/relocatable_module.h>
-#include <spm/temp_unk.h>
+#include <msl/math.h>
+#include <msl/stdio.h>
+#include <msl/string.h>
 #include <spm/animdrv.h>
-#include <spm/npcdrv.h>
 #include <spm/bgdrv.h>
 #include <spm/camdrv.h>
 #include <spm/dispdrv.h>
-#include <spm/npc_ninja.h>
 #include <spm/eff/eff_fire.h>
+#include <spm/eff/eff_pansy_kirakira.h>
 #include <spm/eff/eff_small_star.h>
 #include <spm/eff/eff_spm_confetti.h>
-#include <spm/eff/eff_pansy_kirakira.h>
+#include <spm/eff/eff_spm_hit.h>
 #include <spm/eff/eff_spm_recovery.h>
 #include <spm/eff/eff_spm_spindash.h>
-#include <spm/eff/eff_spm_hit.h>
 #include <spm/evt_cam.h>
 #include <spm/evt_case.h>
 #include <spm/evt_dimen.h>
+#include <spm/evt_door.h>
 #include <spm/evt_eff.h>
 #include <spm/evt_fade.h>
 #include <spm/evt_fairy.h>
@@ -41,66 +39,66 @@
 #include <spm/evt_item.h>
 #include <spm/evt_map.h>
 #include <spm/evt_mario.h>
-#include <spm/evt_msg.h>
 #include <spm/evt_mobj.h>
+#include <spm/evt_msg.h>
 #include <spm/evt_npc.h>
 #include <spm/evt_offscreen.h>
 #include <spm/evt_paper.h>
 #include <spm/evt_pouch.h>
+#include <spm/evt_seq.h>
 #include <spm/evt_shop.h>
 #include <spm/evt_snd.h>
-#include <spm/evt_seq.h>
 #include <spm/evt_sub.h>
 #include <spm/evtmgr.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/evt_door.h>
 #include <spm/fontmgr.h>
 #include <spm/framedrv.h>
 #include <spm/hitdrv.h>
 #include <spm/hud.h>
-#include <spm/itemdrv.h>
 #include <spm/item_data.h>
+#include <spm/itemdrv.h>
 #include <spm/lz_embedded.h>
 #include <spm/map_data.h>
 #include <spm/mapdrv.h>
 #include <spm/mario.h>
 #include <spm/mario_fairy.h>
+#include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
 #include <spm/mario_status.h>
-#include <spm/mario_hit.h>
+#include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
-#include <spm/memory.h>
 #include <spm/msgdrv.h>
+#include <spm/npc_dimeen_l.h>
+#include <spm/npc_ninja.h>
 #include <spm/npc_tile.h>
+#include <spm/npcdrv.h>
 #include <spm/parse.h>
 #include <spm/pausewin.h>
+#include <spm/rel/aa1_01.h>
+#include <spm/rel/dan.h>
+#include <spm/rel/machi.h>
+#include <spm/rel/mi4.h>
+#include <spm/rel/relocatable_module.h>
 #include <spm/seq_mapchange.h>
+#include <spm/seq_title.h>
 #include <spm/seqdef.h>
 #include <spm/seqdrv.h>
-#include <spm/seq_title.h>
 #include <spm/spmario.h>
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
-#include <spm/npc_dimeen_l.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
-#include <spm/rel/dan.h>
-#include <spm/rel/machi.h>
-#include <wii/os/OSError.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
-#include <msl/math.h>
-#include <msl/stdio.h>
-#include <msl/string.h>
-#include <cstdio>
 
-namespace mod
-{
+namespace mod {
     /*
         This file contains code for Rest Floor Chests & the special items contained with them
         RFC is powered heavily by CustomWin and IconPatch. I'm so glad that developing those libraries is paying off now!
@@ -191,37 +189,32 @@ namespace mod
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
-    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {10, 15, 20, 10, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {15, 25, 20, 10, 2, 2, 2, 2, 2, 2, 2, 2};
 
     s32 VoucherGuaranteeTrigs[VOUCHER_BLACK - VOUCHER_CAKE] = {4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
 
-    VoucherWork *VoucherGetPtr(s32 idx)
-    {
+    VoucherWork * VoucherGetPtr(s32 idx) {
         return Lunatic->Voucher.Work[idx];
     }
 
-    s32 VoucherAdd(void *wp)
-    {
+    s32 VoucherAdd(void * wp) {
         s32 i;
-        for (i = 0; i < VOUCHER_MAX; i += 1)
-        {
+        for (i = 0; i < VOUCHER_MAX; i += 1) {
             if (VoucherGetPtr(i) == nullptr) // Not in use
                 break;
         }
         assertf(i < VOUCHER_MAX, "Voucher limit of %d (VOUCHER_MAX) exceeded", VOUCHER_MAX);
         Lunatic->Voucher.Work[i] = (VoucherWork *)memory::__memAlloc(0, sizeof(VoucherWork));
-        VoucherWork *Voucher = Lunatic->Voucher.Work[i];
+        VoucherWork * Voucher = Lunatic->Voucher.Work[i];
         msl::string::memset(Voucher, 0, sizeof(VoucherWork));
         Voucher->UW.Any = wp;
-        Voucher->iconAlpha = 150;
+        Voucher->iconAlpha = VOUCHER_ALPHA_BASE;
         return i;
     }
 
-    VoucherWork *VoucherItemIdToPtr(s32 itemId)
-    {
-        VoucherWork *Voucher = nullptr;
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
-        {
+    VoucherWork * VoucherItemIdToPtr(s32 itemId) {
+        VoucherWork * Voucher = nullptr;
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1) {
             Voucher = VoucherGetPtr(i);
             if (Voucher != nullptr) // In use
             {
@@ -233,10 +226,8 @@ namespace mod
         return Voucher;
     }
 
-    s32 VoucherItemIdToIdx(s32 itemId)
-    {
-        for (s32 i = 0; i < VOUCHER_MAX; i += 1)
-        {
+    s32 VoucherItemIdToIdx(s32 itemId) {
+        for (s32 i = 0; i < VOUCHER_MAX; i += 1) {
             if (VoucherGetPtr(i) != nullptr) // In use
             {
                 if (VoucherGetPtr(i)->itemId == itemId)
@@ -246,17 +237,16 @@ namespace mod
         return -1;
     }
 
-    void VoucherRemove(s32 itemId)
-    {
+    void VoucherRemove(s32 itemId) {
         s32 idx = VoucherItemIdToIdx(itemId);
+        memory::__memFree(0, Lunatic->Voucher.Work[idx]->UW.Any);
         msl::string::memset(Lunatic->Voucher.Work[idx], 0, sizeof(VoucherWork));
         memory::__memFree(0, Lunatic->Voucher.Work[idx]);
         Lunatic->Voucher.Work[idx] = nullptr;
         return;
     }
 
-    VoucherState VoucherGetStateById(s32 itemId)
-    {
+    VoucherState VoucherGetStateById(s32 itemId) {
         s32 idx = VoucherItemIdToIdx(itemId);
         if (idx == -1)
             return V_INACTIVE;
@@ -266,27 +256,24 @@ namespace mod
             return V_ACTIVE;
     }
 
-    void VoucherActionSpin(s32 itemId, s32 deleteIdx)
-    {
+    void VoucherActionSpin(s32 itemId, s32 deleteIdx) {
         if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
             return;
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         u8 alphaMod;
         Voucher->isSpinning = true;
-        if (Voucher->iconRotationTimer < 20)
-        {
-            alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 20);
-            Voucher->iconAlpha = (u8)150 + alphaMod;
-        }
-        else if (Voucher->iconRotationTimer <= 50)
-        {
-            alphaMod = (u8)system::intplGetValue(4, 0, 105, (Voucher->iconRotationTimer - 20), 30);
+        if (Voucher->iconRotationTimer == 0)
+            spmario_snd::__spsndSFXOn("SFX_MINI_ROUND_CLEAR1", 100, 255, 0, nullptr, 0);
+        if (Voucher->iconRotationTimer < 20) {
+            alphaMod = (u8)system::intplGetValue(4, 0, (255 - VOUCHER_ALPHA_BASE), Voucher->iconRotationTimer, 20);
+            Voucher->iconAlpha = (u8)VOUCHER_ALPHA_BASE + alphaMod;
+        } else if (Voucher->iconRotationTimer <= 50) {
+            alphaMod = (u8)system::intplGetValue(4, 0, (255 - VOUCHER_ALPHA_BASE), (Voucher->iconRotationTimer - 20), 30);
             Voucher->iconAlpha = (u8)255 - alphaMod;
         }
         Voucher->iconRotation = system::intplGetValue(4, 0.0f, 360.0f, Voucher->iconRotationTimer, 60);
         Voucher->iconRotationTimer += 1;
-        if (Voucher->iconRotation >= 359.5f)
-        {
+        if (Voucher->iconRotation >= 359.5f) {
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
             Voucher->isSpinning = false;
@@ -295,20 +282,21 @@ namespace mod
         return;
     }
 
-    void VoucherTearSpin(s32 itemId, s32 deleteIdx)
-    {
+    void VoucherTearSpin(s32 itemId, s32 deleteIdx) {
         if (mario::marioChkKey() == false) // todo: check for hud state and if a fade entry is active
             return;
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         u8 alphaMod;
         Voucher->isSpinning = true;
-        if (Voucher->iconRotationTimer < 30)
-        {
-            alphaMod = (u8)system::intplGetValue(4, 0, 105, Voucher->iconRotationTimer, 30);
-            Voucher->iconAlpha = (u8)150 + alphaMod;
-        }
-        else if (Voucher->iconRotationTimer > 120)
-        {
+        if (Voucher->iconRotationTimer == 0) {
+            spmario_snd::__spsndSFXOn("SFX_MINI_ROUND_CLEAR1", 100, 255, 0, nullptr, 0);
+            spmario_snd::__spsndSFXOn("SFX_MINI_GURA_STARGET1", 100, 255, 0, nullptr, 0);
+        } else if (Voucher->iconRotationTimer == 10)
+            spmario_snd::__spsndSFXOn("SFX_F_SPIN_DASH1", 200, 255, 0, nullptr, 0);
+        if (Voucher->iconRotationTimer < 30) {
+            alphaMod = (u8)system::intplGetValue(4, 0, (255 - VOUCHER_ALPHA_BASE), Voucher->iconRotationTimer, 30);
+            Voucher->iconAlpha = (u8)VOUCHER_ALPHA_BASE + alphaMod;
+        } else if (Voucher->iconRotationTimer > 120) {
             alphaMod = (u8)system::intplGetValue(4, 0, 255, (Voucher->iconRotationTimer - 120), 120);
             Voucher->iconAlpha = (u8)255 - alphaMod;
         }
@@ -317,8 +305,7 @@ namespace mod
         else
             Voucher->iconRotation = system::intplGetValue(0, 0.0f, 360.0f, ((Voucher->iconRotationTimer - 60) % 10), 10);
         Voucher->iconRotationTimer += 1;
-        if (Voucher->iconAlpha < 1)
-        {
+        if (Voucher->iconAlpha < 1) {
             Voucher->iconAlpha = 0;
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
@@ -329,13 +316,12 @@ namespace mod
         return;
     }
 
-    void VoucherSpin(s32 itemId, bool tearSpin)
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+    void VoucherSpin(s32 itemId, bool tearSpin) {
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         if (Voucher->isSpinning) // If a spin is active, force-reset it unequivocally
         {
             globalop::globalopDelEntry(Voucher->spinDeleteFuncIdx);
-            Voucher->iconAlpha = 150;
+            Voucher->iconAlpha = VOUCHER_ALPHA_BASE;
             Voucher->iconRotation = 0.0f;
             Voucher->iconRotationTimer = 0;
             Voucher->isSpinning = false;
@@ -345,109 +331,96 @@ namespace mod
             Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherActionSpin, (void *)itemId);
         else
             Voucher->spinDeleteFuncIdx = globalop::globalopAddEntry((void *)VoucherTearSpin, (void *)itemId);
-        // FRIEREN BURGER
         return;
     }
 
-    bool VoucherTryTear(s32 itemId)
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+    bool VoucherTryTear(s32 itemId) {
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         s32 odds = system::irand(99);
         if (odds < Voucher->tearChance)
             return true;
         return false;
     }
 
-    void VoucherDoTear(s32 itemId)
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+    void VoucherDoTear(s32 itemId) {
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         Voucher->torn = true;
         VoucherSpin(itemId, true);
         (Voucher->tearFunc)();
         return;
     }
 
-    s32 VoucherGetTearChance(s32 baseChance)
-    {
+    s32 VoucherGetTearChance(s32 baseChance) {
         s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty)
-        {
+        switch (difficulty) {
         case 1:
-            baseChance *= 1.25f;
-            break;
-        case 2:
             baseChance *= 1.5f;
             break;
-        case 3:
+        case 2:
             baseChance *= 2.0f;
+            break;
+        case 3:
+            baseChance *= 3.0f;
             break;
         default:
             break;
         }
+        baseChance = clamp(baseChance, 0, 100);
         return baseChance;
     }
 
-    void VoucherCallAction(s32 itemId)
-    {
+    void VoucherCallAction(s32 itemId) {
         if (VoucherGetStateById(itemId) != V_ACTIVE)
             return;
-        VoucherWork *Voucher = VoucherItemIdToPtr(itemId);
+        VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         if (Voucher->isSpinning == true)
             return;
-        if (Voucher->guaranteeTrig == 0)
-        {
+        if (Voucher->guaranteeTrig == 0) {
             if (VoucherTryTear(itemId) == true)
                 VoucherDoTear(itemId);
             else
                 (Voucher->actionFunc)();
-        }
-        else
-        {
+        } else {
             Voucher->guaranteeTrig -= 1;
             (Voucher->actionFunc)();
         }
         return;
     }
 
-    s32 EvtVoucherCallAction(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 EvtVoucherCallAction(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 itemId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         VoucherCallAction(itemId);
         return 2;
     }
 
-    void CakeVoucherTear()
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
+    void CakeVoucherTear() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
         s32 hp = Voucher->UW.Cake->hpGain;
         lpAddHp(-(hp / 2), hp); // Remove half of the max HP bonus, but add total bonus to reg HP
         return;
     }
 
-    void CakeVoucherAction()
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
-        mario_pouch::MarioPouchWork *pouch = mario_pouch::pouchGetPtr();
+    void CakeVoucherAction() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
+        mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         s32 maxHp = pouch->maxHp;
         lpAddHp(2, 2);
         if (maxHp == pouch->maxHp) // If max HP cannot increment, you are a fatass. No more cake for you
             VoucherDoTear(VOUCHER_CAKE);
-        else
-        {
+        else {
             Voucher->UW.Cake->hpGain += (pouch->maxHp - maxHp);
             VoucherSpin(VOUCHER_CAKE, false);
         }
         return;
     }
 
-    void CakeVoucherUse()
-    {
-        VCakeWork *wp = (VCakeWork *)memory::__memAlloc(0, sizeof(VCakeWork));
+    void CakeVoucherUse() {
+        VCakeWork * wp = (VCakeWork *)memory::__memAlloc(0, sizeof(VCakeWork));
         msl::string::memset(wp, 0, sizeof(VCakeWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = VoucherGetPtr(idx);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_CAKE;
         Voucher->itemId = VOUCHER_CAKE;
         Voucher->tearFunc = CakeVoucherTear;
@@ -457,34 +430,35 @@ namespace mod
         return;
     }
 
-    void ThunderVoucherTear()
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
+    void ThunderVoucherTear() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
         lpAddAtk(-(round(Voucher->UW.Thunder->atkBonus / 2)) + 1);
         lpAddCrit(-(round((f32)Voucher->UW.Thunder->critRateBonus / 2)) + 2, -(msl::math::floor(Voucher->UW.Thunder->critMultBonus / 2.0f)) + 8.0f);
         return;
     }
 
-    void ThunderVoucherAction()
-    {
-        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
+    void ThunderVoucherAction() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
         s32 odds = system::rand() % 10;
-        if (odds < 2) // 20%
-            lpAddAtk(Voucher->UW.Thunder->atkBonus += 1);
-        else if (odds < 7) // 50%
-            lpAddCrit(0, Voucher->UW.Thunder->critMultBonus += 8.0f);
-        else // 30%
-            lpAddCrit(Voucher->UW.Thunder->critRateBonus += 2, 0);
+        if (odds < 2) { // 20%
+            Voucher->UW.Thunder->atkBonus += 1;
+            lpAddAtk(1);
+        } else if (odds < 7) { // 50%
+            Voucher->UW.Thunder->critMultBonus += 8.0f;
+            lpAddCrit(0, 8.0f);
+        } else { // 30%
+            Voucher->UW.Thunder->critRateBonus += 2;
+            lpAddCrit(2, 0);
+        }
         VoucherSpin(VOUCHER_THUNDER, false);
         return;
     }
 
-    void ThunderVoucherUse()
-    {
-        VThunderWork *wp = (VThunderWork *)memory::__memAlloc(0, sizeof(VThunderWork));
+    void ThunderVoucherUse() {
+        VThunderWork * wp = (VThunderWork *)memory::__memAlloc(0, sizeof(VThunderWork));
         msl::string::memset(wp, 0, sizeof(VThunderWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = VoucherGetPtr(idx);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_THUNDER;
         Voucher->itemId = VOUCHER_THUNDER;
         Voucher->tearFunc = ThunderVoucherTear;
@@ -494,42 +468,37 @@ namespace mod
         return;
     }
 
-    s32 ThunderVoucherIncrementCtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 ThunderVoucherIncrementCtr(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 hp = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         VoucherState vState = VoucherGetStateById(VOUCHER_THUNDER);
         if (hp <= 1 || vState != V_ACTIVE)
             return 2;
-        VoucherWork *Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_THUNDER);
         Voucher->UW.Thunder->enemies += 1;
-        if (Voucher->UW.Thunder->enemies == 30)
-        {
+        if (Voucher->UW.Thunder->enemies == 30) {
             Voucher->UW.Thunder->enemies = 0;
             VoucherCallAction(VOUCHER_THUNDER);
         }
         return 2;
     }
 
-    void StellarVoucherTear()
-    {
+    void StellarVoucherTear() {
         Lunatic->RFC.chestKeysOwned += 3;
         return;
     }
 
-    void StellarVoucherAction()
-    {
+    void StellarVoucherAction() {
         VoucherSpin(VOUCHER_STELLAR, false);
         return;
     }
 
-    void StellarVoucherUse()
-    {
-        VStellarWork *wp = (VStellarWork *)memory::__memAlloc(0, sizeof(VStellarWork));
+    void StellarVoucherUse() {
+        VStellarWork * wp = (VStellarWork *)memory::__memAlloc(0, sizeof(VStellarWork));
         msl::string::memset(wp, 0, sizeof(VStellarWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = VoucherGetPtr(idx);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_STELLAR;
         Voucher->itemId = VOUCHER_STELLAR;
         Voucher->tearFunc = StellarVoucherTear;
@@ -539,22 +508,19 @@ namespace mod
         return;
     }
 
-    void JudgementVoucherTear()
-    {
+    void JudgementVoucherTear() {
         return;
     }
 
-    void JudgementVoucherAction()
-    {
+    void JudgementVoucherAction() {
         return;
     }
 
-    void JudgementVoucherUse()
-    {
-        VJudgementWork *wp = (VJudgementWork *)memory::__memAlloc(0, sizeof(VJudgementWork));
+    void JudgementVoucherUse() {
+        VJudgementWork * wp = (VJudgementWork *)memory::__memAlloc(0, sizeof(VJudgementWork));
         msl::string::memset(wp, 0, sizeof(VJudgementWork));
         s32 idx = VoucherAdd(wp);
-        VoucherWork *Voucher = VoucherGetPtr(idx);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
         Voucher->iconId = ICON_VOUCHER_JUDGEMENT;
         Voucher->itemId = VOUCHER_JUDGEMENT;
         Voucher->tearFunc = JudgementVoucherTear;
@@ -564,115 +530,97 @@ namespace mod
         return;
     }
 
-    void AegisEndowmentUse()
-    {
+    void AegisEndowmentUse() {
         Lunatic->Stats.AegisDef += 1;
         return;
     }
 
-    void AegisInvocationUse()
-    {
+    void AegisInvocationUse() {
         Lunatic->Stats.AegisDef += 1;
         return;
     }
 
-    void AuspiceEndowmentUse()
-    {
+    void AuspiceEndowmentUse() {
         Lunatic->Stats.AuspiceDR += 20.0f;
         return;
     }
 
-    void AuspiceInvocationUse()
-    {
+    void AuspiceInvocationUse() {
         Lunatic->Stats.AuspiceDR += 30.0f;
         return;
     }
 
-    void SoulDropUse()
-    {
+    void SoulDropUse() {
         Lunatic->Stats.CritRate += 4;
         return;
     }
 
-    void SoulBoonUse()
-    {
+    void SoulBoonUse() {
         Lunatic->Stats.CritRate += 8;
         return;
     }
 
-    void SoulEpiphanyUse()
-    {
+    void SoulEpiphanyUse() {
         Lunatic->Stats.CritRate += 16;
         return;
     }
 
-    void SoulLegacyUse()
-    {
+    void SoulLegacyUse() {
         Lunatic->Stats.CritRate += 24;
         return;
     }
 
-    void SpiritDropUse()
-    {
+    void SpiritDropUse() {
         Lunatic->Stats.CritMult += 25.0f;
         return;
     }
 
-    void SpiritBoonUse()
-    {
+    void SpiritBoonUse() {
         Lunatic->Stats.CritMult += 50.0f;
         return;
     }
 
-    void SpiritEpiphanyUse()
-    {
+    void SpiritEpiphanyUse() {
         Lunatic->Stats.CritMult += 100.0f;
         return;
     }
 
-    void SpiritLegacyUse()
-    {
+    void SpiritLegacyUse() {
         Lunatic->Stats.CritMult += 150.0f;
         return;
     }
 
-    void SoulArtifactUse()
-    {
+    void SoulArtifactUse() {
         Lunatic->Stats.CritRate += 12;
         swdrv::swSet(1654);
         return;
     }
 
-    void SpiritArtifactUse()
-    {
+    void SpiritArtifactUse() {
         Lunatic->Stats.CritMult += 100.0f;
         swdrv::swSet(1655);
         return;
     }
 
-    void AegisArtifactUse()
-    {
+    void AegisArtifactUse() {
         Lunatic->Stats.AegisDef += 1;
         swdrv::swSet(1656);
         return;
     }
 
-    void AuspiceArtifactUse()
-    {
+    void AuspiceArtifactUse() {
         Lunatic->Stats.AuspiceDR += 25.0f;
         swdrv::swSet(1657);
         return;
     }
 
-    void DelightArtifactUse()
-    {
+    void DelightArtifactUse() {
         lpAddHp(30, 0);
         swdrv::swSet(1658);
         return;
     }
 
-    void DemiseArtifactUse()
-    {
+    void DemiseArtifactUse() {
         lpAddAtk(2);
         swdrv::swSet(1659);
         return;
@@ -704,12 +652,12 @@ namespace mod
         {ICON_AEGIS_2, aegis2Name, aegis2Desc, aegis2Get, AegisInvocationUse, {33, 96, 255, 100}, {34, 64, 140, 255}},           // Aegis Invocation, +30% DR
         {ICON_AUSPICE_1, auspice1Name, auspice1Desc, auspice1Get, AuspiceEndowmentUse, {212, 53, 61, 100}, {135, 23, 29, 255}},  // Auspice Endowment, +1 DEF
         {ICON_AUSPICE_2, auspice2Name, auspice2Desc, auspice2Get, AuspiceInvocationUse, {212, 53, 61, 100}, {135, 23, 29, 255}}, // Auspice Invocation, +2 DEF
-        {ICON_ARTIFACT_SOUL, artiSoulName, artiSoulDesc, nullptr, SoulArtifactUse, {248, 255, 156, 100}, {146, 153, 50, 255}},
+        {ICON_ARTIFACT_SOUL, artiSoulName, artiSoulDesc, nullptr, SoulArtifactUse, {248, 255, 156, 100}, {206, 217, 61, 255}},
         {ICON_ARTIFACT_SPIRIT, artiSpiritName, artiSpiritDesc, nullptr, SpiritArtifactUse, {41, 194, 255, 100}, {42, 116, 145, 255}},
         {ICON_ARTIFACT_AEGIS, artiAegisName, artiAegisDesc, nullptr, AegisArtifactUse, {33, 96, 255, 100}, {34, 64, 140, 255}},
         {ICON_ARTIFACT_AUSPICE, artiAuspiceName, artiAuspiceDesc, nullptr, AuspiceArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
-        {ICON_ARTIFACT_DELIGHT, artiDelightName, artiDelightDesc, nullptr, DelightArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}},
-        {ICON_ARTIFACT_DEMISE, artiDemiseName, artiDemiseDesc, nullptr, DemiseArtifactUse, {212, 53, 61, 100}, {135, 23, 29, 255}}};
+        {ICON_ARTIFACT_DELIGHT, artiDelightName, artiDelightDesc, nullptr, DelightArtifactUse, {209, 65, 175, 100}, {209, 65, 175, 255}},
+        {ICON_ARTIFACT_DEMISE, artiDemiseName, artiDemiseDesc, nullptr, DemiseArtifactUse, {219, 90, 50, 100}, {245, 65, 35, 255}}};
 
     RFCColorDef RFC_Colors[] = {
         {{10, 10, 10, 255}, {0, 0, 0, 255}},          // Common
@@ -718,9 +666,9 @@ namespace mod
         {{63, 202, 179, 255}, {74, 237, 210, 255}}    // Legendary -- Diamond
     };
 
-    const char *RFC_ChestNames[4] = {"MOBJ_gw_ta_big", "MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big"};
+    const char * RFC_ChestNames[4] = {"MOBJ_gw_ta_big", "MOBJ_dan_u_big", "MOBJ_dan_r_big", "MOBJ_dan_l_big"};
 
-    const char *RFCRarityNames[4] = {"Common", "Uncommon", "Rare", "Legendary"};
+    const char * RFCRarityNames[4] = {"Common", "Uncommon", "Rare", "Legendary"};
 
     s32 RFCItems_Common_Size = sizeof(RFCItems_Common) / 4;
     s32 RFCItems_Uncommon_Size = sizeof(RFCItems_Uncommon) / 4;
@@ -728,63 +676,55 @@ namespace mod
     s32 RFCItems_Legendary_Size = sizeof(RFCItems_Legendary) / 4;
     s32 RFC_SpecialItems_Size = sizeof(RFC_SpecialItems) / sizeof(RFCItemData);
 
-    s32 RFCGetPtr(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCGetPtr(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)&Lunatic->RFC.rfcItems);
         return 2;
     }
 
-    void *RFCSpecialGetPtr()
-    {
+    void * RFCSpecialGetPtr() {
         return &RFC_SpecialItems[0];
     }
 
-    void *RFCColorsGetPtr()
-    {
+    void * RFCColorsGetPtr() {
         return &RFC_Colors[0];
     }
 
-    s32 RFCGetRarity(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCGetRarity(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestRarity);
         evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFCRarityNames[Lunatic->RFC.chestRarity]);
         return 2;
     }
 
-    s32 RFCGetChestKeyParams(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCGetChestKeyParams(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], Lunatic->RFC.chestKeys);      // chest keys required
         evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->RFC.chestKeysOwned); // chest keys owned
         evtmgr_cmd::evtSetValue(evtEntry, args[2], Lunatic->RFC.rerollCost);     // chest keys owned
         return 2;
     }
 
-    s32 RFCBakudan(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCBakudan(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
-        mobjdrv::MobjEntry *chest = mobjdrv::mobjNameToPtr("box");
+        mobjdrv::MobjEntry * chest = mobjdrv::mobjNameToPtr("box");
         mario::marioKeyOn();
         npcdrv::npcDamageMario(0, 0, &chest->pos, 0, Lunatic->RFC.chestKeys + Lunatic->RFC.rerollCost, 4);
         return 2;
     }
 
-    s32 RFCSetChestKeys(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCSetChestKeys(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         Lunatic->RFC.chestKeysOwned = (u8)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         return 2;
     }
 
-    void RFCUpdateSpecialGetCol(effpatch::EffPatchColorMask *mask)
-    {
+    void RFCUpdateSpecialGetCol(effpatch::EffPatchColorMask * mask) {
         mask->frmCtr += 1;
         if (mask->frmCtr > 60)
             return;
@@ -794,19 +734,27 @@ namespace mod
         return;
     }
 
-    s32 RFCAnalyzeSpecial(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCProcEffect(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 idx = evtmgr_cmd::evtGetValue(evtEntry, args[0]); // CWSelect item idx
-        if (idx < 0)
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 trueIdx = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        if (trueIdx < 0)
             return 2;
-        s32 trueIdx = customwin::GlobalCW->Select[customwin::GlobalCW->activeSelect]->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
-        Lunatic->RFC.rfcSpecialObtained[trueIdx] = true;                                                                                              // Prevents item from reappearing in the shop
-        effdrv::EffEntry *eff = eff_pansy_kirakira::effPansyKirakiraEntry(1);
+        effdrv::EffEntry * eff = eff_pansy_kirakira::effPansyKirakiraEntry(1);
         effpatch::effpatchColorMaskEntry(eff, {0, 0, 0, 255}, RFC_SpecialItems[trueIdx].effCol, RFCUpdateSpecialGetCol);
         if (RFC_SpecialItems[trueIdx].useFunc != nullptr)
             (RFC_SpecialItems[trueIdx].useFunc)();
+        return 2;
+    }
+
+    s32 RFCAnalyzeSpecial(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 idx = evtmgr_cmd::evtGetValue(evtEntry, args[0]); // CWSelect item idx
+        if (idx < 0)
+            return 2;
+        s32 trueIdx = customwin::CWSelectGetActiveEntry()->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
+        Lunatic->RFC.rfcSpecialObtained[trueIdx] = true;                                                                                              // Prevents item from reappearing in the shop
         if (RFC_SpecialItems[trueIdx].useMsg != nullptr)
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFC_SpecialItems[trueIdx].useMsg);
         else
@@ -815,40 +763,40 @@ namespace mod
         return 2;
     }
 
-    s32 RFCGenerate(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCGenerate(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        evtmgr::EvtVar *args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        spm::evtmgr::EvtScriptCode *interactScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        spm::evtmgr::EvtScriptCode *openScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        spm::evtmgr::EvtScriptCode * interactScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        spm::evtmgr::EvtScriptCode * openScript = (spm::evtmgr::EvtScriptCode *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         u32 loaded = animdrv::animGroupBaseAsync(RFC_ChestNames[Lunatic->RFC.chestRarity], 0, nullptr);
         if (loaded == 0)
             return 0;
         mobjdrv::mobjEntry(rfcChestName, RFC_ChestNames[Lunatic->RFC.chestRarity]);
-        mobjdrv::MobjEntry *mobj = mobjdrv::mobjNameToPtr(rfcChestName);
+        mobjdrv::MobjEntry * mobj = mobjdrv::mobjNameToPtr(rfcChestName);
         mobjdrv::mobjSetPosition(rfcChestName, 75.0f, 25.0f, -87.5f);
         mobjdrv::mobjHitEntry(mobj, 6);
         mobjdrv::mobjCalcMtx(mobj);
         mobj->updateFunction = evt_mobj::mobj_thako;
         mobj->interactScript = interactScript;
-        mobj->afterInteractScript = openScript;
+        if (openScript != (spm::evtmgr::EvtScriptCode *)0x42069)
+            mobj->afterInteractScript = openScript;
+        else
+            mobj->afterInteractScript = new_dan_chest_open_evt;
         mobj->flag0 |= 0x400046;
         return 2;
     }
 
-    s32 RFCReroll(evtmgr::EvtEntry *evtEntry, bool firstRun)
-    {
+    s32 RFCReroll(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)evtEntry;
         (void)firstRun;
         DanGen_Items(false);
         return 2;
     }
 
-    s32 RFCPatchDanChestMobjHitEntry(const char *modelName) // seems to be in r3 in both functions
+    s32 RFCPatchDanChestMobjHitEntry(const char * modelName) // seems to be in r3 in both functions
     {
         s32 ret, i;
-        for (i = 0; i < 4; i += 1)
-        {
+        for (i = 0; i < 4; i += 1) {
             ret = msl::string::strcmp(modelName, RFC_ChestNames[i]);
             if (ret == 0)
                 break;
@@ -856,15 +804,13 @@ namespace mod
         return ret;
     }
 
-    void RFCDebugForceReroll()
-    {
-        mario::MarioWork *mario = mario::marioGetPtr();
+    void RFCDebugForceReroll() {
+        mario::MarioWork * mario = mario::marioGetPtr();
         if ((mario->buttonsPressed & WPAD_BTN_C) == WPAD_BTN_C)
             DanGen_Items(false);
     }
 
-    void RFCDRVPatches()
-    {
+    void RFCDRVPatches() {
         writeBranchLink(mobjdrv::mobjHitEntry, 0xF8, RFCPatchDanChestMobjHitEntry);
         writeBranchLink(mobjdrv::mobjCalcMtx, 0xC8, RFCPatchDanChestMobjHitEntry);
         if (DebugMode)

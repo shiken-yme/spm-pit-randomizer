@@ -171,6 +171,7 @@ namespace mod {
             {(NPCTribeId)-1, nullptr, nullptr, nullptr},
     };
 
+    // Array-size message IDs * identifier size limit of 15
     char tattleMsgs[sizeof(data) / sizeof(NPCMessagePatchData)][15];
 
     void npcMessagePatches() {

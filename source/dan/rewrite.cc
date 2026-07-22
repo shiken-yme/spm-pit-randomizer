@@ -12,7 +12,6 @@
 #include <tplpatch.h>
 #include <util.h>
 
-#include <cstdio>
 #include <msl/math.h>
 #include <msl/stdio.h>
 #include <msl/string.h>
@@ -109,7 +108,7 @@ namespace mod {
 
     using namespace spm;
 
-    const char * restFloorNpcNames[] = {"Null", "Flimm", "Merluna", "Boodin", "undetermined"};
+    const char * restFloorNpcNames[] = {"NONE", "FLMM", "BDIN", "MLNA", "CHST", "MVER", "GBBI", "DMAN"};
 
     npcdrv::NPCTribeAnimDef _moverAnims[] = {
         {0, "stg2_syuuzin_b_S_1"}, // Idle
@@ -239,7 +238,7 @@ namespace mod {
         }
         if (Lunatic->Luna.disorder == DISORDER_RED && Lunatic->Luna.DW.floorsRem != 0) // APATHY
         {
-            npc->maxHp = (u32)msl::math::floor((f32)npc->maxHp * Lunatic->Luna.DW.UW.Apathy->enemyMaxHPMult);
+            npc->maxHp = (u32)msl::math::floor((f32)npc->maxHp * Lunatic->Luna.DW.UW.Apathy.enemyMaxHPMult);
             npc->hp = npc->maxHp;
         }
         /*
@@ -259,7 +258,7 @@ namespace mod {
             }
         } else {
             sup = system::rand() % 100;
-            if (sup < 10 && currentFloor > 175 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO) {
+            if (sup < 10 && currentFloor > 174 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO) {
                 npcMakeNegative(npc);
                 danAssignSpecialEnemyItem(npc, npc->maxHp * 3, 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
@@ -313,7 +312,6 @@ namespace mod {
                 goto buh;
             if (i == 0) { // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
-                enemies[random]->zAxisRotation = 180.0f;
             } else // Distribute chest key
             {
                 if (enemies[random]->dropItemId == item_data::ITEM_ID_KEY_DAN_KEY || enemies[random]->dropItemId == item_data::ITEM_ID_KEY_MAC_KEY_00)
@@ -339,10 +337,10 @@ namespace mod {
                 for (j = 0; j < enemyCount; j += 1) {
                     /*
                         If 100 enemies in a 10-floor phase,
-                        2.0/1.5/1.0/0.5 in 100 chance for an enemy to drop a random key
+                        16/12/8/4 in 1000 chance for an enemy to drop a random key
                     */
                     s32 odds = system::rand() % (enemiesInCycle * 10);
-                    if (odds < ((4 - difficulty) * 5) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
+                    if (odds < ((4 - difficulty) * 4) && !randomKeyAssigned) // Spawn chance = (1 / # enemies in this cycle) repeated enemyCount times
                     {
                         enemies[random]->dropItemId = item_data::ITEM_ID_KEY_MAC_KEY_00;
                         randomKeyAssigned = true;
@@ -474,6 +472,7 @@ namespace mod {
     RUN_CHILD_EVT(dan_disorder_indifference)
     END_IF()
     USER_FUNC(evt_npc::evt_npc_unfreeze_all)
+    USER_FUNC(evt_mario_set_invincibility, FLOAT(20), 1)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 0, 1000)
     DO(0)
     USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
@@ -528,7 +527,7 @@ namespace mod {
                 }
                 if (npc->flippedTo3d != 0)
                     break;
-                if ((100.0 < __builtin_abs((destXPos - (marioWork->position).x))) || (80.0 < destYPos))
+                if ((100.0 < abs_value((destXPos - (marioWork->position).x))) || (80.0 < destYPos))
                     goto setFloats;
             }
             destYPos = system::distABf(destXPos, marioZ, ((marioWork->position).x), marioZ);
@@ -544,7 +543,7 @@ namespace mod {
     /*
         Test to patch the Fracktail tree back into the game
     */
-    s32 fracktailTreeVisCb(npcdrv::NPCEntry * npc, s32 grpIdx) {
+    /*s32 fracktailTreeVisCb(npcdrv::NPCEntry * npc, s32 grpIdx) {
         s32 idx = animdrv::animPoseGetGroupIdx(npc->m_Anim.m_nPoseId, "TREE");
         animdrv::animdrv_wp->animPose[npc->m_Anim.m_nPoseId].visibilityGrps2[idx] = 1;
         return 0;
@@ -572,15 +571,15 @@ namespace mod {
 
     EVT_BEGIN(fracktailTreeVisEvt_1)
     RUN_EVT(fracktailTreeProcCb)
-    RETURN_FROM_CALL()
+    RETURN_FROM_CALL()*/
 
     void rewrite_main() {
         // Enemy room init evt complete rewrite
         evtpatch::hookEvtReplace(dan::dan_enemy_room_init_evt, 1, dan_enemy_room_init_evt_new);
         patch::hookFunction(npc_dimeen_l::npc_dimen_determine_move_pos, dimen_determine_move_pos_new);
-        // Fracktail test
+        /*// Fracktail test
         evtpatch::hookEvt(0x80d44cc0, 4, fracktailTreeVisEvt_1);
-        patch::hookFunction(npc_zunbaba::npcZunbabaHeadDispCb, fracktailTreeVisCb2);
+        patch::hookFunction(npc_zunbaba::npcZunbabaHeadDispCb, fracktailTreeVisCb2);*/
     }
 
 }

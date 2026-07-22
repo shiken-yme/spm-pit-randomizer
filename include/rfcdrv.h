@@ -17,6 +17,8 @@ namespace mod
     */
 
     #define VOUCHER_MAX 8
+
+    #define VOUCHER_ALPHA_BASE 180
     
     enum VoucherState : s32
     {
@@ -89,6 +91,7 @@ namespace mod
     EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 3)
     EVT_DECLARE_USER_FUNC(RFCSetChestKeys, 1)
     EVT_DECLARE_USER_FUNC(RFCBakudan, 0)
+    EVT_DECLARE_USER_FUNC(RFCProcEffect, 1)
     EVT_DECLARE_USER_FUNC(RFCAnalyzeSpecial, 2)
     EVT_DECLARE_USER_FUNC(RFCGenerate, 2)
     EVT_DECLARE_USER_FUNC(RFCReroll, 0)

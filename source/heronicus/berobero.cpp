@@ -3,7 +3,6 @@
 #include "patch.h"
 
 #include <common.h>
-#include <cstdio>
 #include <evt_cmd.h>
 #include <msl/math.h>
 #include <msl/stdio.h>

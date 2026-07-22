@@ -17,10 +17,10 @@
     s32 name(spm::evtmgr::EvtEntry * evt, bool isFirstCall)
 
 #define EVT_DECLARE(name) \
-    extern const spm::evtmgr::EvtScriptCode name[];
+    extern spm::evtmgr::EvtScriptCode name[];
 
 #define EVT_BEGIN(name) \
-    const spm::evtmgr::EvtScriptCode name[] = {
+    spm::evtmgr::EvtScriptCode name[] = {
 #define EVT_BEGIN_EDITABLE(name) \
     s32 name[] = {
 #define EVT_END() \

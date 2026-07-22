@@ -9,6 +9,7 @@ PackParameters:
     BinPack: BinPack
 PackArguments:
     BinPack: BinPack
+IndentPPDirectives: BeforeHash
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AlignArrayOfStructures: None
@@ -16,6 +17,7 @@ InsertNewlineAtEOF: true
 ColumnLimit: 0
 UseTab: Never
 IndentWidth: 4
+PPIndentWidth: 4
 TabWidth: 4
 AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: false

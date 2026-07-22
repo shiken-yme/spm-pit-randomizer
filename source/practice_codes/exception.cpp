@@ -1,27 +1,26 @@
 #include <common.h>
 #include <lunatic/localize.h>
-#include <rfcdrv.h>
+#include <msl/string.h>
 #include <rewrite.h>
+#include <rfcdrv.h>
 #include <spm/evtmgr_cmd.h>
-#include <spm/romfont.h>
 #include <spm/relmgr.h>
+#include <spm/romfont.h>
 #include <spm/seq_mapchange.h>
 #include <spm/spmario.h>
 #include <spm/swdrv.h>
 #include <wii/DEMOInit.h>
 #include <wii/gx.h>
-#include <wii/mtx.h>
 #include <wii/ipc.h>
+#include <wii/mtx.h>
 #include <wii/os.h>
 #include <wii/vi.h>
-#include <msl/string.h>
 
 #include "mod.h"
 #include "patch.h"
 #include "util.h"
 
-namespace mod
-{
+namespace mod {
 
     /*
         This code is pretty much copied 1:1 from Seeky's Practice Codes mod with some cosmetic changes & other dependencies thrown in.
@@ -30,21 +29,20 @@ namespace mod
 
     bool gIsDolphin;
 
-    extern "C"
-    {
-        bool inOSPanic = false;
-        char exceptionWorkingText[256];
+    extern "C" {
+    bool inOSPanic = false;
+    char exceptionWorkingText[256];
 
-        void OSPanicForwarder();
-        void exceptionOSReportForwarder();
+    void OSPanicForwarder();
+    void exceptionOSReportForwarder();
     }
 
     static bool inException = false;
     static char exceptionText[4096];
     static u32 head = 0;
-    static void (*__OSUnhandledExceptionReal)(u8 p1, wii::os::OSContext *p2, u32 p3, u32 p4);
-    static spm::evtmgr::EvtScriptCode *lastScript = nullptr;
-    static s32 (*evtmgrCmdReal)(spm::evtmgr::EvtEntry *entry) = nullptr;
+    static void (*__OSUnhandledExceptionReal)(u8 p1, wii::os::OSContext * p2, u32 p3, u32 p4);
+    static spm::evtmgr::EvtScriptCode * lastScript = nullptr;
+    static s32 (*evtmgrCmdReal)(spm::evtmgr::EvtEntry * entry) = nullptr;
 
 #define SCREEN_TOP 228.0f
 #define SCREEN_BOTTOM -228.0f
@@ -58,42 +56,37 @@ namespace mod
 
     static wii::gx::GXColor textColour{0xff, 0xff, 0xff, 0xff};
 
-    static void drawTitle(f32 scale)
-    {
+    static void drawTitle(f32 scale) {
         spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y, scale, &titleColour,
                                      "Oops! The game crashed...      " MOD_VERSION " on %s Revision %d",
                                      getGameRegion(), getGameRevision());
-        if (msl::string::strstr(spm::spmario::gp->mapName, "dan") != nullptr)
-        {
+        if (msl::string::strstr(spm::spmario::gp->mapName, "dan") != nullptr) {
             u8 floor = (spm::swdrv::swByteGet(1) - 1);
-            FloorData *Data = &Lunatic->Floor[floor];
+            FloorData * Data = &Lunatic->Floor[floor];
             if (floor % 10 != 9)
                 spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - LINE_HEIGHT, scale, &titleColour,
-                                             "Floor %d - %dx %s, %dx %s, %dx %s, %dx %s", floor + 1, Data->Enemies[0].num, npcGetNameFromTribeId(Data->Enemies[0].name - 1),
+                                             "Floor %d (%dT) - %dx %s, %dx %s, %dx %s, %dx %s", floor + 1, Data->enemyTypes, Data->Enemies[0].num, npcGetNameFromTribeId(Data->Enemies[0].name - 1),
                                              Data->Enemies[1].num, npcGetNameFromTribeId(Data->Enemies[1].name - 1),
                                              Data->Enemies[2].num, npcGetNameFromTribeId(Data->Enemies[2].name - 1),
                                              Data->Enemies[3].num, npcGetNameFromTribeId(Data->Enemies[3].name - 1));
             else
                 spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - LINE_HEIGHT, scale, &titleColour,
-                                             "Floor %d - Chest is %s, NPC is %s", floor + 1, RFCRarityNames[Lunatic->RFC.chestRarity], restFloorNpcNames[swdrv::swByteGet(1623)]);
-        }
-        else
+                                             "Floor %d - %s Chest - %s/%s", floor + 1, RFCRarityNames[Lunatic->RFC.chestRarity], restFloorNpcNames[swdrv::swByteGet(1623)], restFloorNpcNames[swdrv::swByteGet(1624)]);
+        } else
             spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - LINE_HEIGHT, scale, &titleColour,
                                          "Crash occurred in gp \"%s\" - seq_mapchange_wp \"%s\"", spmario::gp->mapName, seq_mapchange::seq_mapchange_wp->mapName);
         spm::romfont::romFontPrintGX(TEXT_LEFT, TITLE_Y - (LINE_HEIGHT * 2), scale, &titleColour,
                                      "Show this crash to Yme in Flipside Tower mod-discussion! discord.gg/ndrxwcyCum");
     }
 
-    static void draw(char *msg, f32 yShift, f32 scale)
-    {
-        char *p = msg;
+    static void draw(char * msg, f32 yShift, f32 scale) {
+        char * p = msg;
         bool done = false;
         const f32 x = TEXT_LEFT;
         f32 y = 200.0f - yShift;
-        while (!done)
-        {
+        while (!done) {
             // Find end of line
-            char *q = p;
+            char * q = p;
             while ((*q != '\n') && (*q != '\0'))
                 q++;
 
@@ -115,12 +108,10 @@ namespace mod
         }
     }
 
-    static f32 getBottomY(char *msg)
-    {
+    static f32 getBottomY(char * msg) {
         // Count newlines
         int n = 0;
-        for (int i = 0; msg[i]; i++)
-        {
+        for (int i = 0; msg[i]; i++) {
             if (msg[i] == '\n')
                 n++;
         }
@@ -129,21 +120,18 @@ namespace mod
         return TEXT_TOP - (LINE_HEIGHT * n);
     }
 
-    extern "C" void exceptionMessageHandler(char *msg)
-    {
+    extern "C" void exceptionMessageHandler(char * msg) {
         // spm::wpadmgr::wpadAllRumbleOff(0);
         // spm::spmario_snd::spsndExit();
 
         // Stop all other threads
-        wii::os::OSThread *p = wii::os::OS_CURRENT_THREAD->link.prev;
-        while (p != nullptr)
-        {
+        wii::os::OSThread * p = wii::os::OS_CURRENT_THREAD->link.prev;
+        while (p != nullptr) {
             wii::os::OSSuspendThread(p);
             p = p->link.prev;
         }
         p = wii::os::OS_CURRENT_THREAD->link.next;
-        while (p != nullptr)
-        {
+        while (p != nullptr) {
             wii::os::OSSuspendThread(p);
             p = p->link.next;
         }
@@ -156,19 +144,16 @@ namespace mod
         f32 yShift = topY;
         f32 delta = bottomY <= SCREEN_BOTTOM ? 1.0f : 0.0f;
         f32 scale = gIsDolphin ? 0.7f : 0.55f; // dolphin uses a custom font for copyright reasons
-        while (true)
-        {
+        while (true) {
             // Check if power button was pressed
-            if (spm::spmario::spmario_doShutdown)
-            {
+            if (spm::spmario::spmario_doShutdown) {
                 wii::vi::VISetBlack(1);
                 wii::vi::VIFlush();
                 wii::vi::VIWaitForRetrace();
                 wii::vi::VIWaitForRetrace();
                 wii::vi::VIWaitForRetrace();
                 wii::os::OSShutdownSystem();
-                while (true)
-                {
+                while (true) {
                 };
             }
 
@@ -194,8 +179,7 @@ namespace mod
         }
     }
 
-    extern "C" void exceptionOSReport(const char *msg)
-    {
+    extern "C" void exceptionOSReport(const char * msg) {
         // Print to OSReport
         wii::os::OSReport(msg);
 
@@ -207,18 +191,14 @@ namespace mod
         head += len;
     }
 
-    void exceptionDraw()
-    {
+    void exceptionDraw() {
         exceptionMessageHandler(exceptionText);
     }
 
-    void checkExceptionFlags()
-    {
-        if (inException)
-        {
+    void checkExceptionFlags() {
+        if (inException) {
             wii::os::OSReport("WARNING: Exception handler has crashed!\n");
-            while (true)
-            {
+            while (true) {
             };
         }
 
@@ -226,25 +206,21 @@ namespace mod
             exceptionOSReport("WARNING: OSPanic handler has crashed!\n");
     }
 
-    static void checkForDolphin()
-    {
+    static void checkForDolphin() {
         // Thanks to TheLordScruffy for telling me about this
         gIsDolphin = wii::ipc::IOS_Open("/sys", 1) == -106;
 
         // If they ever fix that, it'll be in a version that's definitely new enough to have /dev/dolphin
-        if (!gIsDolphin)
-        {
+        if (!gIsDolphin) {
             int ret = wii::ipc::IOS_Open("/dev/dolphin", 0);
-            if (ret >= 0)
-            {
+            if (ret >= 0) {
                 gIsDolphin = true;
                 wii::ipc::IOS_Close(ret);
             }
         }
     }
 
-    void exceptionPatch()
-    {
+    void exceptionPatch() {
         checkForDolphin();
 
         // OSPanic
@@ -267,8 +243,7 @@ namespace mod
         writeBranchLink(wii::os::__OSUnhandledException, 0x2d0, exceptionOSReportForwarder);
         writeBranch(wii::os::__OSUnhandledException, 0x2d4, exceptionDraw);
         __OSUnhandledExceptionReal = patch::hookFunction(wii::os::__OSUnhandledException,
-                                                         [](u8 p1, wii::os::OSContext *p2, u32 p3, u32 p4)
-                                                         {
+                                                         [](u8 p1, wii::os::OSContext * p2, u32 p3, u32 p4) {
                                                              checkExceptionFlags();
                                                              inException = true;
                                                              __OSUnhandledExceptionReal(p1, p2, p3, p4);
@@ -293,8 +268,7 @@ namespace mod
 
         // Track last script
         evtmgrCmdReal = patch::hookFunction(spm::evtmgr_cmd::evtmgrCmd,
-                                            [](spm::evtmgr::EvtEntry *entry)
-                                            {
+                                            [](spm::evtmgr::EvtEntry * entry) {
                                                 lastScript = entry->scriptStart;
                                                 return evtmgrCmdReal(entry);
                                             });

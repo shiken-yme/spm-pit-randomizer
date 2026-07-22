@@ -596,7 +596,9 @@ typedef struct _NPCEntry
 /* 0x008 */ u32 flag8;
 /* 0x00C */ u32 flagC;
 /* 0x010 */ u32 flag10;
-/* 0x014 */ u8 unknown_0x14[0x24 - 0x14];
+/* 0x014 */ u8 unknown_0x14[0x18 - 0x14];
+/* 0x018 */ s32 lastAttackedDamageType;
+/* 0x01C */ u8 unknown_0x1c[0x24 - 0x1c];
 /* 0x024 */ char name[32]; // name of this instance, npc_XXXXXXXX for template-spawned ones
                            // where XXXXXXXX is id in hex
 /* 0x044 */ NPCAnim m_Anim;
