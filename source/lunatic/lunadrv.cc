@@ -532,7 +532,7 @@ namespace mod {
     s32 DisorderDraw(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
-        if (Lunatic->Luna.disorder == DISORDER_NULL)
+        if (Lunatic->Luna.disorder == DISORDER_NULL || Lunatic->Luna.DW.tremorState == 4)
             return 0;
         wii::gx::GXColor color;
         u8 red = Disorders[Lunatic->Luna.disorder - 1].mainCol.r;
@@ -593,12 +593,13 @@ namespace mod {
     }
 
     s32 DisorderSetColor(evtmgr::EvtEntry * evtEntry, bool firstRun) {
-        (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 id = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 clear = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 red, green, blue, alpha;
-        if (Lunatic->Luna.DW.intplProgressMax == 0) {
+        if (firstRun) {
+            Lunatic->Luna.DW.tremorState = 4;
+            Lunatic->Luna.DW.intplProgress = 0;
             Lunatic->Luna.DW.intplProgressMax = 100;
         }
         if (Lunatic->Luna.DW.intplProgress < Lunatic->Luna.DW.intplProgressMax) {
@@ -626,19 +627,32 @@ namespace mod {
                 SetDisorderSub((DisorderId)id);
             } else
                 ClearDisorderSub(id);
+            Lunatic->Luna.DW.tremorState = 0;
             return 2;
         }
     }
     EVT_DECLARE_USER_FUNC(DisorderSetColor, 2)
 
-    s32 DisorderChkTutorialText(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+    s32 DisorderGetIntroText(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 id = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-
+        if (id <= 0) {
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
+            return 2;
+        }
+        s32 gswf = 1680 + id;
+        const char * msg = (const char *)0;
+        if (swdrv::swGet(gswf) == false) {
+            msg = Disorders[id-1].introMsg;
+            swdrv::swSet(gswf);
+        } else if (Lunatic->Luna.DW.floorsRem > 0) {
+            msg = Disorders[id-1].introMsg2;
+        }
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)msg);
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(DisorderChkTutorialText, 2)
+    EVT_DECLARE_USER_FUNC(DisorderGetIntroText, 2)
 
     EVT_BEGIN(EvtDisorderInitOrClear)
     USER_FUNC(evt_door::evt_door_wait_flag, 0x100)
@@ -650,7 +664,6 @@ namespace mod {
     WAIT_FRM(1)
     WHILE()*/
     USER_FUNC(evt_mario::evt_mario_key_off, 1)
-    USER_FUNC(evt_npc::evt_npc_freeze_all)
     WAIT_MSEC(300)
     INLINE_EVT()
     WAIT_MSEC(1000)
@@ -667,9 +680,11 @@ namespace mod {
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_7"), 0)
     WAIT_MSEC(700)
     USER_FUNC(DisorderGetId, LW(5))
-    USER_FUNC(DisorderChkTutorialText, LW(5), LW(6))
+    IF_LARGE(LW(5), 0)
+    USER_FUNC(DisorderGetIntroText, LW(5), LW(6))
     IF_NOT_EQUAL(LW(6), 0)
     USER_FUNC(evt_msg::evt_msg_print, 1, LW(6), 0, 0)
+    END_IF()
     END_IF()
     IF_EQUAL(GSWF(1661), 0)
     SET(GSWF(1661), 1)
@@ -680,10 +695,9 @@ namespace mod {
     END_IF()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     WAIT_MSEC(300)
-    IF_EQUAL(LW(5), 4)
+    /*IF_EQUAL(LW(5), 4)
     RUN_CHILD_EVT(dan_disorder_indifference)
-    END_IF()
-    USER_FUNC(evt_npc::evt_npc_unfreeze_all)
+    END_IF()*/
     USER_FUNC(evt_mario::evt_mario_key_on)
     RETURN()
     EVT_END()
@@ -716,20 +730,20 @@ namespace mod {
     RETURN()
     EVT_END()
 
-    void SetDisorder(s32 id) {
-        evtmgr::EvtEntry * evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
+    s32 SetDisorder(s32 id, evtmgr::EvtEntry * evtEntry) {
+        evtmgr::EvtEntry * evt = evtmgr::evtChildEntry(evtEntry, EvtDisorderInitOrClear, 0);
         evt->lw[10] = (s32)id;
         evt->lw[11] = 0;
         evt->lw[12] = FLOAT(1.2);
-        return;
+        return evt->id;
     }
 
-    void ClearDisorder(s32 id) {
-        evtmgr::EvtEntry * evt = evtmgr::evtEntryType(EvtDisorderInitOrClear, 0, 0, 0);
+    s32 ClearDisorder(s32 id, evtmgr::EvtEntry * evtEntry) {
+        evtmgr::EvtEntry * evt = evtmgr::evtChildEntry(evtEntry, EvtDisorderInitOrClear, 0);
         evt->lw[10] = (s32)id;
         evt->lw[11] = 1;
         evt->lw[12] = FLOAT(0.6);
-        return;
+        return evt->id;
     }
 
     void DecideDisorder(s32 num, s32 difficulty) {

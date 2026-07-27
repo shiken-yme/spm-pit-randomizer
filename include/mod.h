@@ -8,7 +8,7 @@
 #include <rfcdrv.h>
 
 namespace mod {
-#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6"
+#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6 Indev"
 
     enum BlessId : s32 {
         /* 0x0 */ MERLUNA_NULL_BLESS,

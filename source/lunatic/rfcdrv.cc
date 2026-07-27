@@ -485,7 +485,7 @@ namespace mod {
     }
 
     void StellarVoucherTear() {
-        Lunatic->RFC.chestKeysOwned += 3;
+        Lunatic->RFC.chestKeysOwned += 1;
         return;
     }
 
@@ -754,7 +754,7 @@ namespace mod {
         if (idx < 0)
             return 2;
         s32 trueIdx = customwin::CWSelectGetActiveEntry()->Descs[idx].iconId - ICON_VOUCHER_CAKE - TPLPATCH_ICON_REDIRECT; // converts LPIcon to LPCustomItem index
-        Lunatic->RFC.rfcSpecialObtained[trueIdx] = true;                                                                                              // Prevents item from reappearing in the shop
+        Lunatic->RFC.rfcSpecialObtained[trueIdx] = true;                                                                   // Prevents item from reappearing in the shop
         if (RFC_SpecialItems[trueIdx].useMsg != nullptr)
             evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)RFC_SpecialItems[trueIdx].useMsg);
         else

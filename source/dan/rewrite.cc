@@ -142,16 +142,18 @@ namespace mod {
 
     s32 evt_dan_disorder_set_or_clear(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
-        (void)evtEntry;
+        s32 evtId = -1;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         if (Lunatic->Luna.DW.floorsRem == 0) {
             if (Lunatic->Luna.disorder > DISORDER_NULL) {
-                ClearDisorder((s32)Lunatic->Luna.disorder);
+                evtId = ClearDisorder((s32)Lunatic->Luna.disorder, evtEntry);
             } else if (Lunatic->Luna.DW.preId > 0)
-                SetDisorder(Lunatic->Luna.DW.preId);
+                evtId = SetDisorder(Lunatic->Luna.DW.preId, evtEntry);
         }
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], evtId);
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(evt_dan_disorder_set_or_clear, 0)
+    EVT_DECLARE_USER_FUNC(evt_dan_disorder_set_or_clear, 1)
 
     s32 LunaticForceBGMChange(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
@@ -258,7 +260,7 @@ namespace mod {
             }
         } else {
             sup = system::rand() % 100;
-            if (sup < 10 && currentFloor > 174 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO) {
+            if (sup < 3 && currentFloor > 174 && difficulty > 1 && npc->tribeId != NPC_BOO && npc->tribeId != NPC_DARK_BOO && npc->tribeId != NPC_DARK_DARK_BOO) {
                 npcMakeNegative(npc);
                 danAssignSpecialEnemyItem(npc, npc->maxHp * 3, 2);
                 evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
@@ -456,7 +458,6 @@ namespace mod {
     USER_FUNC(dan::evt_dan_start_countdown)
     INLINE_EVT()
     USER_FUNC(evt_door::evt_door_wait_flag, 256)
-    USER_FUNC(evt_dan_disorder_set_or_clear)
     IF_EQUAL(GSW(1620), 2)
     IF_EQUAL(GSWF(1603), 0)
     SET(GSWF(1603), 1)
@@ -466,6 +467,16 @@ namespace mod {
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(hardDifficultyFirst), 0, 0)
     USER_FUNC(evt_mario::evt_mario_key_on)
     END_IF()
+    END_IF()
+    USER_FUNC(evt_dan_disorder_set_or_clear, LW(5))
+    IF_NOT_EQUAL(LW(5), -1)
+    DO(0)
+    CHK_EVT(LW(5), LW(2))
+    IF_EQUAL(LW(2), 0)
+    DO_BREAK()
+    END_IF()
+    WAIT_FRM(1)
+    WHILE()
     END_IF()
     USER_FUNC(DisorderGetId, LW(5))
     IF_EQUAL(LW(5), 4)

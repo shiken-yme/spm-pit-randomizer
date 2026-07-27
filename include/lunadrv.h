@@ -2,11 +2,12 @@
 
 #include <common.h>
 #include <evt_cmd.h>
+#include <spm/evtmgr.h>
 
-namespace mod
-{
-    struct ApathyWork
-    {
+namespace mod {
+    using namespace spm;
+
+    struct ApathyWork {
         f32 marioHpMult;
         s32 storedHP;
         s32 enemyDamageIncrease;
@@ -18,55 +19,47 @@ namespace mod
         f32 storedCritMult;
     };
 
-    struct DreadWork
-    {
+    struct DreadWork {
         s32 dispBlockChance;
     };
 
-    struct PrejudiceWork
-    {
+    struct PrejudiceWork {
         s32 coinLossChance;
         s32 coinThreshold;
         s32 dispInstantCoinLoss;
     };
 
-    struct IndifferenceWork
-    {
+    struct IndifferenceWork {
         s32 repeat;
     };
 
-    struct RecalcitranceWork
-    {
+    struct RecalcitranceWork {
         s32 dispXPMult;
         s32 dispHealingNerf;
     };
 
-    struct DepravityWork
-    {
+    struct DepravityWork {
         s32 allLv4FloorThreshold;
     };
 
-    struct IndolenceWork
-    {
+    struct IndolenceWork {
         s32 attackEffectChance;
         s32 slowDuration;
         s32 dispDmgPctBonus;
     };
 
-    struct MelancholyWork
-    {
+    struct MelancholyWork {
         bool placeholder;
     };
 
-    struct RuinWork
-    {
+    struct RuinWork {
         bool placeholder;
     };
 
-    void *DisorderDataGetPtr();
+    void * DisorderDataGetPtr();
     void DecideDisorder(s32 rng, s32 difficulty);
-    void SetDisorder(s32 id);
-    void ClearDisorder(s32 id);
+    s32 SetDisorder(s32 id, evtmgr::EvtEntry * evtEntry);
+    s32 ClearDisorder(s32 id, evtmgr::EvtEntry * evtEntry);
     void ClearDisorderSub(s32 id);
     void DisorderHandleTremors();
     EVT_DECLARE_USER_FUNC(DisorderDraw, 0)

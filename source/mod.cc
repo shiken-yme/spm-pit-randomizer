@@ -3,7 +3,7 @@
 #include "patch.h"
 #include "romfontexpand.h"
 #include <acpatch.h>
-#include <berobero.h>
+//#include <berobero.h>
 #include <common.h>
 #include <customwin.h>
 #include <effpatch.h>
@@ -1001,7 +1001,9 @@ namespace mod {
                 memory::__memFree(0, Lunatic->Voucher.Work[i]);
             }
         }
-        mario_pouch::pouchSetCoin(Lunatic->Misc.savedCoins);
+        if (Lunatic->Misc.savedCoins != 0) {
+            mario_pouch::pouchSetCoin(Lunatic->Misc.savedCoins);
+        }
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = icondrv::ICON_MACHI_KEY;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = "in_town_key_00";
@@ -1442,7 +1444,7 @@ namespace mod {
     END_IF()
     // Check if Recalcitrance is active
     USER_FUNC(DisorderGetId, LW(8))
-    IF_EQUAL(DisorderGetId, (s32)DISORDER_CYAN)
+    IF_EQUAL(LW(8), (s32)DISORDER_CYAN)
     USER_FUNC(RecalcitranceCalcHealing, LW(6), LW(6))
     END_IF()
     RETURN_FROM_CALL()
@@ -2339,19 +2341,19 @@ namespace mod {
     }
     EVT_DECLARE_USER_FUNC(setFlag2c, 2)
 
-    s32 setHitboxSize(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+    s32 setHitboxScale(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 partId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         f32 xVal = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         f32 yVal = evtmgr_cmd::evtGetValue(evtEntry, args[2]);
         f32 zVal = evtmgr_cmd::evtGetValue(evtEntry, args[3]);
         npcdrv::NPCEntry * ownerNpc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
-        ownerNpc->parts[partId].hitboxSize.x = xVal;
-        ownerNpc->parts[partId].hitboxSize.y = yVal;
-        ownerNpc->parts[partId].hitboxSize.z = zVal;
+        ownerNpc->parts[partId].hitboxScale.x = xVal;
+        ownerNpc->parts[partId].hitboxScale.y = yVal;
+        ownerNpc->parts[partId].hitboxScale.z = zVal;
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(setHitboxSize, 4)
+    EVT_DECLARE_USER_FUNC(setHitboxScale, 4)
 
     s32 declare_shadoo_stats(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
@@ -4431,17 +4433,17 @@ namespace mod {
                 goto tryAgain;
             evtmgr_cmd::evtSetValue(evtEntry, args[0], 2);
             s32 * array = RFCItems_Common;
-            s32 size = RFCItems_Common_Size;
+            s32 size = RFCItems_Common_Size - 1;
             rand = system::irand(99);
             if (rand < 40) { // 40% for Uncommon
                 array = RFCItems_Uncommon;
-                size = RFCItems_Uncommon_Size;
+                size = RFCItems_Uncommon_Size - 1;
             }
-            s32 item;
+            s32 item = 0;
             do {
                 rand = system::irand(size);
                 item = array[rand];
-            } while (item >= RFC_SPECIAL_START);
+            } while (item >= RFC_SPECIAL_START || item == 0);
             evtmgr_cmd::evtSetValue(evtEntry, args[1], item);
         } else if (rand < 95) { // 10% chance to raise Crit Mult by 25%
             evtmgr_cmd::evtSetValue(evtEntry, args[0], 3);
@@ -4569,7 +4571,7 @@ namespace mod {
     // Handle Whacka replacing the chest
     IF_NOT_EQUAL(GSW(22), 8) // If Whacka has not been brutally murdered in vanilla
     USER_FUNC(evt_sub::evt_sub_random, 100, LW(0))
-    IF_SMALL_EQUAL(LW(0), 2) // 3% chance to replace chest with Whacka
+    IF_SMALL_EQUAL(LW(0), 4) // 5% chance to replace chest with Whacka
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR(rfcChestName))
     RUN_EVT(spawn_whacka)
     END_IF()
@@ -5523,7 +5525,7 @@ namespace mod {
     ELSE()
     USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 3)
     USER_FUNC(setHitFlags, 0)
-    USER_FUNC(setHitboxSize, 0, FLOAT(24), FLOAT(32), FLOAT(10))
+    USER_FUNC(setHitboxScale, 0, FLOAT(24), FLOAT(32), FLOAT(10))
     END_IF()
     RETURN_FROM_CALL()
 
@@ -5572,8 +5574,8 @@ namespace mod {
        //   USER_FUNC(setHitFlags, 1)
        //   USER_FUNC(setFlag2c, 0, 0x304000)
        //   USER_FUNC(setFlag2c, 1, 0x224000)
-       //   USER_FUNC(setHitboxSize, 0, FLOAT(20), FLOAT(22), FLOAT(20))
-       //   USER_FUNC(setHitboxSize, 1, FLOAT(14), FLOAT(10), FLOAT(20))
+       //   USER_FUNC(setHitboxScale, 0, FLOAT(20), FLOAT(22), FLOAT(20))
+       //   USER_FUNC(setHitboxScale, 1, FLOAT(14), FLOAT(10), FLOAT(20))
        END_IF()
        RETURN_FROM_CALL() */
 
@@ -5585,7 +5587,7 @@ namespace mod {
     ELSE()
     USER_FUNC(evt_npc::evt_npc_set_part_attack_power, PTR("me"), -1, 2)
     IF_LARGE(LW(1), 500)
-    //  USER_FUNC(setHitboxSize, 0, FLOAT(27), FLOAT(27), FLOAT(27))
+    //  USER_FUNC(setHitboxScale, 0, FLOAT(27), FLOAT(27), FLOAT(27))
     USER_FUNC(evt_npc::evt_npc_set_scale, PTR("me"), FLOAT(1.1287), FLOAT(1.1287), FLOAT(1.1287))
     END_IF()
     END_IF()
@@ -5749,7 +5751,7 @@ namespace mod {
         evtpatch::hookEvtReplace(temp_unk::npc_drop_item_evt, 3, npc_drop_item_patch);
     }
 
-    void rotateCustomDokans() {
+    /*void rotateCustomDokans() {
         mario::MarioWork * mario = mario::marioGetPtr();
         if (((mario->buttonsPressed & WPAD_BTN_C) == WPAD_BTN_C)) {
             for (u16 i = 0; i < BERO_DOKAN_MAX; i += 1) {
@@ -5763,7 +5765,7 @@ namespace mod {
             }
         }
         return;
-    }
+    }*/
 
     void main() {
         // Allocate memory for LunaticPitWork
@@ -5779,9 +5781,9 @@ namespace mod {
         tplpatch::iconPatch(wicon2);
         effpatch::effpatchInit();
         sndpatch::sndpatchInit();
-        bero::beroberoInit();
+        // bero::beroberoInit();
+        // globalop::globalopAddEntry((void *)rotateCustomDokans, nullptr);
         acpatch::acpatchInit();
-        globalop::globalopAddEntry((void *)rotateCustomDokans, nullptr);
         // Add new BGM entries
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100F8BIT", 1385, 50, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_100FSYNTH", 1378, 127, 64, 0, 0);

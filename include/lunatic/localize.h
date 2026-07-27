@@ -426,8 +426,8 @@ namespace mod {
         "%d%% chance to tear after %d\n"
         "activations.\n"
         "<k>\n<p>\n"
-        "Tear: Instantly obtain 3\n"
-        "Chest Keys.";
+        "Tear: Instantly obtain a\n"
+        "Chest Key.";
 
     const char redVDesc[] =
         "Determination Voucher";
@@ -1399,7 +1399,7 @@ namespace mod {
         "will give %d%% XP.\n"
         "<k>\n<p>\n"
         "Instant healing items will be\n"
-        "%d%% less effective.\n";
+        "%d%% less effective.";
 
     const char depravityDesc[] =
         "Disorder: Depravity\n"
@@ -1437,7 +1437,7 @@ namespace mod {
         "Placeholder";
 
     const char apathyIntro[] =
-        "A wave of uncertainty strikes\n"
+        "<system>A wave of uncertainty strikes\n"
         "you,<wait 200> leading you to question\n"
         "your every ability.\n"
         "<k>\n<p>\n"
@@ -1456,19 +1456,18 @@ namespace mod {
         "been decreased;<wait 200> enemy HP\n"
         "has been raised.\n"
         "<k>\n<p>\n"
-        "Damage taken is increased,\n"
-        "<wait 200>while damage dealt has been\n"
-        "decreased.\n"
+        "Damage taken is increased;\n"
+        "<wait 200>damage dealt is decreased.\n"
         "<k>";
 
     const char apathyIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Apathy:</shake><wait 500> Stats and DMG dealt\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Apathy:</shake><wait 500> Stats and DMG dealt\n"
         "are decreased; enemies have\n"
         "more HP and deal more DMG.\n"
         "<k>";
 
     const char dreadIntro[] =
-        "A wave of terror strikes you,\n"
+        "<system>A wave of terror strikes you,\n"
         "<wait 200>slowly draining you of all\n"
         "the hopes you ever had.\n"
         "<k>\n<p>\n"
@@ -1488,13 +1487,13 @@ namespace mod {
         "<k>";
 
     const char dreadIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Dread:</shake><wait 500> Enemies have no\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Dread:</shake><wait 500> Enemies have no\n"
         "loot and may heal instead\n"
         "of taking DMG.\n"
         "<k>";
 
     const char prejudiceIntro[] =
-        "A wave of contempt strikes\n"
+        "<system>A wave of contempt strikes\n"
         "you,<wait 200> making you wonder why\n"
         "you're dealing with this.\n"
         "<k>\n<p>\n"
@@ -1518,13 +1517,13 @@ namespace mod {
         "<k>";
 
     const char prejudiceIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Prejudice:</shake><wait 500> Coins are drained\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Prejudice:</shake><wait 500> Coins are drained\n"
         "constantly; ATK decreases\n"
         "if you lose too many.\n"
         "<k>";
 
     const char indifferenceIntro[] =
-        "A wave of numbness strikes\n"
+        "<system>A wave of numbness strikes\n"
         "you,<wait 200> leaving your mind\n"
         "entirely vacant.\n"
         "<k>\n<p>\n"
@@ -1549,13 +1548,13 @@ namespace mod {
         "<k>";
 
     const char indifferenceIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Indifference:</shake><wait 500> Receive some\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Indifference:</shake><wait 500> Receive some\n"
         "junk items in every room.\n"
         "Make sure to have space!\n"
         "<k>";
 
     const char recalcitranceIntro[] =
-        "A wave of unease strikes\n"
+        "<system>A wave of unease strikes\n"
         "you,<wait 200> overwhelming you with\n"
         "anxiety.\n"
         "<k>\n<p>\n"
@@ -1588,13 +1587,13 @@ namespace mod {
         "<k>";
 
     const char recalcitranceIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Recalcitrance:</shake><wait 500> Reduced XP from\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Recalcitrance:</shake><wait 500> Reduced XP from\n"
         "stomps/kicks. Healing items\n"
         "are less effective.\n"
         "<k>";
 
     const char depravityIntro[] =
-        "A wave of perversion strikes\n"
+        "<system>A wave of perversion strikes\n"
         "you,<wait 200> totally derailing your\n"
         "train of thought.\n"
         "<k>\n<p>\n"
@@ -1622,9 +1621,35 @@ namespace mod {
         "<k>";
 
     const char depravityIntro2[] =
-        "<se_on SFX_EVT_SHOCK1><shake>Depravity:</shake><wait 500> Increased enemy\n"
+        "<system><se_on SFX_EVT_SHOCK1><shake>Depravity:</shake><wait 500> Increased enemy\n"
         "spawn rates and difficult\n"
         "enemies in every floor.\n"
+        "<k>";
+
+    const char indolenceIntro[] =
+        "<system>A wave of lethargy strikes\n"
+        "you, <wait 200>making you feel an order\n"
+        "of magnitude heavier.\n"
+        "<k>\n<p>\n"
+        "Ngl bro I don't really want\n"
+        "to finish this blurb rn<wait 2000> I\n"
+        "got purple disorder irl\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>indolence.\n"
+        "</shake><k>\n<p>\n"
+        "Getting hit will result in\n"
+        "a random effect occurring.\n"
+        "<k>\n<p>\n"
+        "You might get frozen, take\n"
+        "more damage, or get slowed\n"
+        "for some time.\n"
+        "<k>";
+
+    const char indolenceIntro2[] =
+        "<system><se_on SFX_EVT_SHOCK1><shake>Indolence:</shake><wait 500> Getting hit can\n"
+        "trigger extra damage, Slow,\n"
+        "or Frozen.\n"
         "<k>";
 
     const char disorderIndifferenceItemNotif[] =

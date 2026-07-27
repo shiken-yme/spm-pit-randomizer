@@ -2310,20 +2310,45 @@ namespace mod {
     }
 
     // Returns true if the eGenTR loop needs to reroll, returns false if it can proceed
-    bool DanGen_Enemies_CatchExceptions(s32 name, s32 e1, s32 e2, s32 e3, s32 e4) {
+    bool DanGen_Enemies_CatchExceptions(s32 name, s32 e1, s32 e2, s32 e3, s32 e4, s32 enemyTypes) {
         // Catch duplicate enemy entries
         if (name == e1 || name == e2 || name == e3 || name == e4)
             return true;
         // Never allow pigarithms and hogarithms to coincide
-        s32 Pigarithm = (s32)((s32)NPC_PIGARITHM + 1);
-        s32 Hogarithm = (s32)((s32)NPC_HOGARITHM + 1);
-        if (name == Pigarithm || name == Hogarithm) {
-            if (Pigarithm == e1 || Pigarithm == e2 || Pigarithm == e3 || Pigarithm == e4)
+        if (name == DAN_ENEMY(NPC_PIGARITHM) || name == DAN_ENEMY(NPC_HOGARITHM)) {
+            if (DAN_ENEMY(NPC_PIGARITHM) == e1 || DAN_ENEMY(NPC_PIGARITHM) == e2 || DAN_ENEMY(NPC_PIGARITHM) == e3 || DAN_ENEMY(NPC_PIGARITHM) == e4)
                 return true;
-            if (Hogarithm == e1 || Hogarithm == e2 || Hogarithm == e3 || Hogarithm == e4)
+            if (DAN_ENEMY(NPC_HOGARITHM) == e1 || DAN_ENEMY(NPC_HOGARITHM) == e2 || DAN_ENEMY(NPC_HOGARITHM) == e3 || DAN_ENEMY(NPC_HOGARITHM) == e4)
+                return true;
+        }
+        // Only 2 Ninjoe variants at once with 3 enemy types, 1 ninjoe variant with 4 enemy types
+        if (name >= DAN_ENEMY(NPC_NINJOE) && name <= DAN_ENEMY(NPC_DARK_NINJOE)) {
+            s32 ninjoeTypeCnt = 0;
+            if (e1 >= DAN_ENEMY(NPC_NINJOE) && e1 <= DAN_ENEMY(NPC_DARK_NINJOE))
+                ninjoeTypeCnt += 1;
+            if (e2 >= DAN_ENEMY(NPC_NINJOE) && e2 <= DAN_ENEMY(NPC_DARK_NINJOE))
+                ninjoeTypeCnt += 1;
+            if (e3 >= DAN_ENEMY(NPC_NINJOE) && e3 <= DAN_ENEMY(NPC_DARK_NINJOE))
+                ninjoeTypeCnt += 1;
+            if (e4 >= DAN_ENEMY(NPC_NINJOE) && e4 <= DAN_ENEMY(NPC_DARK_NINJOE))
+                ninjoeTypeCnt += 1;
+            if (enemyTypes == 4 && ninjoeTypeCnt >= 1)
+                return true;
+            if (enemyTypes != 4 && ninjoeTypeCnt >= 2)
                 return true;
         }
         return false;
+    }
+
+    // These filters are for simultaneous lag reduction & crash prevention
+    s32 DanGen_Enemies_MiscFilters(s32 name, s32 amt) {
+        // Pigarithm family is extreme animpose-heavy; 10 in one room crashes the game to a subheap overflow
+        if ((name == DAN_ENEMY(NPC_PIGARITHM) || name == DAN_ENEMY(NPC_HOGARITHM)) && amt >= 4)
+            return 4;
+        // Ninjoes are extremely script-heavy and will lag the game with a lot of other enemies in a room
+        if ((name >= DAN_ENEMY(NPC_NINJOE) && name <= DAN_ENEMY(NPC_DARK_NINJOE)) && amt >= 5)
+            return 5;
+        return 0;
     }
 
     void DanGen_Enemies(s32 roomGens, bool depravity) {
@@ -2372,7 +2397,7 @@ namespace mod {
                     enemyTypes = 4;
             }
         }
-        if (enemyTypes < 4 && roomGens >= 174)
+        if (enemyTypes < 3 && roomGens >= 174)
             enemyTypes += 1;
         if (depravity)
             enemyTypes = 4;
@@ -2452,7 +2477,7 @@ namespace mod {
                 }
                 vsOdds = system::rand() % 100;
                 danEnemy = danEnemies[enemyTribe];
-                goAgain = DanGen_Enemies_CatchExceptions(danEnemy->name, eGenTR[0], eGenTR[1], eGenTR[2], eGenTR[3]);
+                goAgain = DanGen_Enemies_CatchExceptions(danEnemy->name, eGenTR[0], eGenTR[1], eGenTR[2], eGenTR[3], enemyTypes);
             } while ((danEnemy->odds < vsOdds || goAgain));
             // Once an enemy is determined, the number of times it will spawn in the Pit are determined by its min and max fields, as well as some other factors.
             // This data is all thrown into enemyConfigArray, which is a master array of all NPC data read during the final generation step.
@@ -2466,9 +2491,6 @@ namespace mod {
                     enemyDifference = 1;
                 enemyAmt = (system::rand() % enemyDifference) + 1;
                 enemyAmt = enemyAmt + danEnemy->min;
-                if (roomGens >= 174) {
-                    enemyAmt += 1;
-                }
             }
             // All other enemies get a relative enemy nerf, followed by a potential bonus.
             else {
@@ -2497,9 +2519,6 @@ namespace mod {
                 } else
                     enemyAmt += 4;
             }
-            if (roomGens >= 174) {
-                enemyAmt += 1;
-            }
             // One final boost to the enemy amount on Hard Difficulty!
             if (difficulty == 2) {
                 f32 vsOdds2 = system::rand() % 100;
@@ -2508,9 +2527,9 @@ namespace mod {
                     enemyAmt += enemyBonus;
                 }
             }
-            // Patch Pigarithms and Hogarithms to never spawn more than 4 at a time to prevent lag & crashing
-            if ((danEnemy->name == 201 || danEnemy->name == 202) && enemyAmt >= 4) {
-                enemyAmt = 4;
+            s32 adjEnemyAmt = DanGen_Enemies_MiscFilters(danEnemy->name, enemyAmt);
+            if (adjEnemyAmt != 0) {
+                enemyAmt = adjEnemyAmt;
                 if (enemyTypes == 1)
                     enemyTypes += 1;
             }
@@ -2614,15 +2633,15 @@ namespace mod {
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        dan::dan_wp->dungeons[0].enemies[1].name = DAN_ENEMY(NPC_DARK_NINJOE);
-        dan::dan_wp->dungeons[0].enemies[1].num = 9;
-        dan::dan_wp->dungeons[0].enemies[2].name = DAN_ENEMY(NPC_DARK_MAGIKOOPA);
-        dan::dan_wp->dungeons[0].enemies[2].num = 4;
-        dan::dan_wp->dungeons[0].enemies[3].name = DAN_ENEMY(NPC_CRAZEE_DAYZEE);
-        dan::dan_wp->dungeons[0].enemies[3].num = 8;
-        dan::dan_wp->dungeons[0].enemies[4].name = DAN_ENEMY(NPC_RUFF_PUFF);
-        dan::dan_wp->dungeons[0].enemies[4].num = 7;
-        dan::dan_wp->dungeons[0].enemyCount = 4;
+        /*dan::dan_wp->dungeons[156].enemies[0].name = DAN_ENEMY(NPC_DARK_NINJOE);
+        dan::dan_wp->dungeons[156].enemies[0].num = 1;
+        dan::dan_wp->dungeons[156].enemies[1].name = 0;
+        dan::dan_wp->dungeons[156].enemies[1].num = 0;
+        dan::dan_wp->dungeons[156].enemies[2].name = 0;
+        dan::dan_wp->dungeons[156].enemies[2].num = 0;
+        dan::dan_wp->dungeons[156].enemies[3].name = 0;
+        dan::dan_wp->dungeons[156].enemies[3].num = 0;
+        dan::dan_wp->dungeons[156].enemyCount = 1;*/
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;
@@ -2638,25 +2657,19 @@ namespace mod {
             flimmMult = 3;
             break;
         }
-        s32 poolItem = 0;
+        s32 poolItem;
+        u16 cost;
         for (i = 0; i < 67; i = i + 3) {
             if (i <= 15) {
                 poolItem = system::rand() % 86;
                 newRotenShopItems[i] = rotenShopItemPool[poolItem];
-                u16 cost = (u16)msl::math::floor(((u16)item_data::itemDataTable[rotenShopItemPool[poolItem]].buyPrice) * flimmMult);
-                if (cost >= 999) {
-                    cost = 999;
-                }
-                newRotenShopItems[i + 1] = cost;
+                cost = (u16)msl::math::floor(((u16)item_data::itemDataTable[rotenShopItemPool[poolItem]].buyPrice) * flimmMult);
             } else {
                 poolItem = system::rand() % 19;
                 newRotenShopItems[i] = rotenShopLowerClassItemPool[poolItem];
-                u16 cost = (u16)msl::math::floor(((u16)item_data::itemDataTable[rotenShopLowerClassItemPool[poolItem]].buyPrice) * flimmMult);
-                if (cost >= 999) {
-                    cost = 999;
-                }
-                newRotenShopItems[i + 1] = cost;
+                cost = (u16)msl::math::floor(((u16)item_data::itemDataTable[rotenShopLowerClassItemPool[poolItem]].buyPrice) * flimmMult);
             }
+            newRotenShopItems[i + 1] = clamp(cost, 0, 999);
         }
         for (i = 0; i < 70; i++) {
             dan::dan_rotenShopItems[i] = newRotenShopItems[i];

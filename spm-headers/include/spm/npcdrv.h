@@ -485,7 +485,9 @@ typedef struct
 /* 0x004 */ char animPoseName[32];
 /* 0x024 */ u8 unknown_0x24[0x48 - 0x24];
 /* 0x048 */ NPCTribeAnimDef * tribeAnims;
-/* 0x04C */ u8 unknown_0x4c[0xb8 - 0x4c];
+/* 0x04C */ u8 unknown_0x4c[0xa0 - 0x4c];
+/* 0x0A0 */ Vec3 scale;
+/* 0x0AC */ u8 unknown_0xac[0xb8 - 0xac];
 /* 0x0B8 */ u8 red;
 /* 0x0B9 */ u8 green;
 /* 0x0BA */ u8 blue;
@@ -505,7 +507,7 @@ typedef struct _NPCPart
 /* 0x02C */ u32 flag2c;
 /* 0x030 */ u32 hitFlags;
 /* 0x034 */ u8 unknown_0x34[0x3c - 0x34];
-/* 0x03c */ Vec3 hitboxSize;
+/* 0x03c */ Vec3 hitboxScale;
 /* 0x048 */ u8 unknown_0x48[0x54 - 0x48];
 /* 0x054 */ NPCAnim m_Anim;
 /* 0x2A8 */ u8 unknown_0x2a8[0x378 - 0x2a8];
@@ -596,8 +598,8 @@ typedef struct _NPCEntry
 /* 0x008 */ u32 flag8;
 /* 0x00C */ u32 flagC;
 /* 0x010 */ u32 flag10;
-/* 0x014 */ u8 unknown_0x14[0x18 - 0x14];
-/* 0x018 */ s32 lastAttackedDamageType;
+/* 0x014 */ s32 lastAttackedDamageType;
+/* 0x018 */ s32 prevLastAttackedDamageType;
 /* 0x01C */ u8 unknown_0x1c[0x24 - 0x1c];
 /* 0x024 */ char name[32]; // name of this instance, npc_XXXXXXXX for template-spawned ones
                            // where XXXXXXXX is id in hex
@@ -634,9 +636,9 @@ typedef struct _NPCEntry
                               // (unknown for non-templated NPCs)
 /* 0x394 */ s32 unkEvtId;
 /* 0x398 */ u32 flags_398;
-/* 0x39C */ f32 tribeField0xE; // field 0xe of spawning NPCTribe cast to float
-/* 0x3A0 */ f32 tribeField0x10; // field 0x10 of spawning NPCTribe cast to float
-/* 0x3A4 */ f32 tribeField0x12; // field 0x12 of spawning NPCTribe cast to float
+/* 0x39C */ f32 tribeScaleY; // field 0xe of spawning NPCTribe cast to float
+/* 0x3A0 */ f32 tribeScaleX; // field 0x10 of spawning NPCTribe cast to float
+/* 0x3A4 */ f32 tribeScaleZ; // field 0x12 of spawning NPCTribe cast to float
 /* 0x3A8 */ u8 unknown_0x3a8[0x3ac - 0x3a8];
 /* 0x3AC */ f32 unknown_0x3ac;
 /* 0x3B0 */ u8 unknown_0x3b0[0x400 - 0x3b0];
