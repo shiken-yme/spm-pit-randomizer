@@ -6,9 +6,10 @@
 #include <gen.h>
 #include <lunadrv.h>
 #include <rfcdrv.h>
+#include <lp_common.h>
 
 namespace mod {
-#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6 Indev"
+#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6"
 
     enum BlessId : s32 {
         /* 0x0 */ MERLUNA_NULL_BLESS,
@@ -58,6 +59,8 @@ namespace mod {
         ICON_DISORDER_RUIN,
         ICON_CHEST_KEY,
         ICON_B,
+        ICON_SETTING_ON,
+        ICON_SETTING_OFF,
         ICON_VOUCHER_CAKE,
         ICON_VOUCHER_THUNDER,
         ICON_VOUCHER_STELLAR,
@@ -129,10 +132,17 @@ namespace mod {
 
     typedef void(Callback)(void);
 
+    enum LPDifficulty : s32 {
+        MOONLIGHT,
+        ECLIPSE,
+        UMBRA,
+        LUNATIC,
+        CATACLYSM
+    };
+
     struct LPSessionMiscs {
-        bool tearFuncActive;
         f64 boobies;
-        u8 difficulty;
+        LPDifficulty difficulty;
         s32 savedCoins;
     };
 
@@ -193,7 +203,7 @@ namespace mod {
         s32 finalShakeTime;
         s32 tremorIntplFrmTimer; // for fading color between mainCol and severeCol
         s32 tremorIntplFrmMax;
-        bool disorderTrig[8];
+        bool disorderTrig[9];
         union {
             ApathyWork Apathy;
             DreadWork Dread;
@@ -257,6 +267,13 @@ namespace mod {
         DMAN
     };
 
+    enum GabbiState : s32 {
+        GABBI_NEUTRAL,
+        GABBI_SAD,
+        GABBI_BLUSH,
+        GABBI_MAD
+    };
+
     struct MoverWork {
         s32 moverRNG;
     };
@@ -277,6 +294,7 @@ namespace mod {
             VThunderWork * Thunder;
             VStellarWork * Stellar;
             VJudgementWork * Judgement;
+            VRedWork * Red;
             void * Any;
         } UW;
         Callback * tearFunc;
@@ -285,6 +303,7 @@ namespace mod {
 
     struct MagicTrick {
         VoucherWork * Work[8];
+        bool torn[RANGE(VOUCHER_CAKE, VOUCHER_BLACK)];
     };
 
     struct LPGUIGlobals {

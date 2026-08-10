@@ -3,8 +3,11 @@
 #include <common.h>
 #include <spm/npcdrv.h>
 #include <spm/mario.h>
+#include <spm/effdrv.h>
 
 CPP_WRAPPER(spm::temp_unk)
+
+using namespace spm;
 
 UNKNOWN_FUNCTION(luigi_boss_set_stats);
 UNKNOWN_FUNCTION(bowser_spawn_fire);
@@ -43,6 +46,11 @@ extern spm::npcdrv::NPCDefense whacka_defenses;
 s32 npcHandleHitXp(spm::mario::MarioWork * marioWork, spm::npcdrv::NPCEntry * npcEntry, s32 killXp, s32 unk_variant);
 
 s32 backCursyaHit(spm::npcdrv::NPCEntry * npcEntry, s32 firstRun);
+
+// too lazy to make a header for these lol
+effdrv::EffEntry * effSpmVoltEntry(f32, f32, void * target, s32);
+effdrv::EffEntry * effItemThunderEntry(f32, f32, f32, f32, s32 variant, s32, s32, s32);
+void effItemThunderSetTargetMario(effdrv::EffEntry * eff);
 
 /*
     Child NPC spawn functions for various NPC types

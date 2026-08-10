@@ -141,7 +141,7 @@ UNKNOWN_FUNCTION(evt_mobj_set_interact_script)
 UNKNOWN_FUNCTION(evt_mobj_set_item)
 UNKNOWN_FUNCTION(func_800f3fa8)
 UNKNOWN_FUNCTION(func_800f4018)
-UNKNOWN_FUNCTION(evt_mobj_check)
+EVT_DECLARE_USER_FUNC(evt_mobj_check, 2)
 UNKNOWN_FUNCTION(func_800f429c)
 s32 mobj_sui(MobjEntry * mobj);
 s32 mobj_sui_stg3(MobjEntry * mobj);

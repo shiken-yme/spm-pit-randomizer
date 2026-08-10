@@ -3,6 +3,7 @@
 #include "patch.h"
 #include <common.h>
 #include <customwin.h>
+#include <effpatch.h>
 #include <evt_cmd.h>
 #include <evtpatch.h>
 #include <gen.h>
@@ -76,6 +77,7 @@
 #include <spm/spmario_snd.h>
 #include <spm/swdrv.h>
 #include <spm/system.h>
+#include <spm/temp_unk.h>
 #include <spm/winmgr.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
@@ -95,7 +97,7 @@ namespace mod {
     void ApathySet() {
         ApathyWork * wp = &Lunatic->Luna.DW.UW.Apathy;
         msl::string::memset(wp, 0, sizeof(ApathyWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->marioHpMult = 0.1;
@@ -148,7 +150,7 @@ namespace mod {
     void DreadSet() {
         DreadWork * wp = &Lunatic->Luna.DW.UW.Dread;
         msl::string::memset(wp, 0, sizeof(DreadWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->dispBlockChance = 10;
@@ -170,7 +172,7 @@ namespace mod {
         PrejudiceWork * wp = &Lunatic->Luna.DW.UW.Prejudice;
         msl::string::memset(wp, 0, sizeof(PrejudiceWork));
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->dispInstantCoinLoss = 10;
@@ -213,7 +215,7 @@ namespace mod {
     void IndifferenceSet() {
         IndifferenceWork * wp = &Lunatic->Luna.DW.UW.Indifference;
         msl::string::memset(wp, 0, sizeof(IndifferenceWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->repeat = 1;
@@ -336,7 +338,7 @@ namespace mod {
     void RecalcitranceSet() {
         RecalcitranceWork * wp = &Lunatic->Luna.DW.UW.Recalcitrance;
         msl::string::memset(wp, 0, sizeof(RecalcitranceWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->dispXPMult = -50;
@@ -358,7 +360,7 @@ namespace mod {
         return;
     }
 
-    s32 RecalcitranceCalcHealing(evtmgr::EvtEntry *evtEntry, bool firstCall) {
+    s32 RecalcitranceCalcHealing(evtmgr::EvtEntry * evtEntry, bool firstCall) {
         (void)firstCall;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         f32 healing = (f32)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
@@ -370,7 +372,7 @@ namespace mod {
     void DepravitySet() {
         DepravityWork * wp = &Lunatic->Luna.DW.UW.Depravity;
         msl::string::memset(wp, 0, sizeof(DepravityWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->allLv4FloorThreshold = 80;
@@ -431,28 +433,60 @@ namespace mod {
     void IndolenceSet() {
         IndolenceWork * wp = &Lunatic->Luna.DW.UW.Indolence;
         msl::string::memset(wp, 0, sizeof(IndolenceWork));
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             wp->attackEffectChance = 25;
-            wp->dispDmgPctBonus = 50;
             wp->slowDuration = 5;
             break;
         case 1:
             wp->attackEffectChance = 50;
-            wp->dispDmgPctBonus = 50;
             wp->slowDuration = 5;
             break;
         case 2:
             wp->attackEffectChance = 75;
-            wp->dispDmgPctBonus = 100;
             wp->slowDuration = 10;
             break;
         default:
             wp->attackEffectChance = 100;
-            wp->dispDmgPctBonus = 100;
             wp->slowDuration = 10;
             break;
+        }
+        spmario::gp->gameSpeed = 0.9f;
+        return;
+    }
+
+    void IndolenceClear() {
+        spmario::gp->gameSpeed = 1.0f;
+        return;
+    }
+
+    void MelancholySet() {
+        MelancholyWork * wp = &Lunatic->Luna.DW.UW.Melancholy;
+        msl::string::memset(wp, 0, sizeof(MelancholyWork));
+        wp->subtimer = 10;
+        return;
+    }
+
+    void MelancholyAction() {
+        MelancholyWork * wp = &Lunatic->Luna.DW.UW.Melancholy;
+        if (hud::hud_wp->countdownTimer >= 300) {
+            return;
+        } else if (wp->subtimer > 1) {
+            wp->subtimer -= 1;
+        } else if (wp->stacks < 5) {
+            wp->stacks += 1;
+            wp->subtimer = 10;
+            effdrv::EffTarget_Mario target;
+            target.type = effdrv::TARGET_MARIO;
+            effdrv::EffEntry * eff = temp_unk::effSpmVoltEntry(0, 0.33f, &target, -1);
+            wii::gx::GXColor black = {0, 0, 0, 255};
+            effpatch::effpatchColorMaskEntry(eff, black, black, nullptr);
+            spmario_snd::spsndSFXOn_3D("SFX_I_THUNDER1", &mario::marioGetPtr()->position);
+            spmario_snd::spsndSFXOn_3D("SFX_I_BIRIBIRI2", &mario::marioGetPtr()->position);
+            spmario_snd::spsndSFXOn_3D("SFX_EVT_HELWANWAN_POWERUP1", &mario::marioGetPtr()->position);
+        } else {
+            wp->subtimer = 10;
         }
         return;
     }
@@ -479,8 +513,8 @@ namespace mod {
             {indifferenceName, indifferenceDesc, indifferenceIntro, indifferenceIntro2, {0, 255, 0, 20}, {0, 255, 0, 40}, {0, 60, 0, 255}, 20, 1.0, 4500, IndifferenceSet, nullptr},           // INDIFFERENCE
             {recalcitranceName, recalcitranceDesc, recalcitranceIntro, recalcitranceIntro2, {0, 255, 255, 20}, {0, 255, 225, 40}, {0, 60, 60, 255}, 30, 1.2, 4200, RecalcitranceSet, nullptr}, // RECALCITRANCE
             {depravityName, depravityDesc, depravityIntro, depravityIntro2, {0, 0, 255, 30}, {0, 0, 255, 50}, {0, 0, 60, 255}, 50, 1.3, 6900, DepravitySet, nullptr},                          // DEPRAVITY
-            {indolenceName, indolenceDesc, indolenceIntro, indolenceIntro2, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, nullptr},                     // INDOLENCE
-            {melancholyName, melancholyDesc, nullptr, nullptr, {255, 255, 255, 30}, {255, 255, 255, 50}, {60, 60, 60, 255}, 20, 0.8, 3200, nullptr, nullptr},                                  // MELANCHOLY
+            {indolenceName, indolenceDesc, indolenceIntro, indolenceIntro2, {128, 0, 255, 30}, {128, 0, 225, 50}, {30, 0, 60, 255}, 10, 0.5, 2000, IndolenceSet, IndolenceClear},              // INDOLENCE
+            {melancholyName, melancholyDesc, melancholyIntro, nullptr, {255, 255, 255, 30}, {225, 225, 225, 225}, {60, 60, 60, 255}, 20, 0.8, 4200, MelancholySet, nullptr},                   // MELANCHOLY
             {ruinName, ruinDesc, nullptr, nullptr, {0, 0, 0, 60}, {0, 0, 0, 255}, {10, 10, 10, 255}, 75, 1.5, 6666, nullptr, nullptr}                                                          // RUIN
     };
 
@@ -644,10 +678,10 @@ namespace mod {
         s32 gswf = 1680 + id;
         const char * msg = (const char *)0;
         if (swdrv::swGet(gswf) == false) {
-            msg = Disorders[id-1].introMsg;
+            msg = Disorders[id - 1].introMsg;
             swdrv::swSet(gswf);
         } else if (Lunatic->Luna.DW.floorsRem > 0) {
-            msg = Disorders[id-1].introMsg2;
+            msg = Disorders[id - 1].introMsg2;
         }
         evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)msg);
         return 2;
@@ -756,28 +790,40 @@ namespace mod {
         }
         // Roll through each difficulty to decide whether or not to set a disorder
         s32 compare;
+        s32 currentFloor = swdrv::swByteGet(1);
+        s32 forcedDisorder = -1;
         switch (difficulty) {
         case 0:
-            compare = 30;
-            break;
-        case 1:
             compare = 50;
             break;
+        case 1:
+            compare = 80;
+            break;
         case 2:
-            compare = 100;
+            compare = 120;
             break;
         default:
-            compare = 333;
+            compare = 360;
             break;
+        }
+        if (difficulty == 2 && currentFloor >= 189) {
+            forcedDisorder = DISORDER_WHITE;
+            compare = 360;
+            if ((currentFloor % 10) == 3)
+                compare = 1000;
         }
         if (num == 999)
             num = system::irand(999);
         if (num < compare) {
-            for (s32 n = 0; n < 100 && Lunatic->Luna.DW.preId == 0; n += 1) {
-                s32 disorderRNG = system::rand() % DISORDER_PURPLE + 1;
-                if (Lunatic->Luna.DW.disorderTrig[disorderRNG - 1] == false) // Prevent disorders from reoccurring in a run
-                    Lunatic->Luna.DW.preId = disorderRNG;
-            }
+            s32 disorderRNG;
+            do {
+                if (forcedDisorder == -1)
+                    disorderRNG = system::rand() % DISORDER_PURPLE + 1;
+                else
+                    disorderRNG = forcedDisorder;
+            } while (!(disorderRNG == DISORDER_YELLOW && currentFloor < 19)); // Block Prejudice before Floor 20
+            if (Lunatic->Luna.DW.disorderTrig[disorderRNG - 1] == false) // Prevent disorders from reoccurring in a run
+                Lunatic->Luna.DW.preId = disorderRNG;
         }
         return;
     }

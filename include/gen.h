@@ -39,10 +39,7 @@ namespace mod
 
     DanNPCData **danNpcGetPtr();
     DanLevelData *danLevelDataPtr(s32 level);
-    spm::npcdrv::NPCTribeId *getlv1Tribes();
-    spm::npcdrv::NPCTribeId *getlv2Tribes();
-    spm::npcdrv::NPCTribeId *getlv3Tribes();
-    spm::npcdrv::NPCTribeId *getlv4Tribes();
+    s32 npcGetDanLv(s32 tribeId);
 
     EVT_DECLARE_USER_FUNC(evt_dan_read_data_new, -1)
     EVT_DECLARE_USER_FUNC(evt_dan_get_enemy_info_new, -1)

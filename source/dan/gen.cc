@@ -1012,6 +1012,19 @@ namespace mod {
         return nullptr;
     }
 
+    s32 npcGetDanLv(s32 tribeId) {
+        NPCTribeId * arrays[4] = {lv1Tribes, lv2Tribes, lv3Tribes, lv4Tribes};
+        s32 sizes[4] = {ARRAY32_COUNT(lv1Tribes), ARRAY32_COUNT(lv2Tribes), ARRAY32_COUNT(lv3Tribes), ARRAY32_COUNT(lv4Tribes)};
+        for (s32 i = 0; i < 4; i += 1) {
+            NPCTribeId * array = arrays[i];
+            for (s32 j = 0; j < sizes[i]; j += 1) {
+                if (tribeId == array[j])
+                    return i + 1;
+            }
+        }
+        return 0;
+    }
+
     /*
         GEN
     */
@@ -1062,7 +1075,7 @@ namespace mod {
             Lunatic->RFC.rerolls = 0;
             Lunatic->RFC.rerollCost = 1;
             if (vState == V_ACTIVE) {
-                VoucherCallAction(VOUCHER_STELLAR);
+                VoucherProc(VOUCHER_STELLAR);
                 Lunatic->RFC.rerollCost = 0;
             }
         } else {
@@ -2369,7 +2382,7 @@ namespace mod {
         s32 enemyGenLim1 = 0;
         s32 enemyGenLim2 = 0;
         s32 enemyGenRNG = system::rand() % 100;
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             enemyGenLim1 = 30;
@@ -2402,49 +2415,49 @@ namespace mod {
         if (depravity)
             enemyTypes = 4;
         Lunatic->Floor[roomGens].enemyTypes = enemyTypes;
-        mod::DanLevelData * danLevelData = nullptr;
+        DanLevelData * danLevelData = nullptr;
         // Enemy Substition Protocol v4.0: Generate enemy data for each floor on Pit entry and store that data competently.
         // v4 makes use of the new Lunatic session pointer & new internal file structure, and maintains the rest of the v3 process as legacy code.
         for (s32 e = 0; e < 4; e += 1) {
             // Get "level data," referencing the scaling nature of the Pit. These provide thresholds for enemy Lv & bonus enemies to spawn, independent of Difficulty Options.
             if (roomGens < 25) {
-                danLevelData = mod::danLevelDataPtr(1);
+                danLevelData = danLevelDataPtr(1);
             } else if (roomGens < 150) {
-                danLevelData = mod::danLevelDataPtr(2);
+                danLevelData = danLevelDataPtr(2);
             } else if (roomGens < 175) {
-                danLevelData = mod::danLevelDataPtr(3);
+                danLevelData = danLevelDataPtr(3);
             } else
-                danLevelData = mod::danLevelDataPtr(4);
+                danLevelData = danLevelDataPtr(4);
             // Set enemy Lv threshold modifiers based on Difficulty.
-            difficulty = swdrv::swByteGet(1620);
+            difficulty = lpGetDifficulty();
             limiterMod = system::rand() % 11;
             if (difficulty == 0) {
                 limiterMod -= 5; // Ranges from -5 to 5
             } else if (difficulty == 1) {
                 limiterMod -= 10; // Ranges from -10 to +0
             } else
-                limiterMod -= 25; // Ranges from -15 to -25
+                limiterMod -= 20; // Ranges from -10 to -20
             // Roll through each limiter. Lower enemyGenRNG values tend toward lower Lv enemies.
             enemyGenRNG = system::rand() % 100;
             if (enemyGenRNG < ((danLevelData->lv1Limiter) + limiterMod)) {
-                arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
+                arrayRNG = system::rand() % ARRAY32_COUNT(lv1Tribes);
                 tribeArray = 1;
-                enemyTribe = mod::lv1Tribes[arrayRNG];
+                enemyTribe = lv1Tribes[arrayRNG];
                 // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
             } else if (enemyGenRNG < ((danLevelData->lv2Limiter) + limiterMod)) {
-                arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
+                arrayRNG = system::rand() % ARRAY32_COUNT(lv2Tribes);
                 tribeArray = 2;
-                enemyTribe = mod::lv2Tribes[arrayRNG];
+                enemyTribe = lv2Tribes[arrayRNG];
                 // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
             } else if (enemyGenRNG < ((danLevelData->lv3Limiter) + limiterMod)) {
-                arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
+                arrayRNG = system::rand() % ARRAY32_COUNT(lv3Tribes);
                 tribeArray = 3;
-                enemyTribe = mod::lv3Tribes[arrayRNG];
+                enemyTribe = lv3Tribes[arrayRNG];
                 // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
             } else {
-                arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
+                arrayRNG = system::rand() % ARRAY32_COUNT(lv4Tribes);
                 tribeArray = 4;
-                enemyTribe = mod::lv4Tribes[arrayRNG];
+                enemyTribe = lv4Tribes[arrayRNG];
                 // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
             }
             if (depravity) {
@@ -2455,25 +2468,25 @@ namespace mod {
                     tribeArray = 4;
             }
             // Pulls danEnemy from the static array of DanNPCData structs.
-            mod::DanNPCData ** danEnemies = mod::danNpcGetPtr();
-            mod::DanNPCData * danEnemy = danEnemies[enemyTribe];
+            DanNPCData ** danEnemies = danNpcGetPtr();
+            DanNPCData * danEnemy = danEnemies[enemyTribe];
             vsOdds = system::rand() % 100;
             // This loop runs through enemies of the same tribe array until it finds one that passes an odds check.
             // It MUST NOT be an enemy that has already generated in this room.
             bool goAgain = false;
             do {
                 if (tribeArray == 1) {
-                    arrayRNG = system::rand() % (sizeof(mod::lv1Tribes) / 4);
-                    enemyTribe = mod::lv1Tribes[arrayRNG];
+                    arrayRNG = system::rand() % (sizeof(lv1Tribes) / 4);
+                    enemyTribe = lv1Tribes[arrayRNG];
                 } else if (tribeArray == 2) {
-                    arrayRNG = system::rand() % (sizeof(mod::lv2Tribes) / 4);
-                    enemyTribe = mod::lv2Tribes[arrayRNG];
+                    arrayRNG = system::rand() % (sizeof(lv2Tribes) / 4);
+                    enemyTribe = lv2Tribes[arrayRNG];
                 } else if (tribeArray == 3) {
-                    arrayRNG = system::rand() % (sizeof(mod::lv3Tribes) / 4);
-                    enemyTribe = mod::lv3Tribes[arrayRNG];
+                    arrayRNG = system::rand() % (sizeof(lv3Tribes) / 4);
+                    enemyTribe = lv3Tribes[arrayRNG];
                 } else {
-                    arrayRNG = system::rand() % (sizeof(mod::lv4Tribes) / 4);
-                    enemyTribe = mod::lv4Tribes[arrayRNG];
+                    arrayRNG = system::rand() % (sizeof(lv4Tribes) / 4);
+                    enemyTribe = lv4Tribes[arrayRNG];
                 }
                 vsOdds = system::rand() % 100;
                 danEnemy = danEnemies[enemyTribe];
@@ -2576,8 +2589,7 @@ namespace mod {
             (Some of this CAN be thrown into a new entry-only function later!)
         */
         // Reset Pit chests
-        for (u16 ThakoGswf = 433; ThakoGswf <= 450; ++ThakoGswf) // This loop is untested
-        {
+        for (u16 ThakoGswf = 433; ThakoGswf <= 450; ++ThakoGswf) {
             swdrv::swClear(ThakoGswf);
         }
 
@@ -2645,18 +2657,20 @@ namespace mod {
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
-            flimmMult = 1.5;
+            flimmMult = 1.5f;
             break;
         case 1:
-            flimmMult = 2;
+            flimmMult = 2.0f;
             break;
         case 2:
-            flimmMult = 3;
+            flimmMult = 2.5f;
             break;
         }
+        if (VoucherChkTorn(VOUCHER_YELLOW) == true)
+            flimmMult *= 0.7f;
         s32 poolItem;
         u16 cost;
         for (i = 0; i < 67; i = i + 3) {

@@ -132,7 +132,7 @@ namespace mod {
         s32 currentFloor = swdrv::swByteGet(1);
         s32 currentFloorLastDigit = currentFloor % 10;
         if (Lunatic->Luna.disorder == DISORDER_NULL && Lunatic->Luna.DW.floorsRem == 0 && currentFloorLastDigit < 4) {
-            s32 difficulty = swdrv::swByteGet(1620);
+            s32 difficulty = lpGetDifficulty();
             DecideDisorder(Lunatic->Mover.moverRNG, difficulty);
         } else if (Lunatic->Luna.DW.floorsRem > 0)
             Lunatic->Luna.DW.floorsRem -= 1;
@@ -219,10 +219,9 @@ namespace mod {
         s32 stellarDiff = 0, remOdds = 0;
         s32 currentFloor = swdrv::swByteGet(1);
         // Nerf all random item drops
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         if (npc->dropItemId != ITEM_ID_KEY_DAN_KEY || npc->dropItemId != ITEM_ID_KEY_MAC_KEY_00) {
-            VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
-            if (vState == V_ACTIVE)
+            if (VoucherGetStateById(VOUCHER_STELLAR) == V_ACTIVE)
                 stellarDiff = 40;
             switch (difficulty) {
             case 0:
@@ -235,8 +234,13 @@ namespace mod {
                 remOdds = 85;
                 break;
             }
-            if (sup < (remOdds - stellarDiff))
+            if (sup < (remOdds - stellarDiff)) {
                 npc->dropItemId = 0;
+            } else if (VoucherGetStateById(VOUCHER_GREEN) == V_ACTIVE) {
+                sup = system::rand() % 100;
+                if (sup < 7) // 7% chance to drop a Fried Egg if no other drop is active
+                    npc->dropItemId = ITEM_ID_COOK_SUNNY_SIDE_UP;
+            }
         }
         if (Lunatic->Luna.disorder == DISORDER_RED && Lunatic->Luna.DW.floorsRem != 0) // APATHY
         {
@@ -274,7 +278,7 @@ namespace mod {
     s32 evt_dan_distribute_keys(evtmgr::EvtEntry * entry, bool isFirstCall) {
         (void)isFirstCall;
         (void)entry;
-        s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0, difficulty = swdrv::swByteGet(1620);
+        s32 i = 0, n = 0, j = 0, k = 0, currentFloor = swdrv::swByteGet(1), phase = 0, enemiesInCycle = 0, difficulty = lpGetDifficulty();
         bool assign = false, randomKeyAssigned = false;
         npcdrv::NPCWork * npcWp = npcdrv::npcGetWorkPtr();
         NPCEntry * curNpc = npcWp->entries;
@@ -310,7 +314,7 @@ namespace mod {
             if (n > 50) // Failsafe
                 return 2;
             s32 random = system::rand() % enemyCount;
-            if (npcCheckDanFlag(enemies[random], (NPCDanFlag)(DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
+            if (npcCheckDanFlag(enemies[random], (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true) // Block holographic and negative enemies
                 goto buh;
             if (i == 0) { // Distribute main floor key
                 enemies[random]->dropItemId = item_data::ITEM_ID_KEY_DAN_KEY;
@@ -458,7 +462,8 @@ namespace mod {
     USER_FUNC(dan::evt_dan_start_countdown)
     INLINE_EVT()
     USER_FUNC(evt_door::evt_door_wait_flag, 256)
-    IF_EQUAL(GSW(1620), 2)
+    USER_FUNC(evt_lp_get_difficulty, LW(5))
+    IF_EQUAL(LW(5), 2)
     IF_EQUAL(GSWF(1603), 0)
     SET(GSWF(1603), 1)
     USER_FUNC(evt_mario::evt_mario_key_off, 1)
@@ -499,7 +504,7 @@ namespace mod {
     INLINE_EVT()
     USER_FUNC(evt_dan_handle_key_failsafe_new) // Completely overhauls key despawn behavior
     END_INLINE()
-    USER_FUNC(EvtVoucherCallAction, VOUCHER_CAKE)
+    USER_FUNC(EvtVoucherProc, VOUCHER_CAKE)
     USER_FUNC(evt_sub::func_800d4de4, 1, 0)
     RETURN()
     EVT_END()

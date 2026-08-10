@@ -123,6 +123,51 @@ namespace mod {
         return 2;
     }
 
+    void lpAddChestKeys(s32 num) {
+        Lunatic->RFC.chestKeysOwned += num;
+        return;
+    }
+
+    s32 evt_lp_add_chest_keys(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 num = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        lpAddChestKeys(num);
+        return 2;
+    }
+
+    s32 lpGetDanLv() {
+        s32 floor = swdrv::swByteGet(1), lv;
+        if (floor < 25) {
+            lv = 1;
+        } else if (floor < 50) {
+            lv = 2;
+        } else if (floor < 175) {
+            lv = 3;
+        } else {
+            lv = 4;
+        }
+        return lv;
+    }
+
+    s32 lpGetDifficulty() {
+        return (s32)Lunatic->Misc.difficulty;
+    }
+
+    s32 evt_lp_get_difficulty(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Misc.difficulty);
+        return 2;
+    }
+
+    s32 evt_lp_set_difficulty(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        Lunatic->Misc.difficulty = (LPDifficulty)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        return 2;
+    }
+
     bool npcIsShellEnemy(npcdrv::NPCEntry * npc) {
         if (npc->templateKouraKickScript != nullptr)
             return true;
@@ -140,20 +185,20 @@ namespace mod {
         return false;
     }
 
-    bool npcCheckDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag) {
+    bool npcCheckDanFlag(npcdrv::NPCEntry * npc, u32 flag) {
         if (((u32)npc->unkShellSfx & flag) != 0)
             return true;
         return false;
     }
 
-    void npcSetDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag) {
+    void npcSetDanFlag(npcdrv::NPCEntry * npc, u32 flag) {
         u32 f = (u32)npc->unkShellSfx;
         f |= flag;
         npc->unkShellSfx = (const char *)f;
         return;
     }
 
-    void npcClearDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag) {
+    void npcClearDanFlag(npcdrv::NPCEntry * npc, u32 flag) {
         u32 f = (u32)npc->unkShellSfx;
         f &= ~flag;
         npc->unkShellSfx = (const char *)f;

@@ -3,6 +3,7 @@
 #include <common.h>
 #include <spm/npcdrv.h>
 #include <evt_cmd.h>
+#include <lp_common.h>
 #include <spm/item_data.h>
 #include <lunatic/localize.h>
 
@@ -19,6 +20,8 @@ namespace mod
     #define VOUCHER_MAX 8
 
     #define VOUCHER_ALPHA_BASE 180
+
+    #define VOUCHER_NUM RANGE(VOUCHER_CAKE, VOUCHER_BLACK)
     
     enum VoucherState : s32
     {
@@ -27,11 +30,11 @@ namespace mod
         V_TORN
     };
 
-    void VoucherCallAction(s32 itemId);
+    void VoucherProc(s32 itemId);
 
     VoucherState VoucherGetStateById(s32 itemId);
     
-    EVT_DECLARE_USER_FUNC(EvtVoucherCallAction, 1)
+    EVT_DECLARE_USER_FUNC(EvtVoucherProc, 1)
     EVT_DECLARE_USER_FUNC(ThunderVoucherIncrementCtr, 1)
 
     struct VCakeWork
@@ -57,7 +60,57 @@ namespace mod
         bool placeholder;
     };
 
+    struct VRedWork
+    {
+        f32 cmGain;
+        s32 crGain;
+    };
+
+    struct VOrangeWork
+    {
+        bool placeholder;
+    };
+
+    struct VYellowWork
+    {
+        bool placeholder;
+    };
+
+    struct VGreenWork
+    {
+        bool placeholder;
+    };
+
+    struct VCyanWork
+    {
+        bool placeholder;
+    };
+
+    struct VBlueWork
+    {
+        bool placeholder;
+    };
+
+    struct VPurpleWork
+    {
+        bool placeholder;
+    };
+
+    struct VWhiteWork
+    {
+        bool placeholder;
+    };
+
+    struct VBlackWork
+    {
+        bool placeholder;
+    };
+
     s32 VoucherGetTearChance(s32 baseChance);
+
+    bool VoucherChkTorn(s32 itemId);
+
+    EVT_DECLARE_USER_FUNC(EvtVoucherChkTorn, 2)
 
     extern s32 VoucherTearChances[];
     extern s32 VoucherGuaranteeTrigs[];

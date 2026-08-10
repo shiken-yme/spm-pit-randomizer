@@ -45,11 +45,11 @@ namespace mod {
     struct IndolenceWork {
         s32 attackEffectChance;
         s32 slowDuration;
-        s32 dispDmgPctBonus;
     };
 
     struct MelancholyWork {
-        bool placeholder;
+        s32 stacks;
+        s32 subtimer;
     };
 
     struct RuinWork {
@@ -74,4 +74,5 @@ namespace mod {
     EVT_DECLARE_USER_FUNC(DepravityAction, 0)
     s32 DepravityGetAllLv4Threshold(s32 difficulty);
     bool DepravityCheckActive();
+    void MelancholyAction();
 }

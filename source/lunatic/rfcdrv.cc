@@ -169,13 +169,6 @@ namespace mod {
         ITEM_ID_COOK_DOROCY_DINNER,
         ITEM_ID_COOK_SNOW_RABBIT,
         ITEM_ID_COOK_TRIAL_PAN,
-        RFC_ITEM(VOUCHER_RED),
-        RFC_ITEM(VOUCHER_ORANGE),
-        RFC_ITEM(VOUCHER_YELLOW),
-        RFC_ITEM(VOUCHER_GREEN),
-        RFC_ITEM(VOUCHER_CYAN),
-        RFC_ITEM(VOUCHER_BLUE),
-        RFC_ITEM(VOUCHER_PURPLE),
         RFC_ITEM(SPIRIT_4),
         RFC_ITEM(SOUL_4),
         RFC_ITEM(AUSPICE_2),
@@ -189,9 +182,9 @@ namespace mod {
         RFC_ITEM(ARTIFACT_DELIGHT),
         RFC_ITEM(ARTIFACT_DEMISE)};
 
-    s32 VoucherTearChances[VOUCHER_BLACK - VOUCHER_CAKE] = {15, 25, 20, 10, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherTearChances[VOUCHER_NUM] = {15, 25, 20, 10, 15, 15, 15, 15, 15, 15, 15, 15, 15};
 
-    s32 VoucherGuaranteeTrigs[VOUCHER_BLACK - VOUCHER_CAKE] = {4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    s32 VoucherGuaranteeTrigs[VOUCHER_NUM] = {4, 3, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5};
 
     VoucherWork * VoucherGetPtr(s32 idx) {
         return Lunatic->Voucher.Work[idx];
@@ -345,31 +338,44 @@ namespace mod {
     void VoucherDoTear(s32 itemId) {
         VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
         Voucher->torn = true;
+        Lunatic->Voucher.torn[itemId] = true;
         VoucherSpin(itemId, true);
         (Voucher->tearFunc)();
         return;
     }
 
-    s32 VoucherGetTearChance(s32 baseChance) {
-        s32 difficulty = swdrv::swByteGet(1620);
-        switch (difficulty) {
-        case 1:
-            baseChance *= 1.5f;
-            break;
-        case 2:
-            baseChance *= 2.0f;
-            break;
-        case 3:
-            baseChance *= 3.0f;
-            break;
-        default:
-            break;
-        }
-        baseChance = clamp(baseChance, 0, 100);
-        return baseChance;
+    bool VoucherChkTorn(s32 itemId) {
+        return Lunatic->Voucher.torn[itemId];
     }
 
-    void VoucherCallAction(s32 itemId) {
+    s32 EvtVoucherChkTorn(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 itemId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)VoucherChkTorn(itemId));
+        return 2;
+    }
+
+    s32 VoucherGetTearChance(s32 baseChance) {
+        s32 difficulty = lpGetDifficulty();
+        f32 mult = 1.0f;
+        switch (difficulty) {
+        case 1:
+            mult = 1.5f;
+            break;
+        case 2:
+            mult = 2.0f;
+            break;
+        case 3:
+            mult = 3.0f;
+            break;
+        }
+        if (Lunatic->Luna.disorder == DISORDER_WHITE)
+            mult *= 2.0f;
+        return clamp((s32)((f32)baseChance * mult), 0, 100);
+    }
+
+    void VoucherProc(s32 itemId) {
         if (VoucherGetStateById(itemId) != V_ACTIVE)
             return;
         VoucherWork * Voucher = VoucherItemIdToPtr(itemId);
@@ -387,11 +393,11 @@ namespace mod {
         return;
     }
 
-    s32 EvtVoucherCallAction(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+    s32 EvtVoucherProc(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         s32 itemId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        VoucherCallAction(itemId);
+        VoucherProc(itemId);
         return 2;
     }
 
@@ -479,7 +485,7 @@ namespace mod {
         Voucher->UW.Thunder->enemies += 1;
         if (Voucher->UW.Thunder->enemies == 30) {
             Voucher->UW.Thunder->enemies = 0;
-            VoucherCallAction(VOUCHER_THUNDER);
+            VoucherProc(VOUCHER_THUNDER);
         }
         return 2;
     }
@@ -527,6 +533,221 @@ namespace mod {
         Voucher->actionFunc = JudgementVoucherAction;
         Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[Voucher->itemId]);
         Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_JUDGEMENT];
+        return;
+    }
+
+    void RedVoucherTear() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_RED);
+        lpAddCrit((-Voucher->UW.Red->crGain + 4), (-Voucher->UW.Red->cmGain + 25.0f));
+        lpAddAtk(1);
+        lpAddHp(0, 5);
+        return;
+    }
+
+    void RedVoucherAction() {
+        VoucherWork * Voucher = VoucherItemIdToPtr(VOUCHER_CAKE);
+        lpAddCrit(4, 25.0f);
+        Voucher->UW.Red->crGain += 4;
+        Voucher->UW.Red->cmGain += 25.0f;
+        VoucherSpin(VOUCHER_RED, false);
+        return;
+    }
+
+    void RedVoucherUse() {
+        VRedWork * wp = (VRedWork *)memory::__memAlloc(0, sizeof(VRedWork));
+        msl::string::memset(wp, 0, sizeof(VRedWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_RED;
+        Voucher->itemId = VOUCHER_RED;
+        Voucher->tearFunc = RedVoucherTear;
+        Voucher->actionFunc = RedVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_RED]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_RED];
+        return;
+    }
+
+    void OrangeVoucherTear() {
+        return;
+    }
+
+    void OrangeVoucherAction() {
+        VoucherSpin(VOUCHER_ORANGE, false);
+        return;
+    }
+
+    void OrangeVoucherUse() {
+        VOrangeWork * wp = (VOrangeWork *)memory::__memAlloc(0, sizeof(VOrangeWork));
+        msl::string::memset(wp, 0, sizeof(VOrangeWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_ORANGE;
+        Voucher->itemId = VOUCHER_ORANGE;
+        Voucher->tearFunc = OrangeVoucherTear;
+        Voucher->actionFunc = OrangeVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_ORANGE]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_ORANGE];
+        return;
+    }
+
+    void YellowVoucherTear() {
+        return;
+    }
+
+    void YellowVoucherAction() {
+        VoucherSpin(VOUCHER_YELLOW, false);
+        return;
+    }
+
+    void YellowVoucherUse() {
+        VYellowWork * wp = (VYellowWork *)memory::__memAlloc(0, sizeof(VYellowWork));
+        msl::string::memset(wp, 0, sizeof(VYellowWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_YELLOW;
+        Voucher->itemId = VOUCHER_YELLOW;
+        Voucher->tearFunc = YellowVoucherTear;
+        Voucher->actionFunc = YellowVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_YELLOW]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_YELLOW];
+        return;
+    }
+
+    void GreenVoucherTear() {
+        return;
+    }
+
+    void GreenVoucherAction() {
+        VoucherSpin(VOUCHER_GREEN, false);
+        return;
+    }
+
+    void GreenVoucherUse() {
+        VGreenWork * wp = (VGreenWork *)memory::__memAlloc(0, sizeof(VGreenWork));
+        msl::string::memset(wp, 0, sizeof(VGreenWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_GREEN;
+        Voucher->itemId = VOUCHER_GREEN;
+        Voucher->tearFunc = GreenVoucherTear;
+        Voucher->actionFunc = GreenVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_GREEN]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_GREEN];
+        return;
+    }
+
+    void CyanVoucherTear() {
+        return;
+    }
+
+    void CyanVoucherAction() {
+        VoucherSpin(VOUCHER_CYAN, false);
+        return;
+    }
+
+    void CyanVoucherUse() {
+        VCyanWork * wp = (VCyanWork *)memory::__memAlloc(0, sizeof(VCyanWork));
+        msl::string::memset(wp, 0, sizeof(VCyanWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_CYAN;
+        Voucher->itemId = VOUCHER_CYAN;
+        Voucher->tearFunc = CyanVoucherTear;
+        Voucher->actionFunc = CyanVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_CYAN]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_CYAN];
+        return;
+    }
+
+    void BlueVoucherTear() {
+        return;
+    }
+
+    void BlueVoucherAction() {
+        VoucherSpin(VOUCHER_BLUE, false);
+        return;
+    }
+
+    void BlueVoucherUse() {
+        VBlueWork * wp = (VBlueWork *)memory::__memAlloc(0, sizeof(VBlueWork));
+        msl::string::memset(wp, 0, sizeof(VBlueWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_BLUE;
+        Voucher->itemId = VOUCHER_BLUE;
+        Voucher->tearFunc = BlueVoucherTear;
+        Voucher->actionFunc = BlueVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_BLUE]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_BLUE];
+        return;
+    }
+
+    void PurpleVoucherTear() {
+        return;
+    }
+
+    void PurpleVoucherAction() {
+        VoucherSpin(VOUCHER_PURPLE, false);
+        return;
+    }
+
+    void PurpleVoucherUse() {
+        VPurpleWork * wp = (VPurpleWork *)memory::__memAlloc(0, sizeof(VPurpleWork));
+        msl::string::memset(wp, 0, sizeof(VPurpleWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_PURPLE;
+        Voucher->itemId = VOUCHER_PURPLE;
+        Voucher->tearFunc = PurpleVoucherTear;
+        Voucher->actionFunc = PurpleVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_PURPLE]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_PURPLE];
+        return;
+    }
+
+    void WhiteVoucherTear() {
+        return;
+    }
+
+    void WhiteVoucherAction() {
+        VoucherSpin(VOUCHER_WHITE, false);
+        return;
+    }
+
+    void WhiteVoucherUse() {
+        VWhiteWork * wp = (VWhiteWork *)memory::__memAlloc(0, sizeof(VWhiteWork));
+        msl::string::memset(wp, 0, sizeof(VWhiteWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_WHITE;
+        Voucher->itemId = VOUCHER_WHITE;
+        Voucher->tearFunc = WhiteVoucherTear;
+        Voucher->actionFunc = WhiteVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_WHITE]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_WHITE];
+        return;
+    }
+
+    void BlackVoucherTear() {
+        return;
+    }
+
+    void BlackVoucherAction() {
+        VoucherSpin(VOUCHER_BLACK, false);
+        return;
+    }
+
+    void BlackVoucherUse() {
+        VBlackWork * wp = (VBlackWork *)memory::__memAlloc(0, sizeof(VBlackWork));
+        msl::string::memset(wp, 0, sizeof(VBlackWork));
+        s32 idx = VoucherAdd(wp);
+        VoucherWork * Voucher = VoucherGetPtr(idx);
+        Voucher->iconId = ICON_VOUCHER_BLACK;
+        Voucher->itemId = VOUCHER_BLACK;
+        Voucher->tearFunc = BlackVoucherTear;
+        Voucher->actionFunc = BlackVoucherAction;
+        Voucher->tearChance = VoucherGetTearChance(VoucherTearChances[VOUCHER_BLACK]);
+        Voucher->guaranteeTrig = VoucherGuaranteeTrigs[VOUCHER_BLACK];
         return;
     }
 

@@ -6,12 +6,15 @@
 
 #include <common.h>
 #include <spm/filemgr.h>
+#include <spm/npcdrv.h>
 #include <wii/gx.h>
 
 CPP_WRAPPER(spm::effdrv)
 
 USING(spm::filemgr::FileEntry)
 USING(wii::gx::GXTexObj)
+USING(wii::mtx::Vec3)
+USING(npcdrv::NPCEntry)
 
 struct _EffEntry;
 typedef void (EffFunc)(struct _EffEntry * entry);
@@ -52,6 +55,63 @@ typedef struct
 /* 0x12C */ u8 unknown_0x12c[0x134 - 0x12c];
 } EffWork;
 SIZE_ASSERT(EffWork, 0x134)
+
+enum EffTargetType : s32 {
+    TARGET_NULL,
+    TARGET_MARIO,
+    TARGET_NPC,
+    TARGET_COORD,
+    TARGET_FAIRY,
+    TARGET_GUIDE
+};
+
+typedef struct
+{
+/* 0x00 */ EffTargetType type;
+/* 0x04 */ u8 unknown_0x04[0x1c - 0x04];
+} EffTarget_Mario;
+SIZE_ASSERT(EffTarget_Mario, 0x1c)
+
+typedef struct
+{
+/* 0x00 */ EffTargetType type;
+/* 0x04 */ s32 npcId;
+/* 0x08 */ NPCEntry * npcEntry;
+/* 0x0C */ u8 unknown_0x08[0x1c - 0x0c];
+} EffTarget_NPC;
+SIZE_ASSERT(EffTarget_NPC, 0x1c)
+
+typedef struct
+{
+/* 0x00 */ EffTargetType type;
+/* 0x04 */ Vec3 pos;
+/* 0x10 */ Vec3 offset; // conjectural, untested
+} EffTarget_Coord;
+SIZE_ASSERT(EffTarget_Coord, 0x1c)
+
+typedef struct
+{
+/* 0x00 */ EffTargetType type;
+/* 0x04 */ s32 fairyId;
+/* 0x08 */ u8 unknown_0x08[0x1c - 0x08];
+} EffTarget_Fairy;
+SIZE_ASSERT(EffTarget_Fairy, 0x1c)
+
+typedef struct
+{
+/* 0x00 */ EffTargetType type;
+/* 0x04 */ u8 unknown_0x04[0x1c - 0x04];
+} EffTarget_Guide;
+SIZE_ASSERT(EffTarget_Guide, 0x1c)
+
+typedef union
+{
+    EffTarget_Mario mario;
+    EffTarget_NPC npc;
+    EffTarget_Coord coord;
+    EffTarget_Fairy fairy;
+    EffTarget_Guide guide;
+} EffTargetUnion;
 
 DECOMP_STATIC(EffWork effdrv_work)
 DECOMP_STATIC(EffWork * effdrv_wp)

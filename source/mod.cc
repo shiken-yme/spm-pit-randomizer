@@ -3,7 +3,7 @@
 #include "patch.h"
 #include "romfontexpand.h"
 #include <acpatch.h>
-//#include <berobero.h>
+// #include <berobero.h>
 #include <common.h>
 #include <customwin.h>
 #include <effpatch.h>
@@ -149,8 +149,6 @@ namespace mod {
     bool houraiActivation = 0;
     s32 blessStorage = 0;
     s32 curseStorage = 0;
-    s32 moverDown2Price = 0;
-    s32 moverDown5Price = 0;
     s32 motId = 0;
 
     s16 frameR = 255;
@@ -402,6 +400,26 @@ namespace mod {
                     swdrv::swSet(1670);
                 }
             }
+            // Melancholy
+            if (Lunatic->Luna.disorder == DISORDER_WHITE) {
+                s32 power = (Lunatic->Luna.DW.UW.Melancholy.stacks - 1);
+                if (power >= 0) {
+                    damage += (s32)pow(2, power);
+                    effdrv::EffEntry * eff = temp_unk::effItemThunderEntry(0.0f, 0.0f, 0.0f, 1.0f, 0, 1, 0, 0);
+                    temp_unk::effItemThunderSetTargetMario(eff);
+                    wii::gx::GXColor black = {0, 0, 0, 255};
+                    wii::gx::GXColor white = {255, 255, 255, 255};
+                    effpatch::effpatchColorMaskEntry(eff, black, white, nullptr);
+                    wii::mtx::Vec3 * pos = &mario::marioGetPtr()->position;
+                    spmario_snd::spsndSFXOn_3D("SFX_I_THUNDER1", pos);
+                    spmario_snd::spsndSFXOn_3D("SFX_I_BIRIBIRI2", pos);
+                    spmario_snd::spsndSFXOn_3D("SFX_EVT_HELWANWAN_MISS1", pos);
+                    eff = eff_spm_hit::effSpmHitEntry(pos->x, pos->y + (mario_hit::marioGetHeight() / 2.0f), pos->z, 2);
+                    effpatch::effpatchColorMaskEntry(eff, black, black, nullptr);
+                    Lunatic->Luna.DW.UW.Melancholy.stacks = 0;
+                }
+                Lunatic->Luna.DW.UW.Melancholy.subtimer = 10;
+            }
             marioTakeDamage(position, flags, damage);
         });
 
@@ -412,7 +430,7 @@ namespace mod {
                                                  {
                                                      if (part == nullptr && status == 0 && damage == 20 && flags == 4) // Dark Bowser's fire meets these conditions
                                                      {
-                                                         s32 difficulty = swdrv::swByteGet(1620);
+                                                         s32 difficulty = lpGetDifficulty();
                                                          switch (difficulty) {
                                                          case 0:
                                                              damage = damage / 2;
@@ -442,13 +460,9 @@ namespace mod {
                                                      s32 odds = system::rand() % 100;
                                                      if (odds < Lunatic->Luna.DW.UW.Indolence.attackEffectChance) {
                                                          odds = system::rand() % 100;
-                                                         if (odds < 34) // Freeze
+                                                         if (odds < 50) // Freeze
                                                          {
                                                              status |= 0x2000;
-                                                         } else if (odds < 66) // Damage bonus
-                                                         {
-                                                             fDmg = (f32)damage * ((f32)Lunatic->Luna.DW.UW.Indolence.dispDmgPctBonus / 100) + 1.0;
-                                                             damage = (s32)fDmg;
                                                          } else {
                                                              mario_status::marioStatusApplyStatuses(STATUS_SLOW, 2);
                                                              swdrv::swSet(1670);
@@ -461,7 +475,7 @@ namespace mod {
                                                  }
                                                  if (npcEntry->tribeId <= 333 && npcEntry->tribeId >= 330) // Patch Shadoo damage
                                                  {
-                                                     s32 difficulty = swdrv::swByteGet(1620);
+                                                     s32 difficulty = lpGetDifficulty();
                                                      switch (difficulty) {
                                                      case 0:
                                                          damage /= 2;
@@ -476,7 +490,12 @@ namespace mod {
                                                      // Aegis flat damage reduction
                                                      damage -= Lunatic->Stats.AegisDef;
                                                      // Auspice damage% reduction
-                                                     fDmg = (f32)damage * (1.0f - ((f32)Lunatic->Stats.AuspiceDR / 100.0f));
+                                                     f32 dr = Lunatic->Stats.AuspiceDR;
+                                                     // Increase DR by 20 when Bravery is torn & LV is 4 OR Holo/Neg
+                                                     if (VoucherChkTorn(VOUCHER_ORANGE) && (npcGetDanLv(npcEntry->tribeId) == 4 || npcCheckDanFlag(npcEntry, (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true)) {
+                                                         dr += 20.0f;
+                                                     }
+                                                     fDmg = (f32)damage * (1.0f - dr);
                                                      damage = round(fDmg);
                                                  }
                                                  if (damage < 0)
@@ -501,7 +520,7 @@ namespace mod {
 
         npcTakeDamage =
             patch::hookFunction(npcdrv::npcTakeDamage, [](npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6) {
-                s32 difficulty = swdrv::swByteGet(1620);
+                s32 difficulty = lpGetDifficulty();
                 // wii::os::OSReport("npcTakeDamage: %s dealt damage of type %d to %s.\n",
                 // npcTribeToName(npcPart->owner->tribeId), defenseType, npcTribeToName(npc->tribeId));
                 if (defenseType == 5 && difficulty >= 2) {
@@ -565,7 +584,12 @@ namespace mod {
                     f32 critOdds = system::rand() % 100;
                     if (Lunatic->Stats.CritRate > critOdds) {
                         f32 fDmg = (f32)power;
-                        fDmg *= (Lunatic->Stats.CritMult / 100.0f + 1.0f);
+                        f32 cm = Lunatic->Stats.CritMult;
+                        // Bravery torn, powerful enemy
+                        if (VoucherChkTorn(VOUCHER_ORANGE) && (npcGetDanLv(npcPart->owner->tribeId) == 4 || npcCheckDanFlag(npcPart->owner, (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true)) {
+                            cm += 100.0f;
+                        }
+                        fDmg *= (cm / 100.0f + 1.0f);
                         power = (s32)msl::math::floor(fDmg) + 1;
                         critActuate = true;
                     }
@@ -989,6 +1013,18 @@ namespace mod {
         return 0;
     }
 
+    // I hate how I had to do this; the ASM context for deciding big or small coins in vanilla is very complex
+    void makeCoinsBig(s32 null, s32 itemId) {
+        asm("addi 27, 3, 14");
+        asm("mr 4, 30");
+        if (itemId == item_data::ITEM_ID_WORLD_COIN && system::irand(9) == 0 && VoucherGetStateById(VOUCHER_YELLOW) == V_ACTIVE) {
+            VoucherProc(VOUCHER_YELLOW);
+            asm("li 30, 2");
+            return;
+        }
+        return;
+    }
+
     void danResetLunatic() {
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         pouch->attack -= Lunatic->Stats.DemiseATK;
@@ -1008,6 +1044,7 @@ namespace mod {
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = icondrv::ICON_MACHI_KEY;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = "in_town_key_00";
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].descMsg = "msg_town_key_00";
+        swdrv::swClear(1644); // Clear Blue% speedrun mode flag
         return;
     }
 
@@ -1082,9 +1119,12 @@ namespace mod {
         // Handle random Disorder tremors
         if (disorderId > 0)
             DisorderHandleTremors();
-        // Handle Prejudice
+        // Prejudice
         if (disorderId == DisorderId::DISORDER_YELLOW)
             PrejudiceAction();
+        // Melancholy
+        if (disorderId == DisorderId::DISORDER_WHITE)
+            MelancholyAction();
         return;
     }
 
@@ -1199,11 +1239,18 @@ namespace mod {
 
         itemCollectPouchItemReal = patch::hookFunction(itemdrv::itemCollectPouchItem, [](itemdrv::ItemEntry * item) {
             s32 ret = itemCollectPouchItemReal(item);
-            if (item->type == ITEM_ID_KEY_MAC_KEY_00 && msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
-                if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_MAC_KEY_00) == true) {
-                    Lunatic->RFC.chestKeysOwned += 1;
-                    mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
-                    wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
+            if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
+                if (item->type == ITEM_ID_KEY_MAC_KEY_00) {
+                    if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_MAC_KEY_00) == true) {
+                        Lunatic->RFC.chestKeysOwned += 1;
+                        mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
+                        wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
+                    }
+                } else if (item->type == ITEM_ID_KEY_DAN_KEY) {
+                    if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_DAN_KEY) == true) {
+                        // Determination
+                        VoucherProc(VOUCHER_RED);
+                    }
                 }
             }
             return ret;
@@ -1240,6 +1287,8 @@ namespace mod {
         patch::hookFunction(animdrv::animGroupBaseAsync, animGroupBaseAsyncNew);
         // cudge patch - thanks lily!
         writeBranch(spm::npcdrv::npcTakeDamage, 0x1DC, setCudgeFloat);
+        // make coins big justice i guess
+        writeBranchLink(npcmisc::npcDropItem, 0x320, makeCoinsBig);
         // Remove anything that sets or reads npcentry->unkShellSfx
         writeWord(npcdrv::func_801cdb84, 0xB6C, NOP); // remove the call to play unkShellSfx
         writeWord(evt_npc::evt_npc_set_unk_shell_sfx, 0x58, NOP);
@@ -1441,6 +1490,11 @@ namespace mod {
     IF_EQUAL(LW(5), 45)
     RUN_EVT(bump_item_use)
     RETURN()
+    END_IF()
+    // Check if Kindness is torn
+    USER_FUNC(EvtVoucherChkTorn, (s32)VOUCHER_GREEN, LW(8))
+    IF_EQUAL(LW(8), 1)
+    MULF(LW(6), FLOAT(1.2))
     END_IF()
     // Check if Recalcitrance is active
     USER_FUNC(DisorderGetId, LW(8))
@@ -2362,7 +2416,7 @@ namespace mod {
         npcdrv::NPCEntry * npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
 
         // Shadoo HP = Mario max HP at minimum.
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         switch (difficulty) {
         case 0:
             npc->maxHp = marioMaxHp;
@@ -2397,7 +2451,9 @@ namespace mod {
         Lunatic->Mover.moverRNG = system::rand() % 1000;
         s32 floor = swdrv::swByteGet(1);
         bool blockMovers = swdrv::swGet(1610);
-        if ((floor >= 43 && floor <= 148) || floor > 194 || blockMovers || Lunatic->Luna.disorder > DISORDER_NULL)
+        if (blockMovers || floor < 19)
+            Lunatic->Mover.moverRNG = clamp(Lunatic->Mover.moverRNG + 15, 15, 1000);
+        if ((floor >= 43 && floor <= 148) || floor > 194 || Lunatic->Luna.disorder > DISORDER_NULL)
             Lunatic->Mover.moverRNG = 999;
         if (DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2))
             Lunatic->Mover.moverRNG = 2;
@@ -2425,7 +2481,13 @@ namespace mod {
         if (swdrv::swGet(1659) == true)
             lpAddAtk(2);
         Lunatic->Misc.savedCoins = mario_pouch::pouchGetCoin();
-        mario_pouch::pouchSetCoin(0);
+        if (!DebugMode) {
+            mario_pouch::pouchSetCoin(0);
+            // If Movers are blocked & B, +, and - are all held upon entering Pit, enter Blue% Speedrun Mode
+            if (swdrv::swGet(1610) && (wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_B | WPAD_BTN_PLUS | WPAD_BTN_MINUS)) == (WPAD_BTN_B | WPAD_BTN_PLUS | WPAD_BTN_MINUS))
+                swdrv::swSet(1644);
+        } else
+            mario_pouch::pouchSetCoin(999);
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = TPLPATCH_ICON(ICON_CHEST_KEY);
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = chestKeyNamePtr;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].descMsg = chestKeyDescPtr;
@@ -2581,32 +2643,23 @@ namespace mod {
     }
     EVT_DECLARE_USER_FUNC(paramitaFloor, 1)
 
+    char moverSelectBuf[256];
+
     s32 generate_mover_prices(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // Change Mover prices based on Pit Level
-        s32 floor = swdrv::swByteGet(1);
-        if (floor <= 24) // Lv1
-        {
-            moverDown2Price = 20;
-            moverDown5Price = 60;
-        } else if (floor <= 48) // Lv2
-        {
-            moverDown2Price = 25;
-            moverDown5Price = 75;
-        } else if (floor <= 174) // Lv3
-        {
-            moverDown2Price = 30;
-            moverDown5Price = 90;
-        } else // Lv4
-        {
-            moverDown2Price = 40;
-            moverDown5Price = 120;
-        }
+        s32 moverDown2Price = 10 + (lpGetDanLv() * 10) + (lpGetDifficulty() * 10);
+        if (VoucherChkTorn(VOUCHER_YELLOW) == true)
+            moverDown2Price *= 0.7f;
+        s32 moverDown5Price = moverDown2Price * 2;
+        msl::string::memset(moverSelectBuf, 0, sizeof(moverSelectBuf));
+        msl::stdio::sprintf(moverSelectBuf, moverChoices, moverDown2Price, moverDown5Price);
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], moverDown2Price);
         evtmgr_cmd::evtSetValue(evtEntry, args[1], moverDown5Price);
+        evtmgr_cmd::evtSetValue(evtEntry, args[2], (s32)moverSelectBuf);
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(generate_mover_prices, 2)
+    EVT_DECLARE_USER_FUNC(generate_mover_prices, 3)
 
     s32 mover_down_2(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 floor = swdrv::swByteGet(1);
@@ -2767,28 +2820,15 @@ namespace mod {
                 return 2;
             else if (npcCheckDanFlag(npc, DAN_NPC_HOLOGRAPHIC) == true) // If holo, increase coin output
                 coinCount = clamp((coinCount * 3), 8, 24);
+            else if (itemType == ITEM_ID_COOK_SUNNY_SIDE_UP)
+                VoucherProc(VOUCHER_GREEN);
             else if (itemType != ITEM_ID_NULL) // If NOT holo, check for Stellar and register a use if an item drops
-                VoucherCallAction(VOUCHER_STELLAR);
+                VoucherProc(VOUCHER_STELLAR);
         }
         npcmisc::npcDropItem(npc, itemType, coinCount);
         return 2;
     }
     EVT_DECLARE_USER_FUNC(evt_npc_drop_item_new, 2)
-
-    s32 cwselectSettingsIcons(evtmgr::EvtEntry * evtEntry, bool firstRun) {
-        (void)firstRun;
-        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 onOff = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        if (onOff > 0) {
-            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_CATCH_CARD;
-            msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_CATCH_CARD_SP;
-        } else {
-            msgdrv::msgdrv_msgIcon[3].iconId = icondrv::ICON_BTN_1;
-            msgdrv::msgdrv_msgIcon[4].iconId = icondrv::ICON_BTN_2;
-        }
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(cwselectSettingsIcons, 1)
 
     s32 boodinShopItemPool[] = {
         // Custom Pit Rando enemies
@@ -2804,6 +2844,8 @@ namespace mod {
         Lunatic->Boodin.Cards[0].itemId = (s32)item_data::ItemType::ITEM_ID_USE_SUPER_BLANK_KUN;
         Lunatic->Boodin.Cards[0].iconId = -1;
         Lunatic->Boodin.Cards[0].cost = 80;
+        if (VoucherChkTorn(VOUCHER_YELLOW) == true)
+            Lunatic->Boodin.Cards[0].cost *= 0.7f;
         s32 i;
         s32 cardNum = system::rand() % 9 + 5; // 5-13
         Lunatic->Boodin.cardNum = cardNum + 1;
@@ -2814,6 +2856,8 @@ namespace mod {
             Card->itemId = boodinShopItemPool[poolCard];
             Card->iconId = -1;
             Card->cost = (s32)msl::math::floor((f32)item_data::itemDataTable[Card->itemId].buyPrice * 0.8f);
+            if (VoucherChkTorn(VOUCHER_YELLOW) == true)
+                Card->cost *= 0.7f;
         }
         return 2;
     }
@@ -2887,7 +2931,7 @@ namespace mod {
         }
 
         // Determine which one actually happens
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         s32 blessThreshold = 0;
         switch (difficulty)
         {
@@ -2956,7 +3000,7 @@ namespace mod {
         }
 
         // Determine which one actually happens
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         s32 blessThreshold = 0;
         switch (difficulty)
         {
@@ -3095,6 +3139,45 @@ namespace mod {
                                              {26, "O_1"}, // WHAT
                                              {-1, "Z_1"}};
 
+    npcdrv::NPCTribeAnimDef gabbiAnims_Madge[] = {{0, "S_4B"},  // Idle
+                                                  {1, "W_1"},   // Walking
+                                                  {2, "R_1"},   // Running
+                                                  {3, "T_4"},   // Talking
+                                                  {21, "Y_2"},  // Asleep
+                                                  {22, "Y_1A"}, // Shock
+                                                  {23, "Y_1B"}, // Shock -> normal
+                                                  {24, "S_4A"}, // Normal -> madge
+                                                  {25, "S_4C"}, // Madge -> normal
+                                                  {26, "S_3A"}, // Start blush
+                                                  {-1, "Z_1"}};
+
+    npcdrv::NPCTribeAnimDef gabbiAnims_Sadge[] = {{0, "S_2B"},  // Idle
+                                                  {1, "W_1"},   // Walking
+                                                  {2, "R_1"},   // Running
+                                                  {3, "T_2"},   // Talking
+                                                  {21, "S_2A"}, // Start being sad
+                                                  {22, "S_2C"}, // Sadge -> normal
+                                                  {23, "S_3A"}, // Start blush
+                                                  {-1, "Z_1"}};
+
+    npcdrv::NPCTribeAnimDef gabbiAnims_Neutral[] = {{0, "S_1"},   // Idle
+                                                    {1, "W_1"},   // Walking
+                                                    {2, "R_1"},   // Running
+                                                    {3, "T_1"},   // Talking
+                                                    {21, "S_2A"}, // Start sad
+                                                    {22, "S_4A"}, // Start mad
+                                                    {23, "S_3A"}, // Start blush
+                                                    {-1, "Z_1"}};
+
+    npcdrv::NPCTribeAnimDef gabbiAnims_Blush[] = {{0, "S_3B"},  // Idle
+                                                  {1, "W_1"},   // Walking
+                                                  {2, "R_1"},   // Running
+                                                  {3, "T_3"},   // Talking
+                                                  {21, "S_3A"}, // Start blush
+                                                  {22, "S_3C"}, // Blush -> normal
+                                                  {23, "S_2C"}, // Sadge -> normal
+                                                  {-1, "Z_1"}};
+
     /* static evt_door::DokanDesc temp_mac_04_2_dokan_desc = {
          0, 0, 0, "dokan", "mac_04", "A2D_dokan_1", "A3D_dokan_1", "dan_70", "dokan_1"}; */
 
@@ -3119,18 +3202,9 @@ namespace mod {
 
     EVT_BEGIN(mover_speech)
     USER_FUNC(evt_mario::evt_mario_key_off, 1)
-    USER_FUNC(generate_mover_prices, LW(3), LW(4))
+    USER_FUNC(generate_mover_prices, LW(3), LW(4), LW(5))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(moverIntro), 0, PTR("me"))
-    SWITCH(LW(3))
-    CASE_EQUAL(20)
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(moverChoicesLv1))
-    CASE_EQUAL(25)
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(moverChoicesLv2))
-    CASE_EQUAL(30)
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(moverChoicesLv3))
-    CASE_ETC()
-    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(moverChoicesLv4))
-    END_SWITCH()
+    USER_FUNC(evt_msg::evt_msg_select, 1, LW(5))
     USER_FUNC(evt_msg::evt_msg_continue)
     IF_EQUAL(LW(0), 2) // "I'm good, thanks"
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(moverNo), 0, PTR("me"))
@@ -3244,7 +3318,7 @@ namespace mod {
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_11"), 0)
     END_INLINE()
     IF_LARGE(GSW(1622), 0) // If you've already fought Shadoo, new dialogue
-    SET(LW(15), GSW(1620))
+    USER_FUNC(evt_lp_get_difficulty, LW(15))
     ADD(LW(15), 1)
     IF_LARGE_EQUAL(GSW(1622), LW(15))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(shadooIntroMock), 0, 0)
@@ -3383,10 +3457,9 @@ namespace mod {
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Artifact"))
     // Set GSW(1622) to highest difficulty beaten + 1
-    SET(LW(0), GSW(1620))
-    ADD(LW(0), 1)
-    IF_SMALL(GSW(1622), GSW(1620))
-    SET(GSW(1622), GSW(1620))
+    USER_FUNC(evt_lp_get_difficulty, LW(0))
+    IF_SMALL(GSW(1622), LW(0))
+    SET(GSW(1622), LW(0))
     ADD(GSW(1622), 1)
     END_IF()
     SET(LSWF(1), 1)
@@ -3436,7 +3509,7 @@ namespace mod {
     s32 dan_70_determine_artifact_spawn(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 difficulty = swdrv::swByteGet(1620);
+        s32 difficulty = lpGetDifficulty();
         bool beatenThisDifficulty = swdrv::swGet(1650 + difficulty);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)beatenThisDifficulty);
         if (!beatenThisDifficulty)
@@ -3834,7 +3907,8 @@ namespace mod {
     END_INLINE()
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
     WAIT_MSEC(600)
-    SWITCH(GSW(1620))
+    USER_FUNC(evt_lp_get_difficulty, LW(15))
+    SWITCH(LW(15))
     CASE_EQUAL(0)
     SET(LW(6), 90)
     CASE_EQUAL(1)
@@ -3851,7 +3925,7 @@ namespace mod {
     RUN_CHILD_EVT(merluna_curse_speech)
     RETURN()
     ELSE()
-    SWITCH(GSW(1620))
+    SWITCH(LW(15))
     CASE_EQUAL(0)
     SET(LW(6), 90)
     CASE_EQUAL(1)
@@ -3972,6 +4046,276 @@ namespace mod {
 
     EVT_BEGIN(fwd_boodin_speech)
     RUN_EVT(boodin_speech)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(gabbi_speech_deadge)
+    USER_FUNC(evt_mario::evt_mario_key_off, 1)
+    SWITCH(GSW(1631))
+    CASE_EQUAL(0)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiSleeping), 0, 0)
+    CASE_EQUAL(1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiSleeping2), 0, 0)
+    CASE_ETC()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiSleeping3), 0, 0)
+    END_SWITCH()
+    ADD(GSW(1631), 1) // If you really want to talk to Gabbi 256 times to overflow this byte for fun, I don't really care
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(fwd_gabbi_speech_deadge)
+    RUN_EVT(gabbi_speech_deadge)
+    RETURN()
+    EVT_END()
+
+    s32 GabbiGetKeyCost() {
+        s32 cost = (75 + (25 * lpGetDifficulty()));
+        if (VoucherChkTorn(VOUCHER_YELLOW) == true)
+            cost *= 0.7f;
+        return cost;
+    }
+
+    bool GabbiPressPlus(winmgr::WinmgrSelect * select) {
+        (void)select;
+        s32 cost = GabbiGetKeyCost();
+        s32 keys = CWSelectGetActiveEntry()->Descs[0].cost / cost;
+        s32 after_cost = ((keys + 1) * cost);
+        if (after_cost > mario_pouch::pouchGetPtr()->coins) {
+            spmario_snd::spsndSFXOn("SFX_SYS_SELECT_NG1");
+        } else {
+            spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_SET1");
+            msl::string::memset(CWSelectGetActiveEntry()->Descs[0].nameTxt, 0, CWSELECT_NAME_TXT_LENGTH);
+            msl::stdio::sprintf(CWSelectGetActiveEntry()->Descs[0].nameTxt, "Chest Keys (%d)", keys + 1);
+            CWSelectGetActiveEntry()->Descs[0].cost = after_cost;
+        }
+        return true;
+    }
+
+    bool GabbiPressMinus(winmgr::WinmgrSelect * select) {
+        (void)select;
+        s32 cost = GabbiGetKeyCost();
+        s32 keys = CWSelectGetActiveEntry()->Descs[0].cost / cost;
+        s32 after_cost = ((keys - 1) * cost);
+        if (after_cost <= 0) {
+            spmario_snd::spsndSFXOn("SFX_SYS_SELECT_NG1");
+        } else {
+            spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_DELETE1");
+            msl::string::memset(CWSelectGetActiveEntry()->Descs[0].nameTxt, 0, CWSELECT_NAME_TXT_LENGTH);
+            msl::stdio::sprintf(CWSelectGetActiveEntry()->Descs[0].nameTxt, "Chest Keys (%d)", keys - 1);
+            CWSelectGetActiveEntry()->Descs[0].cost = after_cost;
+        }
+        return true;
+    }
+
+    s32 evt_gabbi_get_key_cost(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], GabbiGetKeyCost());
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_gabbi_get_key_cost, 1)
+
+    EVT_BEGIN(gabbi_menu)
+    USER_FUNC(evt_gabbi_get_key_cost, LW(15))
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+    USER_FUNC(EvtCWSelectEntry, PTR("Gabbi"), CWSELECT_SHOP, PTR("Chest Keys"), PTR(gabbiSelectInstructions), 0, 0)
+    USER_FUNC(EvtCWSelectAddListing, PTR("Gabbi"), PTR("Chest Keys (1)"), PTR(chestKeyDesc), TPLPATCH_ICON(ICON_CHEST_KEY), LW(15), 0, 0)
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Gabbi"), BTN_PLUS, PTR(GabbiPressPlus))
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Gabbi"), BTN_MINUS, PTR(GabbiPressMinus))
+    // USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Gabbi"), PTR(&GabbiHeaderCol))
+    // USER_FUNC(EvtCWSelectSetBGColor, PTR("Gabbi"), PTR(GabbiSelectBgCols), 4)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Gabbi"), 0, LW(0))
+    USER_FUNC(EvtCWSelectGetSelectionCost, LW(0), GW(7)) // If cancelled, sets to -1
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Gabbi"))
+    RETURN()
+    EVT_END()
+
+    // Uses LW(10) as a parameter for next GSW(1630) (Gabbi emotional state)
+    EVT_BEGIN(gabbi_anim_handler)
+    IF_EQUAL(GSW(1630), LW(10))
+    RETURN()
+    END_IF()
+    SWITCH(GSW(1630)) // Transition from current emotional state to neutral
+    CASE_EQUAL((s32)GABBI_SAD)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 22, 1) // S_2C
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    CASE_EQUAL((s32)GABBI_BLUSH)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 22, 1) // S_3C
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    CASE_EQUAL((s32)GABBI_MAD)                             // Currently Mad
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 25, 1) // S_4C
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    END_SWITCH()
+    SET(GSW(1630), LW(10))
+    SWITCH(GSW(1630)) // Transition to next emotional state defined by LW(10)
+    CASE_EQUAL((s32)GABBI_NEUTRAL)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Neutral))
+    CASE_EQUAL((s32)GABBI_SAD)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Sadge))
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 21, 1) // S_2A
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    CASE_EQUAL((s32)GABBI_BLUSH)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Blush))
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 21, 1) // S_3A
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    CASE_EQUAL((s32)GABBI_MAD)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Madge))
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 24, 1) // S_4A
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    END_SWITCH()
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 0, true)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(gabbi_walkto)
+    USER_FUNC(evt_npc::evt_npc_get_position, PTR("gabbi"), LW(3), 0, LW(5))
+    USER_FUNC(evt_cam::evt_cam_get_pos, 5, LW(0), LW(1), LW(2))
+    USER_FUNC(evt_cam::evt_cam_get_target, 5, LW(6), LW(7), LW(8))
+    // Pan to right of Gabbi
+    SET(LW(6), LW(3))
+    ADD(LW(6), 20)
+    SET(LW(0), LW(6))
+    // Move slightly downward
+    SUB(LW(1), 20)
+    SUB(LW(7), 20)
+    // Zoom
+    ADD(LW(8), 50)
+    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, LW(0), LW(1), LW(2), LW(6), LW(7), LW(8), 1200, 11)
+    WAIT_MSEC(200)
+    ADD(LW(3), 40)
+    USER_FUNC(evt_mario::evt_mario_walk_to, LW(3), LW(5), 800)
+    USER_FUNC(evt_mario::evt_mario_face_npc, PTR("gabbi"))
+    WAIT_MSEC(1000)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(gabbi_main)
+    USER_FUNC(evt_msg::evt_msg_select, 1, PTR(yesNoSelect_YesByDefault))
+    SET(LW(2), GW(7))
+    WAIT_MSEC(200)
+    IF_EQUAL(LW(0), 0) // Yes
+    USER_FUNC(evt_gabbi_get_key_cost, LW(15))
+    USER_FUNC(evt_pouch::evt_pouch_get_coins, LW(3))
+    IF_SMALL(LW(3), LW(15))
+    SET(LW(10), (s32)GABBI_SAD)
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR(gabbiBroke))
+    GOTO(99)
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR(gabbiSayYes))
+    END_IF()
+    RUN_CHILD_EVT(gabbi_menu)
+    IF_NOT_EQUAL(GW(7), -1)
+    SET(LW(7), GW(7))
+    DIV(LW(7), LW(15))
+    INLINE_EVT()
+    WAIT_MSEC(200)
+    IF_LARGE(LW(7), 3)
+    SET(LW(10), (s32)GABBI_BLUSH)
+    ELSE()
+    SET(LW(10), (s32)GABBI_NEUTRAL)
+    END_IF()
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    END_INLINE()
+    MUL(GW(7), -1)
+    USER_FUNC(evt_pouch::evt_pouch_add_coins, GW(7))
+    USER_FUNC(evt_shop::evt_shop_wait_coin_sfx)
+    WAIT_MSEC(200)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    USER_FUNC(evt_lp_add_chest_keys, LW(7))
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(gabbiSysGetKeys), 0, 0, LW(7))
+    SET(GW(7), LW(2))
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiThanks), 0, PTR("me"))
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    ELSE()
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    WAIT_MSEC(100)
+    SET(LW(10), (s32)GABBI_SAD)
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    WAIT_MSEC(100)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiBuyNothing), 0, PTR("me"))
+    GOTO(99)
+    END_IF()
+    ELSE() // No
+    SET(LW(10), (s32)GABBI_SAD)
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    WAIT_MSEC(100)
+    USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR(gabbiSayNo))
+    END_IF()
+    LBL(99)
+    SET(GW(7), LW(2))
+    USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 700, 11)
+    WAIT_MSEC(700)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(gabbi_talk)
+    USER_FUNC(evt_mario::evt_mario_key_off, 1)
+    RUN_EVT(gabbi_walkto)
+    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 1)
+    WAIT_MSEC(1500)
+    SWITCH(GSW(1630))
+    CASE_EQUAL((s32)GABBI_NEUTRAL)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_N), 0, PTR("me"))
+    CASE_EQUAL((s32)GABBI_SAD)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_S), 0, PTR("me"))
+    CASE_EQUAL((s32)GABBI_BLUSH)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_B), 0, PTR("me"))
+    CASE_EQUAL((s32)GABBI_MAD)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_M), 0, PTR("me"))
+    END_SWITCH()
+    RUN_CHILD_EVT(gabbi_main)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(fwd_gabbi_talk)
+    RUN_EVT(gabbi_talk)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(gabbi_hit)
+    USER_FUNC(evt_npc::evt_npc_get_damage_type, PTR("me"), LW(0))
+    IF_NOT_EQUAL(LW(0), 17) // Boomer
+    USER_FUNC(evt_npc::evt_npc_restart_evt_id, PTR("gabbi"))
+    RETURN()
+    END_IF()
+    // Set up post-cutscene properties
+    SET(GSWF(1645), 1)
+    USER_FUNC(evt_mario::evt_mario_key_off, 1)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), 2, 0)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), 9, PTR(fwd_gabbi_talk))
+    // Gabbi takes damage
+    USER_FUNC(evt_npc::func_80108194, PTR("me"), 0)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 22, 1) // Y_1A
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    USER_FUNC(evt_cam::evt_cam_look_at_door, 1, 0)
+    RUN_EVT(gabbi_walkto)
+    WAIT_MSEC(2000)
+    // Gabbi gets fucking mad
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 23, 1) // Y_1B
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 24, 1) // S_4A
+    USER_FUNC(evt_npc::evt_npc_wait_anim_end, PTR("me"), 1)
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("me"), 0, 1) // S_4B
+    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 1)
+    WAIT_MSEC(500)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiMadge), 0, PTR("me"))
+    WAIT_MSEC(1000)
+    // Gabbi apologizes
+    SET(GSW(1630), (s32)GABBI_MAD)
+    SET(LW(10), (s32)GABBI_SAD)
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    WAIT_MSEC(100)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiSorry), 0, PTR("me"))
+    SET(LW(10), (s32)GABBI_NEUTRAL)
+    RUN_CHILD_EVT(gabbi_anim_handler)
+    WAIT_MSEC(100)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro), 0, PTR("me"))
+    RUN_CHILD_EVT(gabbi_main)
     RETURN()
     EVT_END()
 
@@ -4405,6 +4749,47 @@ namespace mod {
     RETURN()
     EVT_END()
 
+    EVT_BEGIN(spawn_gabbi)
+    USER_FUNC(evt_npc::evt_npc_entry, PTR("gabbi"), PTR("n_angel_g"), 0)
+    USER_FUNC(evt_npc::evt_npc_add_flip_part, PTR("gabbi"))
+    IF_EQUAL(GSWF(1645), 0)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Madge))
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 2, PTR(gabbi_hit))
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 9, PTR(fwd_gabbi_speech_deadge))
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 11, 20)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 10, 20)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 12, 20)
+    USER_FUNC(evt_npc::evt_npc_modify_part, PTR("gabbi"), -1, 15, PTR(&temp_unk::whacka_defenses))
+    USER_FUNC(evt_npc::evt_npc_modify_part, PTR("gabbi"), 1, 11, 20)
+    USER_FUNC(evt_npc::evt_npc_modify_part, PTR("gabbi"), 1, 10, 20)
+    USER_FUNC(evt_npc::evt_npc_modify_part, PTR("gabbi"), 1, 12, 20)
+    USER_FUNC(evt_npc::evt_npc_restart_evt_id, PTR("gabbi"))
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("gabbi"), 21, true)
+    ELSE()
+    USER_FUNC(evt_mobj::evt_mobj_check, PTR(rfcChestName), LW(0)) // Check if Whacka exists
+    IF_EQUAL(LW(0), 0)
+    SET(GSW(1624), 0) // Set slot 2 NPC to null
+    RETURN()
+    END_IF()
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), 9, PTR(fwd_gabbi_talk))
+    SWITCH(GSW(1630))
+    CASE_EQUAL((s32)GABBI_NEUTRAL)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Neutral))
+    CASE_EQUAL((s32)GABBI_SAD)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Sadge))
+    CASE_EQUAL((s32)GABBI_BLUSH)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Blush))
+    CASE_EQUAL((s32)GABBI_MAD)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("me"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Madge))
+    END_SWITCH()
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("gabbi"), 0, true)
+    END_IF()
+    USER_FUNC(evt_npc::func_80108194, PTR("gabbi"), 0)
+    USER_FUNC(evt_npc::evt_npc_add_flip_part, PTR("gabbi"))
+    USER_FUNC(evt_npc::evt_npc_set_position, PTR("gabbi"), 200, 0, -100)
+    RETURN()
+    EVT_END()
+
     s32 small_chest_get_params(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
@@ -4500,10 +4885,10 @@ namespace mod {
             Small chest is more likely to appear when coins are low
         */
         RFNPCId slot1Npc = NONE;
-        s32 flimmWeight = 130;
-        s32 boodinWeight = 70;
+        s32 flimmWeight = 140;
+        s32 boodinWeight = 60;
         s32 merlunaWeight = 10;
-        s32 smallChestWeight = 70;
+        s32 smallChestWeight = 100;
         if (swdrv::swGet(1611) == true) // Merluna disabled
             merlunaWeight = 0;
         if (mario_pouch::pouchGetCoin() <= 50) // Has 50 or fewer coins
@@ -4534,7 +4919,7 @@ namespace mod {
         */
         RFNPCId slot2Npc = NONE;
         s32 moverWeight = 25;
-        s32 gabbiWeight = 0;                                          // Unimplemented, will probably be 150
+        s32 gabbiWeight = 600;                                        // Unimplemented, will probably be 150
         s32 dmanWeight = 0;                                           // Unimplemented, will probably be 150
         if (swdrv::swGet(1610) == true || swdrv::swByteGet(1) >= 179) // Movers disabled OR on floor 80/90
             moverWeight = 0;
@@ -4549,7 +4934,7 @@ namespace mod {
                 rand -= moverWeight;
                 if (rand < gabbiWeight) {
                     slot2Npc = GBBI;
-                    // evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_gabbi);
+                    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_gabbi);
                 } else {
                     slot2Npc = DMAN;
                     // evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_dman);
@@ -4574,6 +4959,10 @@ namespace mod {
     IF_SMALL_EQUAL(LW(0), 4) // 5% chance to replace chest with Whacka
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR(rfcChestName))
     RUN_EVT(spawn_whacka)
+    ELSE()
+    IF_EQUAL(GSWF(1644), 1)
+    RUN_EVT(spawn_whacka)
+    END_IF()
     END_IF()
     END_IF()
     USER_FUNC(spawn_rfnpc, LW(0), LW(2))
@@ -4621,7 +5010,7 @@ namespace mod {
     EVT_END()
 
     EVT_BEGIN(cwselect_disorder)
-    USER_FUNC(EvtCWSelectEntry, PTR("Disorder"), CWSELECT_DEFAULT, PTR("Disorders"), PTR("!!! Debug Menu !!!\nSelect a Disorder"), 0, 0)
+    USER_FUNC(EvtCWSelectEntry, PTR("Disorder"), CWSELECT_DEFAULT, PTR("Disorders"), PTR("!!! Debug Menu !!!\nSelect a Disorder\nOwO What;s This\nTesting 4 lines\nActually 5 now"), 0, 0)
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Disorder"), PTR(rainbowSelectBgCols), 8)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(apathyName), PTR(apathyDesc), TPLPATCH_ICON(ICON_DISORDER_APATHY), 0, 0, 0)
     USER_FUNC(EvtCWSelectAddListing, PTR("Disorder"), PTR(dreadName), PTR(dreadDesc), TPLPATCH_ICON(ICON_DISORDER_DREAD), 0, 0, 0)
@@ -4650,7 +5039,7 @@ namespace mod {
     USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR(difficultyText))
     USER_FUNC(evt_msg::evt_msg_select, 1, PTR(difficultyOptions))
     USER_FUNC(evt_msg::evt_msg_continue)
-    SET(GSW(1620), LW(0))
+    USER_FUNC(evt_lp_set_difficulty, LW(0))
     // Music
     RUN_CHILD_EVT(cwselect_music)
     SET(GW(5), 0) // Fixes the Dark Prognosticus breaking holographic enemies. What a funny ass bug
@@ -4803,7 +5192,7 @@ namespace mod {
             swdrv::swSet(gswf);
             spmario_snd::spsndSFXOn("SFX_SYS_FILE_MOJI_DELETE1");
         }
-        customwin::CWSelectGetActiveEntry()->Descs[select->selectedItemIdx].iconId = icondrv::ICON_CATCH_CARD + (u8)swdrv::swGet(gswf);
+        customwin::CWSelectGetActiveEntry()->Descs[select->selectedItemIdx].iconId = TPLPATCH_ICON(ICON_SETTING_ON) + (u8)swdrv::swGet(gswf);
         return false;
     }
 
@@ -4831,13 +5220,13 @@ namespace mod {
     EVT_BEGIN(cwselect_features)
     USER_FUNC(JimboSetGSWFBase, 1610)
     USER_FUNC(EvtCWSelectEntry, PTR("Features"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1610))
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(moverFeaturesName), PTR(moverFeaturesDesc), LW(1), 0, 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1611))
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(merlunaFeaturesName), PTR(merlunaFeaturesDesc), LW(1), 0, 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1612))
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(marioFeaturesName), PTR(marioFeaturesDesc), LW(1), 0, 0, 0)
     /* // Debug: Add L emblem test
@@ -4848,7 +5237,7 @@ namespace mod {
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR("GREEEEEEN!"), PTR("This Super Paper Mario Mod\nMakes You
     GREEN!"), LW(1), 0, 0, 0) END_IF()
     // End debug, open select menu */
-    USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Features"), PTR(JimboToggleOption))
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Features"), BTN_2, PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Features"), PTR(featuresSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Features"), 0, 0)
     /* // Debug: Refresh character model
@@ -4870,13 +5259,13 @@ namespace mod {
     EVT_BEGIN(cwselect_patches)
     USER_FUNC(JimboSetGSWFBase, 1620)
     USER_FUNC(EvtCWSelectEntry, PTR("Patches"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1620))
     USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(lockPatchesName), PTR(lockPatchesDesc), LW(1), 0, 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1621))
     USER_FUNC(EvtCWSelectAddListing, PTR("Patches"), PTR(hpPatchesName), PTR(hpPatchesDesc), LW(1), 0, 0, 0)
-    USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Patches"), PTR(JimboToggleOption))
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Patches"), BTN_2, PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Patches"), PTR(patchesSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Patches"), 0, 0)
     USER_FUNC(EvtCWSelectReset)
@@ -4887,13 +5276,13 @@ namespace mod {
     EVT_BEGIN(cwselect_accessibility)
     USER_FUNC(JimboSetGSWFBase, 1630)
     USER_FUNC(EvtCWSelectEntry, PTR("Accessibility"), CWSELECT_DEFAULT, PTR(selectJimboBlueText), PTR(selectJimboBox), 0, 0)
-    SET(LW(1), 0x86)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1630))
     USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(explosionShakeAccessName), PTR(explosionShakeAccessDesc), LW(1), 0, 0, 0)
-    //SET(LW(1), 0x86)
-    //ADD(LW(1), GSWF(1631))
-    //USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(statNamesAccessName), PTR(statNamesAccessDesc), LW(1), 0, 0, 0)
-    USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Accessibility"), PTR(JimboToggleOption))
+    // SET(LW(1), 0x86)
+    // ADD(LW(1), GSWF(1631))
+    // USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(statNamesAccessName), PTR(statNamesAccessDesc), LW(1), 0, 0, 0)
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Accessibility"), BTN_2, PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Accessibility"), PTR(accessSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Accessibility"), 0, 0)
     USER_FUNC(EvtCWSelectReset)
@@ -4902,7 +5291,6 @@ namespace mod {
     EVT_END()
 
     EVT_BEGIN(jimbo_real)
-    USER_FUNC(cwselectSettingsIcons, 1)
     SWITCH(GW(0))
     // FEATURES
     CASE_EQUAL(0)
@@ -4939,7 +5327,6 @@ namespace mod {
     ELSE()
     // END JIMBO CUTSCENE
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(jimboBye), 0, PTR("me"))
-    USER_FUNC(cwselectSettingsIcons, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 1000, 11)
     WAIT_MSEC(1000)
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -4956,7 +5343,7 @@ namespace mod {
     SUB(LW(3), 45)
     USER_FUNC(evt_mario::evt_mario_walk_to, LW(3), LW(5), 500)
     USER_FUNC(evt_mario::evt_mario_face_npc, PTR("me"))
-    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), LW(9))
+    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 0)
     WAIT_MSEC(1000)
     // Jimbo first cutscene
     IF_EQUAL(GSWF(586), 0)
@@ -4974,7 +5361,6 @@ namespace mod {
     END_IF()
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(jimboBye), 0, PTR("me"))
     // END JIMBO CUTSCENE
-    USER_FUNC(cwselectSettingsIcons, 0)
     USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 1000, 11)
     WAIT_MSEC(1000)
     USER_FUNC(evt_mario::evt_mario_key_on)
@@ -5002,7 +5388,6 @@ namespace mod {
     SET(GSW(1602), 0)
     SET(GSW(1610), 0)
     SET(GSW(1611), 0)
-    SET(GSW(1620), 0)
     USER_FUNC(Debug_ChkSaveName)
     USER_FUNC(evt_dan_reset_lunatic)
     USER_FUNC(evt_pouch::evt_pouch_check_have_item, 48, LW(15)) // Removes Pit Key if Mario has one
@@ -5411,12 +5796,13 @@ namespace mod {
     USER_FUNC(evt_cam::evt_cam_shake, 5, FLOAT(0.5), FLOAT(0.5), FLOAT(0.0), 173, 0)
     END_IF()
     END_INLINE()
+    USER_FUNC(evt_lp_get_difficulty, LW(11))
     // Explosion #2 if difficulty is Normal
-    IF_LARGE_EQUAL(GSW(1620), 1)
+    IF_LARGE_EQUAL(LW(11), 1)
     RUN_CHILD_EVT(kami_no_dokkan_sub)
     END_IF()
     // Explode twice more if difficulty is Hard
-    IF_LARGE_EQUAL(GSW(1620), 2)
+    IF_LARGE_EQUAL(LW(11), 2)
     RUN_CHILD_EVT(kami_no_dokkan_sub)
     RUN_CHILD_EVT(kami_no_dokkan_sub)
     END_IF()

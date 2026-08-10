@@ -331,6 +331,7 @@
 800e0430:evt_cam_zoom_to_coords
 800e04fc:evt_cam_look_at_door
 800dfe08:evt_cam_shake
+800dfd08:evt_cam_get_target
 800dfd88:evt_cam_get_pos
 
 // evt_snd.c
@@ -592,6 +593,7 @@
 800f3c98:evt_mobj_set_rotation
 800f36b0:evt_mobj_hit_onoff
 800f3da0:evt_mobj_set_anim
+800f422c:evt_mobj_check
 800f5608:mobj_zyo
 800f5ad8:evt_mobj_zyo
 800f52a4:evt_mobj_jumpstand
@@ -1782,7 +1784,7 @@
 1,5,d2cd0:sammerDefsEndgame
 // more
 
-// temp_unk.c
+// temp_unk
 80203fc8:bowser_spawn_fire
 80207a24:luigi_boss_set_stats
 80207c6c:luigi_superjump_atk
@@ -1816,6 +1818,9 @@
 803ff190:default_item_use_evt
 80439e58:npc_drop_item_evt
 80221578:backCursyaHit
+800a3548:effSpmVoltEntry
+800a2fe4:effItemThunderEntry
+800a3150:effItemThunderSetTargetMario
 
 801f9294:func_801f9294
 801f9cfc:func_801f9cfc

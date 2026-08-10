@@ -142,13 +142,13 @@ namespace mod {
     }
 
     void disorderDisplay(f32 offset) {
-        f32 x = -385.0f;
+        f32 x = -350.0f;
         s32 disorderNum = (s32)Lunatic->Luna.disorder;
         if (disorderNum > 0) {
-            wii::mtx::Vec3 position = {x, (-230.0f - (offset / 1.5f)), 0.0f};
+            wii::mtx::Vec3 position = {x, (-215.0f - (offset / 1.5f)), 0.0f};
             s32 mainIconId = (disorderNum - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
-            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, mainIconId, 200);
-            icondrv::iconDispGxAlpha(0.64f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 225);
+            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, mainIconId, 200);
+            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 225);
         }
         s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
         if (disorderRooms > 0) {
@@ -156,16 +156,16 @@ namespace mod {
             char buffer[4];
             msl::stdio::sprintf(buffer, "%d", disorderRooms);
             const char * msg = buffer;
-            x -= 4.0f;
+            x -= 6.0f;
             if (disorderRooms == 1)
                 x += 1.0f;
-            LPGUIDrawText(x, (-185.0f - (offset / 1.5f)), 0.64f, 200, funnyColor, true, msg);
+            LPGUIDrawText(x, (-150.0f - (offset / 1.5f)), 0.9f, 200, funnyColor, true, msg);
         }
     }
 
     void voucherDisplay(f32 offset) {
-        f32 y = -230.0f;
-        f32 x = 380.0f + offset;
+        f32 y = -200.0f;
+        f32 x = 350.0f + offset;
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1) {
             if (Lunatic->Voucher.Work[i] != nullptr) {
@@ -372,7 +372,7 @@ namespace mod {
                     msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[5].desc, Lunatic->Luna.DW.UW.Depravity.allLv4FloorThreshold);
                     break;
                 case DISORDER_PURPLE:
-                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence.attackEffectChance, Lunatic->Luna.DW.UW.Indolence.dispDmgPctBonus, Lunatic->Luna.DW.UW.Indolence.slowDuration);
+                    msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[6].desc, Lunatic->Luna.DW.UW.Indolence.attackEffectChance, Lunatic->Luna.DW.UW.Indolence.slowDuration);
                     break;
                 case DISORDER_WHITE:
                     msl::stdio::sprintf(Lunatic->Interface.aeDescBuf, Disorders[7].desc);
@@ -425,7 +425,7 @@ namespace mod {
     USER_FUNC(LPGUIShowHideStats, 1)
     USER_FUNC(EvtCWSelectEntry, PTR("Active"), CWSELECT_DEFAULT, PTR("Active Effects"), PTR(""), 0, 0)
     USER_FUNC(EvtCWSelectHideDescWindow, PTR("Active"))
-    USER_FUNC(EvtCWSelectOverrideSelectionBehavior, PTR("Active"), PTR(DoNothing))
+    USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Active"), BTN_2, PTR(DoNothing))
     // Disorder: effect type, disorder id, icon id, name, description, text col
     USER_FUNC(GetEffectInfo, 2, LW(2), LW(5), LW(6), LW(7), LW(9))
     IF_LARGE(LW(2), 0)

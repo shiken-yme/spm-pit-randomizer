@@ -18,6 +18,12 @@ namespace mod {
         DAN_NPC_CHILD = 0x4
     };
 
+    #define RANGE(min, max) \
+        (max - min + 1)
+
+    #define ARRAY32_COUNT(array) \
+        (sizeof(array) / 4)
+
     s32 round(f32 in);
     s32 clamp(s32 input, s32 min, s32 max);
     s32 split(s32 in, s32 * out);
@@ -27,11 +33,17 @@ namespace mod {
     void lpAddHp(s32 maxHp, s32 hp);
     void lpAddCrit(s32 rate, f32 mult);
     EVT_DECLARE_USER_FUNC(evt_lp_add_crit, 2)
+    void lpAddChestKeys(s32 num);
+    EVT_DECLARE_USER_FUNC(evt_lp_add_chest_keys, 1)
+    s32 lpGetDanLv(); // 1-4
+    s32 lpGetDifficulty(); // 0-3
+    EVT_DECLARE_USER_FUNC(evt_lp_get_difficulty, 1)
+    EVT_DECLARE_USER_FUNC(evt_lp_set_difficulty, 1)
     bool npcIsShellEnemy(npcdrv::NPCEntry * npc);
     bool npcCheckHasKey(npcdrv::NPCEntry * npc, bool checkForChestKey, s32 itemIdToChk);
-    bool npcCheckDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag);
-    void npcSetDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag);
-    void npcClearDanFlag(npcdrv::NPCEntry * npc, NPCDanFlag flag);
+    bool npcCheckDanFlag(npcdrv::NPCEntry * npc, u32 flag);
+    void npcSetDanFlag(npcdrv::NPCEntry * npc, u32 flag);
+    void npcClearDanFlag(npcdrv::NPCEntry * npc, u32 flag);
     void npcMakeHolo(npcdrv::NPCEntry * npc);
     void npcMakeNegative(npcdrv::NPCEntry * npc);
     const char * npcTribeToName(s32 tribeId);

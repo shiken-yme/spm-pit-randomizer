@@ -159,9 +159,7 @@ namespace mod {
         "Music";
 
     const char selectJimboBox[] =
-        "Select your Settings\n"
-        "<icon PAD_1 0.67 0 0 0> is Enabled\n"
-        "<icon PAD_2 0.67 0 0 0> is Disabled\n";
+        "Select your Settings";
 
     const char selectJimboBlueText[] =
         "Options";
@@ -991,28 +989,10 @@ namespace mod {
         "<wait 250>Where do you wanna go?\n"
         "<o>";
 
-    const char moverChoicesLv1[] =
+    const char moverChoices[] =
         "<select 2 -1 400 40>\n"
-        "20 Coins: Down 2 Floors\n"
-        "60 Coins: Down 5 Floors\n"
-        "Nah, I'm fine.";
-
-    const char moverChoicesLv2[] =
-        "<select 2 -1 400 40>\n"
-        "25 Coins: Down 2 Floors\n"
-        "75 Coins: Down 5 Floors\n"
-        "Nah, I'm fine.";
-
-    const char moverChoicesLv3[] =
-        "<select 2 -1 400 40>\n"
-        "30 Coins: Down 2 Floors\n"
-        "90 Coins: Down 5 Floors\n"
-        "Nah, I'm fine.";
-
-    const char moverChoicesLv4[] =
-        "<select 2 -1 400 40>\n"
-        "40 Coins: Down 2 Floors\n"
-        "120 Coins: Down 5 Floors\n"
+        "%d Coins: Down 2 Floors\n"
+        "%d Coins: Down 5 Floors\n"
         "Nah, I'm fine.";
 
     const char moverNo[] =
@@ -1419,16 +1399,29 @@ namespace mod {
         "\"Guess I'll just stay put...\"\n"
         "<k>\n<p>\n"
         "Upon taking damage, %d%% chance\n"
-        "for one effect to occur:\n"
+        "to receive a status effect.\n"
         "<k>\n<p>\n"
-        "Frozen; +%d%% more damage;\n"
-        "Slowed for %d seconds.";
+        "You may either be Frozen or\n"
+        "Slowed for %d seconds.\n"
+        "<k>\n<p>\n"
+        "Additionally, the entire world\n"
+        "slows down by 10%%.";
 
     const char melancholyDesc[] =
         "Disorder: Melancholy\n"
         "\"I'm so over this...\"\n"
         "<k>\n<p>\n"
-        "Placeholder";
+        "Gain 1 stack of Atrophy every\n"
+        "10 seconds spent in one room.\n"
+        "<k>\n<p>\n"
+        "Atrophy increases damage taken\n"
+        "by 1 to the power of # stacks.\n"
+        "<k>\n<p>\n"
+        "Atrophy stacks up to 5 times\n"
+        "or until damage is taken.\n"
+        "<k>\n<p>\n"
+        "All Voucher tear chances are\n"
+        "doubled.";
 
     const char ruinDesc[] =
         "Disorder: Ruin\n"
@@ -1639,17 +1632,51 @@ namespace mod {
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>indolence.\n"
         "</shake><k>\n<p>\n"
         "Getting hit will result in\n"
-        "a random effect occurring.\n"
+        "a status effect occurring.\n"
         "<k>\n<p>\n"
-        "You might get frozen, take\n"
-        "more damage, or get slowed\n"
-        "for some time.\n"
+        "You might get frozen or\n"
+        "get slowed down for a\n"
+        "certain amount of time.\n"
+        "<k>\n<p>\n"
+        "Additionally, the world\n"
+        "slows down slightly while\n"
+        "the Disorder is active.\n"
         "<k>";
 
     const char indolenceIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Indolence:</shake><wait 500> Getting hit can\n"
-        "trigger extra damage, Slow,\n"
-        "or Frozen.\n"
+        "trigger Slow or Frozen.\n"
+        "<wait 1000><wave>Eeeverything is slooower.\n"
+        "</wave><k>";
+
+    const char melancholyIntro[] =
+        "<system>A wave of misery strikes\n"
+        "you, <wait 200>doing this or that\n"
+        "man idk\n"
+        "<k>\n<p>\n"
+        "I'll do this later lol\n"
+        "<k>\n<p>\n"
+        "You're now bound by pure,\n"
+        "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>Melancholy.\n"
+        "</shake><k>\n<p>\n"
+        "Every 10 seconds, you will\n"
+        "be marked with 1 stack\n"
+        "of <wave>Atrophy.\n"
+        "</wave><k>\n<p>\n"
+        "<wave>Atrophy</wave> increases damage\n"
+        "taken based on the number\n"
+        "of stacks, up to 5 stacks.\n"
+        "<k>\n<p>\n"
+        "<wave>Atrophy</wave> <dynamic 3>exponentially</dynamic> stacks\n"
+        "damage; don't lose track of it!\n"
+        "(+1, +2, +4, +8, +16)\n"
+        "<k>\n<p>\n"
+        "Stacks and internal timer will\n"
+        "reset when damage is taken\n"
+        "or when the Disorder ends.\n"
+        "<k>\n<p>\n"
+        "Additionally, all Vouchers\n"
+        "are twice as likely to tear.\n"
         "<k>";
 
     const char disorderIndifferenceItemNotif[] =
@@ -1800,6 +1827,102 @@ namespace mod {
         "Maybe you'll catch me at\n"
         "another time. Thanks for\n"
         "stoppin' by!\n"
+        "<k>";
+
+    // Gabbi
+    const char gabbiSleeping[] =
+        "<system>\nThe Nimbi girl appears to\n"
+        "be asleep.<wait 1000> You should try\n"
+        "waking her up."
+        "</wave></dynamic><k>";
+
+    const char gabbiSleeping2[] =
+        "<system>\nShe's still asleep.\n"
+        "<wait 1000>Maybe you should try\n"
+        "<se_on SFX_EVT_SHOCK1><dynamic 3><col c00000ff><wave>blowing her up."
+        "</wave></col></dynamic><k>";
+
+    const char gabbiSleeping3[] =
+        "<system>\n<dynamic 3><col c00000ff><shake><se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.\n"
+        "<wait 500><se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.\n"
+        "<wait 500><se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.\n"
+        "</shake></col></dynamic><k>";
+    
+    const char gabbiMadge[] =
+        "dude what the fuck\n"
+        "<wait 2000>that was not cool\n"
+        "<k>";
+
+    const char gabbiSorry[] =
+        "s-s-s-s-sorry i blew up\n"
+        "on you my fault gang\n"
+        "<k>";
+
+    const char gabbiIntro[] =
+        "i'm gabbi i sell chest keys\n"
+        "for cooooooooooooooins\n"
+        "<k>\n<p>\n"
+        "please buy my wares so i\n"
+        "can afford estergin\n"
+        "im just a girl\n"
+        "<k>\n<p>\n"
+        "wanna buy my shit gang\n"
+        "<o>";
+
+    const char gabbiIntro_N[] =
+        "hiii i have chest keys\n"
+        "you can buy with your\n"
+        "money u want some ?\n"
+        "<o>";
+
+    const char gabbiIntro_S[] =
+        "h-hi :( do u wanna buy\n"
+        "some chest keys.......\n"
+        "<o>";
+
+    const char gabbiIntro_M[] =
+        "h-hey, dont blow me up...\n"
+        "now u have to buy my wares\n"
+        "or u stink booooo\n"
+        "<o>";
+
+    const char gabbiIntro_B[] =
+        "h-hiiii... x3 do u want\n"
+        "more chest today hehehe\n"
+        "^w^ :D\n"
+        "<o>";
+
+    const char gabbiSayYes[] =
+        "<p>\n"
+        "o-ok :)\n"
+        "<k>";
+
+    const char gabbiSayNo[] =
+        "<p>\n"
+        "o-ok :(\n"
+        "<k>";
+
+    const char gabbiBroke[] =
+        "<p>\n"
+        "sorry you're too broke\n"
+        "lmao broke ass go get\n"
+        "that money up wagie-san\n"
+        "<k>";
+
+    const char gabbiBuyNothing[] =
+        ":(\n"
+        "<k>";
+
+    const char gabbiThanks[] =
+        "thank youuuuu ^w^\n"
+        "<k>";
+
+    const char gabbiSelectInstructions[] =
+        "Buy some keys!\n"
+        "(Try using <icon PAD_PLUS 0.67 0 0 0> and <icon PAD_MINUS 0.67 0 0 0>)";
+
+    const char gabbiSysGetKeys[] =
+        "<system>\nYou got %d chest keys!\n"
         "<k>";
 
     // Misc
