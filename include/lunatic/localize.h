@@ -13,6 +13,32 @@
 namespace mod {
     using namespace spm;
 
+    /*
+        Macros to reduce redundancy somewhat
+    */
+
+    // Start a new text box
+    #define BRK "<k>\n<p>\n"
+
+    // Initiate a system text box
+    #define INIT_SYS "<system>\n"
+
+    // Continue text after a selection is made
+    #define CONT "<p>\n"
+
+    // Continue text after a selection is made, specifying system type (possibly redundant)
+    #define CONT_SYS "<p><system>\n"
+
+    // End a text box
+    #define END "<k>"
+
+    // Suspend a text box with a text selection prompt
+    #define PROMPT "<o>"
+
+    // I don't think this will ever be used in its current state, but just in case
+    #define STR(text) \
+        #text "\n"
+
     enum Tribe2Tattle_Types {
         /* 0x0 */ TATTLE,
         /* 0x1 */ CARD_NAME,
@@ -26,6 +52,40 @@ namespace mod {
         const char * tattleMsg;
     };
 
+    const char savefile_start_noversion[] =
+        INIT_SYS
+        "This save file is unmodded\n"
+        "or from an old version of\n"
+        "Lunatic Pit.\n" BRK
+        "Playing this save file may\n"
+        "result in unintended errors\n"
+        "during gameplay.\n" BRK
+        "It is recommended that you\n"
+        "create a new save file to\n"
+        "play this version.\n" BRK
+        "Start save file %d anyway?\n" PROMPT;
+
+    const char savefile_start_oldversion[] =
+        INIT_SYS
+        "This save file is from an\n"
+        "old version of Lunatic Pit.\n" BRK
+        "Playing this save file may\n"
+        "result in unintended errors\n"
+        "during gameplay.\n" BRK
+        "It is recommended that you\n"
+        "create a new save file to\n"
+        "play this version.\n" BRK
+        "Start save file %d anyway?\n" PROMPT;
+
+    const char savefile_start_update[] =
+        CONT_SYS
+        "Do you want to update this\n"
+        "save file's Lunatic Pit\n"
+        "version?\n" PROMPT;
+
+    const char backCursyaText[] =
+        "<system>\nlmao skill issue\n<k>";
+
     const char npcGetNameFromTribeIdError[] =
         "Null";
 
@@ -37,24 +97,21 @@ namespace mod {
         "Hard";
 
     const char difficultyText[] =
-        "<p><system>\n"
-        "Choose your difficulty.\n"
-        "<o>";
+        CONT_SYS
+        "Choose your difficulty.\n" PROMPT;
 
     const char musicSignRFText[] =
-        "<system>\n"
+        INIT_SYS
         "You can choose new music to\n"
         "play in the Pit by reading\n"
-        "this sign!\n"
-        "<k>";
+        "this sign!\n" END;
 
     const char nyMusicName[] =
         "Modern Mix";
 
     const char nyMusicDesc[] =
         "Lively and insert descriptor!\n"
-        "Composed by Nilyoshi.\n"
-        "<k>\n<p>\n"
+        "Composed by Nilyoshi.\n" BRK
         "This theme gets more intense\n"
         "as you traverse the Pit.";
 
@@ -142,13 +199,27 @@ namespace mod {
         "When the screen shakes, it will\n"
         "be significantly more gentle.";
 
+    const char aerodynamicAccessName[] =
+        "Aerodynamic";
+
+    const char aerodynamicAccessDesc[] =
+        "Mario will become approximately\n"
+        "2% more aerodynamic.";
+
+    const char baldMarioName[] = "Baldio";
+
+    const char baldMarioDesc[] =
+        "Our hero, Baldio! Press <icon PAD_A 0.58 0 3 2> to\n"
+        "flip between dimensions!\n"
+        "Watch out: if his Flip Meter\n"
+        "runs out, Baldio will get hurt.";
+
     const char statNamesAccessName[] =
         "Shorter Stat Names";
 
     const char statNamesAccessDesc[] =
         "Names on the stats display tab\n"
-        "will be truncated.\n"
-        "<k>\n<p>\n"
+        "will be truncated.\n" BRK
         "Examples: Crit Mult -> CM;\n"
         "Damage Reduction -> DR";
 
@@ -192,47 +263,38 @@ namespace mod {
         "in the Pit of 100 Trials.";
 
     const char rfcHelp[] =
-        "<p><system>\n"
+        CONT_SYS
         "Rest floor chests can be any\n"
         "of 4 rarity types,<wait 200> all with\n"
-        "loot of increasing quality.\n"
-        "<k>\n<p>\n"
+        "loot of increasing quality.\n" BRK
         "Chest rarities spawn like so:\n"
         "40% Common   30% Uncommon\n"
-        "20% Rare       10% Legendary\n"
-        "<k>\n<p>\n"
+        "20% Rare       10% Legendary\n" BRK
         "In each chest,<wait 200> you <wave>may</wave> find\n"
         "special items that upgrade\n"
-        "stats like Crit and Defense.\n"
-        "<k>\n<p>\n"
+        "stats like Crit and Defense.\n" BRK
         "However, to open these chests,\n"
         "<wait 200>you will need a certain number\n"
-        "of Chest Keys...\n"
-        "<k>\n<p>\n"
+        "of Chest Keys...\n" BRK
         "Chest keys have a chance to\n"
         "drop from any enemy in any\n"
         "floor, <wait 200><wave>but they're rare!\n"
         "</wave><k>\n<p>\n"
         "Up to 1 chest key may spawn\n"
         "randomly per floor, with 2+\n"
-        "guaranteed every 10 floors.\n"
-        "<k>\n<p>\n"
+        "guaranteed every 10 floors.\n" BRK
         "Consider saving your chest\n"
         "keys for when you encounter\n"
-        "a Rare or Legendary chest!\n"
-        "<k>\n<p>\n"
+        "a Rare or Legendary chest!\n" BRK
         "You can reroll the chest\n"
         "rarity, but only before you\n"
-        "open the chest.\n"
-        "<k>\n<p>\n"
+        "open the chest.\n" BRK
         "Rerolls cost one chest key,\n"
         "but each reroll will make the\n"
-        "next one more expensive!\n"
-        "<k>\n<p>\n"
+        "next one more expensive!\n" BRK
         "Oh, and just a warning...\n"
         "<wait 500><dynamic 3>Please</dynamic> don't open chests if\n"
-        "you don't have the keys.\n"
-        "<k>";
+        "you don't have the keys.\n" END;
 
     const char smallChestCoins[] =
         "<system>\nYou received %d coins!\n<k>";
@@ -241,29 +303,23 @@ namespace mod {
         "<system>\nYou received %d HP!\n<k>";
 
     const char voucherIntro[] =
-        "<system>\n"
-        "You've obtained a Voucher!\n"
-        "<k>\n<p>\n"
+        INIT_SYS
+        "You've obtained a Voucher!\n" BRK
         "When certain conditions are\n"
         "met, Vouchers will cause a\n"
-        "positive effect to occur.\n"
-        "<k>\n<p>\n"
+        "positive effect to occur.\n" BRK
         "When a Voucher takes effect,\n"
         "you'll see its icon spin\n"
-        "around briefly.\n"
-        "<k>\n<p>\n"
+        "around briefly.\n" BRK
         "However, any time a Voucher\n"
         "activates, it might tear,\n"
-        "making it spin rapidly.\n"
-        "<k>\n<p>\n"
+        "making it spin rapidly.\n" BRK
         "When a Voucher tears, a\n"
         "secondary effect will occur\n"
-        "before it disappears.\n"
-        "<k>\n<p>\n"
+        "before it disappears.\n" BRK
         "You can learn more about an\n"
         "active Voucher anytime in the\n"
-        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n"
-        "<k>";
+        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n" END;
 
     const char chestKeyName[] =
         "Chest Key";
@@ -387,24 +443,19 @@ namespace mod {
 
     const char cakeVDesc[] =
         "Max HP is increased by 2 for\n"
-        "every enemy room completed.\n"
-        "<k>\n<p>\n"
+        "every enemy room completed.\n" BRK
         "%d%% chance to tear after %d\n"
-        "activations.\n"
-        "<k>\n<p>\n"
+        "activations.\n" BRK
         "Tear: Halves total Max HP\n"
         "bonus and adds it to HP.";
 
     const char thunderVDesc[] =
         "An offensive stat is increased\n"
-        "for every 30 enemies defeated.\n"
-        "<k>\n<p>\n"
+        "for every 30 enemies defeated.\n" BRK
         "You may get either +8%% Crit Mult,\n"
-        "+2%% Crit Rate, or +1 Attack.\n"
-        "<k>\n<p>\n"
+        "+2%% Crit Rate, or +1 Attack.\n" BRK
         "%d%% chance to tear after %d\n"
-        "activations.\n"
-        "<k>\n<p>\n"
+        "activations.\n" BRK
         "Tear: Halves all offensive stat\n"
         "bonuses, then adds a final bonus.";
 
@@ -413,17 +464,13 @@ namespace mod {
 
     const char stellarVDesc[] =
         "Increases item drop rates\n"
-        "from most enemies.\n"
-        "<k>\n<p>\n"
+        "from most enemies.\n" BRK
         "Common Chests will not appear\n"
-        "on rest floors.\n"
-        "<k>\n<p>\n"
+        "on rest floors.\n" BRK
         "Chest reroll cost is lowered\n"
-        "from 1 to 0.\n"
-        "<k>\n<p>\n"
+        "from 1 to 0.\n" BRK
         "%d%% chance to tear after %d\n"
-        "activations.\n"
-        "<k>\n<p>\n"
+        "activations.\n" BRK
         "Tear: Instantly obtain a\n"
         "Chest Key.";
 
@@ -490,7 +537,8 @@ namespace mod {
         "Increases Defense by 1.";
 
     const char aegis2Desc[] =
-        "Increases Defense by 1.";
+        "Increases Defense by 1 and\n"
+        "lowers minimum damage to 0.";
 
     const char soul1Get[] =
         "<system>\nYour Crit Rate has been\nincreased by 4%!\n<k>";
@@ -526,7 +574,7 @@ namespace mod {
         "<system>\nYour Defense has been\nincreased by 1!\n<k>";
 
     const char aegis2Get[] =
-        "<system>\nYour Defense has been\nincreased by 1!\n<k>";
+        "<system>\nYour Defense has been\nincreased by 1!\n<k>\n<p>\nAdditionally, you can now take\nzero damage if enemies are\nweak enough.<k>";
 
     // Shadoo
     const char shadooIntro[] =
@@ -540,8 +588,7 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "Oh,<wait 350> won't you help me,<wait 200> Heroes?\n"
         "<wait 350>Indeed,<wait 200> allow me to reveal my\n"
-        "form to you...\n"
-        "<k>";
+        "form to you...\n" END;
 
     const char shadooIntroRamp[] =
         "<housou><wave>Welcome back, Heroes!</wave><wait 500> Looks\n"
@@ -550,8 +597,7 @@ namespace mod {
         "</shake><k>\n<p>\n"
         "<wave>I shall entertain you once\n"
         "more,<wait 200> great Heroes!\n"
-        "</wave><wait 500><shake><dynamic 3>Here I cooooome!\n"
-        "<k>";
+        "</wave><wait 500><shake><dynamic 3>Here I cooooome!\n" END;
 
     const char shadooIntroMock[] =
         "<housou><wave>Welcome back, Heroes!</wave><wait 500> Oh my,\n"
@@ -564,8 +610,7 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "<wave>Oh,<wait 200> but I shall entertain you\n"
         "nevertheless,<wait 200> great Heroes!\n"
-        "<wait 500><shake><dynamic 3>Here I cooooome!\n"
-        "<k>";
+        "<wait 500><shake><dynamic 3>Here I cooooome!\n" END;
 
     const char shadooDoBattle[] =
         "<housou><shake>Let us do battle,<wait 300> accursed\n"
@@ -579,53 +624,63 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "<shake>Yet I won't be sealed away by\n"
         "a battle of such low caliber!\n"
-        "<wait 500></shake><dynamic 3>Visit me again soon, Heroes!\n"
-        "<k>";
+        "<wait 500></shake><dynamic 3>Visit me again soon, Heroes!\n" END;
 
     const char tippiDS[] =
         "<fairy>Shadoo...<wait 250> Who are they?\n"
         "<wait 400>Why do they want us to come\n"
-        "back here...\n"
-        "<k>";
+        "back here...\n" END;
 
     const char peachDS[] =
         "This Shadoo wants us to come\n"
         "back?<wait 300> How mysterious...<wait 300> Just who\n"
-        "are they?\n"
-        "<k>";
+        "are they?\n" END;
 
     const char bowserDS[] =
         "Huh?<wait 300> You want me to come\n"
         "back?<wait 300> Pffft,<wait 100> I'll kick your\n"
-        "butt anytime you want!\n"
-        "<k>";
+        "butt anytime you want!\n" END;
 
     const char luigiDS[] =
         "Come back?<wait 300> Does that mean we'll\n"
         "have to do all 100 floors\n"
-        "over again?\n"
-        "<k>\n<p>\n"
+        "over again?\n" BRK
         "<shake>I don't wanna...\n"
         "</shake><k>";
 
     const char tippiDSAgain[] =
         "<fairy>Well, we've defeated Shadoo\n"
         "again...<wait 250> What exactly are\n"
-        "they?\n"
-        "<k>\n<p>\n"
+        "they?\n" BRK
         "It's like there's no end to\n"
         "this...<wait 250> Should we even keep\n"
-        "coming back here?\n"
-        "<k>";
+        "coming back here?\n" END;
 
     const char tippiDS_Sus[] =
         "<fairy>Now that I think about it...\n"
         "<wait 250>Doesn't Shadoo seem weirdly\n"
-        "familiar to you?\n"
-        "<k>\n<p>\n"
+        "familiar to you?\n" BRK
         "Maybe it's the way they talk...\n"
-        "<wait 250>Ugh,<wait 100> I just can't remember...\n"
-        "<k>";
+        "<wait 250>Ugh,<wait 100> I just can't remember...\n" END;
+
+    const char hardShadooBadFeeling[] =
+        INIT_SYS
+        "You have an ominous feeling\n"
+        "that something much worse\n"
+        "was meant to happen.\n" BRK
+        "An unshakeable sensation of\n"
+        "impending doom rattles you\n"
+        "to your core.\n" BRK
+        "But such a terrible fate will\n"
+        "not befall you...\n"
+        "<wait 500><shake>Not yet, it won't.\n"
+        "</shake><k>\n<p>\n"
+        "<wave>The end is never the end.\n"
+        "</wave><wait 500>Perhaps you should take some\n"
+        "solace in that.\n" BRK
+        "This is far from the end of\n"
+        "this saga.<wait 500> Please look forward\n"
+        "to future updates.\n" END;
 
     // Blessings and Curses
 
@@ -652,38 +707,31 @@ namespace mod {
         "<system>"
         "Hourai Doll has taken effect!\n"
         "HP has been fully restored,\n"
-        "but the Blessing has cleared.\n"
-        "<k>\n<p>\n"
+        "but the Blessing has cleared.\n" BRK
         "You now have an Affliction:\n"
         "Phoenix's Tail. Attack is\n"
-        "halved; HP increased by 10.\n"
-        "<k>\n<p>\n"
+        "halved; HP increased by 10.\n" BRK
         "Hourai Doll's effects are no\n"
-        "longer active, so be careful!\n"
-        "<k>\n<p>\n"
+        "longer active, so be careful!\n" BRK
         "These effects will remain\n"
         "until you exit the Pit or\n"
-        "the Affliction has cleared.\n"
-        "<k>";
+        "the Affliction has cleared.\n" END;
 
     const char houraiWearOff[] =
         "<system>"
         "The temporary HP boost and\n"
         "Attack cut from Phoenix's\n"
-        "Tail have now worn off.\n"
-        "<k>";
+        "Tail have now worn off.\n" END;
 
     const char merlunaIntro[] =
         "<shake>Wah-hah-hah!</shake><wait 500> You've found\n"
         "me, the oh-so-wonderful...<wait 250> the\n"
-        "dearly accursed... <wait 250><wave>Merluna!</wave>\n"
-        "<k>";
+        "dearly accursed... <wait 250><wave>Merluna!</wave>\n" END;
 
     const char merlunaIntro2[] =
         "What am I doing here, you ask\n"
         "me?<wait 250> Well, now, aren't you an\n"
-        "<shake>inquisitive</shake> one, indeed...\n"
-        "<k>\n<p>\n"
+        "<shake>inquisitive</shake> one, indeed...\n" BRK
         "If you must know, I am in\n"
         "the business of <wave>distributing\n"
         "the Ancients' unyielding will!\n"
@@ -694,12 +742,10 @@ namespace mod {
         "<dkey></dkey><k>\n<p>\n"
         "<wait 1500>...So I will!<wait 500> For a nominal\n"
         "fee, I shall render Divine\n"
-        "Judgement upon your person!\n"
-        "<k>\n<p>\n"
+        "Judgement upon your person!\n" BRK
         "Worry not;<wait 250> quite often, fortune\n"
         "may very well be in your\n"
-        "favor...<wait 750> it's all up to chance!\n"
-        "<k>\n<p>\n"
+        "favor...<wait 750> it's all up to chance!\n" BRK
         "You have a chance to be\n"
         "<wave>blessed,</wave><wait 500> but you could also\n"
         "be <shake>cursed...\n"
@@ -714,8 +760,7 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "You have a %d percent chance\n"
         "to be blessed, and a %d percent\n"
-        "chance to be cursed!\n"
-        "<k>\n<p>\n"
+        "chance to be cursed!\n" BRK
         "Now, allow me to divine the\n"
         "latest in the Tribe's bidding\n"
         "for you,<wait 500> <wave>o great Hero...\n"
@@ -728,12 +773,10 @@ namespace mod {
         "</shake><k>\n<p>\n"
         "You have a %d percent chance\n"
         "to be blessed, and a %d percent\n"
-        "chance to be cursed!\n"
-        "<k>\n<p>\n"
+        "chance to be cursed!\n" BRK
         "You know how the rest goes,<wait 300> so\n"
         "I shall spare you the lecture\n"
-        "and hear the Ancients' will...\n"
-        "<k>";
+        "and hear the Ancients' will...\n" END;
 
     const char merlunaJudgement[] =
         "The Blessing is %s;\n"
@@ -845,16 +888,13 @@ namespace mod {
     const char merlunaSpectre[] =
         "The Blessing known as Spectre\n"
         "<wait 100>is<wait 100> <wave>oh-so very convenient!\n"
-        "</wave><wait 200>You'll <shake>certainly</shake> love it...\n"
-        "<k>\n<p>\n"
+        "</wave><wait 200>You'll <shake>certainly</shake> love it...\n" BRK
         "Each enemy you defeat will\n"
         "have a 20 percent chance to\n"
-        "heal you a certain amount!\n"
-        "<k>\n<p>\n"
+        "heal you a certain amount!\n" BRK
         "The HP obtained depends on\n"
         "the enemy's HP as well as\n"
-        "your progress in the Pit.\n"
-        "<k>\n<p>\n"
+        "your progress in the Pit.\n" BRK
         "<wave>Doesn't that sound great?\n"
         "<wait 700>It<wait 100> could<wait 100> be<wait 100> yoooours...\n"
         "<wait 100></wave><k>";
@@ -862,8 +902,7 @@ namespace mod {
     const char merlunaAster[] =
         "The Curse,<wait 200> Tatarian Aster,\n"
         "<wait 200>is simply <shake>terrible...</shake><wait 700> You\n"
-        "certainly don't want it!\n"
-        "<k>\n<p>\n"
+        "certainly don't want it!\n" BRK
         "Known to some in my tribe as\n"
         "\"Shion,\"<wait 300> it will ensure you have\n"
         "terrible luck...<wait 300> <shake>FOR LIFE!\n"
@@ -884,20 +923,17 @@ namespace mod {
     const char merlunaHex[] =
         "The Curse,<wait 200> Vulnerability Hex,\n"
         "<wait 200>will cause you to take more\n"
-        "damage from all sources.\n"
-        "<k>\n<p>\n"
+        "damage from all sources.\n" BRK
         "Historically,<wait 200> this curse was used\n"
         "to weaken our enemies and\n"
-        "defeat them swiftly...\n"
-        "<k>\n<p>\n"
+        "defeat them swiftly...\n" BRK
         "It's not so terrible early on,\n"
         "<wait 200><wave>but you'll take increased\n"
         "damage in later floors...\n"
         "</wave><k>\n<p>\n"
         "You'll take 1 extra damage in\n"
         "Floors 1-50,<wait 200> 2 extra through 75,\n"
-        "<wait 200>and 3 extra after that!\n"
-        "<k>\n<p>\n"
+        "<wait 200>and 3 extra after that!\n" BRK
         "Of course,<wait 200> if you get cursed,\n"
         "<wait 200>I can always make it better\n"
         "for you...<wait 600> <shake>Hehehe...\n"
@@ -906,19 +942,16 @@ namespace mod {
     const char merlunaHourai[] =
         "The Blessing,<wait 200> Hourai Doll,<wait 200> allows\n"
         "the user to return from the\n"
-        "dead,<wait 200> <wave>fully revitalized!\n"
-        "<k>\n<p>\n"
+        "dead,<wait 200> <wave>fully revitalized!\n" BRK
         "Weeellll....</wave><wait 400> maybe that's not\n"
-        "entirely true...\n"
-        "<k>\n<p>\n"
+        "entirely true...\n" BRK
         "If you run out of HP with this\n"
         "Blessing active,<wait 200> you'll revive\n"
         "at full HP,<wait 200> <wave>and then some!\n"
         "</wave><k>\n<p>\n"
         "After Hourai Doll takes effect,\n"
         "<wait 200>the Blessing will end,<wait 200> and you'll\n"
-        "be afflicted by Phoenix's Tail.\n"
-        "<k>\n<p>\n"
+        "be afflicted by Phoenix's Tail.\n" BRK
         "Phoenix's Tail increases your max\n"
         "HP by 10,<wait 200> <shake>but halves your attack\n"
         "power!<wait 400></shake> <wave>How dangerous...\n"
@@ -938,16 +971,13 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "At will,<wait 200> you can multiply your\n"
         "attack power...<wait 400> but it'll take\n"
-        "<shake>20 percent</shake> of your current HP!\n"
-        "<k>\n<p>\n"
+        "<shake>20 percent</shake> of your current HP!\n" BRK
         "Paramita will multiply attack\n"
         "by two in Floors 1-50,<wait 200> by three\n"
-        "in 51-75,<wait 200> and by four in 75-99!\n"
-        "<k>\n<p>\n"
+        "in 51-75,<wait 200> and by four in 75-99!\n" BRK
         "This buff will last for twenty\n"
         "seconds,<wait 200> with an equally long\n"
-        "cooldown after it ends.\n"
-        "<k>\n<p>\n"
+        "cooldown after it ends.\n" BRK
         "<wave>Doesn't that sound great?\n"
         "<wait 700>It<wait 100> could<wait 100> be<wait 100> yoooours...\n"
         "<wait 100></wave><k>";
@@ -955,24 +985,21 @@ namespace mod {
     const char merlunaMigraine[] =
         "The Curse,<wait 200> Migraine,<wait 200> is <wave>soooooo\n"
         "very annoying!</wave><wait 400> You'll be\n"
-        "frustrated in no time flat!\n"
-        "<k>\n<p>\n"
+        "frustrated in no time flat!\n" BRK
         "When you are hit by an enemy,\n"
         "<wait 200>you will have a 75 percent\n"
         "chance to be <shake>debuffed...\n"
         "</shake><k>\n<p>\n"
         "<wave>You might forget how to walk,\n"
         "or you might forget how to use\n"
-        "your abilities...\n"
-        "<k>\n<p>\n"
+        "your abilities...\n" BRK
         "...but sometimes,<wait 200> you might\n"
         "become as slow as a snail,<wait 200> or\n"
         "as heavy as a boulder!\n"
         "</wave><k>\n<p>\n"
         "The amount of time the debuff\n"
         "lasts is <shake>random!</shake><wait 300> It can last\n"
-        "up to one to ten seconds...\n"
-        "<k>\n<p>\n"
+        "up to one to ten seconds...\n" BRK
         "Of course,<wait 200> if you get cursed,\n"
         "<wait 200>I can always make it better\n"
         "for you...<wait 600> <shake>Hehehe...\n"
@@ -982,12 +1009,10 @@ namespace mod {
     const char moverIntro[] =
         "Hey.<wait 250> Wassup?<wait 250> I'm a Mover.\n"
         "I know a few things about\n"
-        "getting through this dungeon.\n"
-        "<k>\n<p>\n"
+        "getting through this dungeon.\n" BRK
         "For a few coins, I can move\n"
         "you where you wanna go.\n"
-        "<wait 250>Where do you wanna go?\n"
-        "<o>";
+        "<wait 250>Where do you wanna go?\n" PROMPT;
 
     const char moverChoices[] =
         "<select 2 -1 400 40>\n"
@@ -998,20 +1023,17 @@ namespace mod {
     const char moverNo[] =
         "Whatever, man. Have it your\n"
         "way. It's not like I do this\n"
-        "FOR A LIVING or anything!\n"
-        "<k>";
+        "FOR A LIVING or anything!\n" END;
 
     const char moverScam[] =
         "<wave>Maaan,</wave> you don't have the cash\n"
         "money! How about you talk\n"
-        "to me when you can PAY UP?\n"
-        "<k>";
+        "to me when you can PAY UP?\n" END;
 
     const char moverYes[] =
         "<wave>Alriiiight!</wave> Appreciate the\n"
         "business, man. Let's getcha\n"
-        "outta here. <wave>Close your eyes!</wave>\n"
-        "<k>";
+        "outta here. <wave>Close your eyes!</wave>\n" END;
 
     // Quickstart
     const char quickstartOptions[] =
@@ -1025,30 +1047,25 @@ namespace mod {
         "<system>"
         "Do you want to quickstart\n"
         "the Lunatic Pit or create\n"
-        "a new save file?\n"
-        "<o>";
+        "a new save file?\n" PROMPT;
 
     // Whacka
 
     const char whackaHi[] =
         "Whaaack-hoo! <wait 200>I'm Whacka!\n"
         "<wait 250>Didn't expect to see someone\n"
-        "else down here, <wait 200>whack-a-do!\n"
-        "<k>\n<p>\n"
+        "else down here, <wait 200>whack-a-do!\n" BRK
         "It's soooo quiet in this room,\n"
         "<wait 200><wave>whack-a-hooo!</wave><wait 300> And this\n"
-        "is MY spot, whack-doo!\n"
-        "<k>\n<p>\n"
+        "is MY spot, whack-doo!\n" BRK
         "It suuuuure looked dangerous\n"
         "in those other rooms!<wait 200> You\n"
-        "should be careful, whack-roo!\n"
-        "<k>";
+        "should be careful, whack-roo!\n" END;
 
     const char whackaHiBlueLong1[] =
         "Whack-bluuuuue!<wait 250> Check it out!\n"
         "<wait 150>I'm blue now,<wait 100> whack-a-yoooo!\n"
-        "<wait 150>Never felt better,<wait 100> whack-roo!\n"
-        "<k>";
+        "<wait 150>Never felt better,<wait 100> whack-roo!\n" END;
 
     const char whackaHiBlueLong2[] =
         "Whack-hoo?<wait 250> Why am I blue?\n"
@@ -1057,15 +1074,13 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "I bet you want to be blue,\n"
         "<wait 100>too,<wait 100> don't you?<wait 300> I can help,\n"
-        "<wait 200>whack-a-yooo!\n"
-        "<k>\n<p>\n"
+        "<wait 200>whack-a-yooo!\n" BRK
         "But you have to do me a big\n"
         "favor,<wait 100> yep,<wait 100> whack-a-hoo!\n"
         "<k>\n<wait 500><p>\n"
         "Give me my bump back!<wait 250> Yeah,\n"
         "<wait 100>the one you whacked right\n"
-        "out of me,<wait 200> whack-a-do!\n"
-        "<k>\n<p>\n"
+        "out of me,<wait 200> whack-a-do!\n" BRK
         "If you give it back to me,\n"
         "<wait 200>you can be blue!<wait 250> <wave>That's a\n"
         "promise,<wait 150> whack-bluuuue!\n"
@@ -1084,18 +1099,15 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "As promised,<wait 100> I'll help make\n"
         "you blue,<wait 100> but you'll have to\n"
-        "wait,<wait 100> whackety-hoo!\n"
-        "<k>\n<p>\n"
+        "wait,<wait 100> whackety-hoo!\n" BRK
         "Give me about 15 seconds to\n"
         "make your present!<wait 250> Be right\n"
-        "back,<wait 100> whackety-yack-a-dooo!\n"
-        "<k>";
+        "back,<wait 100> whackety-yack-a-dooo!\n" END;
 
     const char whackaGiveBump1[] =
         "Hoooo...<wait 250> I'm back!<wait 200> Did you\n"
         "miss me?<wait 200> I hope that wasn't\n"
-        "too loud,<wait 100> whack-hoooo...\n"
-        "<k>\n<p>\n"
+        "too loud,<wait 100> whack-hoooo...\n" BRK
         "Here you go!<wait 250> It's your present,\n"
         "<wait 100>especially from me to you,\n"
         "<wait 100><wave>whack-a-bluuuuue!\n"
@@ -1104,18 +1116,15 @@ namespace mod {
     const char whackaGiveBump2[] =
         "You can use this to become\n"
         "blue anytime!<wait 250> It can suck\n"
-        "all the blue back out,<wait 100> too!\n"
-        "<k>\n<p>\n"
+        "all the blue back out,<wait 100> too!\n" BRK
         "Think of me every time you\n"
         "go blue,<wait 100> whack-a-bluuuue!\n"
-        "<wait 250>Stay safe,<wait 100> friend!\n"
-        "<k>";
+        "<wait 250>Stay safe,<wait 100> friend!\n" END;
 
     const char whackaHiBlueShort[] =
         "Give me my bump back!<wait 250> Yeah,\n"
         "<wait 100>the one you whacked right\n"
-        "out of me,<wait 200> whack-a-do!\n"
-        "<k>\n<p>\n"
+        "out of me,<wait 200> whack-a-do!\n" BRK
         "If you give it back to me,\n"
         "<wait 200>you can be blue!<wait 250> <wave>That's a\n"
         "promise,<wait 150> whack-bluuuue!\n"
@@ -1124,8 +1133,7 @@ namespace mod {
     const char whackaDontHaveBump[] =
         "...You don't have my bump?\n"
         "<wait 200>What did you do with it?\n"
-        "<wait 500>You didn't eat it,<wait 100> did you?\n"
-        "<k>\n<p>\n"
+        "<wait 500>You didn't eat it,<wait 100> did you?\n" BRK
         "Well,<wait 100> then you don't get to\n"
         "be blue like me!<wait 250> <wave>What a shame,\n"
         "whack-a-bluuuuue!"
@@ -1134,76 +1142,63 @@ namespace mod {
     const char tippiBlueWhacka[] =
         "<fairy>...<wait 500>Weren't you already blue\n"
         "before?<wait 250> How did you become\n"
-        "even more blue...?\n"
-        "<k>";
+        "even more blue...?\n" END;
 
     const char peachBlueWhacka[] =
         "I thought you were already\n"
         "blue,<wait 100> though?<wait 250> How'd you get\n"
-        "to be more blue?\n"
-        "<k>";
+        "to be more blue?\n" END;
 
     const char bowserBlueWhacka[] =
         "What's your problem,<wait 100> you\n"
         "weird mole?<wait 250> Why are you so\n"
-        "darn blue?\n"
-        "<k>";
+        "darn blue?\n" END;
 
     const char luigiBlueWhacka[] =
         "Weren't you already blue,\n"
         "little Whacka?<wait 250> I hope I'm\n"
-        "not misremembering...\n"
-        "<k>";
+        "not misremembering...\n" END;
 
     const char whackaHiBluePost[] =
         "Whack-a-bluuuue! It sure is\n"
-        "nice being blue, whack-hoo!\n"
-        "<k>\n<p>\n"
+        "nice being blue, whack-hoo!\n" BRK
         "Do you like being blue?\n"
-        "I sure hope so, yahooo!\n"
-        "<k>";
+        "I sure hope so, yahooo!\n" END;
 
     const char whackaOww[] =
         "<wave>Whack-OWWWWWWWWWWW!\n"
         "</wave><wait 250>That really hurt!<wait 200> I'm going\n"
-        "somewhere else now...\n"
-        "<k>";
+        "somewhere else now...\n" END;
 
     const char whackaCantHurt[] =
         "<wave>Whack-BLUUUUUUUE!\n"
         "</wave><wait 250>You can't hurt me anymore,\n"
-        "<wait 200>because I'm blue!<wait 250> Whack-hoo!\n"
-        "<k>";
+        "<wait 200>because I'm blue!<wait 250> Whack-hoo!\n" END;
 
     const char tippiHitWhacka[] =
         "<fairy>I don't think being extra\n"
         "blue necessarily makes one\n"
-        "invincible...\n"
-        "<k>";
+        "invincible...\n" END;
 
     const char peachHitWhacka[] =
         "Are you sure?<wait 200> I can't imagine\n"
         "being more blue should make\n"
-        "you more powerful...\n"
-        "<k>";
+        "you more powerful...\n" END;
 
     const char bowserHitWhacka[] =
         "Being blue doesn't make you\n"
         "invulnerable, you little freak!\n"
-        "<wait 250>What's your deal?\n"
-        "<k>";
+        "<wait 250>What's your deal?\n" END;
 
     const char luigiHitWhacka[] =
         "Huh?<wait 250> So being all blue and\n"
         "stuff makes you stronger?\n"
-        "<wait 250>I'm not so sure...\n"
-        "<k>";
+        "<wait 250>I'm not so sure...\n" END;
 
     const char whackaCantHurt2[] =
         "Really?<wait 250> Well, I sure do <wave>feel\n"
         "</wave>a whole lot stronger now,\n"
-        "<wait 200>wicky-whackety-whack-a-do!\n"
-        "<k>";
+        "<wait 200>wicky-whackety-whack-a-do!\n" END;
 
     const char mystBumpDescPtr[] =
         "msg_blue_bump_desc";
@@ -1220,31 +1215,25 @@ namespace mod {
 
     const char bumpUseMsg[] =
         "<system>"
-        "Would you like to be blue?\n"
-        "<o>";
+        "Would you like to be blue?\n" PROMPT;
 
     const char bumpUnuseMsg[] =
         "<system>"
         "Would you like to stop\n"
-        "being blue?\n"
-        "<o>";
+        "being blue?\n" PROMPT;
 
     const char bumpYoureBlueNow[] =
-        "* You're blue now.\n"
-        "<k>";
+        "<system>\n* You're blue now.\n" END;
 
     const char bumpYoureNotBlueNow[] =
-        "<system>"
-        "* You're no longer blue.\n"
-        "<k>";
+        "<system>\n* You're no longer blue.\n" END;
 
     // Interface
 
     const char activeConditionsNone[] =
-        "<system>\n"
+        INIT_SYS
         "There are no active\n"
-        "effects to view right now!\n"
-        "<k>";
+        "effects to view right now!\n" END;
 
     const char interfaceCM1[] =
         "CM";
@@ -1273,18 +1262,15 @@ namespace mod {
     // Disorders
 
     const char disorderIntro[] =
-        "<system>\n"
+        INIT_SYS
         "You've been afflicted with\n"
-        "a Disorder!\n"
-        "<k>\n<p>\n"
+        "a Disorder!\n" BRK
         "Disorders have varying\n"
         "negative effects that always\n"
-        "last for five rooms.\n"
-        "<k>\n<p>\n"
+        "last for five rooms.\n" BRK
         "You can learn more about an\n"
         "active Disorder anytime in the\n"
-        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n"
-        "<k>";
+        "<icon PAD_1 0.67 0 0 0> Active Effects menu.\n" END;
 
     const char apathyName[] =
         "Apathy";
@@ -1315,333 +1301,263 @@ namespace mod {
 
     const char apathyDesc[] =
         "Disorder: Apathy\n"
-        "\"This is taking way too long...\"\n"
-        "<k>\n<p>\n"
+        "\"This is taking way too long...\"\n" BRK
         "Decreases max HP by %d%%.\n"
-        "Increases enemy HP by %d%%.\n"
-        "<k>\n<p>\n"
+        "Increases enemy HP by %d%%.\n" BRK
         "Increases damage taken by %d.\n"
-        "Decreases damage dealt by %d.\n"
-        "<k>\n<p>\n"
+        "Decreases damage dealt by %d.\n" BRK
         "Halves Crit Rate.\n"
-        "Halves Crit Mult.\n"
-        "<k>\n<p>\n"
+        "Halves Crit Mult.\n" BRK
         "All stats are restored when\n"
         "the Disorder ends.";
 
     const char dreadDesc[] =
         "Disorder: Dread\n"
-        "\"I'm never getting out of here...\"\n"
-        "<k>\n<p>\n"
+        "\"I'm never getting out of here...\"\n" BRK
         "Enemies drop no coins or items.\n"
-        "XP gain from enemies is disabled.\n"
-        "<k>\n<p>\n"
+        "XP gain from enemies is disabled.\n" BRK
         "%d%% chance for enemies to\n"
-        "heal instead of taking damage.\n"
-        "<k>\n<p>\n"
+        "heal instead of taking damage.\n" BRK
         "Enemy healing is silent and\n"
         "based on your Attack.";
 
     const char prejudiceDesc[] =
         "Disorder: Prejudice\n"
-        "\"Wretched, audacious beasts...\"\n"
-        "<k>\n<p>\n"
+        "\"Wretched, audacious beasts...\"\n" BRK
         "Instantly lose about %d%% of all\n"
-        "coins when entering a room.\n"
-        "<k>\n<p>\n"
+        "coins when entering a room.\n" BRK
         "%d%% chance to lose a coin when\n"
-        "the timer counts down.\n"
-        "<k>\n<p>\n"
+        "the timer counts down.\n" BRK
         "If coins drop below %d, halves\n"
         "damage dealt to enemies.";
 
     const char indifferenceDesc[] =
         "Disorder: Indifference\n"
-        "\"What a waste of energy...\"\n"
-        "<k>\n<p>\n"
+        "\"What a waste of energy...\"\n" BRK
         "A random junk item is added\n"
-        "to the inventory in all rooms.\n"
-        "<k>\n<p>\n"
+        "to the inventory in all rooms.\n" BRK
         "If there is no space, a random\n"
-        "item will be replaced.\n"
-        "<k>\n<p>\n"
+        "item will be replaced.\n" BRK
         "67%% chance to receive another\n"
-        "item %d time(s).\n"
-        "<k>\n<p>\n"
+        "item %d time(s).\n" BRK
         "Every room will have a\n"
         "complex layout.";
 
     const char recalcitranceDesc[] =
         "Disorder: Recalcitrance\n"
-        "\"I will make them pay tenfold...\"\n"
-        "<k>\n<p>\n"
+        "\"I will make them pay tenfold...\"\n" BRK
         "Enemies defeated with jumps\n"
-        "will give %d%% XP.\n"
-        "<k>\n<p>\n"
+        "will give %d%% XP.\n" BRK
         "Instant healing items will be\n"
         "%d%% less effective.";
 
     const char depravityDesc[] =
         "Disorder: Depravity\n"
-        "\"Torture of the highest degree...\"\n"
-        "<k>\n<p>\n"
+        "\"Torture of the highest degree...\"\n" BRK
         "A very difficult enemy will spawn\n"
-        "plentifully in each room.\n"
-        "<k>\n<p>\n"
+        "plentifully in each room.\n" BRK
         "All enemies are guaranteed to\n"
-        "spawn at very high rates.\n"
-        "<k>\n<p>\n"
+        "spawn at very high rates.\n" BRK
         "All enemies will be very\n"
         "difficult after Floor %d.";
 
     const char indolenceDesc[] =
         "Disorder: Indolence\n"
-        "\"Guess I'll just stay put...\"\n"
-        "<k>\n<p>\n"
+        "\"Guess I'll just stay put...\"\n" BRK
         "Upon taking damage, %d%% chance\n"
-        "to receive a status effect.\n"
-        "<k>\n<p>\n"
+        "to receive a status effect.\n" BRK
         "You may either be Frozen or\n"
-        "Slowed for %d seconds.\n"
-        "<k>\n<p>\n"
+        "Slowed for %d seconds.\n" BRK
         "Additionally, the entire world\n"
         "slows down by 10%%.";
 
     const char melancholyDesc[] =
         "Disorder: Melancholy\n"
-        "\"I'm so over this...\"\n"
-        "<k>\n<p>\n"
+        "\"I'm so over this...\"\n" BRK
         "Gain 1 stack of Atrophy every\n"
-        "10 seconds spent in one room.\n"
-        "<k>\n<p>\n"
+        "10 seconds spent in one room.\n" BRK
         "Atrophy increases damage taken\n"
-        "by 1 to the power of # stacks.\n"
-        "<k>\n<p>\n"
+        "by 1 to the power of # stacks.\n" BRK
         "Atrophy stacks up to 5 times\n"
-        "or until damage is taken.\n"
-        "<k>\n<p>\n"
+        "or until damage is taken.\n" BRK
         "All Voucher tear chances are\n"
         "doubled.";
 
     const char ruinDesc[] =
         "Disorder: Ruin\n"
-        "\"Please... turn the lights back on...\"\n"
-        "<k>\n<p>\n"
+        "\"Please... turn the lights back on...\"\n" BRK
         "Placeholder";
 
     const char apathyIntro[] =
         "<system>A wave of uncertainty strikes\n"
         "you,<wait 200> leading you to question\n"
-        "your every ability.\n"
-        "<k>\n<p>\n"
+        "your every ability.\n" BRK
         "As you doubt yourself,<wait 200> you\n"
         "begin to forget why you\n"
-        "ever chose to be a Hero.\n"
-        "<k>\n<p>\n"
+        "ever chose to be a Hero.\n" BRK
         "Gradually,<wait 200> you find yourself\n"
         "losing your motivation to\n"
-        "forge on.\n"
-        "<k>\n<p>\n"
+        "forge on.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>apathy.\n"
         "</shake><k>\n<p>\n"
         "Your HP, CM, and CR have\n"
         "been decreased;<wait 200> enemy HP\n"
-        "has been raised.\n"
-        "<k>\n<p>\n"
+        "has been raised.\n" BRK
         "Damage taken is increased;\n"
-        "<wait 200>damage dealt is decreased.\n"
-        "<k>";
+        "<wait 200>damage dealt is decreased.\n" END;
 
     const char apathyIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Apathy:</shake><wait 500> Stats and DMG dealt\n"
         "are decreased; enemies have\n"
-        "more HP and deal more DMG.\n"
-        "<k>";
+        "more HP and deal more DMG.\n" END;
 
     const char dreadIntro[] =
         "<system>A wave of terror strikes you,\n"
         "<wait 200>slowly draining you of all\n"
-        "the hopes you ever had.\n"
-        "<k>\n<p>\n"
+        "the hopes you ever had.\n" BRK
         "Every step you take sends\n"
         "unbearable chills down your\n"
-        "spine.\n"
-        "<k>\n<p>\n"
+        "spine.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>dread.\n"
         "</shake><k>\n<p>\n"
         "Enemies will no longer drop\n"
-        "coins, items, or XP.\n"
-        "<k>\n<p>\n"
+        "coins, items, or XP.\n" BRK
         "Additionally, enemies may\n"
         "silently heal instead of\n"
-        "taking damage.\n"
-        "<k>";
+        "taking damage.\n" END;
 
     const char dreadIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Dread:</shake><wait 500> Enemies have no\n"
         "loot and may heal instead\n"
-        "of taking DMG.\n"
-        "<k>";
+        "of taking DMG.\n" END;
 
     const char prejudiceIntro[] =
         "<system>A wave of contempt strikes\n"
         "you,<wait 200> making you wonder why\n"
-        "you're dealing with this.\n"
-        "<k>\n<p>\n"
+        "you're bothering with this.\n" BRK
         "You bemoan the tedium of\n"
         "this Pit and the inferior\n"
-        "enemies before you...\n"
-        "<k>\n<p>\n"
+        "enemies before you...\n" BRK
         "...<wait 200>yet you sense that the\n"
         "one watching you may feel\n"
-        "that very way towards you.\n"
-        "<k>\n<p>\n"
+        "that very way towards you.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>prejudice.\n"
         "</shake><k>\n<p>\n"
         "Coins will be lost upon\n"
         "entering a room and as\n"
-        "time passes.\n"
-        "<k>\n<p>\n"
+        "time passes.\n" BRK
         "ATK will be nerfed if you\n"
-        "lose too many coins.\n"
-        "<k>";
+        "lose too many coins.\n" END;
 
     const char prejudiceIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Prejudice:</shake><wait 500> Coins are drained\n"
         "constantly; ATK decreases\n"
-        "if you lose too many.\n"
-        "<k>";
+        "if you lose too many.\n" END;
 
     const char indifferenceIntro[] =
         "<system>A wave of numbness strikes\n"
         "you,<wait 200> leaving your mind\n"
-        "entirely vacant.\n"
-        "<k>\n<p>\n"
+        "entirely vacant.\n" BRK
         "Suddenly,<wait 200> you feel detached\n"
         "from everything and\n"
-        "everyone around you.\n"
-        "<k>\n<p>\n"
+        "everyone around you.\n" BRK
         "You feel your energy being\n"
         "sapped away as your grip on\n"
-        "reality rapidly fades.\n"
-        "<k>\n<p>\n"
+        "reality rapidly fades.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>indifference.\n"
         "</shake><k>\n<p>\n"
         "Some junk items will be\n"
         "forced into your inventory\n"
-        "in every room.\n"
-        "<k>\n<p>\n"
+        "in every room.\n" BRK
         "If you don't have enough\n"
         "space for all of the items,\n"
-        "<wait 200>space will be made.\n"
-        "<k>";
+        "<wait 200>space will be made.\n" END;
 
     const char indifferenceIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Indifference:</shake><wait 500> Receive some\n"
         "junk items in every room.\n"
-        "Make sure to have space!\n"
-        "<k>";
+        "Make sure to have space!\n" END;
 
     const char recalcitranceIntro[] =
         "<system>A wave of unease strikes\n"
         "you,<wait 200> overwhelming you with\n"
-        "anxiety.\n"
-        "<k>\n<p>\n"
+        "anxiety.\n" BRK
         "You have become infinitely\n"
         "more aware of how finite\n"
-        "this space is.\n"
-        "<k>\n<p>\n"
+        "this space is.\n" BRK
         "A singular thought rings\n"
         "repeatedly in your head:\n"
-        "<wait 500>\"find a way out of here.\"\n"
-        "<k>\n<p>\n"
+        "<wait 500>\"find a way out of here.\"\n" BRK
         "Rationally, you know that\n"
         "isn't so hard,<wait 200> yet it bothers\n"
-        "you all the same.\n"
-        "<k>\n<p>\n"
+        "you all the same.\n" BRK
         "You feel an unquellable urge\n"
         "to escape, no matter what\n"
-        "may try to stop you.\n"
-        "<k>\n<p>\n"
+        "may try to stop you.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>recalcitrance.\n"
         "</shake><k>\n<p>\n"
         "XP gained from stomping\n"
         "or kicking will reduce\n"
-        "your score.\n"
-        "<k>\n<p>\n"
+        "your score.\n" BRK
         "Additionally, instant healing\n"
         "items are temporarily less\n"
-        "effective.\n"
-        "<k>";
+        "effective.\n" END;
 
     const char recalcitranceIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Recalcitrance:</shake><wait 500> Reduced XP from\n"
         "stomps/kicks. Healing items\n"
-        "are less effective.\n"
-        "<k>";
+        "are less effective.\n" END;
 
     const char depravityIntro[] =
         "<system>A wave of perversion strikes\n"
         "you,<wait 200> totally derailing your\n"
-        "train of thought.\n"
-        "<k>\n<p>\n"
+        "train of thought.\n" BRK
         "Numbness is now iniquity;\n"
         "<wait 200>you've come to revel in\n"
-        "these trials.\n"
-        "<k>\n<p>\n"
+        "these trials.\n" BRK
         "As if to grant your newfound\n"
         "desire,<wait 200> countless foes have\n"
-        "come to block your path.\n"
-        "<k>\n<p>\n"
+        "come to block your path.\n" BRK
         "The abyss stares back into\n"
         "you,<wait 200> rotting your soul like\n"
-        "a terminal cancer.\n"
-        "<k>\n<p>\n"
+        "a terminal cancer.\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>depravity.\n"
         "</shake><k>\n<p>\n"
         "Enemy spawn rates have\n"
-        "significantly increased.\n"
-        "<k>\n<p>\n"
+        "significantly increased.\n" BRK
         "Difficult enemies are now\n"
         "guaranteed to spawn in\n"
-        "every floor.\n"
-        "<k>";
+        "every floor.\n" END;
 
     const char depravityIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Depravity:</shake><wait 500> Increased enemy\n"
         "spawn rates and difficult\n"
-        "enemies in every floor.\n"
-        "<k>";
+        "enemies in every floor.\n" END;
 
     const char indolenceIntro[] =
         "<system>A wave of lethargy strikes\n"
         "you, <wait 200>making you feel an order\n"
-        "of magnitude heavier.\n"
-        "<k>\n<p>\n"
+        "of magnitude heavier.\n" BRK
         "Ngl bro I don't really want\n"
         "to finish this blurb rn<wait 2000> I\n"
-        "got purple disorder irl\n"
-        "<k>\n<p>\n"
+        "got purple disorder irl\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>indolence.\n"
         "</shake><k>\n<p>\n"
         "Getting hit will result in\n"
-        "a status effect occurring.\n"
-        "<k>\n<p>\n"
+        "a status effect occurring.\n" BRK
         "You might get frozen or\n"
         "get slowed down for a\n"
-        "certain amount of time.\n"
-        "<k>\n<p>\n"
+        "certain amount of time.\n" BRK
         "Additionally, the world\n"
         "slows down slightly while\n"
-        "the Disorder is active.\n"
-        "<k>";
+        "the Disorder is active.\n" END;
 
     const char indolenceIntro2[] =
         "<system><se_on SFX_EVT_SHOCK1><shake>Indolence:</shake><wait 500> Getting hit can\n"
@@ -1652,10 +1568,8 @@ namespace mod {
     const char melancholyIntro[] =
         "<system>A wave of misery strikes\n"
         "you, <wait 200>doing this or that\n"
-        "man idk\n"
-        "<k>\n<p>\n"
-        "I'll do this later lol\n"
-        "<k>\n<p>\n"
+        "man idk\n" BRK
+        "I'll do this later lol\n" BRK
         "You're now bound by pure,\n"
         "<wait 200>unfettered <se_on SFX_EVT_SHOCK1><shake>Melancholy.\n"
         "</shake><k>\n<p>\n"
@@ -1665,102 +1579,82 @@ namespace mod {
         "</wave><k>\n<p>\n"
         "<wave>Atrophy</wave> increases damage\n"
         "taken based on the number\n"
-        "of stacks, up to 5 stacks.\n"
-        "<k>\n<p>\n"
+        "of stacks, up to 5 stacks.\n" BRK
         "<wave>Atrophy</wave> <dynamic 3>exponentially</dynamic> stacks\n"
         "damage; don't lose track of it!\n"
-        "(+1, +2, +4, +8, +16)\n"
-        "<k>\n<p>\n"
+        "(+1, +2, +4, +8, +16)\n" BRK
         "Stacks and internal timer will\n"
         "reset when damage is taken\n"
-        "or when the Disorder ends.\n"
-        "<k>\n<p>\n"
+        "or when the Disorder ends.\n" BRK
         "Additionally, all Vouchers\n"
-        "are twice as likely to tear.\n"
-        "<k>";
+        "are twice as likely to tear.\n" END;
 
     const char disorderIndifferenceItemNotif[] =
-        "<system><center>Your inventory is full!</center>\n"
-        "<k>\n<p>\n"
+        "<system><center>Your inventory is full!</center>\n" BRK
         "<center>%s has been</center>\n"
         "<center>replaced with</center>\n"
-        "<center>%s!</center>\n"
-        "<o>";
+        "<center>%s!</center>\n" PROMPT;
 
     const char disorderIndifferenceItemNotif2[] =
         "\n<p><system>\n"
         "<center>%s has been</center>\n"
         "<center>replaced with</center>\n"
-        "<center>%s!</center>\n"
-        "<o>";
+        "<center>%s!</center>\n" PROMPT;
 
     // Jimbo
     const char jimboIntro[] =
         "Sup.<wait 300> I'm Jimbo.<wait 200> Nice to meet\n"
         "ya.<wait 300> I sorta guard the entrance\n"
-        "to this here Pit.\n"
-        "<k>\n<p>\n"
+        "to this here Pit.\n" BRK
         "Yeah, I'm kind of a big deal.\n"
         "<wait 300>Warnin' the people of the\n"
-        "perils that lie in wait...\n"
-        "<k>\n<p>\n"
+        "perils that lie in wait...\n" BRK
         "Yep, that's just what I do.\n"
         "<wait 300>No one even asks me to do\n"
         "this.<wait 300> I'm just <wave>that cool, yo.\n"
         "</wave><k>\n<p>\n"
         "Anyway, you don't look like\n"
         "just any ordinary citizen, so\n"
-        "I can let ya go down there.\n"
-        "<k>\n<p>\n"
+        "I can let ya go down there.\n" BRK
         "Matter of fact, I'll even help\n"
         "ya out if ya want.<wait 300> Yep, I can\n"
-        "do that.\n"
-        "<k>\n<p>\n"
+        "do that.\n" BRK
         "Well, hey, I won't go IN there\n"
         "with ya...<wait 300> though I would totally\n"
         "survive, yo...\n"
         "<k><wait 1000>\n<p>\n"
         "...<wait 1000>Uh, anyway, I can help ya\n"
         "with a few things. Preferences.\n"
-        "Options, if ya will.<wait 300> Yo.\n"
-        "<k>\n<p>\n"
+        "Options, if ya will.<wait 300> Yo.\n" BRK
         "Y'know what they called me\n"
         "back at Shy High?<wait 300> \"The Options\n"
-        "Menu.\"<wait 300> Yeah. That's right, yo.\n"
-        "<k>\n<p>\n"
+        "Menu.\"<wait 300> Yeah. That's right, yo.\n" BRK
         "I'm not lyin'.<wait 300> Ya went to a\n"
         "different school, so ya wouldn't\n"
-        "know.<wait 300> C'mon, seriously, yo.\n"
-        "<k>\n<p>\n"
+        "know.<wait 300> C'mon, seriously, yo.\n" BRK
         "I can totally change some parts\n"
         "of your experience in the Pit.\n"
         "<wait 300>Don't ask how.<wait 300> <wave>I just can.\n"
         "</wave><k>\n<p>\n"
         "So, with allat out of the way,\n"
-        "what can I do ya for?\n"
-        "<o>";
+        "what can I do ya for?\n" PROMPT;
 
     const char jimboIntro2[] =
-        "Sup.<wait 300> What can I do ya for?\n"
-        "<o>";
+        "Sup.<wait 300> What can I do ya for?\n" PROMPT;
 
     const char jimboWarn[] =
         "Whoa.<wait 300> Hoooold up.<wait 300> Ya haven't\n"
         "beaten the Pit yet, so I\n"
-        "gotta warn ya...\n"
-        "<k>\n<p>\n"
+        "gotta warn ya...\n" BRK
         "Openin' this particular menu\n"
         "might spoil the experience for\n"
-        "ya.<wait 300> Sure ya wanna proceed?\n"
-        "<o>";
+        "ya.<wait 300> Sure ya wanna proceed?\n" PROMPT;
 
     const char jimboAnythingElse[] =
-        "Need anything else?\n"
-        "<o>";
+        "Need anything else?\n" PROMPT;
 
     const char jimboBye[] =
-        "Bet. Catch ya later, yo.\n"
-        "<k>";
+        "Bet. Catch ya later, yo.\n" END;
 
     const char jimboSettings[] =
         "<select 0 -1 280 40>\n"
@@ -1773,16 +1667,13 @@ namespace mod {
     const char boodinIntro[] =
         "Yo!<wait 400> Name's Boodin,<wait 200> owner an'\n"
         "operator of Fondest Hopes,\n"
-        "<wait 200>your #1 Flopside card shop.\n"
-        "<k>\n<p>\n"
+        "<wait 200>your #1 Flopside card shop.\n" BRK
         "You got luck!<wait 300> You caught\n"
         "me right in the middle of\n"
-        "restockin' my shop.\n"
-        "<k>\n<p>\n"
+        "restockin' my shop.\n" BRK
         "Go ahead and take a look\n"
         "at what I got on hand.\n"
-        "<wait 200>I'll hook you up.\n"
-        "<k>";
+        "<wait 200>I'll hook you up.\n" END;
 
     const char boodinItemSelected[] =
         "The %s card?\n"
@@ -1798,36 +1689,29 @@ namespace mod {
     const char boodinDecline[] =
         "Change your mind?<wait 300> That's\n"
         "chill.<wait 300> Thanks for stoppin'\n"
-        "by!<wait 300> Stay safe out there.\n"
-        "<k>";
+        "by!<wait 300> Stay safe out there.\n" END;
 
     const char boodinSatisfied[] =
         "Thanks for the buyin'!\n"
-        "<wait 300>Stay safe out there.\n"
-        "<k>";
+        "<wait 300>Stay safe out there.\n" END;
 
     const char boodinWantMore[] =
-        "Want some more cards?\n"
-        "<o>";
+        "Want some more cards?\n" PROMPT;
 
     const char boodinNoSpace[] =
         "Yo, tough luck on that.\n"
         "<wait 200>You can't hold any more\n"
-        "Catch Card SPs.\n"
-        "<k>\n<p>\n"
+        "Catch Card SPs.\n" BRK
         "Maybe you'll catch me at\n"
         "another time. Thanks for\n"
-        "stoppin' by!\n"
-        "<k>";
+        "stoppin' by!\n" END;
 
     const char boodinClassism[] =
         "Yo, tough luck on that.\n"
-        "<wait 200>You can't afford that card.\n"
-        "<k>\n<p>\n"
+        "<wait 200>You can't afford that card.\n" BRK
         "Maybe you'll catch me at\n"
         "another time. Thanks for\n"
-        "stoppin' by!\n"
-        "<k>";
+        "stoppin' by!\n" END;
 
     // Gabbi
     const char gabbiSleeping[] =
@@ -1847,83 +1731,157 @@ namespace mod {
         "<wait 500><se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.\n"
         "<wait 500><se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.<wait 500> <se_on SFX_EVT_SHOCK1>Bomb her.\n"
         "</shake></col></dynamic><k>";
-    
+
     const char gabbiMadge[] =
-        "dude what the fuck\n"
-        "<wait 2000>that was not cool\n"
-        "<k>";
+        "<dynamic 3>O-ouch...!!<wait 500> Why didst thou\n"
+        "d-do that?<wait 500> <shake>W-what is thy\n"
+        "problem,<wait 200> thee wretched knave!?\n"
+        "</shake></dynamic><k>\n<p>\n"
+        "P-p-prithee,<wait 200> tellest me why\n"
+        "I should not o-obliterate\n"
+        "thee h-hither and now...!?\n" END;
 
     const char gabbiSorry[] =
-        "s-s-s-s-sorry i blew up\n"
-        "on you my fault gang\n"
-        "<k>";
+        "<shake>U-um...>/shake><wait 500> I am s-sorry for mine\n"
+        "outburst...<wait 500> verily, I was quite\n"
+        "sensorily o-overwhelmed...\n" END;
 
     const char gabbiIntro[] =
-        "i'm gabbi i sell chest keys\n"
-        "for cooooooooooooooins\n"
-        "<k>\n<p>\n"
-        "please buy my wares so i\n"
-        "can afford estergin\n"
-        "im just a girl\n"
-        "<k>\n<p>\n"
-        "wanna buy my shit gang\n"
-        "<o>";
+        "I am...<wait 500> um, yea, I am Gabbi,\n"
+        "and I...<wait 500> well,<wait 200> t-thou canst buy\n"
+        "chest keys from me...!\n"
+        "<wait 200><k>\n<p>\n"
+        "I could really use the money...\n"
+        "<wait 500>so, um...<wait 200> ahhh...<wait 200> d-dost thou\n"
+        "wish to buy some keys...?\n"
+        "<wait 200><o>";
 
     const char gabbiIntro_N[] =
-        "hiii i have chest keys\n"
-        "you can buy with your\n"
-        "money u want some ?\n"
-        "<o>";
+        "G-greetings...!<wait 500> I hope thee\n"
+        "art well...<wait 500> Dost thou need\n"
+        "some m-more chest keys?\n" PROMPT;
 
     const char gabbiIntro_S[] =
-        "h-hi :( do u wanna buy\n"
-        "some chest keys.......\n"
-        "<o>";
-
-    const char gabbiIntro_M[] =
-        "h-hey, dont blow me up...\n"
-        "now u have to buy my wares\n"
-        "or u stink booooo\n"
-        "<o>";
+        "<shake>Ah, h-hello again...<wait 500> D-dost\n"
+        "thou wish to purchase mine\n"
+        "w-wares... <wait 500><small><scale 0.67>Sniffle...<wait 300> Uwehh...\n"
+        "</shake></small></scale>" PROMPT;
 
     const char gabbiIntro_B[] =
-        "h-hiiii... x3 do u want\n"
-        "more chest today hehehe\n"
-        "^w^ :D\n"
-        "<o>";
+        "Ah, g-greetings...!<wait 500> I am ever\n"
+        "so g-glad to see you again...\n" BRK
+        "Needst t-thou any more chest\n"
+        "keys today...?<wait 500> I have p-plenty!\n" PROMPT;
 
     const char gabbiSayYes[] =
-        "<p>\n"
-        "o-ok :)\n"
-        "<k>";
+        CONT
+        "O-okay... <wait 500><small><scale 0.67>thank thee...\n" END;
 
     const char gabbiSayNo[] =
-        "<p>\n"
-        "o-ok :(\n"
-        "<k>";
+        CONT
+        "Oh...<wait 500> oh, well...<wait 500> T-thank thee\n"
+        "for t-talking to me anyway...\n"
+        "<wait 500><shake><small><scale 0.67>I-I-I am sorry to waste thy time...\n" END;
 
     const char gabbiBroke[] =
-        "<p>\n"
-        "sorry you're too broke\n"
-        "lmao broke ass go get\n"
-        "that money up wagie-san\n"
-        "<k>";
+        CONT
+        "Ah, u-umm...<wait 500> I am sorry...\n"
+        "<wait 500>It doth appear that thou\n"
+        "havest not enough coins...\n" BRK
+        "I-it is not thy fault...<wait 500> the\n"
+        "e-economy doth be rough,<wait 200> I\n"
+        "know s-such...\n" BRK
+        "I am so sorry, verily...<wait 500> I hope\n"
+        "t-things improveth for thee...\n"
+        "<wait 500><shake><small><scale 0.67>Yea,<wait 200> w-we art in this t-together...\n" END;
 
     const char gabbiBuyNothing[] =
-        ":(\n"
-        "<k>";
+        "Ah...<wait 500> ahh, a-all right then...\n"
+        "<wait 500>Havest safe travels, prithee...\n"
+        "<wait 500><shake><small><scale 0.67>Sniffle...\n" END;
 
-    const char gabbiThanks[] =
-        "thank youuuuu ^w^\n"
-        "<k>";
+    const char gabbiThanks_N[] =
+        "Thank t-thee for thy patronage...!\n"
+        "<wait 500>I am ever so g-grateful to thee...\n"
+        "<wait 500>F-fare thee well!\n" END;
+
+    const char gabbiThanks_B[] =
+        "O-oh, my...<wait 500> t-t-thank you so\n"
+        "much, mine d-dearest customer...!\n" BRK
+        "Thy generosity must know no\n"
+        "bounds, v-verily... Prithee,\n"
+        "enjoyest thy keys...! <small><scale 0.67>Heehee... <icon HM 0.6 -20 31 0>\n" END;
 
     const char gabbiSelectInstructions[] =
         "Buy some keys!\n"
         "(Try using <icon PAD_PLUS 0.67 0 0 0> and <icon PAD_MINUS 0.67 0 0 0>)";
 
     const char gabbiSysGetKeys[] =
-        "<system>\nYou got %d chest keys!\n"
-        "<k>";
+        "<system>\nYou got %d chest keys!\n" END;
+
+    // Mitch
+    const char mitchIntro_1[] =
+        "Hey, alright, we've got a\n"
+        "new customer here, yah?\n"
+        "<wait 500>Good to see ya, uh-huh.\n" BRK
+        "The name's Mitch.<wait 500> It's short\n"
+        "for D-Mitch, and that's just\n"
+        "'nuff 'bout me, alright?\n" BRK
+        "I'm all 'bout my biz, man.\n"
+        "<wait 500>Ya gimme chest keys, I give\n"
+        "ya <wave>stuff.</wave><wait 300> Name o' the game.\n" BRK
+        "See, we've already learned\n"
+        "so much 'bout each other,<wait 200> so\n"
+        "we'll do some biz, yah?\n" END;
+
+    const char mitchIntro_2[] =
+        "Oh, you like the banana pin,\n"
+        "huh?<wait 500> Yah, my partner got it\n"
+        "for me,<wait 200> cuz I like bananas.\n" BRK
+        "...Serious, though,<wait 200> 'nuff\n"
+        "personal chit-chat.<wait 500> Buy my\n"
+        "stuff or get outta here.\n" END;
+
+    const char mitchIntro_B[] =
+        "Hey, what's goin' on, huh?\n"
+        "<wait 300>Nice to see ya again, yah.\n"
+        "<wait 300>How's Jimbo treatin' ya?\n" BRK
+        "Just kiddin', I don't really\n"
+        "care.<wait 500> Ya know the drill:<wait 200> buy\n"
+        "my stuff or get outta here.\n" END;
+
+    const char mitchPoor[] =
+        "What's the big idea, huh?<wait 500> Yuh'\n"
+        "too broke to afford the good\n"
+        "merchandise, buddy!\n" BRK
+        "Get outta here and get yuh'\n"
+        "chest keys up, lazybones!\n"
+        "<dynamic 3><wait 300>Freeloader!<wait 300> BROKIE!\n"
+        "</dynamic><k>";
+
+    const char mitchBuyNothing[] =
+        "Nothin'?<wait 500> Right on, man, so\n"
+        "yuh've chosen \"get outta here.\"\n"
+        "<wait 500><dynamic 3>Beat it!<wait 200> Scram!<wait 200> Shoo!<wait 200> NOW!\n"
+        "</dynamic><k>";
+
+    const char mitchThanks[] =
+        "Alriiiight, thanks for the\n"
+        "keys,<wait 200> sucka.<wait 500> I'll use the\n"
+        "item on ya now, yah?\n" END;
+
+    const char mitchEnjoy[] =
+        "Enjoy it now, uh-huh?\n"
+        "<wait 500>Alright, now get outta here.\n" END;
+
+    const char mitchNoInventory[] =
+        "Look, pal, ya ran me outta my\n"
+        "ENTIRE STOCK.<wait 500> I gots nothin'\n"
+        "left for ya right now.\n" BRK
+        "I can't sell ya nothin', so\n"
+        "<wait 200>get outta my face already,\n"
+        "<wait 200><dynamic 2>yah? SA-<wait 200>YO-<wait 200>NA-<wait 200>RA,<wait 200> PAL!\n"
+        "</dynamic><k>";
 
     // Misc
     const char yesNoSelect_NoByDefault[] =
@@ -1940,26 +1898,22 @@ namespace mod {
         "<kanban>\n"
         "<center>Flopside's #1 Useless Pipe</center>\n"
         "<col c00000ff><center>IT'S USELESS! Try it out!</center>\n"
-        "</col><center>-Flopside City Hall-</center>\n"
-        "<k>";
+        "</col><center>-Flopside City Hall-</center>\n" END;
 
     const char D100_entrance_03[] =
-        "<system>\n"
+        INIT_SYS
         "I can't promise this will\n"
         "work correctly, but hey,\n"
-        "whatever floats your boat.\n"
-        "<o>";
+        "whatever floats your boat.\n" PROMPT;
 
     const char hardDifficultyFirst[] =
-        "<system>\n"
+        INIT_SYS
         "On Hard Difficulty, shells\n"
         "will no longer deal damage\n"
-        "to enemies in the Pit.\n"
-        "<k>\n<p>\n"
+        "to enemies in the Pit.\n" BRK
         "However, shells that are\n"
         "stomped or kicked will be \n"
-        "vulnerable to shell damage.\n"
-        "<k>\n<p>\n"
+        "vulnerable to shell damage.\n" BRK
         "<wave>G<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>o<wait 300>d<wait 600> l<wait 300>u<wait 300>c<wait 300>k<wait 300>!\n"
         "</wave><k>";
 
@@ -1968,928 +1922,747 @@ namespace mod {
     const char tattle_phantom_mario[] =
         "That's Phantom Mario.<wait 150> This\n"
         "fake Mario lives in the Pit\n"
-        "of 100 Trials...\n"
-        "<k>\n<p>\n"
+        "of 100 Trials...\n" BRK
         "These HP and Attack readings\n"
         "are highly abnormal...<wait 150> I can't\n"
-        "tell what they are...\n"
-        "<k>\n<p>\n"
+        "tell what they are...\n" BRK
         "He has high attack power\n"
-        "and jumps and hammers well...\n"
-        "<k>\n<p>\n"
+        "and jumps and hammers well...\n" BRK
         "If you don't plan your stomp,\n"
         "he might hit you with his\n"
-        "hammer.\n"
-        "<k>\n<p>\n"
+        "hammer.\n" BRK
         "You share weaknesses, so\n"
         "if you can exploit that, you'll\n"
-        "win...\n"
-        "<k>\n<p>\n"
+        "win...\n" BRK
         "After all, he's not the real\n"
-        "Mario...<wait 150> He's just a bad copy...\n"
-        "<k>";
+        "Mario...<wait 150> He's just a bad copy...\n" END;
 
     const char desc_phantom_mario[] =
         "Max HP: ???\n"
-        "Attack: ???\n"
-        "<k>\n<p>\n"
+        "Attack: ???\n" BRK
         "It's Mario's dark-power\n"
-        "doppelganger!\n"
-        "<k>\n<p>\n"
+        "doppelganger!\n" BRK
         "Supposedly, one of the final\n"
         "foes in the Pit of 100 Trials.";
 
     const char tattle_phantom_peach[] =
         "That's Phantom Peach, a phony\n"
         "Peach that dwells in the\n"
-        "Pit of 100 Trials...\n"
-        "<k>\n<p>\n"
+        "Pit of 100 Trials...\n" BRK
         "These HP and Attack readings\n"
         "are highly abnormal...<wait 150> I can't\n"
-        "tell what they are...\n"
-        "<k>\n<p>\n"
+        "tell what they are...\n" BRK
         "This Peach uses her parasol\n"
-        "just like the original.\n"
-        "<k>\n<p>\n"
+        "just like the original.\n" BRK
         "And if she uses it in midair,\n"
         "she might mess up the timing\n"
-        "of your attack...\n"
-        "<k>\n<p>\n"
+        "of your attack...\n" BRK
         "But that might also give you\n"
-        "an opportunity to attack...\n"
-        "<k>\n<p>\n"
+        "an opportunity to attack...\n" BRK
         "After all, she's not the real\n"
         "Peach...<wait 150> She's just a bad\n"
-        "copy...\n"
-        "<k>";
+        "copy...\n" END;
 
     const char desc_phantom_peach[] =
         "Max HP: ???\n"
-        "Attack: ???\n"
-        "<k>\n<p>\n"
+        "Attack: ???\n" BRK
         "It's a dark duplicate of Peach!\n"
-        "\n"
-        "<k>\n<p>\n"
+        "\n" BRK
         "Supposedly, one of the final\n"
         "foes in the Pit of 100 Trials.";
 
     const char tattle_phantom_bowser[] =
         "That's Phantom Bowser. <wait 150>This\n"
         "fake Bowser rules the Pit\n"
-        "of 100 Trials...\n"
-        "<k>\n<p>\n"
+        "of 100 Trials...\n" BRK
         "These HP and Attack readings\n"
         "are highly abnormal...<wait 150> I can't\n"
-        "tell what they are...\n"
-        "<k>\n<p>\n"
+        "tell what they are...\n" BRK
         "I know his Defense is 4...<wait 150> \n"
         "He has spikes, so you can't\n"
-        "stomp on him...\n"
-        "<k>\n<p>\n"
+        "stomp on him...\n" BRK
         "Because of his high Defense, you\n"
         "might need to use Boomer and\n"
-        "Cudge...\n"
-        "<k>\n<p>\n"
+        "Cudge...\n" BRK
         "Watch out for his ferocious\n"
-        "fire attack...\n"
-        "<k>\n<p>\n"
+        "fire attack...\n" BRK
         "But after all, he's not the\n"
         "real Bowser...<wait 150> He's just a bad\n"
-        "copy...\n"
-        "<k>";
+        "copy...\n" END;
 
     const char desc_phantom_bowser[] =
         "Max HP: ???\n"
-        "Attack: ???\n"
-        "<k>\n<p>\n"
+        "Attack: ???\n" BRK
         "It's a dark duplicate of\n"
-        "Bowser!\n"
-        "<k>\n<p>\n"
+        "Bowser!\n" BRK
         "Supposedly, one of the final\n"
         "foes in the Pit of 100 Trials.";
 
     const char tattle_phantom_luigi[] =
-        "That's Dark Luigi. <wait 150>He lurks in\n"
-        "the Pit of 100 Trials...\n"
-        "<k>\n<p>\n"
+        "That's Phantom Luigi. <wait 150>He lurks in\n"
+        "the Pit of 100 Trials...\n" BRK
         "These HP and Attack readings\n"
         "are highly abnormal...<wait 150> I can't\n"
-        "tell what they are...\n"
-        "<k>\n<p>\n"
+        "tell what they are...\n" BRK
         "<wait 150>He has the same incredible\n"
-        "jumping ability as Luigi.\n"
-        "<k>\n<p>\n"
+        "jumping ability as Luigi.\n" BRK
         "Watch out for that super\n"
         "jump of his when you go to\n"
-        "stomp him...\n"
-        "<k>\n<p>\n"
+        "stomp him...\n" BRK
         "But his jump could be an\n"
         "interesting opportunity for an\n"
-        "attack as well...\n"
-        "<k>\n<p>\n"
+        "attack as well...\n" BRK
         "After all, he's not the real\n"
         "Luigi...<wait 150> He's just a bad\n"
-        "copy...\n"
-        "<k>";
+        "copy...\n" END;
 
     const char desc_phantom_luigi[] =
         "Max HP: ???\n"
-        "Attack: ???\n"
-        "<k>\n<p>\n"
+        "Attack: ???\n" BRK
         "It's a dark duplicate of Luigi!\n"
-        "\n"
-        "<k>\n<p>\n"
+        "\n" BRK
         "Supposedly, one of the final\n"
         "foes in the Pit of 100 Trials.";
 
     const char tattle_hyper_goomba[] =
         "<fairy><keyyon>It's a Hyper Goomba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_hyper_goomba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_spiked_gloomba[] =
         "<fairy><keyyon>It's a Spiked Gloomba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_spiked_gloomba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_spiked_hyper_goomba[] =
         "<fairy><keyyon>It's a Spiked Hyper Goomba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_spiked_hyper_goomba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_hyper_paragoomba[] =
         "<fairy><keyyon>It's a Hyper Paragoomba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_hyper_paragoomba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_kamikaze_goomba[] =
         "<fairy><keyyon>It's a Kamikaze Goomba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_kamikaze_goomba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_koopa[] =
         "<fairy><keyyon>It's a Dark Koopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_koopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_koopatrol[] =
         "<fairy><keyyon>It's a Dark Koopatrol...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_koopatrol[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_paratroopa[] =
         "<fairy><keyyon>It's a Dark Paratroopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_paratroopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_red_spike_top[] =
         "<fairy><keyyon>It's a Red Spike Top...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_red_spike_top[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_sky_blue_spiny[] =
         "<fairy><keyyon>It's a Sky-Blue Spiny...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_sky_blue_spiny[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_bones[] =
         "<fairy><keyyon>It's a Dark Bones...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_bones[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shady_hammer_bro[] =
         "<fairy><keyyon>It's a Shady Hammer Bro...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shady_hammer_bro[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shady_boomerang_bro[] =
         "<fairy><keyyon>It's a Shady Boomerang Bro...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shady_boomerang_bro[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_ice_bro[] =
         "<fairy><keyyon>It's an Ice Bro...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_ice_bro[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shady_magikoopa[] =
         "<fairy><keyyon>It's a Shady Magikoopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shady_magikoopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shady_striker[] =
         "<fairy><keyyon>It's a Shady Striker...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shady_striker[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_bomb_boo[] =
         "<fairy><keyyon>It's a Bomb Boo...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_bomb_boo[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_white_clubba[] =
         "<fairy><keyyon>It's a White Clubba...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_white_clubba[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_green_fuzzy[] =
         "<fairy><keyyon>It's a Green Fuzzy...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_green_fuzzy[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_hyper_cleft[] =
         "<fairy><keyyon>It's a Hyper Cleft...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_hyper_cleft[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_puff[] =
         "<fairy><keyyon>It's a Dark Puff...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_puff[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_tileoid_pu[] =
         "<fairy><keyyon>It's a Tileoid PU...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_tileoid_pu[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_bawbus[] =
         "<fairy><keyyon>It's a Bawbus...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_bawbus[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_ninjeremiah[] =
         "<fairy><keyyon>It's a Ninjeremiah...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_ninjeremiah[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_skellobyte[] =
         "<fairy><keyyon>It's a Skellobyte...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_skellobyte[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_spiky_skellobyte[] =
         "<fairy><keyyon>It's a Spiky Skellobyte...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_spiky_skellobyte[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_ash_cherbil[] =
         "<fairy><keyyon>It's an Ash Cherbil...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_ash_cherbil[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shady_koopa[] =
         "<fairy><keyyon>It's a Shady Koopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shady_koopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_flip_shady_koopa[] =
         "<fairy><keyyon>It's a Shady Koopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_flip_shady_koopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_flip_buzzy_beetle[] =
         "<fairy><keyyon>It's a Buzzy Beetle...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_flip_buzzy_beetle[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_flip_spike_top[] =
         "<fairy><keyyon>It's a Spike Top...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_flip_spike_top[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_green_magikoopa[] =
         "<fairy><keyyon>It's a Green Magikoopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_green_magikoopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_white_magikoopa[] =
         "<fairy><keyyon>It's a White Magikoopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_white_magikoopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_red_magikoopa[] =
         "<fairy><keyyon>It's a Red Magikoopa...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_red_magikoopa[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_spinia[] =
         "<fairy><keyyon>It's a Spinia...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_spinia[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_spunia[] =
         "<fairy><keyyon>It's a Spunia...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_spunia[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_bullet_william[] =
         "<fairy><keyyon>It's a Bullet William...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_bullet_william[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_william_blaster[] =
         "<fairy><keyyon>It's a William Blaster...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_william_blaster[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_bleepboxer[] =
         "<fairy><keyyon>It's a Bleepboxer...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_bleepboxer[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_kilo_muth[] =
         "<fairy><keyyon>It's a Kilo Muth...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_kilo_muth[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_yellow_shy_guy[] =
         "<fairy><keyyon>It's a Yellow Shy Guy...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_yellow_shy_guy[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_green_shy_guy[] =
         "<fairy><keyyon>It's a Green Shy Guy...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_green_shy_guy[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_blue_shy_guy[] =
         "<fairy><keyyon>It's a Blue Shy Guy...\n"
         "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<wait 250>Defense is 3.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Defense is 3.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_blue_shy_guy[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_shy_guy[] =
         "<fairy><keyyon>It's a Shy Guy...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_shy_guy[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_gold_chomp[] =
         "<fairy><keyyon>It's a Gold Chomp...\n"
         "<wait 250>Max HP is %d. Attack is %d.\n"
-        "Defense is 5.\n"
-        "<k>\n<p>\n"
+        "Defense is 5.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_gold_chomp[] =
         "Max HP: %d   Attack: %d\n"
-        "Defense: 5\n"
-        "<k>\n<p>\n"
+        "Defense: 5\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_dark_lakitu[] =
         "<fairy><keyyon>It's a Dark Lakitu...\n"
-        "<wait 250>Max HP is %d. Attack is %d.\n"
-        "<k>\n<p>\n"
+        "<wait 250>Max HP is %d. Attack is %d.\n" BRK
         "This is placeholder text...\n"
         "<wait 250>The developer doesn't want\n"
-        "to write much else...\n"
-        "<k>";
+        "to write much else...\n" END;
 
     const char desc_dark_lakitu[] =
         "Max HP: %d\n"
-        "Attack: %d\n"
-        "<k>\n<p>\n"
+        "Attack: %d\n" BRK
         "Placeholder alert!\n"
         "The dev is very lazy.";
 
     const char tattle_merluna[] =
         "<fairy><keyyon>That's Merluna...<wait 250> She's a\n"
         "mysterious sage that claims to\n"
-        "render \"Divine Judgement\"...\n"
-        "<k>\n<p>\n"
+        "render \"Divine Judgement\"...\n" BRK
         "That is, she can bless you or\n"
         "she can curse you...<wait 250> You never\n"
-        "know which one it'll be...\n"
-        "<k>\n<p>\n"
+        "know which one it'll be...\n" BRK
         "Apparently, she's recorded as\n"
         "having been alive 2000 years\n"
-        "ago...\n"
-        "<k>\n<p>\n"
+        "ago...\n" BRK
         "Has she really been alive for\n"
-        "so long...?\n"
-        "<k>";
+        "so long...?\n" END;
 
     const char tattle_whacka[] =
         "<fairy><keyyon>That's a Whacka...<wait 250> It's rare to\n"
         "see one...<wait 250> They're a delicate\n"
-        "species...\n"
-        "<k>\n<p>\n"
+        "species...\n" BRK
         "I'd advise not stomping on\n"
         "it, unless you want to be\n"
-        "responsible for its tears...\n"
-        "<k>";
+        "responsible for its tears...\n" END;
 
     const char tattle_mover[] =
         "<fairy><keyyon>That's a Mover...<wait 250> These guys\n"
         "dwell in the Pit and can help\n"
-        "you skip a few floors...\n"
-        "<k>\n<p>\n"
+        "you skip a few floors...\n" BRK
         "They can get a little pricey,\n"
         "though...<wait 250> It's up to you if you\n"
-        "want to use them...\n"
-        "<k>";
+        "want to use them...\n" END;
 
     const char tattle_jimbo[] =
         "<fairy><keyyon>That's Jimbo...<wait 250> He's an Anti Guy\n"
         "that guards civilians from\n"
-        "the Pit of 100 Trials...\n"
-        "<k>\n<p>\n"
+        "the Pit of 100 Trials...\n" BRK
         "Well, that's what he claims...\n"
         "<wait 250>Do people even come down\n"
-        "here, anyway?\n"
-        "<k>\n<p>\n"
+        "here, anyway?\n" BRK
         "He's definitely more powerful\n"
         "than he looks... <wait 250>You should ask\n"
-        "what he can do for you...\n"
-        "<k>";
+        "what he can do for you...\n" END;
 
     void npcMessagePatches();
     const char * msgSearchCustomNpc(spm::npcdrv::NPCEntry * npc);

@@ -477,14 +477,13 @@ namespace mod {
         } else if (wp->stacks < 5) {
             wp->stacks += 1;
             wp->subtimer = 10;
-            effdrv::EffTarget_Mario target;
-            target.type = effdrv::TARGET_MARIO;
-            effdrv::EffEntry * eff = temp_unk::effSpmVoltEntry(0, 0.33f, &target, -1);
+            effdrv::EffEntry * eff = temp_unk::effSpmVoltEntry(0, 0.33f, lpMakeEffTarget(effdrv::TARGET_MARIO), -1);
             wii::gx::GXColor black = {0, 0, 0, 255};
             effpatch::effpatchColorMaskEntry(eff, black, black, nullptr);
-            spmario_snd::spsndSFXOn_3D("SFX_I_THUNDER1", &mario::marioGetPtr()->position);
-            spmario_snd::spsndSFXOn_3D("SFX_I_BIRIBIRI2", &mario::marioGetPtr()->position);
-            spmario_snd::spsndSFXOn_3D("SFX_EVT_HELWANWAN_POWERUP1", &mario::marioGetPtr()->position);
+            mario::MarioWork * mario = mario::marioGetPtr();
+            spmario_snd::spsndSFXOn_3D("SFX_I_THUNDER1", mario->position);
+            spmario_snd::spsndSFXOn_3D("SFX_I_BIRIBIRI2", mario->position);
+            spmario_snd::spsndSFXOn_3D("SFX_EVT_HELWANWAN_POWERUP1", mario->position);
         } else {
             wp->subtimer = 10;
         }
@@ -533,7 +532,7 @@ namespace mod {
     }
 
     void ClearDisorderSub(s32 id) {
-        (void)id;
+        (void)id; // may need this again one day, functionality stripped at present
         if (Lunatic->Luna.Disorder->ClearFunc != nullptr)
             (Lunatic->Luna.Disorder->ClearFunc)();
         Lunatic->Luna.disorder = DISORDER_NULL;

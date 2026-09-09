@@ -1066,10 +1066,51 @@ namespace mod {
 
     s32 rotenShopLowerClassItemPool[] = {65, 66, 67, 68, 69, 70, 73, 74, 75, 76, 77, 78, 79, 83, 86, 98, 104, 109, 113};
 
+    bool DanGen_Items_VerifyNotInBlocklist(s32 itemId, s32 * blocklist, s32 blocklistCnt) {
+        for (s32 j = 0; j < blocklistCnt; j += 1) {
+            if (itemId == blocklist[j])
+                return false;
+        }
+        return true;
+    }
+
+    s32 DanGen_Items_SelectItem(s32 itemRarity, s32 * blocklist, s32 blocklistCnt, bool guaranteeSpecial) {
+        s32 itemId = 0, i = 0;
+        for (; i < 50; i += 1) {
+            switch (itemRarity) {
+            case 0:
+                itemId = RFCItems_Common[system::rand() % RFCItems_Common_Size];
+                break;
+            case 1:
+                itemId = RFCItems_Uncommon[system::rand() % RFCItems_Uncommon_Size];
+                break;
+            case 2:
+                itemId = RFCItems_Rare[system::rand() % RFCItems_Rare_Size];
+                break;
+            default:
+                itemId = RFCItems_Legendary[system::rand() % RFCItems_Legendary_Size];
+                break;
+            }
+            if (!DanGen_Items_VerifyNotInBlocklist(itemId, blocklist, blocklistCnt))
+                continue;
+            if (itemId >= RFC_SPECIAL_START) {
+                if ((itemId - RFC_SPECIAL_START) >= (s32)VOUCHER_RED && (itemId - RFC_SPECIAL_START) <= (s32)VOUCHER_BLACK) // instantly reroll, rework to check for that disorder completed later
+                    continue;
+                if (Lunatic->RFC.rfcSpecialObtained[itemId - RFC_SPECIAL_START] == true)
+                    continue;
+                if ((system::rand() % 100) < 30 && !guaranteeSpecial) // 30% chance to fail at rolling the special item
+                    continue;
+            } else if (itemId < RFC_SPECIAL_START && guaranteeSpecial)
+                continue;
+            break;
+        }
+        if (i >= 50)
+            return -1;
+        return itemId;
+    }
+
     void DanGen_Items(bool onRoomLoad) {
-        if (onRoomLoad && (swdrv::swByteGet(1) % 10) != 9)
-            return;
-        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, selectionIdx = 0, itemId = 0;
+        s32 rarity = 0, itemRarity = 0, odds = 0, i = 0, itemId = 0;
         VoucherState vState = VoucherGetStateById(VOUCHER_STELLAR);
         if (onRoomLoad) {
             Lunatic->RFC.rerolls = 0;
@@ -1083,7 +1124,7 @@ namespace mod {
             Lunatic->RFC.rerollCost += 1;
         }
         // Reset existing items
-        s32 itemsGenerated[3] = {0, 0, 0};
+        msl::string::memset(Lunatic->RFC.rfcItemIds, 0, sizeof(Lunatic->RFC.rfcItemIds));
         // Decides chest rarity; tries again if a Reroll hits the same rarity OR Stellar is active
         do {
             odds = system::rand() % 100;
@@ -1095,8 +1136,8 @@ namespace mod {
             if (odds < 10) // 10% for Legendary
                 rarity = 3;
         } while ((!onRoomLoad && rarity == Lunatic->RFC.chestRarity) || (vState == V_ACTIVE && (rarity == Lunatic->RFC.chestRarity || rarity == 0)));
-        // First rest floor should always have a common or uncommon chest
-        if (swdrv::swByteGet(1) == 9) {
+        // First rest floor should start with a common or uncommon chest
+        if (onRoomLoad && swdrv::swByteGet(1) == 10) {
             rarity = 0;
             odds = system::rand() % 100;
             if (odds < 40)
@@ -1115,58 +1156,33 @@ namespace mod {
                 if (odds < 10)
                     itemRarity += 1;
             }
-        // Pull item from array
-        tryAgain:
-            switch (itemRarity) {
-            case 0:
-                selectionIdx = system::rand() % RFCItems_Common_Size;
-                itemId = RFCItems_Common[selectionIdx];
-                break;
-            case 1:
-                selectionIdx = system::rand() % RFCItems_Uncommon_Size;
-                itemId = RFCItems_Uncommon[selectionIdx];
-                break;
-            case 2:
-                selectionIdx = system::rand() % RFCItems_Rare_Size;
-                itemId = RFCItems_Rare[selectionIdx];
-                break;
-            default:
-                selectionIdx = system::rand() % RFCItems_Legendary_Size;
-                itemId = RFCItems_Legendary[selectionIdx];
-                break;
+            // Pull item from array
+            itemId = DanGen_Items_SelectItem(itemRarity, Lunatic->RFC.rfcItemIds, 3, false);
+            if (itemId == -1 || (!onRoomLoad && DanGen_Items_VerifyNotInBlocklist(itemId, Lunatic->Mitch.itemIds, 6) == false)) {
+                i -= 1;
+                continue;
             }
-            if (itemId == itemsGenerated[0] || itemId == itemsGenerated[1] || itemId == itemsGenerated[2])
-                goto tryAgain;
-            if (itemId >= RFC_SPECIAL_START) {
-                if ((itemId - RFC_SPECIAL_START) >= (s32)VOUCHER_RED && (itemId - RFC_SPECIAL_START) <= (s32)VOUCHER_BLACK) // instantly reroll, rework to check for that disorder completed later
-                    goto tryAgain;
-                if (Lunatic->RFC.rfcSpecialObtained[itemId - RFC_SPECIAL_START] == true)
-                    goto tryAgain;
-                if ((system::rand() % 100) < 30) // 30% chance to fail at rolling the special item
-                    goto tryAgain;
-            }
-            itemsGenerated[i] = itemId;
-            customwin::CWSelectItemDesc Desc;
+            Lunatic->RFC.rfcItemIds[i] = itemId;
+            customwin::CWSelectItemDesc * Desc = &Lunatic->RFC.rfcItems[i];
             RFCItemData * RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
             RFCColorDef * RFC_Colors = (RFCColorDef *)RFCColorsGetPtr();
-            msl::string::memset(&Desc, 0, sizeof(Desc));
+            msl::string::memset(Desc, 0, sizeof(customwin::CWSelectItemDesc));
             if (itemId >= RFC_SPECIAL_START) {
-                Desc.iconId = TPLPATCH_ICON((s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId);
-                msl::string::memcpy(&Desc.nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
-                if ((itemId - RFC_SPECIAL_START) >= VOUCHER_CAKE && (itemId - RFC_SPECIAL_START) <= VOUCHER_BLACK)
-                    msl::stdio::sprintf(Desc.descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, VoucherGetTearChance(VoucherTearChances[itemId - RFC_SPECIAL_START]), VoucherGuaranteeTrigs[itemId - RFC_SPECIAL_START]);
+                Desc->iconId = TPLPATCH_ICON((s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId);
+                msl::string::memcpy(Desc->nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
+                if ((itemId - RFC_SPECIAL_START) >= VOUCHER_CAKE && (itemId - RFC_SPECIAL_START) <= VOUCHER_BLACK) // Check if voucher
+                    msl::stdio::sprintf(Desc->descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, VoucherGetTearChance(VoucherTearChances[itemId - RFC_SPECIAL_START]), VoucherGuaranteeTrigs[itemId - RFC_SPECIAL_START]);
                 else
-                    msl::string::memcpy(&Desc.descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
-                wii::os::OSReport("RFC: Special item %d generated. Icon id set to %d. Name: %s\n", itemId, Desc.iconId, Desc.nameTxt);
+                    msl::string::memcpy(Desc->descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
+                OSREPORTF("RFC: Special item %d generated. Icon id set to %d. Name: %s\n", itemId, Desc->iconId, Desc->nameTxt);
             } else {
-                Desc.itemId = itemId;
-                Desc.iconId = -1;
+                Desc->itemId = itemId;
+                Desc->iconId = -1;
             }
-            Desc.nameColor = RFC_Colors[itemRarity].textCol;
-            msl::string::memcpy(&Lunatic->RFC.rfcItems[i], &Desc, sizeof(customwin::CWSelectItemDesc));
+            Desc->nameColor = RFC_Colors[itemRarity].textCol;
             Lunatic->RFC.rfcItemData[i] = &RFC_SpecialItems[itemId - RFC_SPECIAL_START];
         }
-        wii::os::OSReport("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, itemsGenerated[0], itemsGenerated[1], itemsGenerated[2]);
+        OSREPORTF("RFC: Chest rarity is %d. Items are %d, %d, %d.\n", rarity, Lunatic->RFC.rfcItemIds[0], Lunatic->RFC.rfcItemIds[1], Lunatic->RFC.rfcItemIds[2]);
         return;
     }
 
@@ -1215,7 +1231,7 @@ namespace mod {
             s32 disorderId = Lunatic->Luna.disorder;
             if (disorderId == DisorderId::DISORDER_GREEN) // Guarantee a maximally complex layout while Indifference is active
                 segmentCount = 16;
-            // wii::os::OSReport("Rolled segmentRNG = %d, queueing %d segment generations for this room.\n", segmentRNG, segmentCount);
+            // OSREPORTF("Rolled segmentRNG = %d, queueing %d segment generations for this room.\n", segmentRNG, segmentCount);
 
             /*
                 ENCLOSED STRUCTURE GENERATION
@@ -1229,7 +1245,7 @@ namespace mod {
 
             // SPLIT
             if (structureRNG >= 0 && structureRNG < 8) {
-                // wii::os::OSReport("!!! SPLIT Structure is generating !!!\n");
+                // OSREPORTF("!!! SPLIT Structure is generating !!!\n");
                 segment2000 = true;
                 segment8 = true;
                 if (structureMiscRNG < 70) {
@@ -1251,7 +1267,7 @@ namespace mod {
 
             // Quarter
             else if (structureRNG >= 8 && structureRNG < 19) {
-                // wii::os::OSReport("!!! QUARTER Structure is generating !!!\n");
+                // OSREPORTF("!!! QUARTER Structure is generating !!!\n");
                 if (structureMiscRNG < 31) {
                     segment100 = true;
                     segment8 = true;
@@ -1289,7 +1305,7 @@ namespace mod {
 
             // Cube
             else if (structureRNG >= 19 && structureRNG < 21) {
-                // wii::os::OSReport("!!! CUBE Structure is generating !!!\n");
+                // OSREPORTF("!!! CUBE Structure is generating !!!\n");
                 segmentCount = segmentCount - 2;
                 if (structureMiscRNG < 50) {
                     segment400 = true;
@@ -1310,7 +1326,7 @@ namespace mod {
 
             // Pillar
             else if (structureRNG >= 21 && structureRNG < 23) {
-                // wii::os::OSReport("!!! PILLAR Structure is generating !!!\n");
+                // OSREPORTF("!!! PILLAR Structure is generating !!!\n");
                 if (structureMiscRNG < 60) {
                     segment800 = true;
                     segment80 = true;
@@ -1328,7 +1344,7 @@ namespace mod {
 
             // Small
             else if (structureRNG >= 23 && structureRNG < 26) {
-                // wii::os::OSReport("!!! SMALL Structure is generating !!!\n");
+                // OSREPORTF("!!! SMALL Structure is generating !!!\n");
                 if (structureMiscRNG < 33) {
                     segment800 = true;
                     segment400 = true;
@@ -1374,7 +1390,7 @@ namespace mod {
 
             // I'm sorry Tartt but I am leaving the stream during Lobates. They bore the hell out of me and frankly I can think of a whole host of things I'd rather be doing, including playing with a rubber band. Please
             else if (structureRNG >= 26 && structureRNG < 32) {
-                // wii::os::OSReport("!!! LOBATE Structure is generating !!!\n");
+                // OSREPORTF("!!! LOBATE Structure is generating !!!\n");
                 segmentCount = segmentCount - 2;
                 if (structureMiscRNG <= 66) {
                     if (boobies < 25) {
@@ -1455,7 +1471,7 @@ namespace mod {
             else
                 structureGenerated = false;
 
-            // wii::os::OSReport("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
+            // OSREPORTF("Structure check passed with RNG val %d, %d segments to generate remaining.\n", structureRNG, segmentCount);
 
             /*
                 SEGMENT GENERATION PROCEDURE & EVERY NECESSARY CHECK
@@ -1494,7 +1510,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 1;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg400 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1528,7 +1544,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 17;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg1 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1560,7 +1576,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 11;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg40 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1634,7 +1650,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 5;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg1000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1707,7 +1723,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 21;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg4 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1740,7 +1756,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 15;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg100 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1774,7 +1790,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 8;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg8000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1808,7 +1824,7 @@ namespace mod {
                         activeDoorCount = activeDoorCount + 1;
                         // doorOn[activeDoorCount] = 24;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg20 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1838,7 +1854,7 @@ namespace mod {
                     } else {
                         segment800 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg800 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1904,7 +1920,7 @@ namespace mod {
                     } else {
                         segment80 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg80 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1934,7 +1950,7 @@ namespace mod {
                     } else {
                         segment2 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg2 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1962,7 +1978,7 @@ namespace mod {
                     } else {
                         segment2000 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg2000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -1990,7 +2006,7 @@ namespace mod {
                     } else {
                         segment8 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg8 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2020,7 +2036,7 @@ namespace mod {
                     } else {
                         segment4000 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg4000 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2087,7 +2103,7 @@ namespace mod {
                     } else {
                         segment200 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg200 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
 
@@ -2117,7 +2133,7 @@ namespace mod {
                     } else {
                         segment10 = true;
                         segmentCount = segmentCount - 1;
-                        // wii::os::OSReport("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
+                        // OSREPORTF("#%d: Seg10 successful. %d remaining.\n", i, segmentCount);
                     }
                     break;
                 }
@@ -2184,7 +2200,7 @@ namespace mod {
             if (segment20)
                 roomDecCode = roomDecCode + 0x20;
 
-            // wii::os::OSReport("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
+            // OSREPORTF("Finished generating. Roomcode w/o pipes is %d.\n", roomDecCode);
 
             if (segment10000)
                 roomDecCode = roomDecCode + 0x10000;
@@ -2218,13 +2234,13 @@ namespace mod {
             while (doorEntrance == doorId) {
                 doorId = system::rand() % 32 + 1;
             }
-            // wii::os::OSReport("Generated doorId %d.\n", doorId);
+            // OSREPORTF("Generated doorId %d.\n", doorId);
             if (doorId == 1) {
                 doorOnToggleableSegment = true;
                 if (segment400) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 4 || doorId == 5) {
@@ -2232,7 +2248,7 @@ namespace mod {
                 if (segment1000) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 8) {
@@ -2240,7 +2256,7 @@ namespace mod {
                 if (segment8000) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 10 || doorId == 11) {
@@ -2248,7 +2264,7 @@ namespace mod {
                 if (segment40) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 14 || doorId == 15) {
@@ -2256,7 +2272,7 @@ namespace mod {
                 if (segment100) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 17) {
@@ -2264,7 +2280,7 @@ namespace mod {
                 if (segment1) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 20 || doorId == 21) {
@@ -2272,7 +2288,7 @@ namespace mod {
                 if (segment4) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
             if (doorId == 24) {
@@ -2280,21 +2296,21 @@ namespace mod {
                 if (segment20) {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId %d passed segment check.\n", doorId);
+                    // OSREPORTF("doorId %d passed segment check.\n", doorId);
                 }
             }
-            // wii::os::OSReport("All toggleable segment checks finished; doorOnToggleableSegment is %d, successfulDoors is %d, currentDoorSuccess is %d.\n", doorOnToggleableSegment, successfulDoors, currentDoorSuccess);
+            // OSREPORTF("All toggleable segment checks finished; doorOnToggleableSegment is %d, successfulDoors is %d, currentDoorSuccess is %d.\n", doorOnToggleableSegment, successfulDoors, currentDoorSuccess);
             if (!doorOnToggleableSegment) {
                 if (doorId >= 25) {
                     if (boobies > 35) {
                         successfulDoors = successfulDoors + 1;
                         currentDoorSuccess = true;
-                        // wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                        // OSREPORTF("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
                     }
                 } else {
                     successfulDoors = successfulDoors + 1;
                     currentDoorSuccess = true;
-                    // wii::os::OSReport("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
+                    // OSREPORTF("doorId was not on a toggleable segment; successfulDoors is %d.\n", successfulDoors);
                 }
             }
             if (currentDoorSuccess) {
@@ -2304,7 +2320,7 @@ namespace mod {
                     doorExit = doorId;
                 }
             }
-            // wii::os::OSReport("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
+            // OSREPORTF("doorEntrance: %d. doorExit: %d.\n", doorEntrance, doorExit);
         }
 
         for (s32 i = 0; i < 200; ++i) {
@@ -2443,22 +2459,22 @@ namespace mod {
                 arrayRNG = system::rand() % ARRAY32_COUNT(lv1Tribes);
                 tribeArray = 1;
                 enemyTribe = lv1Tribes[arrayRNG];
-                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
+                // OSREPORTF("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv1Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv1Limiter) + limiterMod), limiterMod, danLevelData->lv1Limiter);
             } else if (enemyGenRNG < ((danLevelData->lv2Limiter) + limiterMod)) {
                 arrayRNG = system::rand() % ARRAY32_COUNT(lv2Tribes);
                 tribeArray = 2;
                 enemyTribe = lv2Tribes[arrayRNG];
-                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
+                // OSREPORTF("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv2Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv2Limiter) + limiterMod), limiterMod, danLevelData->lv2Limiter);
             } else if (enemyGenRNG < ((danLevelData->lv3Limiter) + limiterMod)) {
                 arrayRNG = system::rand() % ARRAY32_COUNT(lv3Tribes);
                 tribeArray = 3;
                 enemyTribe = lv3Tribes[arrayRNG];
-                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
+                // OSREPORTF("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) < (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
             } else {
                 arrayRNG = system::rand() % ARRAY32_COUNT(lv4Tribes);
                 tribeArray = 4;
                 enemyTribe = lv4Tribes[arrayRNG];
-                // wii::os::OSReport("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
+                // OSREPORTF("Room #%d: tribeArray %d selected; (enemyGenRNG = %d) > (lv3Lim + limMod = %d). limMod = %d, lim = %d.\n", roomGens, tribeArray, enemyGenRNG, ((danLevelData->lv3Limiter) + limiterMod), limiterMod, danLevelData->lv3Limiter);
             }
             if (depravity) {
                 if (e == 0)
@@ -2547,7 +2563,7 @@ namespace mod {
                     enemyTypes += 1;
             }
             Lunatic->Floor[roomGens].Enemies[e].num = enemyAmt;
-            wii::os::OSReport("Room #%d: %s generated %d times. lv1Limiter for this floor: %d. e = %d, enemyTypes = %d. %d (vsOdds) < %d (danEnemy odds).\n", roomGens, msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcGetTribe((danEnemy->name) - 1)->catchCardItemId].nameMsg), enemyAmt, danLevelData->lv1Limiter, e, enemyTypes, vsOdds, danEnemy->odds);
+            OSREPORTF("Room #%d: %s generated %d times. lv1Limiter for this floor: %d. e = %d, enemyTypes = %d. %d (vsOdds) < %d (danEnemy odds).\n", roomGens, msgdrv::msgSearch(item_data::itemDataTable[npcdrv::npcGetTribe((danEnemy->name) - 1)->catchCardItemId].nameMsg), enemyAmt, danLevelData->lv1Limiter, e, enemyTypes, vsOdds, danEnemy->odds);
         }
     }
 
@@ -2620,7 +2636,7 @@ namespace mod {
             swdrv::swByteSet(1, 148);
         }
 
-        // Ensure Shadoo is fought on first room entry, but never again
+        // Ensure Shadoo is fought on first room entry
         if (shadooEntries == 0) {
             swdrv::swByteSet(24, 1);
         }
@@ -2631,7 +2647,7 @@ namespace mod {
 
         DanGen_SegmentsAndDoors(currentFloor);
 
-        DanGen_Items(true);
+        // DanGen_Items(true);
 
         if (currentFloor == 0) {
             /*// Customwin msg gx test
@@ -2645,15 +2661,15 @@ namespace mod {
         if (Lunatic->Mover.moverRNG > 14)
             DanGen_Enemies_Apply();
         //  Uncomment this and replace with any enemy name to add enemy to first 3 Floors. May break stuff sometimes
-        /*dan::dan_wp->dungeons[156].enemies[0].name = DAN_ENEMY(NPC_DARK_NINJOE);
-        dan::dan_wp->dungeons[156].enemies[0].num = 1;
-        dan::dan_wp->dungeons[156].enemies[1].name = 0;
-        dan::dan_wp->dungeons[156].enemies[1].num = 0;
-        dan::dan_wp->dungeons[156].enemies[2].name = 0;
-        dan::dan_wp->dungeons[156].enemies[2].num = 0;
-        dan::dan_wp->dungeons[156].enemies[3].name = 0;
-        dan::dan_wp->dungeons[156].enemies[3].num = 0;
-        dan::dan_wp->dungeons[156].enemyCount = 1;*/
+        /*dan::dan_wp->dungeons[0].enemies[0].name = DAN_ENEMY(NPC_BOMBSHELL_BILL_BLASTER);
+        dan::dan_wp->dungeons[0].enemies[0].num = 1;
+        dan::dan_wp->dungeons[0].enemies[1].name = DAN_ENEMY(NPC_GOOMBA);
+        dan::dan_wp->dungeons[0].enemies[1].num = 1;
+        dan::dan_wp->dungeons[0].enemies[2].name = DAN_ENEMY(NPC_SHLORP);
+        dan::dan_wp->dungeons[0].enemies[2].num = 1;
+        dan::dan_wp->dungeons[0].enemies[3].name = DAN_ENEMY(NPC_FLORO_SAPIEN_PURPLE);
+        dan::dan_wp->dungeons[0].enemies[3].num = 1;
+        dan::dan_wp->dungeons[0].enemyCount = 4;*/
 
         // Replace Flimm inventory every floor; this sets a number of random items from the custom rotenShopItemPools.
         f32 flimmMult = 0;

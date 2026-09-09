@@ -289,7 +289,7 @@
 
 // eff_spm_spindash.c
 800970ac:effSpmSpindashEntry
-800971cc:effSpmSpindashUpdateUnkEff
+800971cc:effSpmSpindashSetTargetMario
 
 // eff_kemuri_test.c
 800c7944:effKemuriTestEntry
@@ -786,6 +786,7 @@
 // mario.c
 801243a8:marioMain
 80121f48:marioGetPtr
+801226f0:marioUpdateCharProperties
 80122af0:marioChkKey
 80122b4c:marioCtrlOnChk
 80122b68:marioCtrlOffChk
@@ -916,6 +917,7 @@
 80131488:clear_hitobj_ride
 801317a0:marioGetWidth
 801318f8:marioGetHeight
+80131ee8:func_80131ee8
 80133dbc:func_80133dbc
 80143064:marioJumpNpc
 
@@ -954,7 +956,9 @@
 // more
 
 // seq_title.c
+8017b130:seq_titleInit
 8017b250:seq_titleMain
+8017b410:seq_titleExit
 8017bc4c:getNextDanMapname
 // more
 
@@ -1193,6 +1197,7 @@
 801c2130:npcGetMaxEntries
 801c2148:npcAddPart
 801c2458:npcGetPartById
+801c2480:npcGetMainPart
 801c2558:npcPartUpdatePosition
 801c65e8:npcTakeDamage
 801c82a8:npcHandleHitXp
@@ -1266,6 +1271,9 @@
 805339f0:spsnd_work
 805aea18:spsbgmlist
 // more
+
+// nw4r::lyt.cpp
+802f2860:func_802f2860
 
 // nw4r::snd.cpp
 8030019c:Skip
@@ -1859,3 +1867,5 @@
 801da5a8:npcZunbabaHeadDispCb
 801e0678:func_801e0678
 805ae9f0:zunbaba_wp
+
+8043bc68:evt_8043bc68

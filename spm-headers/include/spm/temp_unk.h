@@ -31,6 +31,7 @@ EVT_DECLARE(whacka_move_evt)
 EVT_DECLARE(whacka_onhit_evt)
 EVT_DECLARE(default_item_use_evt)
 EVT_DECLARE(npc_drop_item_evt)
+EVT_DECLARE(evt_8043bc68)
 
 // template id
 EVT_DECLARE_USER_FUNC(npc_jugemu_toss_spiny, 1)
@@ -51,6 +52,9 @@ s32 backCursyaHit(spm::npcdrv::NPCEntry * npcEntry, s32 firstRun);
 effdrv::EffEntry * effSpmVoltEntry(f32, f32, void * target, s32);
 effdrv::EffEntry * effItemThunderEntry(f32, f32, f32, f32, s32 variant, s32, s32, s32);
 void effItemThunderSetTargetMario(effdrv::EffEntry * eff);
+
+// nw4r::lyt::TexMap::Set
+void func_802f2860(void * _this, wii::tpl::TPLHeader * tpl, u32 idx);
 
 /*
     Child NPC spawn functions for various NPC types

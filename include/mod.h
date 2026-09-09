@@ -4,12 +4,12 @@
 #include <customwin.h>
 #include <evt_cmd.h>
 #include <gen.h>
+#include <lp_common.h>
 #include <lunadrv.h>
 #include <rfcdrv.h>
-#include <lp_common.h>
 
 namespace mod {
-#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6"
+#define MOD_VERSION "SPM Lunatic Pit beta v3.0 PR6" // Make sure this never exceeds 48 characters for any reason lol
 
     enum BlessId : s32 {
         /* 0x0 */ MERLUNA_NULL_BLESS,
@@ -39,7 +39,6 @@ namespace mod {
     };
 
     enum LPIcon : s32 {
-        ICON_LP_LOGO,
         ICON_LP_STATS,
         ICON_PERCENT,
         ICON_SKULL_KEY,
@@ -136,19 +135,27 @@ namespace mod {
         MOONLIGHT,
         ECLIPSE,
         UMBRA,
-        LUNATIC,
-        CATACLYSM
+        LUNATIC
+        // CATACLYSM
+        // VOID?
     };
 
     struct LPSessionMiscs {
         f64 boobies;
         LPDifficulty difficulty;
         s32 savedCoins;
+        wii::gx::GXColor marioFullColor;
     };
 
     struct BoodinBalls {
-        customwin::CWSelectItemDesc Cards[15];
+        customwin::CWSelectItemDesc * Cards;
         s32 cardNum; // includes perma SP
+    };
+
+    struct GrosMichel {
+        customwin::CWSelectItemDesc * Items;
+        s32 itemNum;
+        s32 itemIds[6];
     };
 
     struct CooldownTimer {
@@ -236,6 +243,7 @@ namespace mod {
         Callback * useFunc;
         wii::gx::GXColor effCol;
         wii::gx::GXColor textDrawCol;
+        s32 buyPrice;
     };
 
     struct RFCColorDef {
@@ -250,7 +258,8 @@ namespace mod {
         s32 chestRarity;
         bool rfcSpecialObtained[LPCUSTOMITEM_MAX];
         RFCItemData * rfcItemData[3];
-        customwin::CWSelectItemDesc rfcItems[3];
+        s32 rfcItemIds[3];
+        customwin::CWSelectItemDesc * rfcItems;
         u8 chestKeysToSpawn[4];
         u8 chestKeysOwned;
         bool chestKeySpawned;
@@ -264,7 +273,7 @@ namespace mod {
         CHST,
         MVER,
         GBBI,
-        DMAN
+        MTCH
     };
 
     enum GabbiState : s32 {
@@ -295,6 +304,14 @@ namespace mod {
             VStellarWork * Stellar;
             VJudgementWork * Judgement;
             VRedWork * Red;
+            VOrangeWork * Orange;
+            VYellowWork * Yellow;
+            VGreenWork * Green;
+            VCyanWork * Cyan;
+            VBlueWork * Blue;
+            VPurpleWork * Purple;
+            VWhiteWork * White;
+            VBlackWork * Black;
             void * Any;
         } UW;
         Callback * tearFunc;
@@ -318,6 +335,7 @@ namespace mod {
     struct LunaticPitWork {
         FloorData Floor[200];
         BoodinBalls Boodin;
+        GrosMichel Mitch;
         InvisibleFullMoon Luna;
         RestFloorChest RFC;
         MagicTrick Voucher;

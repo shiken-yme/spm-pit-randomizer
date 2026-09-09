@@ -3,6 +3,7 @@
 #include <evt_cmd.h>
 #include <evtpatch.h>
 #include <gen.h>
+#include <globalop.h>
 #include <lp_common.h>
 #include <lunadrv.h>
 #include <lunatic/localize.h>
@@ -66,11 +67,14 @@
 #include <spm/mario_hit.h>
 #include <spm/mario_motion.h>
 #include <spm/mario_pouch.h>
+#include <spm/mario_sbr.h>
 #include <spm/mario_status.h>
 #include <spm/memory.h>
 #include <spm/mobjdrv.h>
 #include <spm/mot_damage.h>
 #include <spm/mot_fairy_mario.h>
+#include <spm/mot_jump.h>
+#include <spm/mot_walk.h>
 #include <spm/msgdrv.h>
 #include <spm/npc_dimeen_l.h>
 #include <spm/npc_ninja.h>
@@ -94,8 +98,10 @@
 #include <spm/system.h>
 #include <spm/temp_unk.h>
 #include <spm/winmgr.h>
+#include <spm/wpadmgr.h>
 #include <wii/cx.h>
 #include <wii/gx.h>
+#include <wii/kpad.h>
 #include <wii/os/OSError.h>
 #include <wii/tpl.h>
 #include <wii/wpad.h>
@@ -299,7 +305,7 @@ namespace mod {
                 else
                     goto rerollFloor;
             }
-            wii::os::OSReport("Guaranteed chest keys for this cycle @ rooms ending in %d, %d\n", Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1);
+            OSREPORTF("Guaranteed chest keys for this cycle @ rooms ending in %d, %d\n", Lunatic->RFC.chestKeysToSpawn[0] + 1, Lunatic->RFC.chestKeysToSpawn[1] + 1);
         }
         // Create list of enemies to give keys in the current room
         for (i = 0; i < npcWp->num; curNpc++, i++) {
@@ -338,7 +344,7 @@ namespace mod {
                     for (k = 0; k < Lunatic->Floor[currentFloor].enemyTypes; k += 1)
                         enemiesInCycle += Lunatic->Floor[currentFloor].Enemies[k].num;
                 }
-                // wii::os::OSReport("Enemies in current cycle: %d\n", enemiesInCycle);
+                // OSREPORTF("Enemies in current cycle: %d\n", enemiesInCycle);
                 // If a floor does not have a guaranteed chest key, small chance for any enemy to be assigned one
                 for (j = 0; j < enemyCount; j += 1) {
                     /*
@@ -556,6 +562,335 @@ namespace mod {
         return 2;
     }
 
+#define SPINDASH_SPD_MULT 1.69f
+#define SPINDASH_SHAKE_THRESHOLD 1.8f
+
+    void mot_spinjump(mario::MarioWork * mario) {
+        /*
+            Mot temp 4 is used for speed preservation from an NPC jump AND for max speed mid-jump
+            Mot temps 5 and 6 are used for left/right timers respectively
+        */
+        bool switchedFlags = false;
+        if ((mario->trigFlags & 0x1) != 0) // MARIO_TRIG_FLAG_MOTION_ID_CHANGED
+        {
+            mario->trigFlags &= ~0x1; // MARIO_TRIG_FLAG_MOTION_ID_CHANGED
+            mario->miscFlags &= ~0x1;
+            mario->flags |= 0x10000;  // JUMP MODE
+            mario->flags &= ~0x20000; // END ANY FALL MODE
+            mario->motTime = 2.0;     // IDK but mot_jump does this lolololol
+            // spmario_snd::spsndSFXOff(mario->motTempS[2]); // Disable spindash sound
+            mario->motTempS[2] = -1;
+            mario->hitObjs1[3] = mario->hitObjs1[2];
+            mario_hit::clear_hitobj_ride();
+            mario->airTimer = 0.0;
+            mario->jumpPeakAirTime = 0.0;
+            // Set jump para defs
+            u8 chara = mario->character;
+            f32 p1, p2, p3, p4;
+            if (mario->prevMotionId == MOT_SPINJUMP) // Re-entering spinjump state, i.e. from npc jump
+            {
+                mot_jump::motJumpNpcPlaySfx();
+                p1 = (mario_motion::marioJumpFallParaDefs[chara][0]) * 1.2;
+                p2 = (mario_motion::marioJumpFallParaDefs[chara][1]) * 1.0;
+                mario->xzSpeed = mario->motTempF[4];
+                if (mario->stickLateralMagnitude <= 0.0) // Not holding any direction
+                {
+                    mario->xzSpeedFactor = 0.0; // Test this at 720 and 0, else 1440
+                } else                          // Holding a direction
+                {
+                    if ((mario->buttonsHeld & WPAD_BTN_UP) == WPAD_BTN_UP) // H_LEFT
+                    {
+                        mario->directionView = 270.0;
+                        mario->directionWorld = 270.0;
+                        mario->unknown_0x3c4 = 270.0;
+                        mario->unknown_0x3c8 = 270.0;
+                    } else if ((mario->buttonsHeld & WPAD_BTN_DOWN) == WPAD_BTN_DOWN) // H_RIGHT
+                    {
+                        mario->directionView = 90.0;
+                        mario->directionWorld = 90.0;
+                        mario->unknown_0x3c4 = 90.0;
+                        mario->unknown_0x3c8 = 90.0;
+                    }
+                    mario->xzSpeedFactor = 1440.0;
+                }
+            } else {
+                mot_jump::motJumpPlaySfx();
+                mario->motTempF[5] = mario->xzSpeed;
+                p1 = (mario_motion::marioJumpFallParaDefs[chara][0]) * 1.1;
+                p2 = (mario_motion::marioJumpFallParaDefs[chara][1]) * 1.2;
+                mario->directionView = mario->directionWorld;
+                mario->unknown_0x3c4 = mario->directionWorld;
+                mario->unknown_0x3c8 = mario->directionWorld;
+            }
+            p3 = (mario_motion::marioJumpFallParaDefs[chara][2]);
+            p4 = (mario_motion::marioJumpFallParaDefs[chara][3]);
+            mario_motion::marioSetJumpParaDirect(p1, p2, p3, p4);
+            // End jump para
+            mario->lastJumpStartEndPos.x = mario->position.x;
+            mario->lastJumpStartEndPos.y = mario->position.y;
+            mario->lastJumpStartEndPos.z = mario->position.z;
+            mario->lastGroundSpeed = mario->xzSpeed;
+            f32 dashSpd = mot_walk::marioGetDashSpd();
+            if (mario->xzSpeed < (dashSpd * SPINDASH_SPD_MULT)) {
+                mario->motTempF[5] = (dashSpd * SPINDASH_SPD_MULT);
+            }
+            spmario_snd::spsndSFXOn_3D("SFX_P_PEACH_WATER_STEP1L", &mario->position);
+            spmario_snd::spsndSFXOn_3D("SFX_E_KOTEKUTAI_JUMP1", &mario->position);
+        }
+        // Executes every frame
+        f32 f = mario::marioGetGameSpeedScale();
+        mario->motTime = mario->motTime + f;
+        mario->airTimer = mario->airTimer + f;
+        if (mario->jumpFallPara.nextSpeedY <= 0.0 && !switchedFlags) {
+            mario->flags |= 0x20000;
+            mario->flags &= ~0x10000;
+            mario->motTime = 0.0;
+            mario->lastFallPeakPos.x = mario->position.x;
+            mario->lastFallPeakPos.y = mario->position.y;
+            mario->lastFallPeakPos.z = mario->position.z;
+            switchedFlags = true;
+        }
+        if (mario->hitObjs1[2] != nullptr && mario->motTime >= 5.0) // End immediately if on ground
+        {
+            mario_sbr::marioAdjustMoveDir();
+            mario->flags &= ~0x10000;
+            mario_motion::marioChgMot(MOT_STAY);
+        }
+        f = f * 18.0 + mario->dispDirectionTarget; // Calculates the angle Mario faces during the spindash (rotation effect)
+        mario->dispDirectionTarget = f;
+        mario->dispDirectionCurrent = f;
+        return;
+    }
+
+    static void mot_spinjump_allow_fall() {
+        mario::MarioWork * mario = mario::marioGetPtr();
+        if (mario->motionId != MOT_SPINJUMP) {
+            mario_motion::marioChgMotSub(MOT_FALL, 1);
+        }
+        return;
+    }
+
+    static void mot_spinjump_enemy_bounce() {
+        mario::MarioWork * mario = mario::marioGetPtr();
+        if (mario->motionId != MOT_SPINJUMP) {
+            mario_motion::marioChgMotSub(MOT_BOUNCE, 1);
+        } else {
+            mario->motTempF[4] = mario->xzSpeed;
+            mario_motion::marioChgMotSub(MOT_SPINJUMP, 1);
+        }
+        return;
+    }
+
+    void mot_spindash_new(mario::MarioWork * mario) {
+        bool endMot;
+        f32 f;
+        f32 dashSpd;
+        f32 angle;
+
+        if ((mario->trigFlags & 0x1) != 0) { // MARIO_TRIG_FLAG_MOTION_ID_CHANGED
+            // Init spindash parameters and effects
+            mario->trigFlags &= ~0x1; // MARIO_TRIG_FLAG_MOTION_ID_CHANGED
+            mario->subMotionId = 10;
+            mario->motTime = 0.0;
+            if (mario->character == mario::PLAYER_PEACH) {
+                mario::marioChgPose("KJ_1A");
+            } else {
+                mario::marioChgPose("SD_1");
+            }
+            mario->dispFlags |= 0x104;            // MARIO_DISP_FLAG_0x4 | MARIO_DISP_FLAG_OVERRIDE_FACING
+            if (mario->prevMotionId < MOT_JUMP) { // if previous mot was STAY, WALK, or DASH
+                mario->flags &= ~0x10000;
+                mario->miscFlags &= ~0x1;
+            }
+            if ((mario->miscFlags & MARIO_MISC_FLAG_SPACE_SWIM) == 0) { // NOT in space
+                if ((mario->miscFlags & MARIO_MISC_FLAG_WATER) == 0) {  // NOT in water
+                    if (mario->stickLateralMagnitude <= 0.0) {          // Not holding any direction
+                        mario->motTempF[0] = 0.0;
+                        mario->xzSpeedFactor = 0.0;
+                    } else { // Holding a direction
+                        dashSpd = mot_walk::marioGetDashSpd();
+                        mario->xzSpeedFactor = 1440.0; // 1440 is the max; lower this to limit max speed
+                        mario->motTempF[0] = (dashSpd * SPINDASH_SPD_MULT);
+                    }
+                } else if (mario->hitObjs1[2] == nullptr) { // No floor, in water
+                    mario->motTempF[0] = -1.0;
+                    mario->miscFlags |= 0x100020;
+                } else if (mario->stickLateralMagnitude <= 0.0) { // Not holding any direction, in water
+                    mario->motTempF[0] = 0.0;
+                    mario->xzSpeedFactor = 0.0;
+                } else { // Holding a direction, in water
+                    dashSpd = mot_walk::marioGetDashSpd();
+                    mario->motTempF[0] = (dashSpd * SPINDASH_SPD_MULT);
+                    mario->xzSpeedFactor = 1440.0;
+                }
+            } else { // In space
+                mario->miscFlags |= 0x20;
+                mario->motTempF[0] = -1.0;
+            }
+            mario->motTempF[1] = (s32)mario->dispDirectionTarget;
+            mario->motTempS[2] = spmario_snd::spsndSFXOn_3D("SFX_F_SPIN_DASH1", &mario->position);
+            mario->motTempS[5] = 0;
+            if (!mario::marioCheck3d() || abs_value(mario->directionWorld - mario->directionView) >= 135.0f) {
+                mario->motTempS[5] = 1;
+                mario->motTempF[4] = mario->directionWorld;
+                mario->directionView = mario->directionWorld;
+            }
+            mario::marioEffectFlagOn(1);
+            effdrv::EffEntry * eff = eff_spm_spindash::effSpmSpindashEntry((mario->position).x, (mario->position).y, (mario->position).z, 1, 0);
+            eff_spm_spindash::effSpmSpindashSetTargetMario(eff);
+            effdrv::effSetName(eff, "marioSpin");
+        }
+        spmario_snd::spsndSetSfxPlayerPos(mario->motTempS[2], &mario->position);
+        switch (mario->subMotionId) {
+        case 10: // Immediately after init
+            mario->motTime += mario::marioGetGameSpeedScale();
+            if (mario->motTime < 60.0) {                                                 // First 60 frames of spindash; speed phase
+                f = mario::marioGetGameSpeedScale() * 18.0 + mario->dispDirectionTarget; // Calculates the angle Mario faces during the spindash (rotation effect)
+                if (f > 360.0f)
+                    f -= 360.0f;
+                mario->dispDirectionTarget = f;
+                mario->dispDirectionCurrent = f;
+                if ((mario->miscFlags & MARIO_MISC_FLAG_SPACE_SWIM) == 0) {                    // NOT in space
+                    if (mario->motTempF[0] < 0.0) {                                            // In water, no solid ground
+                        mario_motion::func_80148c28(mario, 0, 0);                              // Controls some sort of moving downward action, I think
+                    } else if (mario->motTime < 30.0) {                                        // First 30 frames of spindash
+                        mario->xzSpeed = mario->motTempF[0] * mario::marioGetGameSpeedScale(); // xzSpeed = (dashSpd * SPINDASH_SPD_MULT) * 1
+                    } else {                                                                   // Next 30 frames; deceleration phase
+                        s32 progress = (s32)(mario->motTime - 30.0);
+                        mario->xzSpeed = system::intplGetValue(4, mario->motTempF[0], 0.0, progress, 30) * mario::marioGetGameSpeedScale();
+                        mario->xzSpeedFactor = system::intplGetValue(4, mario->xzSpeedFactor, 480.0f, progress, 30) * mario::marioGetGameSpeedScale();
+                    }
+                }
+            } else { // After 60 frames of spindashing
+                mario->subMotionId = 20;
+            }
+            if ((mario->miscFlags & MARIO_MISC_FLAG_SPACE_SWIM) == 0) { // Again, NOT in space
+                if (mario->hitObjs1[2] == nullptr) {                    // No longer on a floor; end spindash immediately
+                    spmario_snd::spsndSFXOff(mario->motTempS[2]);
+                    mario->motTempS[2] = -1;
+                    mario_sbr::marioAdjustMoveDir();
+                    mario_motion::marioChgMot(MOT_FALL);
+                } else {                                                                                        // Still on a floor
+                    if (DebugMode && (mario->miscFlags & MARIO_MISC_FLAG_WATER) == 0 && mario->motTime < 4.1) { // Actuate spinjump if spindash is cancelled very early (~4 frames)
+                        if ((mario->buttonsPressed & WPAD_BTN_2) == WPAD_BTN_2) {
+                            mario_motion::marioChgMot(MOT_SPINJUMP);
+                        } else {
+                            mario_motion::marioEndMotIfJump(); // Spindash can be cancelled by jumping
+                        }
+                    } else {
+                        mario_motion::marioEndMotIfJump(); // Spindash can be cancelled by jumping
+                    }
+                }
+            }
+            break;
+        case 20: // After deceleration is finished; turn off afterimage effect
+            mario::marioEffectFlagOff(1);
+            mario->motTime = 0.0;
+            mario->subMotionId = mario->subMotionId + 1;
+            break;
+        case 21: // Spin in place
+            f = mario::marioGetGameSpeedScale();
+            mario->motTime = f * 18.0 + mario->motTime;
+            f = f * 18.0 + mario->dispDirectionTarget;
+            mario->dispDirectionTarget = f;
+            mario->dispDirectionCurrent = f;
+            if ((mario->miscFlags & MARIO_MISC_FLAG_SPACE_SWIM) == 0) { // NOT in space
+                if (mario->motTempF[0] < 0.0) {                         // No floor, in water
+                    mario_motion::func_80148c28(mario, 0, 0);
+                } else {
+                    mario->xzSpeed = 0.0;
+                    mario->xzSpeedFactor = 0.0;
+                }
+            }
+            if (180.0 <= mario->motTime) { // After 10 frames have passed in this state
+                mario->subMotionId = mario->subMotionId + 1;
+            }
+            break;
+        case 22: // Determine which direction to face coming out of the spindash, then set that direction
+            angle = system::reviseAngle(mario->dispDirectionTarget);
+            f = mario::marioGetGameSpeedScale();
+            endMot = false;
+            mario->dispDirectionTarget = angle;
+            if ((mario->motTempF[1] <= 90.0) || (270.0 <= mario->motTempF[1])) {
+                if ((-(f * 18.0 - 360.0) <= mario->dispDirectionTarget) && (mario->dispDirectionTarget < 360.0)) {
+                    endMot = true;
+                    mario->dispDirectionTarget = 0.0;
+                }
+            } else {
+                if ((-(f * 18.0 - 180.0) <= mario->dispDirectionTarget) && (mario->dispDirectionTarget < 180.0)) {
+                    mario->dispDirectionTarget = 180.0;
+                    endMot = true;
+                }
+            }
+            if (endMot) {
+                mario->subMotionId = 30;
+                mario->dispDirectionCurrent = mario->dispDirectionTarget;
+            } else {
+                f = f * 18.0 + mario->dispDirectionTarget;
+                mario->dispDirectionTarget = f;
+                mario->dispDirectionCurrent = f;
+            }
+            break;
+        case 30: // Finalize and transition back to MOT_STAY
+            spmario_snd::spsndSFXOff(mario->motTempS[2]);
+            mario->motTempS[2] = -1;
+            mario_motion::marioChgMot(MOT_STAY);
+            break;
+        }
+        return;
+    }
+
+    void mot_spindash_post_new(mario::MarioWork * mario) {
+        mario->dispDirectionTarget = mario->motTempF[1];
+        mario->miscFlags &= ~0x20100020; // FORCE_SLOWDOWN, REDUCE_AIR_SPEED_GAIN (vestigial?), FORCE_FULL_JUMP (spindash cancelling immediately after jumping out of water won't force a full jump)
+        mario->dispDirectionCurrent = mario->motTempF[1];
+        if (mario->motTempS[2] != -1) {
+            spmario_snd::spsndSFXOff(mario->motTempS[2]);
+            mario->motTempS[2] = -1;
+        }
+        if (mario->motionId != MOT_SPINJUMP) { // NOT transitioning to a spinjump
+            if (mario->motTempS[5] == 1) {
+                if (!mario::marioCheck3d()) {
+                    mario->directionView = mario->directionWorld;
+                    mario->unknown_0x3c4 = mario->motTempF[4];
+                    mario->unknown_0x3c8 = mario->motTempF[4];
+                } else {
+                    mario->directionView = mario->directionWorld;
+                    mario->unknown_0x3c4 = mario->directionWorld;
+                    mario->unknown_0x3c8 = mario->directionWorld;
+                }
+            }
+            mario->dispFlags &= ~0x104; // MARIO_DISP_FLAG_0x4 | MARIO_DISP_FLAG_OVERRIDE_FACING
+            mario::marioEffectFlagOff(1);
+            effdrv::EffEntry * eff = effdrv::effNameToPtr("marioSpin");
+            if (eff != nullptr) {
+                effdrv::effSoftDelete(eff);
+            }
+        } else {
+            mario->flags &= ~0x10000;
+        }
+        return;
+    }
+
+    static void detectSpindash() {
+        mario::MarioWork * mario = mario::marioGetPtr();
+        s32 motion = mario->motionId;
+        if ((motion == MOT_WALK || motion == MOT_DASH || motion == MOT_STAY || motion == MOT_SPACE_SWIM) && (msl::string::strcmp(mario->curPoseName, "D_2") != 0) && (mario->dispFlags & 0x11) == 0 && (mario->flags & 8) == 0) {
+            wii::mtx::Vec3 shake = {0.0f, 0.0f, 0.0f};
+            wpadmgr::WpadWork * wpad = wpadmgr::wpadGetWork();
+            wii::kpad::KPADStatus * kpad = wpad->statuses[0];
+            for (u8 i = 0; i < wpad->kpadReadRet[0]; i = i + 1) {
+                shake.x = (shake.x + (kpad->acceleration).x) * 0.5;
+                shake.y = (shake.y + (kpad->acceleration).y) * 0.5;
+                shake.z = (shake.z + (kpad->acceleration).z) * 0.5;
+            }
+            if (((SPINDASH_SHAKE_THRESHOLD < abs_value(shake.x)) || (SPINDASH_SHAKE_THRESHOLD < abs_value(shake.y))) || (SPINDASH_SHAKE_THRESHOLD < abs_value(shake.z))) {
+                mario_motion::marioChgMot(MOT_SPINDASH);
+            }
+        }
+        return;
+    }
+
     /*
         Test to patch the Fracktail tree back into the game
     */
@@ -596,6 +931,13 @@ namespace mod {
         /*// Fracktail test
         evtpatch::hookEvt(0x80d44cc0, 4, fracktailTreeVisEvt_1);
         patch::hookFunction(npc_zunbaba::npcZunbabaHeadDispCb, fracktailTreeVisCb2);*/
+        // Spindash
+        patch::hookFunction(mot_fairy_mario::mot_spindash, mod::mot_spindash_new);
+        patch::hookFunction(mot_fairy_mario::mot_spindash_post, mod::mot_spindash_post_new);
+        mario_motion::marioMotTbl[MOT_SPINJUMP].mainFunc = mot_spinjump;
+        mario_motion::marioMotTbl[MOT_SPINJUMP].deleteFunc = mot_spindash_post_new;
+        writeBranchLink(mario_motion::marioJump, 0x610, mot_spinjump_allow_fall);
+        writeBranchLink(mario_hit::marioJumpNpc, 0xA8, mot_spinjump_enemy_bounce);
+        globalop::globalopAddEntry((void *)detectSpindash, nullptr);
     }
-
 }

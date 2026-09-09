@@ -374,7 +374,9 @@ typedef struct
 /* 0x0148 */ f32 xzSpeed; // current horizontal speed
 /* 0x014C */ f32 walkSpeed; // base walk speed
 /* 0x0150 */ f32 dashSpeed; // base dash speed
-/* 0x0154 */ u8 unknown_0x154[0x160 - 0x154];
+/* 0x0154 */ f32 unknown_0x154;
+/* 0x0158 */ f32 swimSpeed; // base swim speed
+/* 0x015C */ f32 unknown_0x15C;
 /* 0x0160 */ f32 lastGroundSpeed; // xzSpeed when last on ground
 /* 0x0164 */ u8 unknown_0x164[0x168 - 0x164];
 /* 0x0168 */ f32 stickLateralMagnitude;

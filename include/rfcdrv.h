@@ -19,8 +19,6 @@ namespace mod
 
     #define VOUCHER_MAX 8
 
-    #define VOUCHER_ALPHA_BASE 180
-
     #define VOUCHER_NUM RANGE(VOUCHER_CAKE, VOUCHER_BLACK)
     
     enum VoucherState : s32
@@ -139,6 +137,7 @@ namespace mod
     void *RFCColorsGetPtr();
     void RFCDRVPatches();
 
+    EVT_DECLARE_USER_FUNC(RFCCreateItemTable, 0)
     EVT_DECLARE_USER_FUNC(RFCGetPtr, 1)
     EVT_DECLARE_USER_FUNC(RFCGetRarity, 2)
     EVT_DECLARE_USER_FUNC(RFCGetChestKeyParams, 3)

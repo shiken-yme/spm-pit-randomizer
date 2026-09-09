@@ -3,6 +3,7 @@
 #include <mod.h>
 #include <msl/math.h>
 #include <spm/animdrv.h>
+#include <spm/effdrv.h>
 #include <spm/filemgr.h>
 #include <spm/icondrv.h>
 #include <spm/item_data.h>
@@ -15,6 +16,7 @@
 #include <tplpatch.h>
 #include <wii/os.h>
 #include <wii/tpl.h>
+#include <ymetools.h>
 
 namespace mod {
     /*
@@ -22,6 +24,10 @@ namespace mod {
     */
 
     using namespace spm;
+
+    wii::tpl::TPLHeader * LPTitleTPLHeader = nullptr;
+    s32 LPTitleTPLCurIndex = 0;
+    s32 LPTitleTPLCurN = 0;
 
     // Input needs to be positive
     s32 round(f32 in) {
@@ -53,12 +59,10 @@ namespace mod {
             i += 1;
         }
         s32 num = i + 1;
-        // wii::os::OSReport("split(%d): i = %d, num = %d\n", in, i, num);
         for (s32 n = in; i >= 0; i -= 1) {
             out[i] = n % 10;
             n /= 10;
         }
-        // wii::os::OSReport("split(%d): num = %d, out = {%d, %d, %d, %d, ...}\n", in, num, out[0], out[1], out[2], out[3]);
         return num;
     }
 
@@ -86,6 +90,13 @@ namespace mod {
         if (bind)
             wii::tpl::TPLBind(tpl);
         return tpl;
+    }
+
+    void lpEnableDebugMode() {
+        if (!DebugMode) {
+            DebugMode = true;
+            yme::ymeMain();
+        }
     }
 
     void lpAddAtk(s32 atk) {
@@ -128,6 +139,13 @@ namespace mod {
         return;
     }
 
+    s32 evt_lp_get_chest_keys(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->RFC.chestKeysOwned);
+        return 2;
+    }
+
     s32 evt_lp_add_chest_keys(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
@@ -136,11 +154,17 @@ namespace mod {
         return 2;
     }
 
+    void * lpMakeEffTarget(effdrv::EffTargetType type) {
+        effdrv::EffTarget_Coord * target = memory::__memAlloc(memory::HEAP_EFFECT, sizeof(effdrv::EffTarget_Coord));
+        target->type = type;
+        return target;
+    }
+
     s32 lpGetDanLv() {
         s32 floor = swdrv::swByteGet(1), lv;
         if (floor < 25) {
             lv = 1;
-        } else if (floor < 50) {
+        } else if (floor < 150) {
             lv = 2;
         } else if (floor < 175) {
             lv = 3;

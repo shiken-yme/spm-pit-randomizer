@@ -598,8 +598,8 @@ typedef struct _NPCEntry
 /* 0x008 */ u32 flag8;
 /* 0x00C */ u32 flagC;
 /* 0x010 */ u32 flag10;
-/* 0x014 */ s32 lastAttackedDamageType;
-/* 0x018 */ s32 prevLastAttackedDamageType;
+/* 0x014 */ s32 attackedDamageType; // clears after a few frames & copies to below field
+/* 0x018 */ s32 lastAttackedDamageType;
 /* 0x01C */ u8 unknown_0x1c[0x24 - 0x1c];
 /* 0x024 */ char name[32]; // name of this instance, npc_XXXXXXXX for template-spawned ones
                            // where XXXXXXXX is id in hex
@@ -638,7 +638,7 @@ typedef struct _NPCEntry
 /* 0x398 */ u32 flags_398;
 /* 0x39C */ f32 tribeScaleY; // field 0xe of spawning NPCTribe cast to float
 /* 0x3A0 */ f32 tribeScaleX; // field 0x10 of spawning NPCTribe cast to float
-/* 0x3A4 */ f32 tribeScaleZ; // field 0x12 of spawning NPCTribe cast to float
+/* 0x3A4 */ f32 tribeScaleZ; // field 0x12 of spawning NPCTribe cast to float; not sure what this really is?
 /* 0x3A8 */ u8 unknown_0x3a8[0x3ac - 0x3a8];
 /* 0x3AC */ f32 unknown_0x3ac;
 /* 0x3B0 */ u8 unknown_0x3b0[0x400 - 0x3b0];
@@ -681,7 +681,9 @@ typedef struct _NPCEntry
 /* 0x618 */ f32 gravRotation; // degrees anti-clockwise about the z-axis
 /* 0x588 */ u8 unknown_0x61c[0x624 - 0x61c];
 /* 0x624 */ f32 stunTime;
-/* 0x628 */ u8 unknown_0x628[0x6e0 - 0x628];
+/* 0x628 */ u8 unknown_0x628[0x63c - 0x628];
+/* 0x63C */ f32 fireImmunityTime; // Won't register hits from Bowser's fire for this # of seconds (usually set to 1.0)
+/* 0x640 */ u8 unknown_0x640[0x6e0 - 0x640];
 /* 0x6E0 */ const char * unkShellSfx;
 /* 0x6E4 */ u8 unknown_0x6e4[0x714 - 0x6e4];
 /* 0x714 */ NPCPart * parts; // made from tribe's NPCPartDef list, linked list
@@ -883,7 +885,7 @@ UNKNOWN_FUNCTION(func_801c213c)
 NPCPart * npcAddPart(NPCEntry * entry, NPCPartDef * partDef);
 UNKNOWN_FUNCTION(func_801c23b0)
 NPCPart * npcGetPartById(NPCEntry * npc, u32 id);
-UNKNOWN_FUNCTION(func_801c2480)
+NPCPart * npcGetMainPart(NPCEntry * npc, bool in3d);
 UNKNOWN_FUNCTION(func_801c24cc)
 void npcPartUpdatePosition(NPCPart * part);
 UNKNOWN_FUNCTION(func_801c25d8)
@@ -916,7 +918,7 @@ UNKNOWN_FUNCTION(func_801c4afc)
 UNKNOWN_FUNCTION(func_801c5140)
 
 // NOTE: npc is the one dealing damage, npcPart->owner is the one taking damage
-s32 npcTakeDamage(NPCEntry * npc, NPCPart *npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
+s32 npcTakeDamage(NPCEntry * npc, NPCPart *npcPart, s32 damageType, s32 power, u32 flags, s32 param_6);
 
 UNKNOWN_FUNCTION(func_801c7f68)
 UNKNOWN_FUNCTION(func_801c7fe0)

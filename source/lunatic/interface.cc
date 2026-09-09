@@ -134,7 +134,7 @@ namespace mod {
             return;
         const char * youSuckText = "YOU SUCK";
         f32 scale = 3.69f;
-        LPGUIDrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (0.0f + (offset * 2)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
+        LPGUIDrawText(-((fontmgr::FontGetMessageWidth(youSuckText) * scale) / 2), (15.0f + (offset * 2.5f)), scale, 0, {255, 255, 255, 255}, true, youSuckText);
     }
 
     void new_dan_gameover() {
@@ -143,12 +143,13 @@ namespace mod {
 
     void disorderDisplay(f32 offset) {
         f32 x = -350.0f;
+        f32 y = 77.0f + offset + hud::hud_wp->flipTimeCells[0].pos;
         s32 disorderNum = (s32)Lunatic->Luna.disorder;
         if (disorderNum > 0) {
-            wii::mtx::Vec3 position = {x, (-215.0f - (offset / 1.5f)), 0.0f};
+            wii::mtx::Vec3 position = {x, y, 0.0f};
             s32 mainIconId = (disorderNum - 1 + TPLPATCH_ICON(ICON_DISORDER_APATHY));
-            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, mainIconId, 200);
-            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 225);
+            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, mainIconId, 255);
+            icondrv::iconDispGxAlpha(1.0f, &position, 0x10, TPLPATCH_ICON(ICON_BORDER_DISORDER), 255);
         }
         s32 disorderRooms = Lunatic->Luna.DW.floorsRem;
         if (disorderRooms > 0) {
@@ -156,16 +157,15 @@ namespace mod {
             char buffer[4];
             msl::stdio::sprintf(buffer, "%d", disorderRooms);
             const char * msg = buffer;
-            x -= 6.0f;
-            if (disorderRooms == 1)
-                x += 1.0f;
-            LPGUIDrawText(x, (-150.0f - (offset / 1.5f)), 0.9f, 200, funnyColor, true, msg);
+            LPGUIDrawText(x + 27.0f, y + 30.0f, 0.9f, 200, funnyColor, true, msg);
         }
     }
 
     void voucherDisplay(f32 offset) {
-        f32 y = -200.0f;
-        f32 x = 350.0f + offset;
+        f32 y = 47.0f;
+        if ((swdrv::swByteGet(1) % 10) == 0)
+            y += 25.0f;
+        f32 x = 345.0f + offset;
         wii::mtx::Mtx34 mtxPos, mtxRot, mtxScale;
         for (s32 i = 0; i < VOUCHER_MAX; i += 1) {
             if (Lunatic->Voucher.Work[i] != nullptr) {
@@ -177,16 +177,16 @@ namespace mod {
                     wii::mtx::PSMTXConcat(mtxPos, mtxScale, mtxPos);
                     wii::mtx::PSMTXConcat(mtxPos, mtxRot, mtxPos);
                     icondrv::iconDispGxCol(mtxPos, 0x10, TPLPATCH_ICON(Lunatic->Voucher.Work[i]->iconId), {255, 255, 255, Lunatic->Voucher.Work[i]->iconAlpha});
-                    y += 44.0f;
+                    y -= 44.0f;
                 }
             }
         }
     }
 
     void chestKeyDisplay(f32 offset) {
-        f32 y = 100.0f + offset;
-        if ((swdrv::swByteGet(1) % 10) == 0) // I guess this is because GSW(1) updates immediately after room entry
-            y += 15.0f;
+        f32 y = 95.0f + offset;
+        if ((swdrv::swByteGet(1) % 10) == 0)
+            y += 25.0f;
         f32 x = 335.0f;
         wii::mtx::Mtx34 mtxPos, mtxScale;
         wii::mtx::PSMTXTrans(mtxPos, x, y, 0.0f);
@@ -303,10 +303,8 @@ namespace mod {
         }
         // Hotkey to enable debug mode
         if (!DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & WPAD_BTN_Z) != 0 && (wpadmgr::wpadGetButtonsPressed(0) & WPAD_BTN_B) != 0) {
-            DebugMode = true;
             spmario_snd::spsndSFXOn("SFX_I_BRUNK_APPEAR1");
-            // Debug tools
-            yme::ymeMain();
+            lpEnableDebugMode();
         }
         seq_titleMainReal(wp);
     }
@@ -318,8 +316,9 @@ namespace mod {
     s32 LPGUIShowHideStats(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 showHide = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        showHide == 1 ? Lunatic->Interface.critDispStartDisp = true : Lunatic->Interface.critDispStartDisp = false;
+        //s32 showHide = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        //showHide == 1 ? Lunatic->Interface.critDispStartDisp = true : Lunatic->Interface.critDispStartDisp = false;
+        Lunatic->Interface.critDispStartDisp = (bool)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         return 2;
     }
 

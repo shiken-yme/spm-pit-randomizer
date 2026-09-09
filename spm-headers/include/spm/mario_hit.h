@@ -12,7 +12,7 @@ f32 marioGetWidth();
 f32 marioGetHeight();
 void func_80133dbc();
 void marioJumpNpc(f32 bounceEjection, f32 jumpEjection, Vec3 * p3, s32 p4, s32 p5);
-
+void func_80131ee8();
 // more
 
 CPP_WRAPPER_END()

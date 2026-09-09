@@ -18,10 +18,10 @@
 #include <util.h>
 #include <ymetools.h>
 
-#include "lunatic/localize.h"
 #include <gen.h>
 #include <interface.h>
 #include <lunadrv.h>
+#include <lunatic/localize.h>
 #include <rewrite.h>
 #include <rfcdrv.h>
 
@@ -103,6 +103,7 @@
 #include <spm/rel/mi4.h>
 #include <spm/rel/relocatable_module.h>
 #include <spm/seq_gameover.h>
+#include <spm/seq_load_sub.h>
 #include <spm/seq_mapchange.h>
 #include <spm/seq_title.h>
 #include <spm/seqdef.h>
@@ -138,6 +139,10 @@ namespace mod {
     wii::gx::GXColor MusicHeaderCol = {185, 135, 240, 255};
 
     wii::gx::GXColor RFCHeaderCol = {210, 100, 95, 255};
+
+    wii::gx::GXColor MitchHeaderCol = {118, 114, 232, 255};
+
+    wii::gx::GXColor GabbiHeaderCol = {209, 144, 203, 255};
 
     wii::gx::GXColor RFCArtiHeaderCol = {255, 99, 236, 255};
 
@@ -287,7 +292,8 @@ namespace mod {
     npcdrv::NPCDefense defterm = createDef(41, 0x64, 0x0);
     static npcdrv::NPCDefense defaultDefenses[] = {def0, def48, defterm};
 
-    bool critActuate;
+    bool critActuate = false;
+    bool guaranteeCritActuation = false;
 
     // Add/reduce damage to certain enemies; later, maybe set DEFs for enemies that could actually use it and don't
     // override all defenses with damage reduction. There are certainly a few in this array that can use DEFs, direct DR
@@ -296,7 +302,7 @@ namespace mod {
     void (*marioTakeDamage)(wii::mtx::Vec3 * position, u32 flags, s32 damage);
     s32 (*npcDamageMario)(npcdrv::NPCEntry * npcEntry, npcdrv::NPCPart * part, wii::mtx::Vec3 * position, u32 status, s32 damage, u32 flags);
     s32 (*npcHandleHitXp)(mario::MarioWork * marioWork, npcdrv::NPCEntry * npcEntry, s32 killXp, s32 unk_variant);
-    s32 (*npcTakeDamage)(npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6);
+    s32 (*npcTakeDamage)(npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 damageType, s32 power, u32 flags, s32 param_6);
     effdrv::EffEntry * (*effDamageStarEntry)(f32 x, f32 y, f32 z, s32 variant, s32 damage);
     void (*camShakeInit)(f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration);
     void (*marioChgMotSub)(s32 motionId, s32 p2);
@@ -430,15 +436,8 @@ namespace mod {
                                                  {
                                                      if (part == nullptr && status == 0 && damage == 20 && flags == 4) // Dark Bowser's fire meets these conditions
                                                      {
-                                                         s32 difficulty = lpGetDifficulty();
-                                                         switch (difficulty) {
-                                                         case 0:
-                                                             damage = damage / 2;
-                                                             break;
-                                                         case 2:
-                                                             damage = damage * 1.5;
-                                                             break;
-                                                         }
+                                                         if (lpGetDifficulty() == 0)
+                                                             damage /= 2;
                                                      }
                                                      return npcDamageMario(npcEntry, part, position, status, damage, flags);
                                                  }
@@ -451,7 +450,7 @@ namespace mod {
                                                      else
                                                          damage *= 3;
                                                  }
-                                                 // Disorder: Red/Apathy
+                                                 // Apathy
                                                  s32 disorderId = Lunatic->Luna.disorder;
                                                  if (disorderId == DISORDER_RED)
                                                      damage += Lunatic->Luna.DW.UW.Apathy.enemyDamageIncrease;
@@ -469,21 +468,18 @@ namespace mod {
                                                          }
                                                      }
                                                  }
+                                                 // Patience Voucher proc
+                                                 if (VoucherGetStateById(VOUCHER_CYAN) == V_ACTIVE && system::irand(9) < 2) { // 20% proc chance
+                                                     npcdrv::npcTakeDamage(nullptr, npcdrv::npcGetMainPart(npcEntry, mario::marioCheck3d()), 29, damage, 0, 0);
+                                                 }
                                                  if (npcEntry->tribeId == 62) // Ice Bro projectiles will freeze you
                                                  {
                                                      status |= 0x2000;
                                                  }
                                                  if (npcEntry->tribeId <= 333 && npcEntry->tribeId >= 330) // Patch Shadoo damage
                                                  {
-                                                     s32 difficulty = lpGetDifficulty();
-                                                     switch (difficulty) {
-                                                     case 0:
+                                                     if (lpGetDifficulty() == 0)
                                                          damage /= 2;
-                                                         break;
-                                                     case 2:
-                                                         damage *= 1.5f;
-                                                         break;
-                                                     }
                                                  }
                                                  // Auspice and Aegis
                                                  if (msl::string::strstr(spmario::gp->mapName, "dan") != nullptr) {
@@ -495,8 +491,10 @@ namespace mod {
                                                      if (VoucherChkTorn(VOUCHER_ORANGE) && (npcGetDanLv(npcEntry->tribeId) == 4 || npcCheckDanFlag(npcEntry, (DAN_NPC_HOLOGRAPHIC | DAN_NPC_NEGATIVE)) == true)) {
                                                          dr += 20.0f;
                                                      }
-                                                     fDmg = (f32)damage * (1.0f - dr);
+                                                     fDmg = (f32)damage * (1.0f - (dr / 100.0f));
                                                      damage = round(fDmg);
+                                                     if (damage == 0 && !Lunatic->RFC.rfcSpecialObtained[AEGIS_2]) // Only reach 0 damage if you have the Aegis Invocation
+                                                         damage = 1;
                                                  }
                                                  if (damage < 0)
                                                      damage = 0;
@@ -509,7 +507,7 @@ namespace mod {
                 killXp = 0;
             if (npcCheckDanFlag(npcEntry, DAN_NPC_CHILD) == true) // If child npc, give 10% XP
                 killXp /= 10;
-            if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0 && npcEntry->lastAttackedDamageType == 2) // If Recalcitrance is active & enemy was defeated with a jump, multiply XP negatively
+            if (disorderId == DisorderId::DISORDER_CYAN && killXp > 0 && npcEntry->attackedDamageType == 2) // If Recalcitrance is active & enemy was defeated with a jump, multiply XP negatively
                 killXp *= ((f32)Lunatic->Luna.DW.UW.Recalcitrance.dispXPMult / 100.0f);
             if (npcCheckDanFlag(npcEntry, DAN_NPC_HOLOGRAPHIC) == true)
                 killXp *= 2; //  Holographic enemies in the Pit will give 2x score
@@ -519,28 +517,27 @@ namespace mod {
         });
 
         npcTakeDamage =
-            patch::hookFunction(npcdrv::npcTakeDamage, [](npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 defenseType, s32 power, u32 flags, s32 param_6) {
+            patch::hookFunction(npcdrv::npcTakeDamage, [](npcdrv::NPCEntry * npc, npcdrv::NPCPart * npcPart, s32 damageType, s32 power, u32 flags, s32 param_6) {
                 s32 difficulty = lpGetDifficulty();
-                // wii::os::OSReport("npcTakeDamage: %s dealt damage of type %d to %s.\n",
-                // npcTribeToName(npcPart->owner->tribeId), defenseType, npcTribeToName(npc->tribeId));
-                if (defenseType == 5 && difficulty >= 2) {
+                // OSREPORTF("npcTakeDamage: %s dealt damage of type %d to %s.\n", npcTribeToName(npcPart->owner->tribeId), damageType, npcTribeToName(npc->tribeId));
+                if (damageType == 5 && difficulty >= 2) {
                     // No damage is dealt from shells unless both enemies are spinning
                     if ((npc->moveMode == NPC_MOVE_SPIN && npcPart->owner->moveMode == NPC_MOVE_SPIN) || (npc->moveMode == NPC_MOVE_SPIN && npcPart->owner->moveMode == NPC_MOVE_THROWN) || (npc->moveMode == NPC_MOVE_THROWN && npcPart->owner->moveMode == NPC_MOVE_SPIN)) {
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
                         eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
                         eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
-                        npcTakeDamage(npcPart->owner, &npc->parts[0], defenseType, power, flags, param_6);
-                        return npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
+                        npcTakeDamage(npcPart->owner, &npc->parts[0], damageType, power, flags, param_6);
+                        return npcTakeDamage(npc, npcPart, damageType, power, flags, param_6);
                     } else if ((u32)npcPart->owner == (u32)mario::marioGetPtr()->caught.npc) {
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
                         eff_spm_hit::effSpmHitEntry(npcPart->position.x, npcPart->position.y, npcPart->position.z, 0);
                         return npcTakeDamage(npc, npcPart, 6, power, flags, param_6);
                     } else {
-                        return npcTakeDamage(0, 0, defenseType, 0, 0, param_6);
+                        return npcTakeDamage(0, 0, damageType, 0, 0, param_6);
                     }
                 }
-                if (defenseType == 5 || (defenseType == 29 && npc != (npcdrv::NPCEntry *)mario::marioGetPtr())) // Hit by Koopa shell or Barried projectile
+                if (damageType == 5 || (damageType == 29 && npc != (npcdrv::NPCEntry *)mario::marioGetPtr())) // Hit by Koopa shell or Barried projectile
                 {
                     if (npcPart != 0) {
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
@@ -549,7 +546,7 @@ namespace mod {
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npc->position);
                         eff_spm_hit::effSpmHitEntry(npc->position.x, npc->position.y, npc->position.z, 0);
                     }
-                } else if (defenseType == 6) // Thoreau collision
+                } else if (damageType == 6) // Thoreau collision
                 {
                     if (npcPart != 0) {
                         spmario_snd::spsndSFXOn_3D("SFX_E_CRUSH1", &npcPart->position);
@@ -563,7 +560,7 @@ namespace mod {
                 if (npcCheckDanFlag(npcPart->owner, DAN_NPC_HOLOGRAPHIC) == true)
                     power -= 3;
                 if (npcCheckDanFlag(npcPart->owner, DAN_NPC_NEGATIVE) == true &&
-                    !((defenseType == 6 || defenseType == 4) && npcCheckDanFlag(npc, DAN_NPC_NEGATIVE) == true) && power >= 3) // Negative enemies should be vulnerable to Thoreau damage ONLY when colliding with another negative enemy
+                    !((damageType == 6 || damageType == 4) && npcCheckDanFlag(npc, DAN_NPC_NEGATIVE) == true) && power >= 3) // Negative enemies should be vulnerable to Thoreau damage ONLY when colliding with another negative enemy
                     power = round((f32)power / 3.0f);
                 s32 odds;
                 s32 disorderId = Lunatic->Luna.disorder;
@@ -582,7 +579,7 @@ namespace mod {
                 {
                     // Calculate critical strikes
                     f32 critOdds = system::rand() % 100;
-                    if (Lunatic->Stats.CritRate > critOdds) {
+                    if (Lunatic->Stats.CritRate > critOdds || guaranteeCritActuation) {
                         f32 fDmg = (f32)power;
                         f32 cm = Lunatic->Stats.CritMult;
                         // Bravery torn, powerful enemy
@@ -596,10 +593,14 @@ namespace mod {
                 }
                 // Check if crit should actually occur
                 u32 hp = npcPart->owner->hp;
-                s32 ret = npcTakeDamage(npc, npcPart, defenseType, power, flags, param_6);
-                if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || defenseType == 33 || defenseType == 37)
+                s32 ret = npcTakeDamage(npc, npcPart, damageType, power, flags, param_6);
+                if (guaranteeCritActuation) {
+                    guaranteeCritActuation = false;
+                    critActuate = true;
+                } else if (hp == npcPart->owner->hp || (npcPart->owner->flagC & 0x4000000) != 0 || power < 0 || damageType == 33 || damageType == 37) {
                     critActuate = false;
-                // wii::os::OSReport("%d damage dealt of type %d.\n", power, defenseType);
+                }
+                // OSREPORTF("%d damage dealt of type %d.\n", power, damageType);
                 return ret;
             });
 
@@ -616,7 +617,7 @@ namespace mod {
         });
 
         camShakeInit = patch::hookFunction(camdrv::camShakeInit, [](f32 x, f32 y, f32 z, camdrv::CameraId camId, u32 duration) {
-            // wii::os::OSReport("camShakeInit Call: tremorState == %d.\n", Lunatic->Luna.DW.tremorState);
+            // OSREPORTF("camShakeInit Call: tremorState == %d.\n", Lunatic->Luna.DW.tremorState);
             if (Lunatic->Luna.DW.tremorState > 0)
                 return;
             camShakeInit(x, y, z, camId, duration);
@@ -1013,6 +1014,25 @@ namespace mod {
         return 0;
     }
 
+    void patchTitle(wii::tpl::TPLHeader * tpl) {
+        TPLBind(tpl);
+        if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0 && seqdrv::seqGetSeq() != 1)
+            return;
+        if (LPTitleTPLHeader == nullptr) {
+            LPTitleTPLHeader = allocTPL("LPTITLE.tpl", nullptr, memory::HEAP_MAP, true);
+            LPTitleTPLCurIndex = 0;
+            LPTitleTPLCurN = 0;
+        }
+        s32 n = LPTitleTPLCurN++;
+        if (n <= 2 || n == 5 || n == 6 || n == 10 || n == 12 || n == 15 || n == 17) {
+            tplpatch::patchTpl2(0, LPTitleTPLCurIndex++, tpl, LPTitleTPLHeader, nullptr, 0, 1);
+        } else if (n == 27) {
+            LPTitleTPLCurIndex = 0;
+            LPTitleTPLCurN = 0;
+        }
+        return;
+    }
+
     // I hate how I had to do this; the ASM context for deciding big or small coins in vanilla is very complex
     void makeCoinsBig(s32 null, s32 itemId) {
         asm("addi 27, 3, 14");
@@ -1078,6 +1098,13 @@ namespace mod {
         swdrv::swByteSet(1600, 0);
         swdrv::swByteSet(1601, 0);
         swdrv::swByteSet(1602, 0);
+        // Revert globals that affect Baldio state
+        if (!swdrv::swGet(1631)) {
+            mario::marioCharPoseNames[mario::PLAYER_MARIO][0] = "p_wii_mario";
+            mario::marioCharBackPoseNames[mario::PLAYER_MARIO][0] = "p_wii_mario_r";
+            msgpatch::msgpatchDelEntry("in_pc_mario");
+            msgpatch::msgpatchDelEntry("msg_pc_mario");
+        }
         mario_motion::marioChgMot(24); // MOT_DEATH
         return;
         //}
@@ -1090,9 +1117,59 @@ namespace mod {
         return finish;
     }
 
+    void lpOnFileLoad() {
+        if (msl::string::strcmp(spmario::gp->saveName, "Yme") == 0)
+            lpEnableDebugMode();
+        if (!swdrv::swGet(1631)) {
+            mario::marioCharPoseNames[mario::PLAYER_MARIO][0] = "p_wii_bldio";
+            mario::marioCharBackPoseNames[mario::PLAYER_MARIO][0] = "p_wii_bldio_r";
+            msgpatch::msgpatchAddEntry("in_pc_mario", baldMarioName, false);
+            msgpatch::msgpatchAddEntry("msg_pc_mario", baldMarioDesc, false);
+            mario::MarioWork * mario = mario::marioGetPtr();
+            if (mario->character == mario::PLAYER_MARIO) {
+                mario_motion::_marioChangeCharacter(mario::PLAYER_MARIO); // Refresh model
+                mario->curPoseName = "P_1";
+            }
+        }
+    }
+
     void levelUpHalveHPBonus() {
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
         mario_pouch::pouchSetHp(pouch->hp + round((f32)pouch->maxHp / 2.0f));
+        return;
+    }
+
+    s32 marioMakeBald(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        bool bald = (bool)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        if (bald) {
+            mario::marioCharPoseNames[mario::PLAYER_MARIO][0] = "p_wii_bldio";
+            mario::marioCharBackPoseNames[mario::PLAYER_MARIO][0] = "p_wii_bldio_r";
+            msgpatch::msgpatchAddEntry("in_pc_mario", baldMarioName, false);
+            msgpatch::msgpatchAddEntry("msg_pc_mario", baldMarioDesc, false);
+        } else {
+            mario::marioCharPoseNames[mario::PLAYER_MARIO][0] = "p_wii_mario";
+            mario::marioCharBackPoseNames[mario::PLAYER_MARIO][0] = "p_wii_mario_r";
+            msgpatch::msgpatchDelEntry("in_pc_mario");
+            msgpatch::msgpatchDelEntry("msg_pc_mario");
+        }
+        if (mario::marioGetPtr()->character == mario::PLAYER_MARIO) {
+            mario_motion::_marioChangeCharacter(mario::PLAYER_MARIO); // Refresh model
+            mario::marioGetPtr()->curPoseName = "P_1";
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(marioMakeBald, 1)
+
+    void marioChgBaseSpeedStats() {
+        mario::MarioWork * mario = mario::marioGetPtr();
+        if (mario->character == mario::PLAYER_MARIO && !swdrv::swGet(1631)) {
+            mario->walkSpeed *= 1.01969;
+            mario->dashSpeed *= 1.01969;
+            mario->swimSpeed *= 1.01969;
+        }
+        mario_hit::func_80131ee8();
         return;
     }
 
@@ -1189,10 +1266,11 @@ namespace mod {
     static const char * (*searchGetNpcMsgReal)(npcdrv::NPCEntry * npc);
     void (*spsndSFXOnReal)(const char * name);
     void (*spsndSFXOnVolReal)(const char * name, u8 volume);
+    void (*seq_titleExitReal)(seqdrv::SeqWork * work);
+    void (*nandLoadSaveReal)(s32 saveId);
     itemdrv::ItemEntry * (*itemEntryReal)(const char * name, s32 type, s32 behaviour, f32 x, f32 y, f32 z, evtmgr::EvtScriptCode * pickupScript,
                                           evtmgr::EvtVar switchNumber);
     s32 (*itemCollectPouchItemReal)(itemdrv::ItemEntry * item);
-    void (*TPLBindReal)(wii::tpl::TPLHeader * tpl);
     static void miscLambdas() {
         searchGetNpcMsgReal = patch::hookFunction(search::searchGetNpcMsg, [](npcdrv::NPCEntry * npc) {
             // Patch all custom/modified NPCs to return a custom tattle instead of a message name that doesn't exist
@@ -1244,7 +1322,7 @@ namespace mod {
                     if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_MAC_KEY_00) == true) {
                         Lunatic->RFC.chestKeysOwned += 1;
                         mario_pouch::pouchRemoveItem(ITEM_ID_KEY_MAC_KEY_00);
-                        wii::os::OSReport("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
+                        OSREPORTF("Chest keys: %d (%p)\n", Lunatic->RFC.chestKeysOwned, &Lunatic->RFC.chestKeysOwned);
                     }
                 } else if (item->type == ITEM_ID_KEY_DAN_KEY) {
                     if (mario_pouch::pouchCheckHaveItem(ITEM_ID_KEY_DAN_KEY) == true) {
@@ -1253,17 +1331,86 @@ namespace mod {
                     }
                 }
             }
+            if (mario::marioGetPtr()->motionId == MOT_SPINDASH)
+                mario_motion::marioChgMot(MOT_STAY);
             return ret;
         });
 
-        TPLBindReal = patch::hookFunction(wii::tpl::TPLBind, [](wii::tpl::TPLHeader * tpl) {
-            TPLBindReal(tpl);
-            if (msl::string::strcmp(seq_mapchange::seq_mapchange_wp->mapName, "title") != 0 && seqdrv::seqGetSeq() != 1)
-                return;
-            if (tpl->imageTable->image->height == 184 && tpl->imageTable->image->width == 360 && tpl->imageTable->image->format == 5)
-                tplpatch::patchTpl2(0, ICON_LP_LOGO, tpl, tplpatch::TPLPatchIconTPLHeader, nullptr, 0, 1);
+        seq_titleExitReal = patch::hookFunction(seq_title::seq_titleExit, [](seqdrv::SeqWork * work) {
+            seq_titleExitReal(work);
+            LPTitleTPLHeader = nullptr;
             return;
         });
+
+        nandLoadSaveReal = patch::hookFunction(nandmgr::nandLoadSave, [](s32 saveId) {
+            nandLoadSaveReal(saveId);
+            lpOnFileLoad();
+            return;
+        });
+    }
+
+    s32 SaveWriteModVersion(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 saveId = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        s32 len = msl::string::strlen(MOD_VERSION);
+        assertf(len <= 48, "MOD_VERSION is too long (%s) @ %d", MOD_VERSION, len);
+        if (saveId == -1)
+            msl::string::strcpy((char *)&spmario::gp->gsw[2000], MOD_VERSION);
+        else
+            msl::string::strcpy((char *)&nandmgr::nandmgr_wp->saves[saveId - 1].spmarioGlobals.gsw[2000], MOD_VERSION);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(SaveWriteModVersion, 1)
+
+    s32 SaveChkModVersion(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        s32 saveId = evtmgr_cmd::evtGetValue(evtEntry, args[0]) - 1;
+        const char * mod_ver = (char *)&nandmgr::nandmgr_wp->saves[saveId].spmarioGlobals.gsw[2000];
+        if (msl::string::strcmp(mod_ver, MOD_VERSION) == 0 || nandmgr::nandmgr_wp->saves[saveId].spmarioGlobals.gsw0 == 0) {
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], 0);
+        } else if ((s32)*mod_ver != 0) {
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], 1);
+        } else {
+            evtmgr_cmd::evtSetValue(evtEntry, args[1], 2);
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(SaveChkModVersion, 2)
+
+    EVT_BEGIN(new_savefile_start_evt)
+    SET(GF(0), 0)
+    SET(LW(3), LW(0))
+    USER_FUNC(SaveChkModVersion, LW(3), LW(1))
+    SWITCH(LW(1))
+    CASE_EQUAL(0)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 0, PTR("msg_savefile_start"), 0, 0, LW(3))
+    CASE_EQUAL(1)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(savefile_start_oldversion), 0, 0, LW(3))
+    CASE_EQUAL(2)
+    USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(savefile_start_noversion), 0, 0, LW(3))
+    END_SWITCH()
+    USER_FUNC(evt_msg::evt_msg_select, 0, PTR("msg_mcard_yesno"))
+    SET(LW(2), LW(0))
+    IF_LARGE_EQUAL(LW(1), 1)
+    IF_EQUAL(LW(2), 0)
+    USER_FUNC(evt_msg::evt_msg_print_add, 1, PTR(savefile_start_update))
+    USER_FUNC(evt_msg::evt_msg_select, 0, PTR("msg_mcard_yesno"))
+    IF_EQUAL(LW(0), 0)
+    USER_FUNC(SaveWriteModVersion, LW(3))
+    END_IF()
+    END_IF()
+    END_IF()
+    USER_FUNC(evt_msg::evt_msg_continue)
+    IF_NOT_EQUAL(LW(2), 0)
+    SET(GF(0), 1)
+    END_IF()
+    RETURN()
+    EVT_END()
+
+    evtmgr::EvtEntry * savefileStartEvtOverwrite() {
+        return evtmgr::evtEntryType(new_savefile_start_evt, 0, 0, 0);
     }
 
     static void danOverwrite() {
@@ -1289,6 +1436,14 @@ namespace mod {
         writeBranch(spm::npcdrv::npcTakeDamage, 0x1DC, setCudgeFloat);
         // make coins big justice i guess
         writeBranchLink(npcmisc::npcDropItem, 0x320, makeCoinsBig);
+        // patch title screen
+        writeBranchLink(temp_unk::func_802f2860, 0x38, patchTitle);
+        // add mod version check to save load
+        writeBranchLink(seq_load_sub::loadMain, 0x880, savefileStartEvtOverwrite);
+        // aerodynamic
+        writeBranchLink(mario::marioUpdateCharProperties, 0xD4, marioChgBaseSpeedStats);
+        writeBranchLink(mario::marioUpdateCharProperties, 0x148, marioChgBaseSpeedStats);
+        writeBranchLink(mario::marioUpdateCharProperties, 0x228, marioChgBaseSpeedStats);
         // Remove anything that sets or reads npcentry->unkShellSfx
         writeWord(npcdrv::func_801cdb84, 0xB6C, NOP); // remove the call to play unkShellSfx
         writeWord(evt_npc::evt_npc_set_unk_shell_sfx, 0x58, NOP);
@@ -1367,55 +1522,49 @@ namespace mod {
         return 2;
     }
 
+    wii::gx::GXColor marioIfHeWerentBlue = {255, 255, 255, 255};
+    wii::gx::GXColor marioIfHeWereBlue = {60, 100, 255, 255};
+    wii::gx::GXColor marioIfHeWerent = {255, 255, 255, 0};
+
+    void hijackFullMarioColor(wii::gx::GXTexObj * texObj) {
+        wii::gx::GXSetTevColor(1, &Lunatic->Misc.marioFullColor);
+        return;
+    }
+
     s32 animPoseSetMaterialEvtColorWrapper(evtmgr::EvtEntry * evtEntry, bool firstRun) {
-        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 blueToggle = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         mario::MarioWork * mario = mario::marioGetPtr();
-        s32 marioRemoved = swdrv::swGet(1612);
+        bool marioRemoved = swdrv::swGet(1612);
+        bool blueToggle = swdrv::swGet(1643);
         s32 i;
-        /*    // DEBUG
-            if (spmario::gp->frameCounter % 30 == 0)
-            {
-                wii::gx::GXColor col = animdrv::animPoseGetMaterialEvtColor(mario->animPoseIds[0]);
-                wii::os::OSReport("AnimPose[0] GXColor: %d, %d, %d, %d\n", col.r, col.g, col.b, col.a);
-            } */
-        // END DEBUG
-        if (mario->character == 0 && marioRemoved == 1) {
-            static wii::gx::GXColor marioIfHeWereInvisible = {255, 255, 255, 0};
-            for (i = 0; i < 8; ++i) {
-                if (mario->animPoseIds[i] != -1) {
-                    animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWereInvisible);
+        for (i = 0; i < 8; ++i) {
+            if (mario->animPoseIds[i] != -1) {
+                if (mario->character == 0 && marioRemoved) {
+                    animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWerent);
                     animdrv::animPoseSetMaterialFlagOn(mario->animPoseIds[i], 0x2000);
-                }
-            }
-            if ((mario->effectFlags & 0x2) != 0) // Remove stylish trail
-            {
-                mario->effectFlags = mario->effectFlags & ~0x2;
-            }
-        } else if (blueToggle == 1) {
-            static wii::gx::GXColor marioIfHeWereBlue = {60, 100, 255, 255};
-            for (i = 0; i < 8; ++i) {
-                if (mario->animPoseIds[i] != -1) {
+                    mario->effectFlags &= ~0x3; // Remove trail effects
+                } else if (blueToggle) {
                     animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWereBlue);
                     animdrv::animPoseSetMaterialFlagOn(mario->animPoseIds[i], 0x2000);
+                } else {
+                    if (mario->animPoseIds[i] != -1) {
+                        animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWerentBlue);
+                        animdrv::animPoseSetMaterialFlagOff(mario->animPoseIds[i], 0x2000);
+                    }
                 }
-            }
-        } else {
-            static wii::gx::GXColor marioIfHeWerentBlue = {255, 255, 255, 255};
-            for (i = 0; i < 8; ++i) {
-                if (mario->animPoseIds[i] != -1) {
-                    animdrv::animPoseSetMaterialEvtColor(mario->animPoseIds[i], marioIfHeWerentBlue);
-                    animdrv::animPoseSetMaterialFlagOff(mario->animPoseIds[i], 0x2000);
+                if (Lunatic->Misc.marioFullColor.a != 0 && !(mario->character == 0 && marioRemoved)) {
+                    animdrv::animPoseSetDispCallback2(mario->animPoseIds[i], (void *)hijackFullMarioColor, nullptr);
+                } else {
+                    animdrv::animPoseSetDispCallback2(mario->animPoseIds[i], nullptr, nullptr);
                 }
             }
         }
         return 2;
     }
-    EVT_DECLARE_USER_FUNC(animPoseSetMaterialEvtColorWrapper, 1)
+    EVT_DECLARE_USER_FUNC(animPoseSetMaterialEvtColorWrapper, 0)
 
     s32 update_bump_tex(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         // Whacka Bump
-        if (swdrv::swGet(1643) == 0) {
+        if (swdrv::swGet(1643)) {
             item_data::itemDataTable[45].iconId = TPLPATCH_ICON(ICON_BUMP_GRAY); // Icon/Item ID of the unused peach in vanilla
         } else {
             item_data::itemDataTable[45].iconId = TPLPATCH_ICON(ICON_BUMP_BLUE); // Icon of unused "negative" gray key in vanilla
@@ -2286,8 +2435,8 @@ namespace mod {
         npcdrv::npcTribes[529].jumpEjection = 0;
         npcdrv::NPCDefense testDefs[5] = {def1_1, def7_1, def0_1, def48, defterm};
         npcdrv::npcTribes[529].partsList[0].defenses = testDefs;
-        //    wii::os::OSReport("def0_1: %d.\n", def0_1.defense);
-        //    wii::os::OSReport("defterm: %d.\n", defterm.defense);
+        //    OSREPORTF("def0_1: %d.\n", def0_1.defense);
+        //    OSREPORTF("defterm: %d.\n", defterm.defense);
 
         // Force all enemies' stylish XP to 10% of kill XP
         for (s32 i = 0; i < NPCTRIBE_MAX; i += 1)
@@ -2411,29 +2560,17 @@ namespace mod {
 
     s32 declare_shadoo_stats(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         mario_pouch::MarioPouchWork * pouch = mario_pouch::pouchGetPtr();
-        marioMaxHp = pouch->maxHp;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         npcdrv::NPCEntry * npc = npcdrv::npcNameToPtr_NoAssert((const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]));
-
         // Shadoo HP = Mario max HP at minimum.
-        s32 difficulty = lpGetDifficulty();
-        switch (difficulty) {
-        case 0:
-            npc->maxHp = marioMaxHp;
-            npc->hp = npc->maxHp;
+        if (lpGetDifficulty() == 0) {
+            npc->maxHp = pouch->maxHp;
             npcdrv::npcTribes[npc->tribeId].attackStrength = 5;
-            break;
-        case 1:
-            npc->maxHp = marioMaxHp * 2;
-            npc->hp = npc->maxHp;
+        } else {
+            npc->maxHp = pouch->maxHp * 2;
             npcdrv::npcTribes[npc->tribeId].attackStrength = 10;
-            break;
-        case 2:
-            npc->maxHp = marioMaxHp * 3;
-            npc->hp = npc->maxHp;
-            npcdrv::npcTribes[npc->tribeId].attackStrength = 15;
-            break;
         }
+        npc->hp = npc->maxHp;
         return 2;
     }
     EVT_DECLARE_USER_FUNC(declare_shadoo_stats, 1)
@@ -2458,14 +2595,16 @@ namespace mod {
         if (DebugMode && (wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_1 | WPAD_BTN_2)) == (WPAD_BTN_1 | WPAD_BTN_2))
             Lunatic->Mover.moverRNG = 2;
         // THRESHOLD IS 14!!!!
-        wii::os::OSReport("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
+        OSREPORTF("moverRNG: %d.\n", Lunatic->Mover.moverRNG);
         return 2;
     }
 
     s32 evt_dan_init_lunatic(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         (void)evtEntry;
+        LPDifficulty difficulty = Lunatic->Misc.difficulty;
         msl::string::memset(Lunatic, 0, sizeof(LunaticPitWork));
+        Lunatic->Misc.difficulty = difficulty;
         Lunatic->Stats.CritRate = 4;
         Lunatic->Stats.CritMult = 50.0f;
         if (swdrv::swGet(1654) == true)
@@ -2486,8 +2625,10 @@ namespace mod {
             // If Movers are blocked & B, +, and - are all held upon entering Pit, enter Blue% Speedrun Mode
             if (swdrv::swGet(1610) && (wpadmgr::wpadGetButtonsHeld(0) & (WPAD_BTN_B | WPAD_BTN_PLUS | WPAD_BTN_MINUS)) == (WPAD_BTN_B | WPAD_BTN_PLUS | WPAD_BTN_MINUS))
                 swdrv::swSet(1644);
-        } else
+        } else {
             mario_pouch::pouchSetCoin(999);
+            Lunatic->RFC.chestKeysOwned = 69;
+        }
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].iconId = TPLPATCH_ICON(ICON_CHEST_KEY);
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].nameMsg = chestKeyNamePtr;
         item_data::itemDataTable[ITEM_ID_KEY_MAC_KEY_00].descMsg = chestKeyDescPtr;
@@ -2504,7 +2645,7 @@ namespace mod {
 
     s32 rand100(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         s32 rand100Num = system::rand() % 100;
-        wii::os::OSReport("rand100Num: %d.\n", rand100Num);
+        OSREPORTF("rand100Num: %d.\n", rand100Num);
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         evtmgr_cmd::evtSetValue(evtEntry, args[0], rand100Num);
         return 2;
@@ -2516,10 +2657,11 @@ namespace mod {
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         const char * introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         f32 printFloat = evtmgr_cmd::evtGetFloat(evtEntry, args[1]);
-        if (introStr == nullptr || introStr == 0)
-            wii::os::OSReport("%f\n", printFloat);
-        else
-            wii::os::OSReport("%s: %f\n", introStr, printFloat);
+        if (introStr == nullptr || introStr == 0) {
+            OSREPORTF("%f\n", printFloat);
+        } else {
+            OSREPORTF("%s: %f\n", introStr, printFloat);
+        }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(osReportFloat, 2)
@@ -2528,10 +2670,11 @@ namespace mod {
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
         const char * introStr = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         s32 printInt = evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        if (introStr == nullptr)
-            wii::os::OSReport("%d\n", printInt);
-        else
-            wii::os::OSReport("%s: %d\n", introStr, printInt);
+        if (introStr == nullptr) {
+            OSREPORTF("%d\n", printInt);
+        } else {
+            OSREPORTF("%s: %d\n", introStr, printInt);
+        }
         return 2;
     }
     EVT_DECLARE_USER_FUNC(osReportInt, 2)
@@ -2560,7 +2703,7 @@ namespace mod {
         const char * mapName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
         const char * comparison = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
         s32 compstrReturn = 0;
-        // wii::os::OSReport("p1: %s; p2: %s\n", mapName, comparison);
+        // OSREPORTF("p1: %s; p2: %s\n", mapName, comparison);
         if (msl::string::strstr(mapName, comparison) != nullptr)
             compstrReturn = 1;
         evtmgr_cmd::evtSetValue(evtEntry, args[2], compstrReturn);
@@ -2841,16 +2984,16 @@ namespace mod {
 
     s32 dan_boodin_setup_cards(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
+        Lunatic->Boodin.cardNum = system::rand() % 9 + 5; // 5-13
+        Lunatic->Boodin.Cards = (CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum);
         Lunatic->Boodin.Cards[0].itemId = (s32)item_data::ItemType::ITEM_ID_USE_SUPER_BLANK_KUN;
         Lunatic->Boodin.Cards[0].iconId = -1;
         Lunatic->Boodin.Cards[0].cost = 80;
         if (VoucherChkTorn(VOUCHER_YELLOW) == true)
             Lunatic->Boodin.Cards[0].cost *= 0.7f;
         s32 i;
-        s32 cardNum = system::rand() % 9 + 5; // 5-13
-        Lunatic->Boodin.cardNum = cardNum + 1;
         s32 poolCard;
-        for (i = 1; i <= cardNum; i += 1) {
+        for (i = 1; i < Lunatic->Boodin.cardNum; i += 1) {
             CWSelectItemDesc * Card = &Lunatic->Boodin.Cards[i];
             poolCard = system::rand() % (sizeof(boodinShopItemPool) / 8);
             Card->itemId = boodinShopItemPool[poolCard];
@@ -2866,7 +3009,7 @@ namespace mod {
     s32 dan_boodin_get_descs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
         (void)firstRun;
         evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        evtmgr_cmd::evtSetValue(evtEntry, args[0], s32(&Lunatic->Boodin.Cards));
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], s32(Lunatic->Boodin.Cards));
         evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->Boodin.cardNum);
         return 2;
     }
@@ -2877,8 +3020,8 @@ namespace mod {
         (void)firstRun;
         s32 id = customwin::CWSelectKeyToId("Cards");
         Lunatic->Boodin.cardNum = GlobalCW->Select[id]->num;
-        msl::string::memset(&Lunatic->Boodin.Cards, 0, sizeof(Lunatic->Boodin.Cards));
-        msl::string::memcpy(&Lunatic->Boodin.Cards, GlobalCW->Select[id]->Descs, sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum);
+        msl::string::memset(Lunatic->Boodin.Cards, 0, (sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum));
+        msl::string::memcpy(Lunatic->Boodin.Cards, GlobalCW->Select[id]->Descs, (sizeof(CWSelectItemDesc) * Lunatic->Boodin.cardNum));
         return 2;
     }
     EVT_DECLARE_USER_FUNC(dan_boodin_backup_descs, 0)
@@ -2954,8 +3097,8 @@ namespace mod {
         {
             judgement = 1; // Is Curse
         }
-        //    wii::os::OSReport("merluna bless name: %s.\n", blessName);
-        //    wii::os::OSReport("merluna curse name: %s.\n", curseName);
+        //    OSREPORTF("merluna bless name: %s.\n", blessName);
+        //    OSREPORTF("merluna curse name: %s.\n", curseName);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], blessing);
         evtmgr_cmd::evtSetValue(evtEntry, args[1], blessName);
         evtmgr_cmd::evtSetValue(evtEntry, args[2], curse);
@@ -3023,9 +3166,9 @@ namespace mod {
         {
             judgement = 1; // Is Curse
         }
-        //   wii::os::OSReport("RERENDER merluna bless name: %s.\n", blessName);
-        //   wii::os::OSReport("RERENDER merluna curse name: %s.\n", curseName);
-        //   wii::os::OSReport("RERENDER merluna judgement: %d.\n", judgement);
+        //   OSREPORTF("RERENDER merluna bless name: %s.\n", blessName);
+        //   OSREPORTF("RERENDER merluna curse name: %s.\n", curseName);
+        //   OSREPORTF("RERENDER merluna judgement: %d.\n", judgement);
         evtmgr_cmd::evtSetValue(evtEntry, args[0], blessStorage);
         evtmgr_cmd::evtSetValue(evtEntry, args[1], blessName);
         evtmgr_cmd::evtSetValue(evtEntry, args[2], curseStorage);
@@ -3138,6 +3281,13 @@ namespace mod {
                                              {25, "T_3"}, // Three small bows goodbye (unused)
                                              {26, "O_1"}, // WHAT
                                              {-1, "Z_1"}};
+
+    npcdrv::NPCTribeAnimDef mitchAnims[] = {{0, "S_1"},  // Idle
+                                            {1, "W_1"},  // Walking
+                                            {2, "R_1"},  // Running
+                                            {3, "T_1"},  // Talking
+                                            {10, "H_2"}, // Nodders
+                                            {-1, "Z_1"}};
 
     npcdrv::NPCTribeAnimDef gabbiAnims_Madge[] = {{0, "S_4B"},  // Idle
                                                   {1, "W_1"},   // Walking
@@ -3301,6 +3451,57 @@ namespace mod {
     RETURN()
     EVT_END()
 
+    s32 evt_shadoo_set_mario_col(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        (void)evtEntry;
+        if (swdrv::swGet(1643)) {
+            Lunatic->Misc.marioFullColor = marioIfHeWereBlue;
+            Lunatic->Misc.marioFullColor.a = 0;
+        } else {
+            Lunatic->Misc.marioFullColor = marioIfHeWerent;
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_shadoo_set_mario_col, 0)
+
+    s32 evt_shadoo_intpl_mario_col(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        u8 alpha = 255 - (u8)evtmgr_cmd::evtGetValue(evtEntry, args[0]);
+        Lunatic->Misc.marioFullColor.a = alpha;
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_shadoo_intpl_mario_col, 1)
+
+    EVT_BEGIN(hard_shadoo_fadeout)
+    USER_FUNC(evt_shadoo_set_mario_col)
+    USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 255, 0, 1500)
+    DO(0)
+    USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
+    USER_FUNC(evt_map::evt_map_set_blend, 1, LW(0), LW(0), LW(0), 255)
+    USER_FUNC(evt_shadoo_intpl_mario_col, LW(0))
+    WAIT_FRM(1)
+    IF_EQUAL(LW(1), 0)
+    DO_BREAK()
+    END_IF()
+    WHILE()
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(hard_shadoo_fadein)
+    USER_FUNC(evt_sub::evt_sub_intpl_msec_init, 11, 0, 255, 2500)
+    DO(0)
+    USER_FUNC(evt_sub::evt_sub_intpl_msec_get_value)
+    USER_FUNC(evt_map::evt_map_set_blend, 1, LW(0), LW(0), LW(0), 255)
+    USER_FUNC(evt_shadoo_intpl_mario_col, LW(0))
+    WAIT_FRM(1)
+    IF_EQUAL(LW(1), 0)
+    DO_BREAK()
+    END_IF()
+    WHILE()
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(new_shadoo_evt)
     SET(GSW(24), 1) // just in case
     DO(0)
@@ -3318,9 +3519,9 @@ namespace mod {
     USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_11"), 0)
     END_INLINE()
     IF_LARGE(GSW(1622), 0) // If you've already fought Shadoo, new dialogue
-    USER_FUNC(evt_lp_get_difficulty, LW(15))
-    ADD(LW(15), 1)
-    IF_LARGE_EQUAL(GSW(1622), LW(15))
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    ADD(LW(13), 1)
+    IF_LARGE_EQUAL(GSW(1622), LW(13))
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(shadooIntroMock), 0, 0)
     ELSE()
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(shadooIntroRamp), 0, 0)
@@ -3335,6 +3536,10 @@ namespace mod {
     IF_EQUAL(GSWF(1630), 0) // Lighter camera tremors ACTIVE
     SET(LW(15), FLOAT(0.5))
     END_IF()
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    IF_LARGE_EQUAL(LW(13), 2)
+    RUN_EVT(hard_shadoo_fadeout)
+    END_IF()
     USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(15), LW(15), FLOAT(0.0), 2000, 0)
     USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
     USER_FUNC(evt_mario::evt_mario_get_character, LW(1))
@@ -3346,7 +3551,11 @@ namespace mod {
     USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, 50, 150, 334, 50, 150, -16, 500, 11)
     WAIT_MSEC(500)
     WAIT_MSEC(1000)
+    IF_LARGE_EQUAL(LW(13), 2)
+    USER_FUNC(evt_snd::evt_snd_bgmon, 0, PTR("BGM_MAP_HARDBOSS"))
+    ELSE()
     USER_FUNC(evt_snd::evt_snd_bgmon, 0, PTR("BGM_BTL_BOSS_MIDDLE1"))
+    END_IF()
     USER_FUNC(evt_npc::evt_npc_tribe_agb_async, 286)
     USER_FUNC(evt_npc::evt_npc_entry_from_template, 0, 286, 0, -100, 0, LW(10), EVT_NULLPTR)
     USER_FUNC(evt_npc::evt_npc_set_anim, LW(10), 0, 1)
@@ -3390,14 +3599,14 @@ namespace mod {
     EVT_END()
 
     customwin::CWSelectColorDef rainbowSelectBgCols[] = {
-        {{255, 160, 160, 160}, {255, 200, 160, 160}, 80, 0}, // Red-Orange
-        {{255, 160, 255, 160}, {255, 160, 160, 160}, 80, 0}, // Magenta-Red
-        {{200, 160, 255, 160}, {255, 160, 255, 160}, 80, 0}, // Purple-Magenta
-        {{160, 160, 255, 160}, {200, 160, 255, 160}, 80, 0}, // Blue-Purple
-        {{160, 255, 255, 160}, {160, 160, 255, 160}, 80, 0}, // Cyan-Blue
-        {{160, 255, 160, 160}, {160, 255, 255, 160}, 80, 0}, // Green-Cyan
-        {{255, 255, 160, 160}, {160, 255, 160, 160}, 80, 0}, // Yellow-Green
-        {{255, 200, 160, 160}, {255, 255, 160, 160}, 80, 0}  // Orange-Yellow
+        {{255, 190, 190, 200}, {255, 200, 190, 200}, 80, 0}, // Red-Orange
+        {{255, 190, 255, 200}, {255, 190, 190, 200}, 80, 0}, // Magenta-Red
+        {{200, 190, 255, 200}, {255, 190, 255, 200}, 80, 0}, // Purple-Magenta
+        {{190, 190, 255, 200}, {200, 190, 255, 200}, 80, 0}, // Blue-Purple
+        {{190, 255, 255, 200}, {190, 190, 255, 200}, 80, 0}, // Cyan-Blue
+        {{190, 255, 190, 200}, {190, 255, 255, 200}, 80, 0}, // Green-Cyan
+        {{255, 255, 190, 200}, {190, 255, 190, 200}, 80, 0}, // Yellow-Green
+        {{255, 200, 190, 200}, {255, 255, 190, 200}, 80, 0}  // Orange-Yellow
     };
 
     s32 dan_70_generate_artifact_defs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
@@ -3424,7 +3633,7 @@ namespace mod {
     EVT_BEGIN(artifactReward)
     USER_FUNC(evt_mobj::evt_mobj_wait_animation_end, PTR("me"), 0)
     USER_FUNC(dan_70_generate_artifact_defs, LW(0), LW(13))
-    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), LW(0), LW(13)) // todo: b less bad
+    USER_FUNC(EvtCWSelectEntry, PTR("Artifact"), CWSELECT_DEFAULT, PTR("Treasure"), PTR("Choose wisely!"), LW(0), LW(13))
     USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Artifact"), PTR(&RFCArtiHeaderCol))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Artifact"), PTR(rainbowSelectBgCols), 8)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Artifact"), 0, LW(0))
@@ -3520,11 +3729,32 @@ namespace mod {
 
     EVT_BEGIN(dan_70_new_rewards)
     WAIT_MSEC(500)
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    IF_EQUAL(LW(13), 2)
+    WAIT_MSEC(500)
+    USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 666, 11)
+    WAIT_MSEC(1000)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("E_3"), 0)
+    USER_FUNC(evt_snd::evt_snd_sfxon, PTR("SFX_EVT_QUAKE1L"))
+    USER_FUNC(evt_snd::evt_snd_get_last_sfx_id, LW(0))
+    SET(LW(15), FLOAT(1.2))
+    IF_EQUAL(GSWF(1630), 0) // Lighter camera tremors ACTIVE
+    SET(LW(15), FLOAT(0.4))
+    END_IF()
+    USER_FUNC(evt_snd::evt_snd_bgmoff_f_d, 0, 2500)
+    RUN_EVT(hard_shadoo_fadein)
+    USER_FUNC(evt_cam::evt_cam_shake, camdrv::CAM_ID_3D, LW(15), LW(15), FLOAT(0.0), 3500, 0)
+    USER_FUNC(evt_snd::evt_snd_sfxoff, LW(0))
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_7"), 0)
+    WAIT_MSEC(1500)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(hardShadooBadFeeling), 0, 0)
+    WAIT_MSEC(500)
+    END_IF()
     USER_FUNC(evt_mario::evt_mario_get_pos, LW(0), LW(1), LW(2))
     USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, LW(0), 60, 384, LW(0), 60, -16, 500, 11)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_11"), 0)
     WAIT_MSEC(1000)
     IF_EQUAL(GSW(1622), 0)
-    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_11"), 0)
     USER_FUNC(evt_mario::evt_mario_get_character, LW(0))
     SWITCH(LW(0))
     CASE_EQUAL(0)
@@ -4123,7 +4353,7 @@ namespace mod {
     USER_FUNC(EvtCWSelectAddListing, PTR("Gabbi"), PTR("Chest Keys (1)"), PTR(chestKeyDesc), TPLPATCH_ICON(ICON_CHEST_KEY), LW(15), 0, 0)
     USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Gabbi"), BTN_PLUS, PTR(GabbiPressPlus))
     USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Gabbi"), BTN_MINUS, PTR(GabbiPressMinus))
-    // USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Gabbi"), PTR(&GabbiHeaderCol))
+    USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Gabbi"), PTR(&GabbiHeaderCol))
     // USER_FUNC(EvtCWSelectSetBGColor, PTR("Gabbi"), PTR(GabbiSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Gabbi"), 0, LW(0))
     USER_FUNC(EvtCWSelectGetSelectionCost, LW(0), GW(7)) // If cancelled, sets to -1
@@ -4227,7 +4457,11 @@ namespace mod {
     USER_FUNC(evt_lp_add_chest_keys, LW(7))
     USER_FUNC(evt_msg::evt_msg_print_insert, 1, PTR(gabbiSysGetKeys), 0, 0, LW(7))
     SET(GW(7), LW(2))
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiThanks), 0, PTR("me"))
+    IF_EQUAL(LW(10), (s32)GABBI_BLUSH)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiThanks_N), 0, PTR("me"))
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiThanks_B), 0, PTR("me"))
+    END_IF()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
     ELSE()
     USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
@@ -4250,6 +4484,7 @@ namespace mod {
     WAIT_MSEC(700)
     USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
     USER_FUNC(evt_mario::evt_mario_key_on)
+    SET(GW(7), 0)
     RETURN()
     EVT_END()
 
@@ -4265,8 +4500,6 @@ namespace mod {
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_S), 0, PTR("me"))
     CASE_EQUAL((s32)GABBI_BLUSH)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_B), 0, PTR("me"))
-    CASE_EQUAL((s32)GABBI_MAD)
-    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro_M), 0, PTR("me"))
     END_SWITCH()
     RUN_CHILD_EVT(gabbi_main)
     RETURN()
@@ -4316,6 +4549,212 @@ namespace mod {
     WAIT_MSEC(100)
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(gabbiIntro), 0, PTR("me"))
     RUN_CHILD_EVT(gabbi_main)
+    RETURN()
+    EVT_END()
+
+    // MITCH
+
+    s32 evt_mitch_setup_inv(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        (void)evtEntry;
+        Lunatic->Mitch.itemNum = system::rand() % 3 + 3; // 3-5
+        Lunatic->Mitch.Items = (CWSelectItemDesc *)memory::__memAlloc(memory::HEAP_MAP, sizeof(CWSelectItemDesc) * Lunatic->Mitch.itemNum);
+        msl::string::memset(Lunatic->Mitch.Items, 0, sizeof(CWSelectItemDesc) * Lunatic->Mitch.itemNum);
+        s32 itemId = 0, itemRarity = 0, odds = 0;
+        msl::string::memset(Lunatic->Mitch.itemIds, 0, sizeof(Lunatic->Mitch.itemIds));
+        RFCItemData * RFC_SpecialItems = (RFCItemData *)RFCSpecialGetPtr();
+        for (s32 i = 0; i < Lunatic->Mitch.itemNum; i += 1) {
+            if (itemRarity != 3) {
+                odds = system::rand() % 100;
+                // 6% chance to select a higher-tier item
+                if (odds < 6)
+                    itemRarity += 1;
+            }
+            itemId = DanGen_Items_SelectItem(itemRarity, Lunatic->Mitch.itemIds, 6, true);
+            if (itemId == -1) {
+                if (itemRarity != 3) { // If all items from this rarity are taken OR item rarity has been upgraded, go up a tier
+                    i -= 1;
+                    itemRarity += 1;
+                    continue;
+                } else { // Failsafe: if all Legendary items are taken, simply cut offerings short
+                    Lunatic->Mitch.itemNum = i;
+                    break;
+                }
+            } else if (itemId == Lunatic->RFC.rfcItemIds[0] || itemId == Lunatic->RFC.rfcItemIds[1] || itemId == Lunatic->RFC.rfcItemIds[2]) {
+                i -= 1;
+                continue;
+            }
+            Lunatic->Mitch.itemIds[i] = itemId;
+            CWSelectItemDesc * Item = &Lunatic->Mitch.Items[i];
+            Item->itemId = 0;
+            Item->iconId = TPLPATCH_ICON((s32)RFC_SpecialItems[itemId - RFC_SPECIAL_START].iconId);
+            Item->cost = RFC_SpecialItems[itemId - RFC_SPECIAL_START].buyPrice;
+            msl::string::memcpy(Item->nameTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].name, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].name));
+            if ((itemId - RFC_SPECIAL_START) >= VOUCHER_CAKE && (itemId - RFC_SPECIAL_START) <= VOUCHER_BLACK) // Check if voucher
+                msl::stdio::sprintf(Item->descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, VoucherGetTearChance(VoucherTearChances[itemId - RFC_SPECIAL_START]), VoucherGuaranteeTrigs[itemId - RFC_SPECIAL_START]);
+            else
+                msl::string::memcpy(Item->descTxt, RFC_SpecialItems[itemId - RFC_SPECIAL_START].description, msl::string::strlen(RFC_SpecialItems[itemId - RFC_SPECIAL_START].description));
+        }
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_mitch_setup_inv, 0)
+
+    s32 evt_mitch_get_descs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)firstRun;
+        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
+        evtmgr_cmd::evtSetValue(evtEntry, args[0], (s32)Lunatic->Mitch.Items);
+        evtmgr_cmd::evtSetValue(evtEntry, args[1], Lunatic->Mitch.itemNum);
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_mitch_get_descs, 2)
+
+    s32 evt_mitch_backup_descs(evtmgr::EvtEntry * evtEntry, bool firstRun) {
+        (void)evtEntry;
+        (void)firstRun;
+        s32 id = customwin::CWSelectKeyToId("Mitch");
+        Lunatic->Mitch.itemNum = GlobalCW->Select[id]->num;
+        msl::string::memset(Lunatic->Mitch.Items, 0, (sizeof(CWSelectItemDesc) * Lunatic->Mitch.itemNum));
+        msl::string::memcpy(Lunatic->Mitch.Items, GlobalCW->Select[id]->Descs, (sizeof(CWSelectItemDesc) * Lunatic->Mitch.itemNum));
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(evt_mitch_backup_descs, 0)
+
+    customwin::CWSelectColorDef MitchSelectBgCols[] = {
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{228, 217, 255, 255}, {228, 217, 255, 255}, 120, 120}, // Orange
+        {{255, 255, 255, 255}, {255, 255, 255, 255}, 120, 60},  // White
+        {{248, 196, 255, 255}, {248, 196, 255, 255}, 120, 120}, // Yellow
+    };
+
+    EVT_BEGIN(mitch_menu)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 0)
+    USER_FUNC(evt_mitch_get_descs, LW(6), LW(7))
+    USER_FUNC(EvtCWSelectEntry, PTR("Mitch"), CWSELECT_SHOP, PTR("\"Stuff\""), PTR("I'm stuff... ;)"), LW(6), LW(7))
+    USER_FUNC(EvtCWSelectSetShopIcon, PTR("Mitch"), (s32)TPLPATCH_ICON(ICON_CHEST_KEY), FLOAT(0.8))
+    USER_FUNC(EvtCWSelectSetHeaderColor, PTR("Mitch"), PTR(&MitchHeaderCol))
+    USER_FUNC(EvtCWSelectSetBGColor, PTR("Mitch"), PTR(MitchSelectBgCols), 4)
+    USER_FUNC(EvtCWSelectMenuStart, PTR("Mitch"), 0, GW(6))
+    IF_NOT_EQUAL(GW(6), -1)
+    USER_FUNC(EvtCWSelectGetSelectionCost, GW(6), GW(7))
+    SET(GW(9), GW(6))
+    USER_FUNC(RFCAnalyzeSpecial, GW(6), GW(8))
+    END_IF()
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(mitch_walkto)
+    USER_FUNC(evt_npc::evt_npc_get_position, PTR("mitch"), LW(3), 0, LW(5))
+    USER_FUNC(evt_cam::evt_cam_get_pos, 5, LW(0), LW(1), LW(2))
+    USER_FUNC(evt_cam::evt_cam_get_target, 5, LW(6), LW(7), LW(8))
+    // Pan to right of Mitch
+    SET(LW(6), LW(3))
+    ADD(LW(6), 20)
+    SET(LW(0), LW(6))
+    // Move slightly downward
+    SUB(LW(1), 20)
+    SUB(LW(7), 20)
+    // Zoom
+    ADD(LW(8), 50)
+    USER_FUNC(evt_cam::evt_cam3d_evt_zoom_in, 1, LW(0), LW(1), LW(2), LW(6), LW(7), LW(8), 1200, 11)
+    WAIT_MSEC(200)
+    ADD(LW(3), 40)
+    USER_FUNC(evt_mario::evt_mario_walk_to, LW(3), LW(5), 800)
+    USER_FUNC(evt_mario::evt_mario_face_npc, PTR("mitch"))
+    WAIT_MSEC(1000)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(mitch_main)
+    RUN_CHILD_EVT(mitch_menu)
+    IF_NOT_EQUAL(GW(6), -1)
+    USER_FUNC(evt_lp_get_chest_keys, LW(8))
+    IF_SMALL(LW(8), GW(7))
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchPoor), 0, PTR("me"))
+    GOTO(99)
+    END_IF()
+    MUL(GW(7), -1)
+    USER_FUNC(evt_lp_add_chest_keys, GW(7))
+    WAIT_MSEC(300)
+    USER_FUNC(EvtCWSelectRemoveListing, PTR("Mitch"), GW(9))
+    USER_FUNC(evt_mitch_backup_descs)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchThanks), 0, PTR("me"))
+    USER_FUNC(LPGUIShowHideStats, 1)
+    WAIT_MSEC(1000)
+    USER_FUNC(evt_mario::evt_mario_get_pos, LW(1), LW(2), LW(3))
+    USER_FUNC(RFCProcEffect, GW(6))
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d, PTR("SFX_I_HEART_HUERU1"), LW(1), LW(2), LW(3))
+    INLINE_EVT()
+    WAIT_MSEC(200)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("I_2"), 0)
+    END_INLINE()
+    WAIT_MSEC(1000)
+    IF_NOT_EQUAL(GSWF(1606), 1) // Voucher intro text not seen
+    IF_LARGE_EQUAL(GW(6), (s32)VOUCHER_CAKE)
+    IF_SMALL_EQUAL(GW(6), (s32)VOUCHER_BLACK)
+    SET(GSWF(1606), 1)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)(TPLPATCH_ICON(ICON_B)))
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(voucherIntro), 0, 0)
+    USER_FUNC(MsgIconReplaceIdx, 3, (s32)icondrv::ICON_BTN_1)
+    END_IF()
+    END_IF()
+    END_IF()
+    IF_NOT_EQUAL(GW(8), -1) // Dialogue
+    USER_FUNC(evt_msg::evt_msg_print, 1, GW(8), 0, 0)
+    END_IF()
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    USER_FUNC(LPGUIShowHideStats, 0)
+    WAIT_MSEC(1000)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchEnjoy), 0, PTR("me"))
+    ELSE()
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 1)
+    WAIT_MSEC(500)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchBuyNothing), 0, PTR("me"))
+    END_IF()
+    LBL(99)
+    USER_FUNC(EvtCWSelectReset)
+    USER_FUNC(EvtCWSelectDelete, PTR("Mitch"))
+    USER_FUNC(evt_cam::evt_cam_zoom_to_coords, 700, 11)
+    WAIT_MSEC(700)
+    USER_FUNC(evt_sub::evt_sub_hud_configure, 2)
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    SET(GW(6), 0)
+    SET(GW(7), 0)
+    SET(GW(8), 0)
+    SET(GW(9), 0)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(mitch_talk)
+    USER_FUNC(evt_mario::evt_mario_key_off, 1)
+    USER_FUNC(evt_mitch_get_descs, 0, LW(7))
+    IF_EQUAL(LW(7), 0)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchNoInventory), 0, PTR("me"))
+    USER_FUNC(evt_mario::evt_mario_key_on)
+    RETURN()
+    END_IF()
+    RUN_EVT(mitch_walkto)
+    USER_FUNC(evt_npc::evt_npc_set_axis_movement_unit, PTR("me"), 1)
+    WAIT_MSEC(1500)
+    IF_EQUAL(GSWF(1646), 0)
+    SET(GSWF(1646), 1)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchIntro_1), 0, PTR("me"))
+    USER_FUNC(evt_snd::evt_snd_sfxon_3d_player_character, PTR("SFX_P_V_MARIO_GIMON1"), PTR("SFX_P_V_PEACH_GIMON1"), PTR("SFX_P_V_KOOPA_GIMON1"), PTR("SFX_P_V_LUIGI_GIMON1"))
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("T_2"), 0)
+    USER_FUNC(evt_mario::evt_mario_wait_anim)
+    USER_FUNC(evt_mario::evt_mario_set_pose, PTR("S_1"), 0)
+    WAIT_MSEC(200)
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchIntro_2), 0, PTR("me"))
+    ELSE()
+    USER_FUNC(evt_msg::evt_msg_print, 1, PTR(mitchIntro_B), 0, PTR("me"))
+    END_IF()
+    RUN_CHILD_EVT(mitch_main)
+    RETURN()
+    EVT_END()
+
+    EVT_BEGIN(fwd_mitch_talk)
+    RUN_EVT(mitch_talk)
     RETURN()
     EVT_END()
 
@@ -4749,8 +5188,20 @@ namespace mod {
     RETURN()
     EVT_END()
 
+    EVT_BEGIN(spawn_mitch)
+    USER_FUNC(evt_npc::evt_npc_entry, PTR("mitch"), PTR("n_dan_mitch"), 0)
+    USER_FUNC(evt_npc::evt_npc_add_flip_part, PTR("mitch"))
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("mitch"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(mitchAnims))
+    USER_FUNC(evt_npc::evt_npc_set_anim, PTR("mitch"), 0, true)
+    USER_FUNC(evt_npc::evt_npc_set_property, PTR("mitch"), 9, PTR(fwd_mitch_talk))
+    USER_FUNC(evt_npc::func_80108194, PTR("mitch"), 0)
+    USER_FUNC(evt_npc::evt_npc_set_position, PTR("mitch"), 200, 0, -100)
+    USER_FUNC(evt_mitch_setup_inv)
+    RETURN()
+    EVT_END()
+
     EVT_BEGIN(spawn_gabbi)
-    USER_FUNC(evt_npc::evt_npc_entry, PTR("gabbi"), PTR("n_angel_g"), 0)
+    USER_FUNC(evt_npc::evt_npc_entry, PTR("gabbi"), PTR("n_dan_gabbi"), 0)
     USER_FUNC(evt_npc::evt_npc_add_flip_part, PTR("gabbi"))
     IF_EQUAL(GSWF(1645), 0)
     USER_FUNC(evt_npc::evt_npc_set_property, PTR("gabbi"), mod::cutscene_helpers::NPCProperty::ANIMS, PTR(gabbiAnims_Madge))
@@ -4785,7 +5236,6 @@ namespace mod {
     USER_FUNC(evt_npc::evt_npc_set_anim, PTR("gabbi"), 0, true)
     END_IF()
     USER_FUNC(evt_npc::func_80108194, PTR("gabbi"), 0)
-    USER_FUNC(evt_npc::evt_npc_add_flip_part, PTR("gabbi"))
     USER_FUNC(evt_npc::evt_npc_set_position, PTR("gabbi"), 200, 0, -100)
     RETURN()
     EVT_END()
@@ -4919,11 +5369,11 @@ namespace mod {
         */
         RFNPCId slot2Npc = NONE;
         s32 moverWeight = 25;
-        s32 gabbiWeight = 600;                                        // Unimplemented, will probably be 150
-        s32 dmanWeight = 0;                                           // Unimplemented, will probably be 150
+        s32 gabbiWeight = 200;
+        s32 mitchWeight = 200;
         if (swdrv::swGet(1610) == true || swdrv::swByteGet(1) >= 179) // Movers disabled OR on floor 80/90
             moverWeight = 0;
-        s32 nothingWeight = 999 - (moverWeight + gabbiWeight + dmanWeight);
+        s32 nothingWeight = 999 - (moverWeight + gabbiWeight + mitchWeight);
         rand = system::irand(999);
         if (rand > nothingWeight) {
             rand -= nothingWeight;
@@ -4936,8 +5386,8 @@ namespace mod {
                     slot2Npc = GBBI;
                     evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_gabbi);
                 } else {
-                    slot2Npc = DMAN;
-                    // evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_dman);
+                    slot2Npc = MTCH;
+                    evtmgr_cmd::evtSetValue(evtEntry, args[1], (s32)spawn_mitch);
                 }
             }
         }
@@ -4951,6 +5401,7 @@ namespace mod {
     // Handle music
     RUN_EVT(custom_pit_music)
     // Overwrite vanilla chests
+    USER_FUNC(RFCCreateItemTable)
     USER_FUNC(evt_mobj::evt_mobj_delete, PTR(rfcChestName)) // vanilla chest, "box"
     USER_FUNC(RFCGenerate, PTR(new_dan_chest_interact_evt), PTR(new_dan_chest_open_evt))
     // Handle Whacka replacing the chest
@@ -5095,6 +5546,11 @@ namespace mod {
 
     // Dialogue to determine quickstart or no
     EVT_BEGIN(determine_quickstart)
+    USER_FUNC(SaveWriteModVersion, -1)
+    // Disable some Jimbo parameters
+    SET(GSWF(1621), 1) // Low HP Sounds
+    SET(GSWF(1630), 1) // Lighter Tremors
+    SET(GSWF(1631), 1) // Aerodynamic
     USER_FUNC(evt_msg::evt_msg_print, 1, PTR(quickstartText), 0, 0)
     USER_FUNC(evt_msg::evt_msg_select, 1, PTR(quickstartOptions))
     USER_FUNC(evt_msg::evt_msg_continue)
@@ -5125,9 +5581,6 @@ namespace mod {
     SET(GSWF(614), 1)
     SET(GSWF(615), 1)
     SET(GSWF(616), 1)
-    // Disable some Jimbo parameters
-    SET(GSWF(1621), 1) // Low HP Sounds
-    SET(GSWF(1630), 1) // Lighter Tremors
     USER_FUNC(evt_seq::evt_seq_set_seq, seqdrv::SEQ_MAPCHANGE, PTR("mac_05"), PTR("elv1"))
     END_IF()
     RETURN_FROM_CALL()
@@ -5158,20 +5611,6 @@ namespace mod {
         return 2;
     }
     EVT_DECLARE_USER_FUNC(clear_disorder, 0)
-
-    s32 marioChgModelName(evtmgr::EvtEntry * evtEntry, bool firstRun) {
-        (void)firstRun;
-        evtmgr::EvtVar * args = (evtmgr::EvtVar *)evtEntry->pCurData;
-        s32 targetChar = evtmgr_cmd::evtGetValue(evtEntry, args[0]);
-        const char * poseName = (const char *)evtmgr_cmd::evtGetValue(evtEntry, args[1]);
-        mario::marioCharPoseNames[targetChar][0] = poseName;
-        // Refresh model
-        mario_motion::_marioChangeCharacter(mario::marioGetPtr()->character);
-        //  wii::os::OSReport("marioChgModelName: targetChar == %d, poseName == %p (%s)\n", targetChar, poseName,
-        //  poseName);
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(marioChgModelName, 2)
 
     s32 JimboGSWFBase = 0;
 
@@ -5229,28 +5668,9 @@ namespace mod {
     SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1612))
     USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR(marioFeaturesName), PTR(marioFeaturesDesc), LW(1), 0, 0, 0)
-    /* // Debug: Add L emblem test
-    USER_FUNC(DebugModeGetStatus, LW(3))
-    IF_EQUAL(LW(3), 1)
-    SET(LW(1), 0x86)
-    ADD(LW(1), GSWF(1613))
-    USER_FUNC(EvtCWSelectAddListing, PTR("Features"), PTR("GREEEEEEN!"), PTR("This Super Paper Mario Mod\nMakes You
-    GREEN!"), LW(1), 0, 0, 0) END_IF()
-    // End debug, open select menu */
     USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Features"), BTN_2, PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Features"), PTR(featuresSelectBgCols), 4)
     USER_FUNC(EvtCWSelectMenuStart, PTR("Features"), 0, 0)
-    /* // Debug: Refresh character model
-    IF_EQUAL(LW(3), 1)
-    IF_EQUAL(LW(1), 3)
-    IF_EQUAL(GSWF(1613), 1) // Disabled
-    USER_FUNC(marioChgModelName, 0, PTR("p_wii_mario"))
-    ELSE()
-    USER_FUNC(marioChgModelName, 0, PTR("p_wii_gario"))
-    END_IF()
-    END_IF()
-    END_IF()
-    // End debug, reset select menu */
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Features"))
     RETURN()
@@ -5279,14 +5699,33 @@ namespace mod {
     SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
     ADD(LW(1), GSWF(1630))
     USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(explosionShakeAccessName), PTR(explosionShakeAccessDesc), LW(1), 0, 0, 0)
-    // SET(LW(1), 0x86)
-    // ADD(LW(1), GSWF(1631))
-    // USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(statNamesAccessName), PTR(statNamesAccessDesc), LW(1), 0, 0, 0)
+    SET(LW(1), (s32)TPLPATCH_ICON(ICON_SETTING_ON))
+    ADD(LW(1), GSWF(1631))
+    USER_FUNC(EvtCWSelectAddListing, PTR("Accessibility"), PTR(aerodynamicAccessName), PTR(aerodynamicAccessDesc), LW(1), 0, 0, 0)
     USER_FUNC(EvtCWSelectOverrideBtnBehavior, PTR("Accessibility"), BTN_2, PTR(JimboToggleOption))
     USER_FUNC(EvtCWSelectSetBGColor, PTR("Accessibility"), PTR(accessSelectBgCols), 4)
+    USER_FUNC(evt_npc::evt_npc_agb_async, PTR("p_wii_bldio"), 0)
+    USER_FUNC(evt_npc::evt_npc_agb_async, PTR("p_wii_bldio_r"), 0)
+    SET(LW(2), GSWF(1631))
+    INLINE_EVT_ID(LW(15))
+    DO(0)
+    IF_EQUAL(LW(2), GSWF(1631))
+    WAIT_FRM(1)
+    DO_CONTINUE()
+    END_IF()
+    SET(LW(2), GSWF(1631))
+    IF_EQUAL(GSWF(1631), 1) // Disabled
+    USER_FUNC(marioMakeBald, 0)
+    ELSE()
+    USER_FUNC(marioMakeBald, 1)
+    END_IF()
+    WAIT_FRM(1)
+    WHILE()
+    END_INLINE()
     USER_FUNC(EvtCWSelectMenuStart, PTR("Accessibility"), 0, 0)
     USER_FUNC(EvtCWSelectReset)
     USER_FUNC(EvtCWSelectDelete, PTR("Accessibility"))
+    DELETE_EVT(LW(15))
     RETURN()
     EVT_END()
 
@@ -5372,15 +5811,6 @@ namespace mod {
     RETURN()
     EVT_END()
 
-    s32 Debug_ChkSaveName(evtmgr::EvtEntry * evtEntry, bool firstCall) {
-        (void)firstCall;
-        (void)evtEntry;
-        if (msl::string::strcmp(spmario::gp->saveName, "Yme") == 0)
-            DebugMode = true;
-        return 2;
-    }
-    EVT_DECLARE_USER_FUNC(Debug_ChkSaveName, 0)
-
     EVT_BEGIN(patch_mac_05)
     SET(GSW(1), 0)
     SET(GSW(1600), 0)
@@ -5388,7 +5818,6 @@ namespace mod {
     SET(GSW(1602), 0)
     SET(GSW(1610), 0)
     SET(GSW(1611), 0)
-    USER_FUNC(Debug_ChkSaveName)
     USER_FUNC(evt_dan_reset_lunatic)
     USER_FUNC(evt_pouch::evt_pouch_check_have_item, 48, LW(15)) // Removes Pit Key if Mario has one
     IF_EQUAL(LW(15), 1)
@@ -5413,7 +5842,7 @@ namespace mod {
     EVT_BEGIN(global_operations_non_dan)
     USER_FUNC(update_bump_tex)
     DO(0)
-    USER_FUNC(animPoseSetMaterialEvtColorWrapper, GSWF(1643))
+    USER_FUNC(animPoseSetMaterialEvtColorWrapper)
     // Also handle debug frame color while we're at it
     USER_FUNC(updateDebugFrameColor)
     WAIT_FRM(1)
@@ -6004,6 +6433,54 @@ namespace mod {
     END_IF()
     RETURN_FROM_CALL()
 
+    s32 shadooIncreaseFireImmunity(evtmgr::EvtEntry * evtEntry, bool firstCall) {
+        (void)firstCall;
+        npcdrv::NPCEntry * npc = (npcdrv::NPCEntry *)evtEntry->ownerNPC;
+        npc->fireImmunityTime = 1.5f;
+        return 2;
+    }
+    EVT_DECLARE_USER_FUNC(shadooIncreaseFireImmunity, 0)
+
+    EVT_BEGIN(shadoo_reduce_wait_time)
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    IF_LARGE_EQUAL(LW(13), 1) // Normal or harder
+    USER_FUNC(shadooIncreaseFireImmunity)
+    DIVF(LW(1), FLOAT(2.0))
+    END_IF()
+    USER_FUNC(evt_npc::evt_npc_wait_for, PTR("me"), LW(1))
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(dark_luigi_reduce_wait_time)
+    USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(13))
+    IF_EQUAL(LW(13), (s32)NPC_DARK_LUIGI)
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    IF_LARGE_EQUAL(LW(13), 1) // Normal or harder
+    USER_FUNC(shadooIncreaseFireImmunity)
+    DIVF(LW(1), FLOAT(2.0))
+    END_IF()
+    USER_FUNC(evt_npc::evt_npc_wait_for, PTR("me"), LW(1))
+    END_IF()
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(dark_luigi_negate_knockback)
+    USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(13))
+    IF_NOT_EQUAL(LW(13), (s32)NPC_DARK_LUIGI)
+    RUN_CHILD_EVT(temp_unk::evt_8043bc68)
+    END_IF()
+    RETURN_FROM_CALL()
+
+    EVT_BEGIN(dark_bowser_reduce_wait_time)
+    USER_FUNC(evt_npc::evt_npc_get_property, PTR("me"), 13, LW(13))
+    IF_EQUAL(LW(13), (s32)NPC_DARK_BOWSER)
+    USER_FUNC(evt_lp_get_difficulty, LW(13))
+    IF_LARGE_EQUAL(LW(13), 1) // Normal or harder
+    USER_FUNC(shadooIncreaseFireImmunity)
+    DIVF(LW(1), FLOAT(1.5))
+    END_IF()
+    USER_FUNC(evt_npc::evt_npc_wait_for, PTR("me"), LW(1))
+    END_IF()
+    RETURN_FROM_CALL()
+
     static void evtPatches() {
         // Render Flopside Pit pipe useless and patch Pit exit pipe
         evtmgr_cmd::EvtScriptCode * disableFlopsidePitEntrance = map_data::mapDataPtr("mac_15")->initScript;
@@ -6102,6 +6579,14 @@ namespace mod {
         evtpatch::hookEvt(dan::dan_shadoo_fight_evt, 97, patch_shadoo_health);
         evtpatch::hookEvt(dan::dan_shadoo_fight_evt, 56, patch_shadoo_health);
         evtpatch::hookEvt(dan::dan_shadoo_fight_evt, 15, patch_shadoo_health);
+        // Shadoo NPC patches
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[287].onHitScript, 77, shadoo_reduce_wait_time);       // Dark Mario recovers much quicker
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[287].onHitScript, 50, do_nothing);                    // Dark Mario no longer jumps back
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[288].onHitScript, 88, shadoo_reduce_wait_time);       // Dark Peach recovers much quicker
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[288].onHitScript, 62, do_nothing);                    // Dark Peach no longer jumps back
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[286].onHitScript, 108, dark_luigi_reduce_wait_time);  // Dark Luigi recovers much quicker
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[286].onHitScript, 76, dark_luigi_negate_knockback);   // Dark Luigi no longer jumps back
+        evtpatch::hookEvtReplace(npcdrv::npcEnemyTemplates[285].onHitScript, 131, dark_bowser_reduce_wait_time); // Dark Bowser recovers quicker
 
         // Pit music replacement
         evtpatch::hookEvt(evt_door::evt_door_enter_dokan_down_evt, 79, determine_custom_music);
@@ -6179,6 +6664,7 @@ namespace mod {
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_B", 1381, 127, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_C", 1382, 127, 64, 0, 0);
         sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_LUNATIC_D", 1383, 127, 64, 0, 0);
+        sndpatch::sndpatchAddBGMEntryDirect("BGM_MAP_HARDBOSS", 1386, 127, 64, 0, 0);
         wii::os::OSReport("BGM slots taken: %d\n", spmario_snd::spsnd_work.bgmCount);
         // Mod functions
         danYouSuck();

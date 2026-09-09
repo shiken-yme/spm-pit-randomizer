@@ -13,6 +13,18 @@ typedef void (CountdownDoneCb)();
 
 typedef struct
 {
+/* 0x00 */ s32 state;
+/* 0x04 */ bool deplete;
+/* 0x05 */ u8 pad_0x5[3];
+/* 0x08 */ s32 depleteProgress;
+/* 0x0C */ f32 pos;
+/* 0x10 */ f32 destPos;
+/* 0x14 */ s32 pauseRelated;
+} HudFlipTimeCell;
+SIZE_ASSERT(HudFlipTimeCell, 0x18)
+
+typedef struct
+{
 /* 0x000 */ u32 flags;
 /* 0x004 */ u8 unknown_0x004[0x10 - 0x004];
 /* 0x010 */ f32 hudMoveProgress;
@@ -20,7 +32,9 @@ typedef struct
 /* 0x018 */ f32 hudMoveTarget;
 /* 0x01C */ f32 unknown_0x1c;
 /* 0x020 */ Vec2 basePos;
-/* 0x004 */ u8 unknown_0x028[0x178 - 0x028];
+/* 0x028 */ u8 unknown_0x028[0x084 - 0x028];
+/* 0x084 */ HudFlipTimeCell flipTimeCells[10];
+/* 0x174 */ u8 unknown_0x174[0x178 - 0x174];
 /* 0x178 */ s32 countdownTimer;
 /* 0x17C */ void * countdownCallback;
 /* 0x180 */ u8 unknown_0x180[0x190 - 0x180];
@@ -47,8 +61,8 @@ void hudStartCountdown(u32 length, CountdownDoneCb * cb);
 bool hudCheckStatsDesynced();
 void hudUpdateStats();
 void hudDisp();
-void func_8019af88();
-void hudTurnOffFlipTimeBox(s32 idx);
+void hudRestoreFlipTimeCells();
+void hudDepleteFlipTimeCell(s32 idx);
 void func_8019b0dc();
 void func_8019be84();
 void func_8019bea8(f32 p1);

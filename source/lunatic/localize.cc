@@ -186,6 +186,7 @@ namespace mod {
         // Misc
         msgpatch::msgpatchAddEntry("D100_entrance_03", D100_entrance_03, true);
         msgpatch::msgpatchAddEntry("mac_kanban_004", mac_kanban_004, true);
+        msgpatch::msgpatchAddEntry("m_noroi", backCursyaText, true);
         msgpatch::msgpatchAddEntry(mystBumpNamePtr, mystBumpName, true);
         msgpatch::msgpatchAddEntry(mystBumpDescPtr, mystBumpDesc, true);
         msgpatch::msgpatchAddEntry(chestKeyNamePtr, chestKeyName, true);
